@@ -691,9 +691,9 @@ function explainStep(raw) {
 function explainMove(move) {
   const [target, action] = move;
   if (normalize(target) === "resto") {
-    return `Contra los demas Pokemon del lider, usa ${action}.`;
+    return `Si el lider usa cualquier otra variante: ${action}.`;
   }
-  return `Cuando aparezca ${target}, usa ${action}.`;
+  return `Variante de ${target}: ${action}.`;
 }
 
 function explainAfter(action) {
