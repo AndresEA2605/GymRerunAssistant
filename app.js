@@ -7,7 +7,7 @@ const HISTORY_KEY = "pokemmo_gym_rerun_history_v1";
 const regions = [
   {
     id: "johto",
-    name: "Johto",
+    name: "1. Johto",
     color: "#c19a24",
     gyms: [
       {
@@ -106,7 +106,7 @@ const regions = [
   },
   {
     id: "hoenn",
-    name: "Hoenn",
+    name: "2. Hoenn",
     color: "#b94d36",
     gyms: [
       {
@@ -187,7 +187,7 @@ const regions = [
   },
   {
     id: "sinnoh",
-    name: "Sinnoh",
+    name: "3. Sinnoh",
     color: "#2e70a8",
     gyms: [
       {
@@ -260,7 +260,7 @@ const regions = [
   },
   {
     id: "kanto",
-    name: "Kanto",
+    name: "4. Kanto",
     color: "#d28f22",
     gyms: [
       {
@@ -344,7 +344,7 @@ const regions = [
   },
   {
     id: "unova",
-    name: "Unova",
+    name: "5. Unova",
     color: "#30343b",
     gyms: [
       {
