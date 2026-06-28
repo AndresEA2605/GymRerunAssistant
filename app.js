@@ -1035,6 +1035,43 @@ function goNextPending() {
   });
 }
 
+function checkNextStep() {
+  const targetGym = allGyms().find((gym) => !state.done[gym.id]);
+  if (!targetGym) {
+    showToast("No quedan gimnasios pendientes.");
+    return;
+  }
+  
+  if (state.currentRegion !== targetGym.regionId) {
+    state.currentRegion = targetGym.regionId;
+  }
+  if (!state.open[targetGym.id]) {
+    state.open[targetGym.id] = true;
+  }
+  
+  const sections = [
+    { name: "step", array: targetGym.steps },
+    { name: "move", array: targetGym.moves },
+    { name: "after", array: targetGym.after }
+  ];
+  
+  let found = false;
+  for (const section of sections) {
+    for (let i = 0; i < section.array.length; i++) {
+      if (!state.steps[stepKey(targetGym.id, section.name, i)]) {
+        toggleStep(targetGym.id, section.name, i, true);
+        found = true;
+        break;
+      }
+    }
+    if (found) break;
+  }
+  
+  requestAnimationFrame(() => {
+    document.querySelector(`#gym-${CSS.escape(targetGym.id)}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+}
+
 function setRegion(regionId) {
   state.currentRegion = regionId;
   saveState();
@@ -1085,6 +1122,15 @@ document.addEventListener("click", (event) => {
   if (action === "next-pending") goNextPending();
   if (action === "toggle-card") toggleCard(actionElement.dataset.gym);
   if (action === "toggle-gym") toggleGym(actionElement.dataset.gym);
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA") return;
+  // Use Space (Spacebar) to check next step
+  if (event.code === "Space") {
+    event.preventDefault();
+    checkNextStep();
+  }
 });
 
 document.addEventListener("change", (event) => {
