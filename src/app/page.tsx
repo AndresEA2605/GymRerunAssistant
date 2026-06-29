@@ -34,7 +34,6 @@ import rawSteps from "../data/route.json";
 import { RouteStep, StepType, AppState, RunHistoryEntry } from "../types";
 
 const steps = rawSteps as RouteStep[];
-const basePath = process.env.GITHUB_ACTIONS === "true" ? "/GymRerunAssistant" : "";
 
 // Helper to format time (ms -> hh:mm:ss)
 const formatTime = (ms: number): string => {
@@ -692,7 +691,7 @@ export default function Home() {
                   {currentStep.type === "travel" && currentStep.region && (
                     <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-black/40 shadow-inner relative group z-10">
                       <img
-                        src={`${basePath}/images/maps/map_${currentStep.region.toLowerCase()}.png`}
+                        src={`/images/maps/map_${currentStep.region.toLowerCase()}.png`}
                         alt={`Mapa de viaje a ${currentStep.region}`}
                         className="w-full h-auto max-h-[240px] object-cover transition-transform duration-500 group-hover:scale-105"
                       />
