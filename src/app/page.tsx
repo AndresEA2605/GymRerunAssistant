@@ -33,6 +33,18 @@ import {
 import rawSteps from "../data/route.json";
 import { RouteStep, StepType, AppState, RunHistoryEntry } from "../types";
 
+const YoutubeIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    width="1em"
+    height="1em"
+    {...props}
+  >
+    <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.386.507 9.386.507s7.518 0 9.387-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+  </svg>
+);
+
 const steps = rawSteps as RouteStep[];
 
 // Helper to format time (ms -> hh:mm:ss)
@@ -502,6 +514,20 @@ export default function Home() {
               No se encontraron pasos.
             </div>
           )}
+          <div className="pt-4 pb-2 border-t border-white/5 mt-4">
+            <a
+              href="https://www.youtube.com/watch?v=himBCqDN2-I"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2.5 p-2.5 rounded-xl bg-red-500/5 border border-red-500/10 hover:bg-red-500/10 hover:border-red-500/20 text-slate-300 hover:text-white transition-all text-xs"
+            >
+              <YoutubeIcon className="w-4 h-4 text-red-500 flex-shrink-0 animate-pulse" />
+              <div className="flex flex-col min-w-0">
+                <span className="font-semibold truncate">Video Fuente</span>
+                <span className="text-[10px] text-slate-400 truncate">Ver guía original en YouTube</span>
+              </div>
+            </a>
+          </div>
         </div>
 
         {/* Sidebar Footer - Keyboard Help Info */}
@@ -549,9 +575,21 @@ export default function Home() {
                   v2.0
                 </span>
               </h2>
-              <p className="text-xs text-slate-400 hidden sm:block">
-                Guía secuencial optimizada paso a paso
-              </p>
+              <div className="flex items-center gap-2 mt-0.5">
+                <p className="text-xs text-slate-400 hidden sm:block">
+                  Guía secuencial optimizada paso a paso
+                </p>
+                <span className="text-slate-600 text-[10px] hidden sm:inline">•</span>
+                <a
+                  href="https://www.youtube.com/watch?v=himBCqDN2-I"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-indigo-400 hover:text-indigo-300 font-medium inline-flex items-center gap-1.5 transition-colors hover:underline"
+                >
+                  <YoutubeIcon className="w-3.5 h-3.5 text-red-500" />
+                  <span>Video Fuente</span>
+                </a>
+              </div>
             </div>
             
             {/* Quick reset button for mobile */}
@@ -873,6 +911,20 @@ export default function Home() {
                 <ChevronRight className="w-5 h-5" />
               </button>
             </div>
+
+            {/* Source video footer */}
+            <footer className="mt-8 text-center text-xs text-slate-500 flex items-center justify-center gap-1.5 pt-2 border-t border-white/5">
+              <span>Información obtenida de:</span>
+              <a
+                href="https://www.youtube.com/watch?v=himBCqDN2-I"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-indigo-400 hover:text-indigo-300 font-semibold inline-flex items-center gap-1 hover:underline transition-colors"
+              >
+                <YoutubeIcon className="w-3.5 h-3.5 text-red-500" />
+                <span>este video de YouTube</span>
+              </a>
+            </footer>
 
           </div>
 
