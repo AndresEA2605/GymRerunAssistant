@@ -1,0 +1,791 @@
+[
+  {
+    "id": 1,
+    "type": "gym",
+    "region": "Johto",
+    "gym": "Endrino",
+    "title": "Endrino (Dragon)",
+    "description": "Líder: Endrino (Tipo Dragon). Orden: #1 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Hydreigon"
+    ],
+    "switchTo": [
+      "Vanilluxe",
+      "Togekiss"
+    ],
+    "actions": [
+      "Dragonite → Surf (con Hydreigon)",
+      "Blastoise → Dia Soleado (con Togekiss)",
+      "Resto → Viento Afin (con Togekiss)"
+    ]
+  },
+  {
+    "id": 2,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "Cura a tu equipo antes de entrar al gimnasio de Trigal (Johto)."
+  },
+  {
+    "id": 3,
+    "type": "gym",
+    "region": "Johto",
+    "gym": "Trigal",
+    "title": "Trigal (Normal)",
+    "description": "Líder: Trigal (Tipo Normal). Orden: #2 en la ruta.",
+    "lead": [
+      "Typhlosion en slot 2",
+      "Blastoise W"
+    ]
+  },
+  {
+    "id": 4,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Blastoise W -> Gafas Elegidas"
+  },
+  {
+    "id": 5,
+    "type": "gym",
+    "region": "Johto",
+    "gym": "Azalea",
+    "title": "Azalea (Bicho)",
+    "description": "Líder: Azalea (Tipo Bicho). Orden: #3 en la ruta.",
+    "lead": [
+      "Weezing variable",
+      "Blastoise W"
+    ],
+    "actions": [
+      "Butterfree o Ledian → Golpe Bajo (con Weezing)",
+      "Resto → Incinerar (con Weezing)"
+    ]
+  },
+  {
+    "id": 6,
+    "type": "note",
+    "title": "Nota Especial",
+    "description": "Usar Channel Glitch para salir"
+  },
+  {
+    "id": 7,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Weezing -> Gafas Negras"
+  },
+  {
+    "id": 8,
+    "type": "gym",
+    "region": "Johto",
+    "gym": "Olivo",
+    "title": "Olivo (Acero)",
+    "description": "Líder: Olivo (Tipo Acero). Orden: #4 en la ruta.",
+    "lead": [
+      "Weezing variable",
+      "Typhlosion"
+    ],
+    "actions": [
+      "Metagross → T1 -> Dia Soleado (con Typhlosion), T2 -> Golpe Bajo (con Weezing)",
+      "Resto → Golpe Bajo (con Weezing)"
+    ]
+  },
+  {
+    "id": 9,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Weezing -> Cinta Elegida"
+  },
+  {
+    "id": 10,
+    "type": "gym",
+    "region": "Johto",
+    "gym": "Orquidea",
+    "title": "Orquidea (Lucha)",
+    "description": "Líder: Orquidea (Tipo Lucha). Orden: #5 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Hydreigon"
+    ],
+    "switchTo": [
+      "Typhlosion",
+      "Togekiss"
+    ],
+    "actions": [
+      "Usar Dia Soleado (con Hydreigon)"
+    ]
+  },
+  {
+    "id": 11,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Togekiss -> Panuelo Elegido"
+  },
+  {
+    "id": 12,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "CURAR"
+  },
+  {
+    "id": 13,
+    "type": "gym",
+    "region": "Johto",
+    "gym": "Caoba",
+    "title": "Caoba (Hielo)",
+    "description": "Líder: Caoba (Tipo Hielo). Orden: #6 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Hydreigon variable"
+    ],
+    "switchTo": [
+      "Typhlosion",
+      "Togekiss"
+    ],
+    "actions": [
+      "Glalie → Dia Soleado (con Togekiss)",
+      "Resto → Surf (con Hydreigon)"
+    ]
+  },
+  {
+    "id": 14,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Typhlosion -> Panuelo Elegido"
+  },
+  {
+    "id": 15,
+    "type": "gym",
+    "region": "Johto",
+    "gym": "Malva",
+    "title": "Malva (Volador)",
+    "description": "Líder: Malva (Tipo Volador). Orden: #7 en la ruta.",
+    "lead": [
+      "Typhlosion",
+      "Vanilluxe"
+    ]
+  },
+  {
+    "id": 16,
+    "type": "travel",
+    "region": "HOENN",
+    "title": "✈️ Viajar a HOENN",
+    "description": "Viaja a la región de HOENN para continuar con la ruta."
+  },
+  {
+    "id": 17,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Blastoise W -> Panuelo Elegido"
+  },
+  {
+    "id": 18,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "Cura a tu equipo antes de entrar al gimnasio de Pueblo Azuliza (Hoenn)."
+  },
+  {
+    "id": 19,
+    "type": "gym",
+    "region": "Hoenn",
+    "gym": "Pueblo Azuliza",
+    "title": "Pueblo Azuliza (Lucha)",
+    "description": "Líder: Pueblo Azuliza (Tipo Lucha). Orden: #8 en la ruta.",
+    "lead": [
+      "Blastoise W",
+      "Togekiss"
+    ]
+  },
+  {
+    "id": 20,
+    "type": "gym",
+    "region": "Hoenn",
+    "gym": "Ciudad Ferrica",
+    "title": "Ciudad Ferrica (Roca)",
+    "description": "Líder: Ciudad Ferrica (Tipo Roca). Orden: #9 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Blastoise W"
+    ],
+    "actions": [
+      "Usar Golpe Bajo (con Weezing)"
+    ]
+  },
+  {
+    "id": 21,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Blastoise W -> Gafas Elegidas"
+  },
+  {
+    "id": 22,
+    "type": "gym",
+    "region": "Hoenn",
+    "gym": "Ciudad Malvalona",
+    "title": "Ciudad Malvalona (Electrico)",
+    "description": "Líder: Ciudad Malvalona (Tipo Electrico). Orden: #10 en la ruta.",
+    "lead": [
+      "Typhlosion",
+      "Togekiss"
+    ]
+  },
+  {
+    "id": 23,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Typhlosion -> Gafas Elegidas"
+  },
+  {
+    "id": 24,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Togekiss -> Gafas Elegidas"
+  },
+  {
+    "id": 25,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "Cura a tu equipo antes de entrar al gimnasio de Ciudad Petalia (Hoenn)."
+  },
+  {
+    "id": 26,
+    "type": "gym",
+    "region": "Hoenn",
+    "gym": "Ciudad Petalia",
+    "title": "Ciudad Petalia (Normal)",
+    "description": "Líder: Ciudad Petalia (Tipo Normal). Orden: #11 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Hydreigon"
+    ],
+    "actions": [
+      "Usar Surf (con Hydreigon)",
+      "Stantler, Spinda, Blissey o Chansey → Cambiar a: Typhlosion + Togekiss (Psicocarga a Blissey con Togekiss)",
+      "Spinda (Turno 4) → Cambiar a: Vanilluxe + Togekiss"
+    ]
+  },
+  {
+    "id": 27,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Hydreigon -> Gafas Elegidas"
+  },
+  {
+    "id": 28,
+    "type": "gym",
+    "region": "Hoenn",
+    "gym": "Pueblo Lavacalda",
+    "title": "Pueblo Lavacalda (Fuego)",
+    "description": "Líder: Pueblo Lavacalda (Tipo Fuego). Orden: #12 en la ruta.",
+    "lead": [
+      "Togekiss",
+      "Blastoise W"
+    ]
+  },
+  {
+    "id": 29,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "Cura a tu equipo antes de entrar al gimnasio de Ciudad Arborada (Hoenn)."
+  },
+  {
+    "id": 30,
+    "type": "gym",
+    "region": "Hoenn",
+    "gym": "Ciudad Arborada",
+    "title": "Ciudad Arborada (Volador)",
+    "description": "Líder: Ciudad Arborada (Tipo Volador). Orden: #13 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Hydreigon"
+    ],
+    "switchTo": [
+      "Typhlosion",
+      "Togekiss"
+    ],
+    "actions": [
+      "Swellow + Tropius → Dia Soleado (con Togekiss)",
+      "Altaria + Swellow → Viento Afin (con Togekiss)",
+      "Resto → Surf (con Hydreigon) + Explosion (con Weezing)"
+    ]
+  },
+  {
+    "id": 31,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Blastoise W -> Panuelo Elegido"
+  },
+  {
+    "id": 32,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "CURAR EN PORTUAL"
+  },
+  {
+    "id": 33,
+    "type": "travel",
+    "region": "SINNOH",
+    "title": "✈️ Viajar a SINNOH",
+    "description": "Viaja a la región de SINNOH para continuar con la ruta."
+  },
+  {
+    "id": 34,
+    "type": "gym",
+    "region": "Sinnoh",
+    "gym": "Ciudad Vetusta",
+    "title": "Ciudad Vetusta (Planta)",
+    "description": "Líder: Ciudad Vetusta (Tipo Planta). Orden: #14 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Hydreigon"
+    ],
+    "switchTo": [
+      "Typhlosion",
+      "Togekiss"
+    ],
+    "actions": [
+      "Whimsicott, Vileplume o Lilligant → Viento Afin (con Togekiss)",
+      "Roserade o Amoonguss → Surf (con Hydreigon)"
+    ]
+  },
+  {
+    "id": 35,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Vanilluxe -> Gafas Elegidas"
+  },
+  {
+    "id": 36,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "Cura a tu equipo antes de entrar al gimnasio de Ciudad Pirita (Sinnoh)."
+  },
+  {
+    "id": 37,
+    "type": "gym",
+    "region": "Sinnoh",
+    "gym": "Ciudad Pirita",
+    "title": "Ciudad Pirita (Roca)",
+    "description": "Líder: Ciudad Pirita (Tipo Roca). Orden: #15 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Hydreigon"
+    ],
+    "actions": [
+      "Usar Surf (con Hydreigon)",
+      "Excadrill → Cambiar a: Typhlosion + Togekiss",
+      "Resto → Cambiar a: Togekiss + Blastoise W"
+    ]
+  },
+  {
+    "id": 38,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Blastoise W -> Gafas Elegidas"
+  },
+  {
+    "id": 39,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "Cura a tu equipo antes de entrar al gimnasio de Ciudad Canal (Sinnoh)."
+  },
+  {
+    "id": 40,
+    "type": "gym",
+    "region": "Sinnoh",
+    "gym": "Ciudad Canal",
+    "title": "Ciudad Canal (Acero)",
+    "description": "Líder: Ciudad Canal (Tipo Acero). Orden: #16 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Hydreigon"
+    ],
+    "actions": [
+      "Usar Surf (con Hydreigon)",
+      "Pelipper → Cambiar a: Togekiss + Blastoise W",
+      "Gigalith + Aron → Cambiar a: Typhlosion + Togekiss",
+      "Bastiodon → Cambiar a: Vanilluxe + Blastoise W"
+    ]
+  },
+  {
+    "id": 41,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Vanilluxe -> Panuelo Elegido"
+  },
+  {
+    "id": 42,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "Cura a tu equipo antes de entrar al gimnasio de Ciudad Rocavelo (Sinnoh)."
+  },
+  {
+    "id": 43,
+    "type": "gym",
+    "region": "Sinnoh",
+    "gym": "Ciudad Rocavelo",
+    "title": "Ciudad Rocavelo (Lucha)",
+    "description": "Líder: Ciudad Rocavelo (Tipo Lucha). Orden: #17 en la ruta.",
+    "lead": [
+      "Weezing variable",
+      "Hydreigon"
+    ],
+    "actions": [
+      "Lucario o Wobbuffet → Surf (con Hydreigon) -> Cambiar a: Typhlosion + Togekiss",
+      "Resto → Viento Afin (con Togekiss) -> Cambiar a: Typhlosion + Togekiss"
+    ]
+  },
+  {
+    "id": 44,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Hydreigon -> Panuelo Elegido"
+  },
+  {
+    "id": 45,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "Cura a tu equipo antes de entrar al gimnasio de Pueblo Pastoria (Sinnoh)."
+  },
+  {
+    "id": 46,
+    "type": "gym",
+    "region": "Sinnoh",
+    "gym": "Pueblo Pastoria",
+    "title": "Pueblo Pastoria (Agua)",
+    "description": "Líder: Pueblo Pastoria (Tipo Agua). Orden: #18 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Hydreigon"
+    ],
+    "switchTo": [
+      "Typhlosion",
+      "Togekiss"
+    ],
+    "actions": [
+      "Ludicolo, Mantine o Poliwrath → Viento Afin (con Togekiss)",
+      "Resto → Surf (con Hydreigon) + Explosion (con Weezing)"
+    ]
+  },
+  {
+    "id": 47,
+    "type": "travel",
+    "region": "KANTO",
+    "title": "✈️ Viajar a KANTO",
+    "description": "Viaja a la región de KANTO para continuar con la ruta."
+  },
+  {
+    "id": 48,
+    "type": "gym",
+    "region": "Kanto",
+    "gym": "Carmin",
+    "title": "Carmin (Electrico)",
+    "description": "Líder: Carmin (Tipo Electrico). Orden: #19 en la ruta.",
+    "lead": [
+      "Typhlosion",
+      "Togekiss"
+    ],
+    "actions": [
+      "Curar si algun Pokemon recibio dano",
+      "Si hay lluvia -> Usar Rapidez (con Typhlosion)"
+    ]
+  },
+  {
+    "id": 49,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "Cura a tu equipo antes de entrar al gimnasio de Isla Canela (Kanto)."
+  },
+  {
+    "id": 50,
+    "type": "gym",
+    "region": "Kanto",
+    "gym": "Isla Canela",
+    "title": "Isla Canela (Fuego)",
+    "description": "Líder: Isla Canela (Tipo Fuego). Orden: #20 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Hydreigon variable"
+    ],
+    "switchTo": [
+      "Togekiss",
+      "Blastoise W"
+    ],
+    "actions": [
+      "Moltres, Arcanine o Flareon → Viento Afin (con Togekiss)",
+      "Typhlosion o Charizard → Surf (con Hydreigon)"
+    ]
+  },
+  {
+    "id": 51,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "Cura a tu equipo antes de entrar al gimnasio de Plateada (Kanto)."
+  },
+  {
+    "id": 52,
+    "type": "gym",
+    "region": "Kanto",
+    "gym": "Plateada",
+    "title": "Plateada (Roca)",
+    "description": "Líder: Plateada (Tipo Roca). Orden: #21 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Hydreigon"
+    ],
+    "switchTo": [
+      "Togekiss",
+      "Blastoise W"
+    ],
+    "actions": [
+      "Usar Surf (con Hydreigon)",
+      "Psicocarga contra Sandslash o Chansey (con Togekiss)"
+    ]
+  },
+  {
+    "id": 53,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Blastoise W -> Panuelo Elegido"
+  },
+  {
+    "id": 54,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "Cura a tu equipo antes de entrar al gimnasio de Celeste (Kanto)."
+  },
+  {
+    "id": 55,
+    "type": "gym",
+    "region": "Kanto",
+    "gym": "Celeste",
+    "title": "Celeste (Agua)",
+    "description": "Líder: Celeste (Tipo Agua). Orden: #22 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Hydreigon"
+    ],
+    "switchTo": [
+      "Typhlosion",
+      "Togekiss"
+    ],
+    "actions": [
+      "Carracosta → Dia Soleado (con Togekiss)",
+      "Resto → Viento Afin (con Togekiss)"
+    ]
+  },
+  {
+    "id": 56,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "Cura a tu equipo antes de entrar al gimnasio de Azulona (Kanto)."
+  },
+  {
+    "id": 57,
+    "type": "gym",
+    "region": "Kanto",
+    "gym": "Azulona",
+    "title": "Azulona (Planta)",
+    "description": "Líder: Azulona (Tipo Planta). Orden: #23 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Hydreigon"
+    ],
+    "switchTo": [
+      "Typhlosion",
+      "Togekiss"
+    ],
+    "actions": [
+      "Whimsicott → Surf (con Hydreigon)",
+      "Resto → Viento Afin (con Togekiss)"
+    ]
+  },
+  {
+    "id": 58,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Togekiss -> Panuelo Elegido"
+  },
+  {
+    "id": 59,
+    "type": "gym",
+    "region": "Kanto",
+    "gym": "Fucsia",
+    "title": "Fucsia (Veneno)",
+    "description": "Líder: Fucsia (Tipo Veneno). Orden: #24 en la ruta.",
+    "lead": [
+      "Typhlosion en slot 1",
+      "Togekiss"
+    ],
+    "actions": [
+      "Tentacruel → Psiquico (con Togekiss)",
+      "Nidoqueen → Senal Luminosa (con Togekiss)",
+      "Resto → Vozarron (con Togekiss)"
+    ]
+  },
+  {
+    "id": 60,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "CURAR EN CARMIN"
+  },
+  {
+    "id": 61,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Typhlosion -> Panuelo Elegido"
+  },
+  {
+    "id": 62,
+    "type": "travel",
+    "region": "UNOVA",
+    "title": "✈️ Viajar a UNOVA",
+    "description": "Viaja a la región de UNOVA para continuar con la ruta."
+  },
+  {
+    "id": 63,
+    "type": "gym",
+    "region": "Unova",
+    "gym": "Porcelana",
+    "title": "Porcelana (Bicho)",
+    "description": "Líder: Porcelana (Tipo Bicho). Orden: #25 en la ruta.",
+    "lead": [
+      "Typhlosion",
+      "Blastoise W"
+    ]
+  },
+  {
+    "id": 64,
+    "type": "gym",
+    "region": "Unova",
+    "gym": "Mayolica",
+    "title": "Mayolica (Electrico)",
+    "description": "Líder: Mayolica (Tipo Electrico). Orden: #26 en la ruta.",
+    "lead": [
+      "Blastoise W",
+      "Togekiss"
+    ]
+  },
+  {
+    "id": 65,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Typhlosion -> Gafas Elegidas"
+  },
+  {
+    "id": 66,
+    "type": "gym",
+    "region": "Unova",
+    "gym": "Fayenza",
+    "title": "Fayenza (Roca)",
+    "description": "Líder: Fayenza (Tipo Roca). Orden: #27 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Blastoise W"
+    ],
+    "actions": [
+      "Usar Golpe Bajo (con Weezing) / Salpicar (con Blastoise W)",
+      "Si Weezing cae -> entrar Vanilluxe"
+    ]
+  },
+  {
+    "id": 67,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Weezing -> Panuelo Elegido"
+  },
+  {
+    "id": 68,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "Cura a tu equipo antes de entrar al gimnasio de Loza (Unova)."
+  },
+  {
+    "id": 69,
+    "type": "gym",
+    "region": "Unova",
+    "gym": "Loza",
+    "title": "Loza (Volador)",
+    "description": "Líder: Loza (Tipo Volador). Orden: #28 en la ruta.",
+    "lead": [
+      "Blastoise W",
+      "Vanilluxe"
+    ],
+    "actions": [
+      "Unfezant → Cambiar a Weezing en T1 por Blastoise W. Usar Golpe Bajo en T2 y T3 (con Weezing)"
+    ]
+  },
+  {
+    "id": 70,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Togekiss -> Gafas Elegidas"
+  },
+  {
+    "id": 71,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Weezing -> Cinta Elegida"
+  },
+  {
+    "id": 72,
+    "type": "gym",
+    "region": "Unova",
+    "gym": "Caolin",
+    "title": "Caolin (Dragon)",
+    "description": "Líder: Caolin (Tipo Dragon). Orden: #29 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Hydreigon"
+    ],
+    "actions": [
+      "Usar Surf (con Hydreigon)",
+      "Hydreigon → Cambiar a: Typhlosion + Togekiss",
+      "Resto → Cambiar a: Vanilluxe + Togekiss"
+    ]
+  },
+  {
+    "id": 73,
+    "type": "item",
+    "title": "Cambio de Objeto",
+    "description": "Blastoise W -> Gafas Elegidas"
+  },
+  {
+    "id": 74,
+    "type": "heal",
+    "title": "❤️ Curar Pokémon",
+    "description": "Cura a tu equipo antes de entrar al gimnasio de Striaton (Unova)."
+  },
+  {
+    "id": 75,
+    "type": "gym",
+    "region": "Unova",
+    "gym": "Striaton",
+    "title": "Striaton (Fuego / Planta / Agua)",
+    "description": "Líder: Striaton (Tipo Fuego / Planta / Agua). Orden: #30 en la ruta.",
+    "actions": [
+      "Lider Fuego -> Equipo: Togekiss + Blastoise W",
+      "Lider Planta -> Equipo: Typhlosion + Togekiss",
+      "Lider Agua -> Equipo: Typhlosion + Togekiss",
+      "Estrategia: Refuerzo (con Togekiss) + Vozarron (con Typhlosion)",
+      "Si alguno cae -> entrar Weezing y usar Golpe Bajo"
+    ]
+  },
+  {
+    "id": 76,
+    "type": "gym",
+    "region": "Unova",
+    "gym": "Esmalte",
+    "title": "Esmalte (Normal)",
+    "description": "Líder: Esmalte (Tipo Normal). Orden: #31 en la ruta.",
+    "lead": [
+      "Weezing",
+      "Hydreigon"
+    ],
+    "switchTo": [
+      "Togekiss",
+      "Blastoise W"
+    ],
+    "actions": [
+      "Usar Danza Lluvia (con Hydreigon)"
+    ]
+  }
+]
