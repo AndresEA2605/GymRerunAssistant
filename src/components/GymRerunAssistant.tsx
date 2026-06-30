@@ -752,7 +752,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
         </div>
 
-        <div className="flex items-center justify-center sm:justify-end gap-2 sm:gap-4 flex-wrap">
+        <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
           
           <div className="hidden sm:block">
             <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
