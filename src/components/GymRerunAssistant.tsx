@@ -142,8 +142,19 @@ const PokeballSVG = ({ opacity = 0.18 }: { opacity?: number }) => (
 const SPRITE_BASE = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork";
 
 const POKEMON_ARTWORK: Record<string, number> = {
+  // Team members
   Hydreigon: 635, Weezing: 110, Togekiss: 468,
   Typhlosion: 157, Vanilluxe: 584, Blastoise: 9,
+  // Opponents & wild Pokémon from the route
+  Dragonite: 149, Butterfree: 12, Ledian: 166, Metagross: 376,
+  Glalie: 362, Stantler: 234, Spinda: 327, Blissey: 242,
+  Chansey: 113, Swellow: 277, Tropius: 357, Altaria: 334,
+  Whimsicott: 547, Vileplume: 45, Lilligant: 549, Roserade: 407,
+  Amoonguss: 591, Excadrill: 530, Pelipper: 279, Gigalith: 526,
+  Aron: 304, Bastiodon: 411, Lucario: 448, Wobbuffet: 202,
+  Ludicolo: 272, Mantine: 226, Poliwrath: 62, Moltres: 146,
+  Arcanine: 59, Flareon: 136, Charizard: 6, Carracosta: 565,
+  Tentacruel: 73, Nidoqueen: 31, Sandslash: 28, Unfezant: 521,
 };
 
 const POKEBALLS = [
