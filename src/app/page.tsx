@@ -15,13 +15,20 @@ import {
   X,
   History,
   Info,
-  Power
+  Power,
+  Clock
 } from "lucide-react";
 import rawSteps from "../data/route.json";
 import { RouteStep, StepType, RunHistoryEntry } from "../types";
-import { GYM_COORDS, REGION_MAP, REGION_COLOR } from "../data/gymCoords";
+import { GYM_COORDS, REGION_MAP } from "../data/gymCoords";
 
 const steps = rawSteps as RouteStep[];
+const GYM_RESET_MS = 18 * 60 * 60 * 1000;
+
+type CooldownState = {
+  endAt: number | null;
+  lastGym: string | null;
+};
 
 const formatTime = (ms: number): string => {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -47,15 +54,32 @@ const TimerDisplay = memo(({ isRunning, startTime, elapsedBeforePause }: { isRun
     };
     if (isRunning) {
       frameId = requestAnimationFrame(update);
-    } else {
-      setElapsed(elapsedBeforePause);
     }
     return () => { if (frameId) cancelAnimationFrame(frameId); };
   }, [isRunning, startTime, elapsedBeforePause]);
 
-  return <span className="font-mono text-xl md:text-2xl font-bold tracking-wider">{formatTime(elapsed)}</span>;
+  return <span className="font-mono text-xl md:text-2xl font-bold tracking-wider">{formatTime(isRunning ? elapsed : elapsedBeforePause)}</span>;
 });
 TimerDisplay.displayName = "TimerDisplay";
+
+const CooldownDisplay = memo(({ endAt }: { endAt: number | null }) => {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  if (!endAt) return <span className="font-mono text-lg font-black text-neutral-500">--:--:--</span>;
+
+  const remaining = Math.max(0, endAt - now);
+  return (
+    <span className={`font-mono text-lg font-black ${remaining > 0 ? "text-emerald-400" : "text-amber-400"}`}>
+      {remaining > 0 ? formatTime(remaining) : "LISTO"}
+    </span>
+  );
+});
+CooldownDisplay.displayName = "CooldownDisplay";
 /* -- Pokeball SVG -- */
 const PokeballSVG = ({ opacity = 0.18 }: { opacity?: number }) => (
   <svg viewBox="0 0 100 100" style={{ width: "100%", height: "100%", opacity }}>
@@ -131,8 +155,10 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [showTeam, setShowTeam] = useState<boolean>(false);
+  const [showFinishConfirm, setShowFinishConfirm] = useState<boolean>(false);
   const [teamExiting, setTeamExiting] = useState<boolean>(false);
   const [historyExiting, setHistoryExiting] = useState<boolean>(false);
+  const [showCooldownEditor, setShowCooldownEditor] = useState<boolean>(false);
   const [appExiting, setAppExiting] = useState<boolean>(false);
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
   const [slideClass, setSlideClass] = useState<string>("");
@@ -141,6 +167,9 @@ export default function Home() {
   const [timerIsRunning, setTimerIsRunning] = useState<boolean>(false);
   const [timerStartTime, setTimerStartTime] = useState<number | null>(null);
   const [timerElapsed, setTimerElapsed] = useState<number>(0);
+  const [cooldown, setCooldown] = useState<CooldownState>({ endAt: null, lastGym: null });
+  const [cooldownHours, setCooldownHours] = useState<string>("18");
+  const [cooldownMinutes, setCooldownMinutes] = useState<string>("0");
   const [history, setHistory] = useState<RunHistoryEntry[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -154,28 +183,39 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const savedStep = localStorage.getItem("pkmmo_gym_step");
-    if (savedStep) {
-      const idx = Number(savedStep);
-      setCurrentStepIndex(idx);
-      // If there's existing progress, skip the menu automatically
-      if (idx > 0) setShowMenu(false);
-    }
+    const loadId = window.setTimeout(() => {
+      const savedStep = localStorage.getItem("pkmmo_gym_step");
+      if (savedStep) {
+        const idx = Number(savedStep);
+        setCurrentStepIndex(idx);
+        if (idx > 0) setShowMenu(false);
+      }
 
-    const savedTimer = localStorage.getItem("pkmmo_gym_timer");
-    if (savedTimer) {
-      try {
-        const parsed = JSON.parse(savedTimer);
-        setTimerElapsed(parsed.elapsed || 0);
-        setTimerIsRunning(parsed.isRunning || false);
-        if (parsed.isRunning && parsed.startedAt) setTimerStartTime(parsed.startedAt);
-      } catch (e) { /* ignore */ }
-    }
+      const savedTimer = localStorage.getItem("pkmmo_gym_timer");
+      if (savedTimer) {
+        try {
+          const parsed = JSON.parse(savedTimer);
+          setTimerElapsed(parsed.elapsed || 0);
+          setTimerIsRunning(parsed.isRunning || false);
+          if (parsed.isRunning && parsed.startedAt) setTimerStartTime(parsed.startedAt);
+        } catch { /* ignore */ }
+      }
 
-    const savedHistory = localStorage.getItem("pkmmo_gym_history");
-    if (savedHistory) {
-      try { setHistory(JSON.parse(savedHistory)); } catch (e) { /* ignore */ }
-    }
+      const savedHistory = localStorage.getItem("pkmmo_gym_history");
+      if (savedHistory) {
+        try { setHistory(JSON.parse(savedHistory)); } catch { /* ignore */ }
+      }
+
+      const savedCooldown = localStorage.getItem("pkmmo_gym_cooldown");
+      if (savedCooldown) {
+        try {
+          const parsed = JSON.parse(savedCooldown);
+          setCooldown({ endAt: parsed.endAt || null, lastGym: parsed.lastGym || null });
+        } catch { /* ignore */ }
+      }
+    }, 0);
+
+    return () => window.clearTimeout(loadId);
   }, []);
 
   useEffect(() => localStorage.setItem("pkmmo_gym_step", currentStepIndex.toString()), [currentStepIndex]);
@@ -187,6 +227,27 @@ export default function Home() {
       startedAt: timerStartTime,
     }));
   }, [timerElapsed, timerIsRunning, timerStartTime]);
+
+  useEffect(() => {
+    localStorage.setItem("pkmmo_gym_cooldown", JSON.stringify(cooldown));
+  }, [cooldown]);
+
+  const getLastCompletedGym = useCallback(() => {
+    for (let i = currentStepIndex; i >= 0; i--) {
+      const step = steps[i];
+      if (step?.type === "gym") return step.gym || step.title;
+    }
+    return null;
+  }, [currentStepIndex]);
+
+  const startGymCooldown = useCallback((gymName?: string | null, durationMs = GYM_RESET_MS) => {
+    const lastGym = gymName || getLastCompletedGym() || "Gym desconocido";
+    const nextCooldown = { endAt: Date.now() + durationMs, lastGym };
+    setCooldown(nextCooldown);
+    setCooldownHours(String(Math.floor(durationMs / 3600000)));
+    setCooldownMinutes(String(Math.round((durationMs % 3600000) / 60000)));
+    triggerToast(`Reset gyms activo: ${lastGym}`);
+  }, [getLastCompletedGym, triggerToast]);
 
   const handleNext = useCallback(() => {
     setCurrentStepIndex((prev) => {
@@ -259,8 +320,35 @@ export default function Home() {
     const updatedHistory = [newEntry, ...history].slice(0, 20);
     setHistory(updatedHistory);
     localStorage.setItem("pkmmo_gym_history", JSON.stringify(updatedHistory));
+    startGymCooldown(getLastCompletedGym());
     resetTimer();
+    setShowFinishConfirm(false);
     triggerToast("¡Run completada!");
+  };
+
+  const requestFinishRun = () => setShowFinishConfirm(true);
+
+  const saveCooldownAdjustment = () => {
+    const hours = Math.max(0, Number(cooldownHours) || 0);
+    const minutes = Math.max(0, Number(cooldownMinutes) || 0);
+    const durationMs = (hours * 60 + minutes) * 60 * 1000;
+
+    if (durationMs <= 0) {
+      setCooldown({ endAt: null, lastGym: cooldown.lastGym });
+      setShowCooldownEditor(false);
+      triggerToast("Cooldown apagado");
+      return;
+    }
+
+    startGymCooldown(cooldown.lastGym || getLastCompletedGym(), durationMs);
+    setShowCooldownEditor(false);
+  };
+
+  const openCooldownEditor = () => {
+    const remaining = cooldown.endAt ? Math.max(0, cooldown.endAt - Date.now()) : GYM_RESET_MS;
+    setCooldownHours(String(Math.floor(remaining / 3600000)));
+    setCooldownMinutes(String(Math.floor((remaining % 3600000) / 60000)));
+    setShowCooldownEditor(true);
   };
 
   const renderIcon = (type: StepType) => {
@@ -456,6 +544,7 @@ export default function Home() {
           
           <div className="flex items-center gap-2">
             <button onClick={() => setShowTeam(true)} className="px-3 py-1.5 bg-violet-900/40 text-violet-300 border border-violet-700/40 rounded hover:bg-violet-800/50 text-xs font-bold uppercase tracking-wider">Equipo</button>
+            <button onClick={requestFinishRun} className="px-3 py-1.5 bg-emerald-900/40 text-emerald-300 border border-emerald-700/40 rounded hover:bg-emerald-800/50 text-xs font-bold uppercase tracking-wider">Terminar ruta</button>
             <button onClick={() => goToMenu()} className="px-3 py-1.5 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700 text-xs font-bold uppercase tracking-wider">Menú</button>
             <button onClick={() => setShowHistory(true)} className="p-2 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700"><History className="w-4 h-4" /></button>
             <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(0); resetTimer(); } }} className="p-2 bg-red-900/20 text-red-400 rounded hover:bg-red-900/40"><Power className="w-4 h-4" /></button>
@@ -575,7 +664,7 @@ export default function Home() {
           <div className="w-full max-w-2xl mt-6 space-y-3">
             <div className="flex gap-4">
               <button onClick={handlePrev} disabled={currentStepIndex === 0} className="flex-1 py-4 bg-neutral-900 rounded-xl font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
-              <button onClick={currentStepIndex === steps.length - 1 ? finishRun : handleNext} className="flex-[2] py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all text-lg">
+              <button onClick={currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext} className="flex-[2] py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all text-lg">
                 {currentStepIndex === steps.length - 1 ? "¡Finalizar!" : "Siguiente (Espacio) →"}
               </button>
             </div>
@@ -630,6 +719,21 @@ export default function Home() {
             <button onClick={resetTimer} title="Reiniciar" className="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 rounded font-bold text-sm"><RotateCcw className="w-3.5 h-3.5"/></button>
           </div>
         </div>
+        <div className="flex w-full items-center justify-between gap-2 border-t border-neutral-800 pt-2 sm:w-auto sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5 text-emerald-400" />
+              <CooldownDisplay endAt={cooldown.endAt} />
+            </div>
+            <div className="max-w-[180px] truncate text-[10px] text-neutral-500">
+              Reset gyms · último: {cooldown.lastGym || getLastCompletedGym() || "--"}
+            </div>
+          </div>
+          <div className="flex gap-1">
+            <button onClick={() => startGymCooldown(getLastCompletedGym())} title="Activar cooldown de 18 horas" className="px-2 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded font-bold text-xs">18h</button>
+            <button onClick={openCooldownEditor} title="Ajustar cooldown" className="px-2 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded font-bold text-xs">Ajustar</button>
+          </div>
+        </div>
         <span className="text-[10px] sm:text-xs text-neutral-500 font-mono hidden md:inline ml-auto">F4 en juego · Espacio en web</span>
       </div>
 
@@ -658,6 +762,86 @@ export default function Home() {
                   <div className="font-mono text-lg font-bold text-indigo-400">{formatTime(entry.elapsed)}</div>
                 </div>
               )) : <div className="text-neutral-500 text-center py-8">No hay historial.</div>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cooldown Editor */}
+      {showCooldownEditor && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-neutral-900 rounded-2xl border border-neutral-800 w-full max-w-sm p-6">
+            <div className="flex justify-between items-center mb-5">
+              <div>
+                <h3 className="font-bold text-xl">Timer reset gyms</h3>
+                <p className="text-xs text-neutral-500 mt-1">Último gym: {cooldown.lastGym || getLastCompletedGym() || "--"}</p>
+              </div>
+              <button onClick={() => setShowCooldownEditor(false)} className="text-neutral-500 hover:text-white"><X className="w-6 h-6" /></button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <label className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                Horas
+                <input
+                  type="number"
+                  min="0"
+                  value={cooldownHours}
+                  onChange={(e) => setCooldownHours(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-lg font-mono text-white outline-none focus:border-emerald-500"
+                />
+              </label>
+              <label className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                Minutos
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={cooldownMinutes}
+                  onChange={(e) => setCooldownMinutes(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-lg font-mono text-white outline-none focus:border-emerald-500"
+                />
+              </label>
+            </div>
+
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <button
+                onClick={() => startGymCooldown(getLastCompletedGym())}
+                className="py-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black"
+              >
+                Activar 18h
+              </button>
+              <button
+                onClick={saveCooldownAdjustment}
+                className="py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black"
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Finish Confirmation */}
+      {showFinishConfirm && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-neutral-900 rounded-2xl border border-neutral-800 w-full max-w-sm p-6">
+            <h3 className="font-black text-xl text-white">¿Terminar ruta?</h3>
+            <p className="text-sm text-neutral-400 mt-2">
+              Se guardará la run, se reiniciará el cronómetro y se activará el reset de gyms de 18 horas desde el último gym hecho.
+            </p>
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setShowFinishConfirm(false)}
+                className="py-3 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-black"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={finishRun}
+                className="py-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black"
+              >
+                Sí, terminar
+              </button>
             </div>
           </div>
         </div>

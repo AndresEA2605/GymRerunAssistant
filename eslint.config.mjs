@@ -11,6 +11,9 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    "scratch/**",
+    "download_maps.js",
+    "transform.js",
     "next-env.d.ts",
   ]),
 ]);
