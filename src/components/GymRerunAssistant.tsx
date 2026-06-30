@@ -15,7 +15,8 @@ import {
   History,
   Info,
   Power,
-  Clock
+  Clock,
+  Users,
 } from "lucide-react";
 import { RouteStep, StepType, RunHistoryEntry } from "../types";
 
@@ -616,7 +617,13 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             <button onClick={() => exitMenu()} className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] btn-glow-active">
               ▶ INICIAR RUTA
             </button>
-          ))}
+          )          )}
+
+          {selectedGuide && (
+            <button onClick={() => setShowTeam(true)} className="w-full py-2.5 bg-violet-600 hover:bg-violet-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)]">
+              <Users className="w-5 h-5 inline-block mr-2 -mt-0.5" />VER EQUIPO DE LA RUTA
+            </button>
+          )}
 
           <div className="w-full border-t border-neutral-800/40 pt-2 flex items-center justify-center gap-4 text-neutral-500">
             <button onClick={() => setShowTeam(true)} className="flex items-center gap-1.5 hover:text-violet-300 transition-colors">
