@@ -483,7 +483,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
           {selectedGuide && (
             <>
-              <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" className="w-full bg-red-950/20 border border-red-800/50 rounded-2xl p-3 flex items-center gap-3 group hover:bg-red-950/30 transition-all cursor-pointer">
+              <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" title="Ver run de ejemplo en YouTube — de aquí se extrajo toda la información" className="w-full bg-red-950/20 border border-red-800/50 rounded-2xl p-3 flex items-center gap-3 group hover:bg-red-950/30 transition-all cursor-pointer">
                 <div className="w-10 h-10 flex-shrink-0 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30">
                   <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.386.507 9.386.507s7.518 0 9.387-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                 </div>
@@ -562,7 +562,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
 
           <div className="w-full grid grid-cols-4 gap-2">
-            <button onClick={selectedGuide ? () => exitMenu() : () => setSelectedGuide(true)} className={`rounded-xl py-2 px-2 text-center transition-all relative overflow-hidden ${selectedGuide ? 'bg-indigo-600 border-2 border-indigo-400' : 'bg-neutral-900 border border-indigo-500/40 hover:bg-neutral-800'}`}>
+            <button onClick={selectedGuide ? () => exitMenu() : () => setSelectedGuide(true)} title={selectedGuide ? "Iniciar la ruta seleccionada" : "Seleccionar esta guía"} className={`rounded-xl py-2 px-2 text-center transition-all relative overflow-hidden ${selectedGuide ? 'bg-indigo-600 border-2 border-indigo-400' : 'bg-neutral-900 border border-indigo-500/40 hover:bg-neutral-800'}`}>
               <div className="flex flex-col items-center gap-0.5">
                 <div className="w-6 h-6 opacity-20">
                   <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/635.png" alt="" className="w-full h-full object-contain" />
@@ -572,7 +572,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               </div>
             </button>
             {selectedGuide ? (
-              <button onClick={() => setSelectedGuide(false)} className="bg-neutral-800 border border-neutral-700 rounded-xl py-2 px-1 text-center hover:bg-neutral-700 transition-all">
+              <button onClick={() => setSelectedGuide(false)} title="Volver a la selección de guías" className="bg-neutral-800 border border-neutral-700 rounded-xl py-2 px-1 text-center hover:bg-neutral-700 transition-all">
                 <div className="flex flex-col items-center gap-0.5">
                   <ChevronLeft className="w-4 h-4 text-neutral-400" />
                   <span className="fs-tiny font-bold text-neutral-400 leading-tight">Volver</span>
@@ -606,21 +606,21 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
           {selectedGuide && (currentStepIndex > 0 ? (
             <div className="w-full flex flex-col gap-1.5">
-              <button onClick={() => exitMenu()} className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]">
+              <button onClick={() => exitMenu()} title="Continuar la ruta desde donde la dejaste" className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]">
                 ▶ CONTINUAR RUTA · Paso {currentStepIndex + 1}/{steps.length}
               </button>
-              <button onClick={() => exitMenu(() => { setCurrentStepIndex(0); resetTimer(); })} className="w-full py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 fs-small font-bold rounded-lg transition-colors">
+              <button onClick={() => exitMenu(() => { setCurrentStepIndex(0); resetTimer(); })} title="Empezar la ruta desde el principio" className="w-full py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 fs-small font-bold rounded-lg transition-colors">
                 Reiniciar desde cero
               </button>
             </div>
           ) : (
-            <button onClick={() => exitMenu()} className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] btn-glow-active">
+            <button onClick={() => exitMenu()} title="Comenzar la ruta seleccionada" className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] btn-glow-active">
               ▶ INICIAR RUTA
             </button>
-          )          )}
+          ))}
 
           {selectedGuide && (
-            <button onClick={() => setShowTeam(true)} className="w-full py-2.5 bg-violet-600 hover:bg-violet-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)]">
+            <button onClick={() => setShowTeam(true)} title="Ver el equipo Pokémon recomendado para esta ruta" className="w-full py-2.5 bg-violet-600 hover:bg-violet-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)]">
               <Users className="w-5 h-5 inline-block mr-2 -mt-0.5" />VER EQUIPO DE LA RUTA
             </button>
           )}
@@ -771,15 +771,15 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
         
         <header className="flex items-center justify-between p-4 border-b border-neutral-800 bg-neutral-900/50">
           <div className="flex items-center gap-3">
-            <button onClick={() => goToMenu()} className="fs-small font-bold tracking-widest text-neutral-400 uppercase hover:text-white transition-colors">Ruta Gym</button>
+            <button onClick={() => goToMenu()} title="Volver al menú principal" className="fs-small font-bold tracking-widest text-neutral-400 uppercase hover:text-white transition-colors">Ruta Gym</button>
             <div className="w-px h-4 bg-neutral-700" />
             <div className="fs-small text-neutral-500">Paso <span className="font-bold text-neutral-300">{currentStepIndex + 1}</span> / {steps.length}</div>
-            <button onClick={() => goToMenu()} className="px-2 py-1 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700 fs-tiny font-bold uppercase tracking-wider">Menú</button>
+            <button onClick={() => goToMenu()} title="Volver al menú principal" className="px-2 py-1 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700 fs-tiny font-bold uppercase tracking-wider">Menú</button>
           </div>
           
           <div className="flex items-center gap-2">
-            <button onClick={() => setShowTeam(true)} className="px-3 py-1.5 bg-violet-900/40 text-violet-300 border border-violet-700/40 rounded hover:bg-violet-800/50 fs-small font-bold uppercase tracking-wider">Equipo</button>
-            <button onClick={() => setShowHistory(true)} className="p-2 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700"><History className="w-4 h-4" /></button>
+            <button onClick={() => setShowTeam(true)} title="Ver equipo de la ruta actual" className="px-3 py-1.5 bg-violet-900/40 text-violet-300 border border-violet-700/40 rounded hover:bg-violet-800/50 fs-small font-bold uppercase tracking-wider">Equipo</button>
+            <button onClick={() => setShowHistory(true)} title="Historial de runs completadas" className="p-2 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700"><History className="w-4 h-4" /></button>
           </div>
         </header>
 
@@ -792,6 +792,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               <button
                 key={step.id}
                 onClick={() => setCurrentStepIndex(idx)}
+                title={`Ir al paso ${idx + 1}: ${step.title || step.type}`}
                 className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg fs-tiny font-bold whitespace-nowrap transition-all ${
                   idx === currentStepIndex
                     ? "bg-indigo-600 text-white shadow-[0_0_12px_rgba(99,102,241,0.4)]"
@@ -917,8 +918,8 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
           <div className="w-full max-w-4xl mt-6 space-y-3">
             <div className="flex gap-4">
-              <button onClick={handlePrev} disabled={currentStepIndex === 0} className="flex-1 py-4 bg-neutral-900 rounded-xl fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
-              <button onClick={currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext} className="flex-[2] py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-body">
+              <button onClick={handlePrev} disabled={currentStepIndex === 0} title="Paso anterior" className="flex-1 py-4 bg-neutral-900 rounded-xl fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
+              <button onClick={currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext} title={currentStepIndex === steps.length - 1 ? "Finalizar la ruta" : "Siguiente paso"} className="flex-[2] py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-body">
                 {currentStepIndex === steps.length - 1 ? "¡Finalizar!" : "Siguiente (Espacio) →"}
               </button>
             </div>
@@ -948,21 +949,21 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
 
           <div className="flex items-center gap-0.5">
-             <button onClick={handlePrev} disabled={currentStepIndex === 0} className="p-1 sm:p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
-               <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-             </button>
-             <button onClick={handleNext} disabled={currentStepIndex === steps.length - 1} className="p-1 sm:p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
-               <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-             </button>
+              <button onClick={handlePrev} disabled={currentStepIndex === 0} title="Paso anterior" className="p-1 sm:p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
+                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+              <button onClick={handleNext} disabled={currentStepIndex === steps.length - 1} title="Siguiente paso" className="p-1 sm:p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
+                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
           </div>
 
           <div className="flex gap-0.5 sm:gap-1 shrink-0">
             {!timerIsRunning ? (
-              <button onClick={startTimer} title="Iniciar" className="px-2 sm:px-3 py-1 sm:py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold fs-tiny sm:fs-small flex items-center gap-0.5 sm:gap-1"><Play className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current"/><span className="text-[10px] sm:text-xs">Iniciar</span></button>
+              <button onClick={startTimer} title="Iniciar cronómetro de la ruta" className="px-2 sm:px-3 py-1 sm:py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold fs-tiny sm:fs-small flex items-center gap-0.5 sm:gap-1"><Play className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current"/><span className="text-[10px] sm:text-xs">Iniciar</span></button>
             ) : (
-              <button onClick={pauseTimer} title="Pausar" className="px-2 sm:px-3 py-1 sm:py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold fs-tiny sm:fs-small flex items-center gap-0.5 sm:gap-1"><Pause className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current"/><span className="text-[10px] sm:text-xs">Pausar</span></button>
+              <button onClick={pauseTimer} title="Pausar cronómetro de la ruta" className="px-2 sm:px-3 py-1 sm:py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold fs-tiny sm:fs-small flex items-center gap-0.5 sm:gap-1"><Pause className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current"/><span className="text-[10px] sm:text-xs">Pausar</span></button>
             )}
-            <button onClick={resetTimer} title="Reiniciar" className="px-2 sm:px-3 py-1 sm:py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 rounded font-bold fs-tiny sm:fs-small"><RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5"/></button>
+            <button onClick={resetTimer} title="Reiniciar cronómetro a cero" className="px-2 sm:px-3 py-1 sm:py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 rounded font-bold fs-tiny sm:fs-small"><RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5"/></button>
           </div>
 
           <div className="h-5 w-px bg-neutral-700 hidden sm:block" />
@@ -976,8 +977,8 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             <div className="flex gap-0.5 sm:gap-1">
               <button onClick={() => startGymCooldown(getLastCompletedGym())} title="Activar cooldown de 18 horas" className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded font-bold text-[10px] sm:fs-tiny">18h</button>
               <button onClick={openCooldownEditor} title="Ajustar cooldown" className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded font-bold text-[10px] sm:fs-tiny">Ajustar</button>
-              <button onClick={requestFinishRun} className="px-2 sm:px-3 py-1 sm:py-1.5 bg-red-700 hover:bg-red-600 text-white rounded font-bold fs-tiny sm:fs-small transition-colors shadow-sm shadow-red-800/30">Terminar</button>
-              <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(0); resetTimer(); } }} className="px-2 sm:px-3 py-1 sm:py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded font-bold fs-tiny sm:fs-small transition-colors"><RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5 inline-block mr-0.5" />Reiniciar</button>
+              <button onClick={requestFinishRun} title="Terminar la ruta y guardar el tiempo" className="px-2 sm:px-3 py-1 sm:py-1.5 bg-red-700 hover:bg-red-600 text-white rounded font-bold fs-tiny sm:fs-small transition-colors shadow-sm shadow-red-800/30">Terminar Ruta</button>
+              <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(0); resetTimer(); } }} title="Reiniciar la ruta desde el paso 1" className="px-2 sm:px-3 py-1 sm:py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded font-bold fs-tiny sm:fs-small transition-colors"><RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5 inline-block mr-0.5" />Reiniciar Ruta</button>
             </div>
           </div>
 
