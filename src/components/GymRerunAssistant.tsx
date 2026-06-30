@@ -820,6 +820,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
         </header>
 
+        {currentStepIndex !== -1 && (
         <div
           className="flex-none overflow-x-auto px-4 py-2 border-b border-neutral-800/50 bg-neutral-950/40 scrollbar-thin"
           onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}
@@ -845,7 +846,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             ))}
           </div>
         </div>
-
+        )}
         <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 lg:p-12 overflow-hidden">
           <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-5 md:p-8 lg:p-12 shadow-2xl overflow-hidden relative text-center ${slideClass}`}>
             
@@ -856,8 +857,25 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             <div className="flex flex-col items-center gap-4 mb-6">
               {currentStepIndex === -1 ? (
                 <>
-                  <div className="w-20 h-20 opacity-20 mb-2">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/635.png" alt="" className="w-full h-full object-contain" />
+                  <div className="relative w-full max-w-xs h-44 mx-auto mb-3">
+                    <div className="absolute left-[5%] top-[5%] w-20 h-20 -rotate-6 opacity-40">
+                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Vanilluxe}.png`} alt="" className="w-full h-full object-contain" />
+                    </div>
+                    <div className="absolute left-[35%] top-[-15%] w-28 h-28 rotate-3 opacity-70 drop-shadow-[0_0_20px_rgba(99,102,241,0.3)]">
+                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Hydreigon}.png`} alt="" className="w-full h-full object-contain" />
+                    </div>
+                    <div className="absolute right-[5%] top-[5%] w-20 h-20 rotate-6 opacity-40">
+                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Weezing}.png`} alt="" className="w-full h-full object-contain" />
+                    </div>
+                    <div className="absolute left-[12%] bottom-[5%] w-[4.5rem] h-[4.5rem] -rotate-3 opacity-30">
+                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Mienshao}.png`} alt="" className="w-full h-full object-contain" />
+                    </div>
+                    <div className="absolute left-[42%] bottom-0 w-24 h-24 opacity-55 drop-shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Cloyster}.png`} alt="" className="w-full h-full object-contain" />
+                    </div>
+                    <div className="absolute right-[12%] bottom-[5%] w-[4.5rem] h-[4.5rem] rotate-3 opacity-30">
+                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Typhlosion}.png`} alt="" className="w-full h-full object-contain" />
+                    </div>
                   </div>
                   <h2 className="fs-h2 font-black tracking-tight text-white">33 Gym Rerun</h2>
                   <p className="fs-body text-neutral-400">{description}</p>
@@ -981,6 +999,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             
           </div>
 
+          {currentStepIndex !== -1 && (<>
           <div className="w-full max-w-4xl mt-6 space-y-3">
             <div className="flex gap-4">
               <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="flex-1 py-4 bg-neutral-900 rounded-xl fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
@@ -998,6 +1017,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               {currentStepIndex === -1 ? "0% completado" : `${Math.round(((currentStepIndex + 1) / steps.length) * 100)}% completado`}
             </div>
           </div>
+          </>)}
         </div>
       </main>
 
@@ -1013,14 +1033,15 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
           </div>
 
+          {currentStepIndex !== -1 && (
           <div className="flex items-center gap-0.5">
               <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="p-1 sm:p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
                 <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-              <button onClick={currentStepIndex === -1 ? handleNext : handleNext} disabled={currentStepIndex === steps.length - 1} title="Siguiente paso" className="p-1 sm:p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
+              <button onClick={handleNext} disabled={currentStepIndex === steps.length - 1} title="Siguiente paso" className="p-1 sm:p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
                 <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-          </div>
+          </div>)}
 
           <div className="flex gap-0.5 sm:gap-1 shrink-0">
             {!timerIsRunning ? (
