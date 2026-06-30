@@ -479,20 +479,33 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
         <div className="relative z-10 w-full max-w-xl flex flex-col items-center gap-2.5" style={{ maxWidth: "min(100%, 36rem)" }}>
 
-          <div className="w-full flex items-stretch gap-2">
-            <div className="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-2.5 py-1.5 text-center">
-              <div className="fs-tiny uppercase tracking-widest text-neutral-500 leading-tight">Sin Moneda</div>
-              <div className="fs-body font-black text-white">~297k</div>
-            </div>
-            <div className="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-2.5 py-1.5 text-center bg-emerald-950/10">
-              <div className="fs-tiny uppercase tracking-widest text-emerald-500 leading-tight">Con Moneda</div>
-              <div className="fs-body font-black text-emerald-400">~446k</div>
-            </div>
-            <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 bg-neutral-900 border border-dashed border-neutral-700 rounded-xl px-2.5 py-1.5 group hover:bg-neutral-800 transition-colors shrink-0">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-red-400"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.386.507 9.386.507s7.518 0 9.387-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-              <span className="fs-tiny text-neutral-500 group-hover:text-white transition-colors font-semibold">Run Ejemplo</span>
-            </a>
-          </div>
+          {selectedGuide && (
+            <>
+              <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" className="w-full bg-red-950/20 border border-red-800/50 rounded-2xl p-3 flex items-center gap-3 group hover:bg-red-950/30 transition-all cursor-pointer">
+                <div className="w-10 h-10 flex-shrink-0 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30">
+                  <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.386.507 9.386.507s7.518 0 9.387-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                </div>
+                <div className="flex-1 text-left">
+                  <div className="fs-body font-black text-white group-hover:text-red-300 transition-colors">Ver Run de Ejemplo en YouTube</div>
+                  <div className="fs-tiny text-neutral-400">Guía visual completa — de aquí se extrajo toda la información</div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-red-400/60 group-hover:text-red-400 transition-colors shrink-0" />
+              </a>
+
+              <div className="w-full flex items-stretch gap-2">
+                <div className="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-2.5 py-1.5 text-center">
+                  <div className="fs-tiny uppercase tracking-widest text-neutral-500 leading-tight">Sin Moneda Amuleto</div>
+                  <div className="fs-body font-black text-white">~297,000</div>
+                  <div className="fs-tiny text-neutral-600">×1.0 — ~9,000 c/u</div>
+                </div>
+                <div className="flex-1 bg-neutral-900 border border-emerald-800/40 rounded-xl px-2.5 py-1.5 text-center bg-emerald-950/15">
+                  <div className="fs-tiny uppercase tracking-widest text-emerald-500 leading-tight">Con Moneda Amuleto</div>
+                  <div className="fs-body font-black text-emerald-400">~446,000</div>
+                  <div className="fs-tiny text-emerald-600">×1.5 — ~13,500 c/u</div>
+                </div>
+              </div>
+            </>
+          )}
 
           <div className="text-center">
             <span className="fs-tiny uppercase tracking-widest font-black text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-2 py-0.5 rounded-full">PokeMMO Speedrun Tool</span>
@@ -532,7 +545,6 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                 </div>
               </>
             )}
-
           </div>
 
           <div className="w-full grid grid-cols-4 gap-2">
