@@ -616,7 +616,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
         </header>
 
-        <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 lg:p-12">
+        <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 lg:p-12 overflow-hidden">
           <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-5 md:p-8 lg:p-12 shadow-2xl overflow-hidden relative text-center ${slideClass}`}>
             
             <div className="absolute -top-6 -right-6 w-24 h-24 opacity-[0.04] pointer-events-none select-none">
