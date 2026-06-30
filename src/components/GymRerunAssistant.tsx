@@ -857,40 +857,18 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             <div className="flex flex-col items-center gap-4 mb-6">
               {currentStepIndex === -1 ? (
                 <>
-                  <div className="relative w-full max-w-xs h-44 mx-auto mb-3">
-                    <div className="absolute left-[5%] top-[5%] w-20 h-20 -rotate-6 opacity-40">
-                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Vanilluxe}.png`} alt="" className="w-full h-full object-contain" />
+                  <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" title="Ver run de ejemplo en YouTube" className="w-full max-w-sm mx-auto mb-3 block group">
+                    <div className="relative rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl">
+                      <img src="https://img.youtube.com/vi/himBCqDN2-I/maxresdefault.jpg" alt="Run de ejemplo" className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/10 transition-colors">
+                        <div className="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-red-600/40 group-hover:scale-110 transition-transform">
+                          <svg viewBox="0 0 24 24" fill="white" className="w-8 h-8 ml-1"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.386.507 9.386.507s7.518 0 9.387-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        </div>
+                      </div>
                     </div>
-                    <div className="absolute left-[35%] top-[-15%] w-28 h-28 rotate-3 opacity-70 drop-shadow-[0_0_20px_rgba(99,102,241,0.3)]">
-                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Hydreigon}.png`} alt="" className="w-full h-full object-contain" />
-                    </div>
-                    <div className="absolute right-[5%] top-[5%] w-20 h-20 rotate-6 opacity-40">
-                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Weezing}.png`} alt="" className="w-full h-full object-contain" />
-                    </div>
-                    <div className="absolute left-[12%] bottom-[5%] w-[4.5rem] h-[4.5rem] -rotate-3 opacity-30">
-                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Mienshao}.png`} alt="" className="w-full h-full object-contain" />
-                    </div>
-                    <div className="absolute left-[42%] bottom-0 w-24 h-24 opacity-55 drop-shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Cloyster}.png`} alt="" className="w-full h-full object-contain" />
-                    </div>
-                    <div className="absolute right-[12%] bottom-[5%] w-[4.5rem] h-[4.5rem] rotate-3 opacity-30">
-                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Typhlosion}.png`} alt="" className="w-full h-full object-contain" />
-                    </div>
-                  </div>
+                  </a>
                   <h2 className="fs-h2 font-black tracking-tight text-white">33 Gym Rerun</h2>
                   <p className="fs-body text-neutral-400">{description}</p>
-                  <div className="w-full bg-red-950/20 border border-red-800/50 rounded-2xl p-4 mt-2">
-                    <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" title="Ver run de ejemplo en YouTube" className="flex items-center gap-3 group">
-                      <div className="w-12 h-12 flex-shrink-0 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30">
-                        <svg viewBox="0 0 24 24" fill="white" className="w-6 h-6"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.386.507 9.386.507s7.518 0 9.387-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="fs-body font-black text-white group-hover:text-red-300 transition-colors">Ver Run de Ejemplo en YouTube</div>
-                        <div className="fs-tiny text-neutral-400">De aquí se extrajo toda la información de la guía</div>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-red-400/60 group-hover:text-red-400 transition-colors shrink-0" />
-                    </a>
-                  </div>
                   <button onClick={handleNext} className="w-full mt-2 py-3 bg-indigo-600 hover:bg-indigo-500 text-white fs-hero2 font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)]">
                     ▶ COMENZAR RUTA
                   </button>
