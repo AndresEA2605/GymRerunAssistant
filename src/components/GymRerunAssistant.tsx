@@ -811,7 +811,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           <div className="flex items-center gap-3">
             <button onClick={() => goToMenu()} title="Volver al menú principal" className="fs-small font-bold tracking-widest text-neutral-400 uppercase hover:text-white transition-colors">Ruta Gym</button>
             <div className="w-px h-4 bg-neutral-700" />
-            <div className="fs-small text-neutral-500">Paso <span className="font-bold text-neutral-300">{currentStepIndex + 1}</span> / {steps.length}</div>
+            <div className="fs-small text-neutral-500">{currentStepIndex === -1 ? "Portada" : <>Paso <span className="font-bold text-neutral-300">{currentStepIndex + 1}</span> / {steps.length}</>}</div>
             <button onClick={() => goToMenu()} title="Volver al menú principal" className="px-2 py-1 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700 fs-tiny font-bold uppercase tracking-wider">Menú</button>
           </div>
           
@@ -983,9 +983,9 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
           <div className="w-full max-w-4xl mt-6 space-y-3">
             <div className="flex gap-4">
-              <button onClick={handlePrev} disabled={currentStepIndex === 0} title="Paso anterior" className="flex-1 py-4 bg-neutral-900 rounded-xl fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
-              <button onClick={currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext} title={currentStepIndex === steps.length - 1 ? "Finalizar la ruta" : "Siguiente paso"} className="flex-[2] py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-body">
-                {currentStepIndex === steps.length - 1 ? "¡Finalizar!" : "Siguiente (Espacio) →"}
+              <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="flex-1 py-4 bg-neutral-900 rounded-xl fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
+              <button onClick={currentStepIndex === -1 ? handleNext : (currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext)} title={currentStepIndex === -1 ? "Comenzar la ruta" : currentStepIndex === steps.length - 1 ? "Finalizar la ruta" : "Siguiente paso"} className="flex-[2] py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-body">
+                {currentStepIndex === -1 ? "▶ COMENZAR" : currentStepIndex === steps.length - 1 ? "¡Finalizar!" : "Siguiente (Espacio) →"}
               </button>
             </div>
             <div className="w-full bg-neutral-800 rounded-full h-2.5 overflow-hidden">
@@ -995,7 +995,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               />
             </div>
             <div className="text-center fs-tiny md:fs-small text-neutral-500 font-mono">
-              {Math.round(((currentStepIndex + 1) / steps.length) * 100)}% completado
+              {currentStepIndex === -1 ? "0% completado" : `${Math.round(((currentStepIndex + 1) / steps.length) * 100)}% completado`}
             </div>
           </div>
         </div>
@@ -1014,10 +1014,10 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
 
           <div className="flex items-center gap-0.5">
-              <button onClick={handlePrev} disabled={currentStepIndex === 0} title="Paso anterior" className="p-1 sm:p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
+              <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="p-1 sm:p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
                 <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-              <button onClick={handleNext} disabled={currentStepIndex === steps.length - 1} title="Siguiente paso" className="p-1 sm:p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
+              <button onClick={currentStepIndex === -1 ? handleNext : handleNext} disabled={currentStepIndex === steps.length - 1} title="Siguiente paso" className="p-1 sm:p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
                 <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
           </div>
