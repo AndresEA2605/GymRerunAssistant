@@ -606,17 +606,17 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
         </header>
 
         <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 lg:p-12">
-          <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-5 md:p-8 lg:p-12 shadow-2xl overflow-hidden relative ${slideClass}`}>
+          <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-5 md:p-8 lg:p-12 shadow-2xl overflow-hidden relative text-center ${slideClass}`}>
             
             <div className="absolute -top-6 -right-6 w-24 h-24 opacity-[0.04] pointer-events-none select-none">
               <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="" className="w-full h-full object-contain" />
             </div>
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-              <div className="flex items-center gap-3 w-full sm:w-auto min-w-0">
+            <div className="flex flex-col items-center gap-4 mb-6">
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
                 <span className="p-3 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon(currentStep.type)}</span>
-                <h2 className="fs-h3 font-black tracking-tight text-white truncate">{currentStep.title}</h2>
-                {currentStep.region && <span className="ml-auto sm:ml-3 fs-small font-bold uppercase tracking-widest px-2 py-0.5 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentStep.region}</span>}
+                <h2 className="fs-h3 font-black tracking-tight text-white">{currentStep.title}</h2>
+                {currentStep.region && <span className="fs-small font-bold uppercase tracking-widest px-2 py-0.5 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentStep.region}</span>}
               </div>
 
               {currentStep.type === "gym" && currentStep.gym && gymCoords[currentStep.gym as keyof typeof gymCoords] && (
@@ -637,31 +637,31 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
             {currentStep.type === "gym" && (
               <div className="space-y-5">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-wrap justify-center gap-4">
                   {currentStep.lead && (
-                    <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
+                    <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800 flex-1 min-w-[180px]">
                       <div className="fs-small text-indigo-400 uppercase font-black tracking-widest mb-2">Leads</div>
-                      {renderWithSprites(currentStep.lead)}
+                      <div className="flex justify-center">{renderWithSprites(currentStep.lead)}</div>
                     </div>
                   )}
                   {currentStep.switchTo && (
-                    <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
+                    <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800 flex-1 min-w-[180px]">
                       <div className="fs-small text-emerald-400 uppercase font-black tracking-widest mb-2">Cambios Seguros</div>
-                      {renderWithSprites(currentStep.switchTo)}
+                      <div className="flex justify-center">{renderWithSprites(currentStep.switchTo)}</div>
                     </div>
                   )}
                 </div>
                 {currentStep.actions && (
                   <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
-                    <div className="fs-small text-amber-400 uppercase font-black tracking-widest mb-3">Estrategia vs Variantes</div>
+                    <div className="fs-small text-amber-400 uppercase font-black tracking-widest mb-3 text-center">Estrategia vs Variantes</div>
                     <ul className="space-y-2">
                       {currentStep.actions.map((act, i) => {
                         const parts = act.split("→");
                         return (
-                          <li key={i} className="flex flex-col sm:flex-row sm:items-center gap-2 fs-body bg-neutral-900 p-2 rounded border border-neutral-800">
+                          <li key={i} className="flex flex-col sm:flex-row items-center justify-center gap-2 fs-body bg-neutral-900 p-2 rounded border border-neutral-800">
                             {parts.length > 1 ? (
-                              <><span className="font-bold text-white whitespace-nowrap">{parts[0].trim()}</span> <span className="text-neutral-500 hidden sm:inline">→</span> <span className="text-neutral-300">{parts[1].trim()}</span></>
-                            ) : <span>{act}</span>}
+                              <><span className="font-bold text-white">{parts[0].trim()}</span> <span className="text-neutral-500 hidden sm:inline">→</span> <span className="text-neutral-300">{parts[1].trim()}</span></>
+                            ) : <span className="text-center">{act}</span>}
                           </li>
                         );
                       })}
@@ -674,20 +674,20 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             {currentStep.type === "prep" && (
               <div className="space-y-4">
                 {currentStep.heal && (
-                  <div className="flex items-center gap-3 bg-red-950/20 border border-red-900/30 p-4 rounded-xl text-red-400 fs-body font-bold">
+                  <div className="flex items-center justify-center gap-3 bg-red-950/20 border border-red-900/30 p-4 rounded-xl text-red-400 fs-body font-bold">
                     <Heart className="w-5 h-5 fill-current" /> Curar equipo en el Centro Pokémon
                   </div>
                 )}
                 {currentStep.items && currentStep.items.length > 0 && (
                   <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
-                    <div className="fs-small text-blue-400 uppercase font-black tracking-widest mb-3 flex items-center gap-2"><Sparkles className="w-3.5 h-3.5"/> Equipar Objetos</div>
+                    <div className="fs-small text-blue-400 uppercase font-black tracking-widest mb-3 flex items-center justify-center gap-2"><Sparkles className="w-3.5 h-3.5"/> Equipar Objetos</div>
                     <ul className="space-y-2">
                       {currentStep.items.map((it, i) => {
                         const isScarf = it.item.toLowerCase().includes("panuelo") || it.item.toLowerCase().includes("pañuelo");
                         return (
-                          <li key={i} className={`flex items-center justify-between gap-2 p-3 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
+                          <li key={i} className={`flex flex-col sm:flex-row items-center justify-center gap-2 p-3 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
                             <span className={isScarf ? 'text-white' : 'text-neutral-400'}>{renderWithSprites(it.pokemon, " • ")}</span>
-                            <span className={`shrink-0 ${isScarf ? 'text-indigo-400 bg-indigo-950 px-3 py-1 fs-small shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-2 py-0.5 fs-tiny'} font-bold rounded uppercase tracking-wider`}>
+                            <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-3 py-1 fs-small shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-2 py-0.5 fs-tiny'} font-bold rounded uppercase tracking-wider`}>
                               ➔ {it.item}
                             </span>
                           </li>
@@ -697,7 +697,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   </div>
                 )}
                 {currentStep.travel && (
-                  <div className="flex items-center gap-3 bg-teal-950/20 border border-teal-900/30 p-4 rounded-xl text-teal-400 fs-body font-bold">
+                  <div className="flex items-center justify-center gap-3 bg-teal-950/20 border border-teal-900/30 p-4 rounded-xl text-teal-400 fs-body font-bold">
                     <Compass className="w-5 h-5" /> Viajar hacia {currentStep.travel}
                   </div>
                 )}
