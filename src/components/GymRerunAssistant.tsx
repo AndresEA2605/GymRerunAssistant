@@ -94,6 +94,41 @@ const CooldownDisplay = memo(({ endAt }: { endAt: number | null }) => {
 });
 CooldownDisplay.displayName = "CooldownDisplay";
 
+const matchPokemon = (text: string): { name: string; id: number } | null => {
+  for (const [name, id] of Object.entries(POKEMON_ARTWORK)) {
+    if (text.startsWith(name)) return { name, id };
+  }
+  return null;
+};
+
+const PokemonSprite = ({ name, id, size = 24 }: { name: string; id: number; size?: number }) => (
+  <img
+    src={`${SPRITE_BASE}/${id}.png`}
+    alt={name}
+    className="inline-block object-contain -mt-0.5 mr-1"
+    style={{ width: size, height: size }}
+    loading="lazy"
+  />
+);
+
+const renderWithSprites = (items: string[], sep = " • ") => (
+  <span className="fs-body font-semibold inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
+    {items.map((item, i) => {
+      const match = matchPokemon(item);
+      return (
+        <span key={i}>
+          {i > 0 && <span className="text-neutral-600 mx-0.5">{sep}</span>}
+          {match ? (
+            <><PokemonSprite name={match.name} id={match.id} />{item}</>
+          ) : (
+            item
+          )}
+        </span>
+      );
+    })}
+  </span>
+);
+
 const PokeballSVG = ({ opacity = 0.18 }: { opacity?: number }) => (
   <svg viewBox="0 0 100 100" style={{ width: "100%", height: "100%", opacity }}>
     <circle cx="50" cy="50" r="47" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="3"/>
@@ -103,6 +138,8 @@ const PokeballSVG = ({ opacity = 0.18 }: { opacity?: number }) => (
     <circle cx="50" cy="50" r="7" fill="rgba(255,255,255,0.12)"/>
   </svg>
 );
+
+const SPRITE_BASE = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork";
 
 const POKEMON_ARTWORK: Record<string, number> = {
   Hydreigon: 635, Weezing: 110, Togekiss: 468,
@@ -604,13 +641,13 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   {currentStep.lead && (
                     <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
                       <div className="fs-small text-indigo-400 uppercase font-black tracking-widest mb-2">Leads</div>
-                      <div className="fs-body font-semibold">{currentStep.lead.join(" • ")}</div>
+                      {renderWithSprites(currentStep.lead)}
                     </div>
                   )}
                   {currentStep.switchTo && (
                     <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
                       <div className="fs-small text-emerald-400 uppercase font-black tracking-widest mb-2">Cambios Seguros</div>
-                      <div className="fs-body font-semibold">{currentStep.switchTo.join(" • ")}</div>
+                      {renderWithSprites(currentStep.switchTo)}
                     </div>
                   )}
                 </div>
@@ -648,9 +685,9 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                       {currentStep.items.map((it, i) => {
                         const isScarf = it.item.toLowerCase().includes("panuelo") || it.item.toLowerCase().includes("pañuelo");
                         return (
-                          <li key={i} className={`flex items-center justify-between p-3 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
-                            <span className={`fs-body font-semibold ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{it.pokemon.join(" • ")}</span>
-                            <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-3 py-1 fs-small shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-2 py-0.5 fs-tiny'} font-bold rounded uppercase tracking-wider`}>
+                          <li key={i} className={`flex items-center justify-between gap-2 p-3 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
+                            <span className={isScarf ? 'text-white' : 'text-neutral-400'}>{renderWithSprites(it.pokemon, " • ")}</span>
+                            <span className={`shrink-0 ${isScarf ? 'text-indigo-400 bg-indigo-950 px-3 py-1 fs-small shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-2 py-0.5 fs-tiny'} font-bold rounded uppercase tracking-wider`}>
                               ➔ {it.item}
                             </span>
                           </li>
