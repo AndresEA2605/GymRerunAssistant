@@ -160,18 +160,18 @@ const POKEBALLS = [
 const SIZES = [28, 20, 36, 16, 24, 32, 18, 22, 30];
 
 const FLOATING_POKEMON = [
-  { id: 6,  x: "5%",  y: "15%",  s: 28, dur: 35, del: 0,  d: "up" },
-  { id: 25, x: "90%", y: "10%",  s: 22, dur: 28, del: 5,  d: "diag" },
-  { id: 143, x: "75%", y: "80%", s: 32, dur: 42, del: 12, d: "down" },
-  { id: 149, x: "15%", y: "70%", s: 26, dur: 30, del: 3,  d: "up" },
-  { id: 94,  x: "45%", y: "20%", s: 20, dur: 38, del: 8,  d: "diag" },
-  { id: 196, x: "60%", y: "85%", s: 24, dur: 25, del: 15, d: "up" },
-  { id: 6,   x: "35%", y: "50%", s: 30, dur: 45, del: 20, d: "down" },
-  { id: 59,  x: "82%", y: "45%", s: 18, dur: 32, del: 6,  d: "diag" },
-  { id: 448, x: "20%", y: "40%", s: 26, dur: 36, del: 10, d: "up" },
-  { id: 248, x: "50%", y: "65%", s: 22, dur: 40, del: 18, d: "diag" },
-  { id: 65,  x: "70%", y: "25%", s: 20, dur: 28, del: 2,  d: "up" },
-  { id: 130, x: "8%",  y: "88%", s: 24, dur: 34, del: 14, d: "down" },
+  { id: 6,  x: "5%",  y: "15%",  s: 40, dur: 18, del: 0,  fx: "spin",   flt: "hue-rotate(0deg)" },
+  { id: 25, x: "88%", y: "8%",   s: 34, dur: 14, del: 3,  fx: "bounce", flt: "brightness(1.4) saturate(1.6)" },
+  { id: 143, x: "72%", y: "78%", s: 48, dur: 22, del: 8,  fx: "drift",  flt: "sepia(0.6) hue-rotate(320deg)" },
+  { id: 149, x: "12%", y: "72%", s: 38, dur: 16, del: 5,  fx: "spin",   flt: "hue-rotate(180deg) saturate(1.3)" },
+  { id: 94,  x: "42%", y: "18%", s: 32, dur: 20, del: 10, fx: "glow",   flt: "brightness(1.5) saturate(1.8) hue-rotate(270deg)" },
+  { id: 196, x: "55%", y: "82%", s: 36, dur: 12, del: 12, fx: "bounce", flt: "saturate(1.6) hue-rotate(60deg)" },
+  { id: 59,  x: "30%", y: "48%", s: 42, dur: 24, del: 15, fx: "drift",  flt: "hue-rotate(30deg) brightness(1.3)" },
+  { id: 448, x: "18%", y: "38%", s: 34, dur: 15, del: 6,  fx: "spin",   flt: "hue-rotate(120deg) saturate(1.5)" },
+  { id: 248, x: "48%", y: "60%", s: 40, dur: 19, del: 2,  fx: "glow",   flt: "brightness(1.6) saturate(1.4) hue-rotate(340deg)" },
+  { id: 65,  x: "68%", y: "22%", s: 30, dur: 17, del: 14, fx: "bounce", flt: "hue-rotate(200deg) brightness(1.2)" },
+  { id: 130, x: "6%",  y: "85%", s: 44, dur: 21, del: 9,  fx: "drift",  flt: "sepia(0.4) hue-rotate(150deg)" },
+  { id: 6,   x: "85%", y: "55%", s: 36, dur: 13, del: 18, fx: "glow",   flt: "brightness(1.7) saturate(1.3)" },
 ];
 
 const PokeBackground = memo(() => (
@@ -195,7 +195,7 @@ const PokeBackground = memo(() => (
     {FLOATING_POKEMON.map((p, i) => (
       <div
         key={i}
-        className={`pokemon-float-${p.d}`}
+        className={`pokemon-fx-${p.fx}`}
         style={{
           left: p.x,
           top: p.y,
@@ -208,7 +208,8 @@ const PokeBackground = memo(() => (
         <img
           src={`${SPRITE_BASE}/${p.id}.png`}
           alt=""
-          className="w-full h-full object-contain opacity-[0.06] pointer-events-none select-none"
+          className="w-full h-full object-contain pointer-events-none select-none"
+          style={{ filter: p.flt }}
           loading="lazy"
         />
       </div>
