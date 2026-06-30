@@ -508,34 +508,34 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     const bestRun = history.length > 0 ? history.reduce((a, b) => a.elapsed < b.elapsed ? a : b) : null;
     return (
       <>
-      <div className={`${menuVisible ? 'menu-enter' : 'fade-in-screen'} min-h-screen bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-4 md:p-6 relative overflow-y-auto overflow-x-hidden ${menuExiting ? 'menu-exit' : ''}`}>
+      <div className={`${menuVisible ? 'menu-enter' : 'fade-in-screen'} min-h-screen bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-3 md:p-6 relative overflow-y-auto overflow-x-hidden ${menuExiting ? 'menu-exit' : ''}`}>
         <PokeBackground />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none" />
 
-        <div className="relative z-10 w-full max-w-xl flex flex-col items-center gap-2.5" style={{ maxWidth: "min(100%, 36rem)" }}>
+        <div className="relative z-10 w-full max-w-xl flex flex-col items-center gap-2 md:gap-2.5" style={{ maxWidth: "min(100%, 36rem)" }}>
 
           {selectedGuide && (
             <>
-              <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" title="Ver run de ejemplo en YouTube — de aquí se extrajo toda la información" className="reveal-1 w-full bg-red-950/20 border border-red-800/50 rounded-2xl p-3 flex items-center gap-3 group hover:bg-red-950/30 transition-all cursor-pointer">
-                <div className="w-10 h-10 flex-shrink-0 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30">
-                  <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.386.507 9.386.507s7.518 0 9.387-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" title="Ver run de ejemplo en YouTube — de aquí se extrajo toda la información" className="reveal-1 w-full bg-red-950/20 border border-red-800/50 rounded-2xl p-2.5 md:p-3 flex items-center gap-2 md:gap-3 group hover:bg-red-950/30 transition-all cursor-pointer">
+                <div className="w-8 h-8 md:w-10 md:h-10 flex-shrink-0 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30">
+                  <svg viewBox="0 0 24 24" fill="white" className="w-4 h-4 md:w-5 md:h-5"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.386.507 9.386.507s7.518 0 9.387-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                 </div>
                 <div className="flex-1 text-left">
-                  <div className="fs-body font-black text-white group-hover:text-red-300 transition-colors">Ver Run de Ejemplo en YouTube</div>
-                  <div className="fs-tiny text-neutral-400">Guía visual completa — de aquí se extrajo toda la información</div>
+                  <div className="fs-small md:fs-body font-black text-white group-hover:text-red-300 transition-colors">Ver Run de Ejemplo en YouTube</div>
+                  <div className="fs-tiny text-neutral-400">Guía visual — de aquí se extrajo toda la info</div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-red-400/60 group-hover:text-red-400 transition-colors shrink-0" />
+                <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-red-400/60 group-hover:text-red-400 transition-colors shrink-0" />
               </a>
 
-              <div className="reveal-2 w-full flex items-stretch gap-2">
-                <div className="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-2.5 py-1.5 text-center">
-                  <div className="fs-tiny uppercase tracking-widest text-neutral-500 leading-tight">Sin Moneda Amuleto</div>
-                  <div className="fs-body font-black text-white">~297,000</div>
+              <div className="reveal-2 w-full flex items-stretch gap-1.5 md:gap-2">
+                <div className="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-2 md:px-2.5 py-1 md:py-1.5 text-center">
+                  <div className="fs-tiny md:fs-tiny uppercase tracking-widest text-neutral-500 leading-tight">Sin Moneda Amuleto</div>
+                  <div className="fs-small md:fs-body font-black text-white">~297,000</div>
                   <div className="fs-tiny text-neutral-600">×1.0 — ~9,000 c/u</div>
                 </div>
-                <div className="flex-1 bg-neutral-900 border border-emerald-800/40 rounded-xl px-2.5 py-1.5 text-center bg-emerald-950/15">
-                  <div className="fs-tiny uppercase tracking-widest text-emerald-500 leading-tight">Con Moneda Amuleto</div>
-                  <div className="fs-body font-black text-emerald-400">~446,000</div>
+                <div className="flex-1 bg-neutral-900 border border-emerald-800/40 rounded-xl px-2 md:px-2.5 py-1 md:py-1.5 text-center bg-emerald-950/15">
+                  <div className="fs-tiny md:fs-tiny uppercase tracking-widest text-emerald-500 leading-tight">Con Moneda Amuleto</div>
+                  <div className="fs-small md:fs-body font-black text-emerald-400">~446,000</div>
                   <div className="fs-tiny text-emerald-600">×1.5 — ~13,500 c/u</div>
                 </div>
               </div>
@@ -560,42 +560,42 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             </p>
           )}
 
-          <div className="reveal-2 w-full grid grid-cols-3 gap-2 text-center">
+          <div className="reveal-2 w-full grid grid-cols-3 gap-1.5 md:gap-2 text-center">
             {selectedGuide ? (
               <>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                  <div className="fs-body font-black text-white">{totalGyms}</div>
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
+                  <div className="fs-tiny md:fs-body font-black text-white">{totalGyms}</div>
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Gimnasios</div>
                 </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                  <div className="fs-body font-black text-indigo-400">{steps.length}</div>
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
+                  <div className="fs-tiny md:fs-body font-black text-indigo-400">{steps.length}</div>
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Pasos</div>
                 </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                  <div className="fs-body font-black text-amber-400">{bestRun ? formatTime(bestRun.elapsed) : '--:--'}</div>
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
+                  <div className="fs-tiny md:fs-body font-black text-amber-400">{bestRun ? formatTime(bestRun.elapsed) : '--:--'}</div>
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Mejor Tiempo</div>
                 </div>
               </>
             ) : (
               <>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                  <div className="fs-body font-black text-white">1</div>
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
+                  <div className="fs-tiny md:fs-body font-black text-white">1</div>
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Guías Disp.</div>
                 </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                  <div className="fs-body font-black text-neutral-400">33</div>
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
+                  <div className="fs-tiny md:fs-body font-black text-neutral-400">33</div>
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Gyms por Guía</div>
                 </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                  <div className="fs-body font-black text-neutral-400">59</div>
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
+                  <div className="fs-tiny md:fs-body font-black text-neutral-400">59</div>
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Pasos por Guía</div>
                 </div>
               </>
             )}
           </div>
 
-          <div className="reveal-3 w-full grid grid-cols-4 gap-2">
-            <button onClick={selectedGuide ? () => exitMenu() : () => setSelectedGuide(true)} title={selectedGuide ? "Iniciar la ruta seleccionada" : "Seleccionar esta guía"} className={`rounded-xl py-2 px-2 text-center transition-all relative overflow-hidden ${selectedGuide ? 'bg-indigo-600 border-2 border-indigo-400' : 'bg-neutral-900 border border-indigo-500/40 hover:bg-neutral-800'}`}>
+          <div className="reveal-3 w-full grid grid-cols-4 gap-1.5 md:gap-2">
+            <button onClick={selectedGuide ? () => exitMenu() : () => setSelectedGuide(true)} title={selectedGuide ? "Iniciar la ruta seleccionada" : "Seleccionar esta guía"} className={`rounded-xl py-1.5 px-1 md:py-2 md:px-2 text-center transition-all relative overflow-hidden ${selectedGuide ? 'bg-indigo-600 border-2 border-indigo-400' : 'bg-neutral-900 border border-indigo-500/40 hover:bg-neutral-800'}`}>
               <div className="flex flex-col items-center gap-0.5">
                 <div className="w-6 h-6 opacity-20">
                   <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/635.png" alt="" className="w-full h-full object-contain" />
@@ -639,22 +639,22 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
           {selectedGuide && (currentStepIndex > 0 ? (
             <div className="reveal-4 w-full flex flex-col gap-1.5">
-              <button onClick={() => exitMenu()} title="Continuar la ruta desde donde la dejaste" className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]">
+              <button onClick={() => exitMenu()} title="Continuar la ruta desde donde la dejaste" className="w-full py-2 md:py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-small md:fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]">
                 ▶ CONTINUAR RUTA · Paso {currentStepIndex + 1}/{steps.length}
               </button>
-              <button onClick={() => exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); })} title="Empezar la ruta desde el principio" className="w-full py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 fs-small font-bold rounded-lg transition-colors">
+              <button onClick={() => exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); })} title="Empezar la ruta desde el principio" className="w-full py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 fs-tiny md:fs-small font-bold rounded-lg transition-colors">
                 Reiniciar desde cero
               </button>
             </div>
           ) : (
-            <button onClick={() => exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); })} title="Comenzar la ruta seleccionada" className="reveal-4 w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] btn-glow-active">
+            <button onClick={() => exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); })} title="Comenzar la ruta seleccionada" className="reveal-4 w-full py-2 md:py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-small md:fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] btn-glow-active">
               ▶ INICIAR RUTA
             </button>
           ))}
 
           {selectedGuide && (
-            <button onClick={() => setShowTeam(true)} title="Ver el equipo Pokémon recomendado para esta ruta" className="reveal-5 w-full py-2.5 bg-violet-600 hover:bg-violet-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)]">
-              <Users className="w-5 h-5 inline-block mr-2 -mt-0.5" />VER EQUIPO DE LA RUTA
+            <button onClick={() => setShowTeam(true)} title="Ver el equipo Pokémon recomendado para esta ruta" className="reveal-5 w-full py-2 md:py-2.5 bg-violet-600 hover:bg-violet-500 text-white fs-small md:fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)]">
+              <Users className="w-4 h-4 md:w-5 md:h-5 inline-block mr-1.5 -mt-0.5" />VER EQUIPO DE LA RUTA
             </button>
           )}
 
@@ -870,7 +870,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       
       <main className={`flex-1 flex flex-col h-full relative z-10 overflow-y-auto overflow-x-hidden ${currentStepIndex === -1 ? 'pb-0' : 'pb-20'}`}>
         
-        <header className="flex items-center justify-between p-4 border-b border-neutral-800 bg-neutral-900/50">
+        <header className="flex items-center justify-between p-2.5 md:p-4 border-b border-neutral-800 bg-neutral-900/50">
           <div className="flex items-center gap-3">
             <button onClick={() => goToMenu()} title="Volver al menú principal" className="fs-small font-bold tracking-widest text-neutral-400 uppercase hover:text-white transition-colors">Ruta Gym</button>
             <div className="w-px h-4 bg-neutral-700" />
@@ -885,16 +885,16 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
         {currentStepIndex !== -1 && (
         <div
-          className="flex-none overflow-x-auto px-4 py-2 border-b border-neutral-800/50 bg-neutral-950/40 scrollbar-thin"
+          className="flex-none overflow-x-auto px-2 py-1.5 md:px-4 md:py-2 border-b border-neutral-800/50 bg-neutral-950/40 scrollbar-thin"
           onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}
         >
-          <div className="flex gap-1.5 min-w-max">
+          <div className="flex gap-1 min-w-max">
             {steps.map((step, idx) => (
               <button
                 key={step.id}
                 onClick={() => setCurrentStepIndex(idx)}
                 title={`Ir al paso ${idx + 1}: ${step.title || step.type}`}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg fs-tiny font-bold whitespace-nowrap transition-all ${
+                className={`flex items-center gap-1 px-2 py-1 md:px-2.5 md:py-1.5 rounded-lg fs-tiny font-bold whitespace-nowrap transition-all ${
                   idx === currentStepIndex
                     ? "bg-indigo-600 text-white shadow-[0_0_12px_rgba(99,102,241,0.4)]"
                     : idx < currentStepIndex
@@ -902,22 +902,22 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                     : "bg-neutral-800/30 text-neutral-400 hover:bg-neutral-700/60"
                 }`}
               >
-                <span className="tabular-nums w-4 text-center">{idx + 1}</span>
+                <span className="tabular-nums w-3 md:w-4 text-center text-[10px] md:text-xs">{idx + 1}</span>
                 <span>{renderIcon(step.type)}</span>
-                <span className="max-w-[90px] truncate">{step.title}</span>
+                <span className="max-w-[70px] md:max-w-[90px] truncate text-[10px] md:text-xs">{step.title}</span>
               </button>
             ))}
           </div>
         </div>
         )}
-        <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 lg:p-12 overflow-y-auto overflow-x-hidden">
-          <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-5 md:p-8 lg:p-12 shadow-2xl relative text-center ${slideClass}`}>
+        <div className="flex-1 flex flex-col items-center justify-center p-2.5 md:p-8 lg:p-12 overflow-y-auto overflow-x-hidden">
+          <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-3 md:p-8 lg:p-12 shadow-2xl relative text-center ${slideClass}`}>
             
             <div className="absolute -top-6 -right-6 w-24 h-24 opacity-[0.04] pointer-events-none select-none">
               <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="" className="w-full h-full object-contain" />
             </div>
 
-            <div className="flex flex-col items-center gap-4 mb-6">
+            <div className="flex flex-col items-center gap-3 mb-4 md:gap-4 md:mb-6">
               {currentStepIndex === -1 ? (
                 <>
                   <div className="w-full flex mb-2">
@@ -952,15 +952,15 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                       )}
                     </div>
                   )}
-                  <button onClick={() => { if (skipChecklist) { beginRun(); } else { setStartChecks([false, false, false]); setShowStartCheck(true); } }} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white fs-hero2 font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)]">
+                  <button onClick={() => { if (skipChecklist) { beginRun(); } else { setStartChecks([false, false, false]); setShowStartCheck(true); } }} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white fs-h3 md:fs-hero2 font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)]">
                     ▶ COMENZAR RUTA
                   </button>
                 </>
               ) : (<> 
-                <div className="reveal-1 flex flex-col sm:flex-row items-center justify-center gap-3 w-full">
-                  <span className="p-3 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon(currentStep!.type)}</span>
+                <div className="reveal-1 flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-3 w-full">
+                  <span className="p-2 md:p-3 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon(currentStep!.type)}</span>
                   <h2 className="fs-h3 font-black tracking-tight text-white">{currentStep!.title}</h2>
-                  {currentStep!.region && <span className="fs-small font-bold uppercase tracking-widest px-2 py-0.5 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentStep!.region}</span>}
+                  {currentStep!.region && <span className="fs-tiny md:fs-small font-bold uppercase tracking-widest px-1.5 md:px-2 py-0.5 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentStep!.region}</span>}
                 </div>
 
               {currentStep!.type === "gym" && currentStep!.gym && gymCoords[currentStep!.gym as keyof typeof gymCoords] && (
@@ -983,29 +983,29 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             {currentStep && (<>
             
             {currentStep.type === "gym" && (
-              <div className="space-y-5">
-                <div className="flex flex-wrap justify-center gap-4">
+              <div className="space-y-3 md:space-y-5">
+                <div className="flex flex-col sm:flex-row justify-center gap-2 md:gap-4">
                   {currentStep.lead && (
-                    <div className="reveal-3 bg-neutral-950 p-4 rounded-xl border border-neutral-800 flex-1 min-w-[180px]">
-                      <div className="fs-small text-indigo-400 uppercase font-black tracking-widest mb-2">Leads</div>
+                    <div className="reveal-3 bg-neutral-950 p-3 md:p-4 rounded-xl border border-neutral-800 flex-1 min-w-[150px] md:min-w-[180px]">
+                      <div className="fs-tiny md:fs-small text-indigo-400 uppercase font-black tracking-widest mb-2">Leads</div>
                       <div className="flex justify-center">{renderWithSprites(currentStep.lead)}</div>
                     </div>
                   )}
                   {currentStep.switchTo && (
-                    <div className="reveal-4 bg-neutral-950 p-4 rounded-xl border border-neutral-800 flex-1 min-w-[180px]">
-                      <div className="fs-small text-emerald-400 uppercase font-black tracking-widest mb-2">Cambios Seguros</div>
+                    <div className="reveal-4 bg-neutral-950 p-3 md:p-4 rounded-xl border border-neutral-800 flex-1 min-w-[150px] md:min-w-[180px]">
+                      <div className="fs-tiny md:fs-small text-emerald-400 uppercase font-black tracking-widest mb-2">Cambios Seguros</div>
                       <div className="flex justify-center">{renderWithSprites(currentStep.switchTo)}</div>
                     </div>
                   )}
                 </div>
                 {currentStep.actions && (
-                  <div className="reveal-5 bg-neutral-950 p-4 rounded-xl border border-neutral-800">
-                    <div className="fs-small text-amber-400 uppercase font-black tracking-widest mb-3 text-center">Estrategia vs Variantes</div>
-                    <ul className="space-y-2">
+                  <div className="reveal-5 bg-neutral-950 p-3 md:p-4 rounded-xl border border-neutral-800">
+                    <div className="fs-tiny md:fs-small text-amber-400 uppercase font-black tracking-widest mb-2 md:mb-3 text-center">Estrategia vs Variantes</div>
+                    <ul className="space-y-1.5 md:space-y-2">
                       {currentStep.actions.map((act, i) => {
                         const parts = act.split("→");
                         return (
-                          <li key={i} className="flex flex-col sm:flex-row items-center justify-center gap-2 fs-body bg-neutral-900 p-2 rounded border border-neutral-800">
+                          <li key={i} className="flex flex-col sm:flex-row items-center justify-center gap-1.5 md:gap-2 fs-tiny md:fs-body bg-neutral-900 p-1.5 md:p-2 rounded border border-neutral-800">
                             {parts.length > 1 ? (
                               <><span className="font-bold text-white">{parts[0].trim()}</span> <span className="text-neutral-500 hidden sm:inline">→</span> <span className="text-neutral-300">{parts[1].trim()}</span></>
                             ) : <span className="text-center">{act}</span>}
@@ -1019,22 +1019,22 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             )}
 
             {currentStep.type === "prep" && (
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {currentStep.heal && (
-                  <div className="reveal-2 flex items-center justify-center gap-3 bg-red-950/20 border border-red-900/30 p-4 rounded-xl text-red-400 fs-body font-bold">
-                    <Heart className="w-5 h-5 fill-current" /> Curar equipo en el Centro Pokémon
+                  <div className="reveal-2 flex items-center justify-center gap-2.5 bg-red-950/20 border border-red-900/30 p-3 md:p-4 rounded-xl text-red-400 fs-small md:fs-body font-bold">
+                    <Heart className="w-4 h-4 md:w-5 md:h-5 fill-current" /> Curar equipo en el Centro Pokémon
                   </div>
                 )}
                 {currentStep.items && currentStep.items.length > 0 && (
-                  <div className="reveal-3 bg-neutral-950 p-4 rounded-xl border border-neutral-800">
-                    <div className="fs-small text-blue-400 uppercase font-black tracking-widest mb-3 flex items-center justify-center gap-2"><Sparkles className="w-3.5 h-3.5"/> Equipar Objetos</div>
-                    <ul className="space-y-2">
+                  <div className="reveal-3 bg-neutral-950 p-3 md:p-4 rounded-xl border border-neutral-800">
+                    <div className="fs-tiny md:fs-small text-blue-400 uppercase font-black tracking-widest mb-2 md:mb-3 flex items-center justify-center gap-2"><Sparkles className="w-3 h-3 md:w-3.5 md:h-3.5"/> Equipar Objetos</div>
+                    <ul className="space-y-1.5 md:space-y-2">
                       {currentStep.items.map((it, i) => {
                         const isScarf = it.item.toLowerCase().includes("panuelo") || it.item.toLowerCase().includes("pañuelo");
                         return (
-                          <li key={i} className={`flex flex-col sm:flex-row items-center justify-center gap-2 p-3 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
-                            <span className={isScarf ? 'text-white' : 'text-neutral-400'}>{renderWithSprites(it.pokemon, " • ")}</span>
-                            <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-3 py-1 fs-small shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-2 py-0.5 fs-tiny'} font-bold rounded uppercase tracking-wider`}>
+                          <li key={i} className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 md:gap-2 p-2 md:p-3 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
+                            <span className={`fs-tiny md:fs-body ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{renderWithSprites(it.pokemon, " • ")}</span>
+                            <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-2 md:px-3 py-0.5 md:py-1 fs-tiny md:fs-small shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-1.5 md:px-2 py-0.5 fs-tiny'} font-bold rounded uppercase tracking-wider`}>
                               ➔ {it.item}
                             </span>
                           </li>
@@ -1044,15 +1044,15 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   </div>
                 )}
                 {currentStep.travel && (
-                  <div className="reveal-4 flex items-center justify-center gap-3 bg-teal-950/20 border border-teal-900/30 p-4 rounded-xl text-teal-400 fs-body font-bold">
-                    <Compass className="w-5 h-5" /> Viajar hacia {currentStep.travel}
+                  <div className="reveal-4 flex items-center justify-center gap-2.5 bg-teal-950/20 border border-teal-900/30 p-3 md:p-4 rounded-xl text-teal-400 fs-small md:fs-body font-bold">
+                    <Compass className="w-4 h-4 md:w-5 md:h-5" /> Viajar hacia {currentStep.travel}
                   </div>
                 )}
               </div>
             )}
 
             {currentStep.type === "note" && (
-              <div className="reveal-2 bg-amber-950/20 border border-amber-900/30 p-6 rounded-xl text-amber-400 fs-body font-bold text-center">
+              <div className="reveal-2 bg-amber-950/20 border border-amber-900/30 p-4 md:p-6 rounded-xl text-amber-400 fs-small md:fs-body font-bold text-center">
                 {currentStep.description}
               </div>
             )}
@@ -1061,14 +1061,14 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
 
           {currentStepIndex !== -1 && (<>
-          <div className="w-full max-w-4xl mt-6 space-y-3">
-            <div className="flex gap-4">
-              <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="flex-1 py-4 bg-neutral-900 rounded-xl fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
-              <button onClick={currentStepIndex === -1 ? handleNext : (currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext)} title={currentStepIndex === -1 ? "Comenzar la ruta" : currentStepIndex === steps.length - 1 ? "Finalizar la ruta" : "Siguiente paso"} className="flex-[2] py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-body">
+          <div className="w-full max-w-4xl mt-4 md:mt-6 space-y-2 md:space-y-3">
+            <div className="flex gap-2 md:gap-4">
+              <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="flex-1 py-3 md:py-4 bg-neutral-900 rounded-xl fs-tiny md:fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
+              <button onClick={currentStepIndex === -1 ? handleNext : (currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext)} title={currentStepIndex === -1 ? "Comenzar la ruta" : currentStepIndex === steps.length - 1 ? "Finalizar la ruta" : "Siguiente paso"} className="flex-[2] py-3 md:py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-tiny md:fs-body">
                 {currentStepIndex === -1 ? "▶ COMENZAR" : currentStepIndex === steps.length - 1 ? "¡Finalizar!" : "Siguiente (Espacio) →"}
               </button>
             </div>
-            <div className="w-full bg-neutral-800 rounded-full h-2.5 overflow-hidden">
+            <div className="w-full bg-neutral-800 rounded-full h-1.5 md:h-2.5 overflow-hidden">
               <div
                 className="progress-shimmer h-full rounded-full transition-all duration-300"
                 style={{ width: `${Math.round(((currentStepIndex + 1) / steps.length) * 100)}%` }}
@@ -1083,12 +1083,12 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       </main>
 
       {currentStepIndex !== -1 && (
-      <div className="fixed bottom-0 left-0 right-0 z-30 bg-neutral-900/95 border-t-2 border-indigo-500/40 backdrop-blur-sm px-3 py-1.5 sm:px-6 sm:py-3">
-        <div className="flex sm:hidden items-center justify-center mb-1">
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-neutral-900/95 border-t-2 border-indigo-500/40 backdrop-blur-sm px-2 py-1 md:px-6 md:py-3">
+        <div className="flex sm:hidden items-center justify-center mb-0.5">
           <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
         </div>
 
-        <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
+        <div className="flex items-center justify-center gap-1 md:gap-4 flex-wrap">
           
           <div className="hidden sm:flex items-center gap-1">
             <span className="text-[10px] sm:fs-tiny text-neutral-500 font-semibold">Ruta</span>
@@ -1097,26 +1097,26 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
           <div className="flex items-center gap-0.5">
               <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="p-1 sm:p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
-                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                <ChevronLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
               </button>
               <button onClick={handleNext} disabled={currentStepIndex === steps.length - 1} title="Siguiente paso" className="p-1 sm:p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
-                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                <ChevronRight className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
               </button>
           </div>
 
           <div className="flex gap-0.5 sm:gap-1 shrink-0">
             {!timerIsRunning ? (
-              <button onClick={startTimer} title="Iniciar cronómetro de la ruta" className="px-2 sm:px-3 py-1 sm:py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold fs-tiny sm:fs-small flex items-center gap-0.5 sm:gap-1"><Play className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current"/><span className="text-[10px] sm:text-xs">Iniciar</span></button>
+              <button onClick={startTimer} title="Iniciar cronómetro de la ruta" className="px-1.5 sm:px-3 py-0.5 sm:py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold text-[10px] sm:fs-small flex items-center gap-0.5 sm:gap-1"><Play className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current"/><span className="text-[10px] sm:text-xs">Iniciar</span></button>
             ) : (
-              <button onClick={pauseTimer} title="Pausar cronómetro de la ruta" className="px-2 sm:px-3 py-1 sm:py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold fs-tiny sm:fs-small flex items-center gap-0.5 sm:gap-1"><Pause className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current"/><span className="text-[10px] sm:text-xs">Pausar</span></button>
+              <button onClick={pauseTimer} title="Pausar cronómetro de la ruta" className="px-1.5 sm:px-3 py-0.5 sm:py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-[10px] sm:fs-small flex items-center gap-0.5 sm:gap-1"><Pause className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current"/><span className="text-[10px] sm:text-xs">Pausar</span></button>
             )}
-            <button onClick={resetTimer} title="Reiniciar cronómetro a cero" className="px-2 sm:px-3 py-1 sm:py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 rounded font-bold fs-tiny sm:fs-small"><RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5"/></button>
+            <button onClick={resetTimer} title="Reiniciar cronómetro a cero" className="px-1.5 sm:px-3 py-0.5 sm:py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 rounded font-bold text-[10px] sm:fs-small"><RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5"/></button>
           </div>
 
           <div className="h-5 w-px bg-neutral-700 hidden sm:block" />
 
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="flex items-center gap-1 sm:gap-1.5">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex items-center gap-0.5 sm:gap-1.5">
               <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400" />
               <span className="text-[10px] sm:fs-tiny text-neutral-500 font-semibold mr-0.5">Gyms</span>
               <CooldownDisplay endAt={cooldown.endAt} />
@@ -1124,8 +1124,8 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             <div className="flex gap-0.5 sm:gap-1">
               <button onClick={() => startGymCooldown(getLastCompletedGym())} title="Activar cooldown de 18 horas" className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded font-bold text-[10px] sm:fs-tiny">18h</button>
               <button onClick={openCooldownEditor} title="Ajustar cooldown" className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded font-bold text-[10px] sm:fs-tiny">Ajustar</button>
-              <button onClick={requestFinishRun} title="Terminar la ruta y guardar el tiempo" className="px-2 sm:px-3 py-1 sm:py-1.5 bg-red-700 hover:bg-red-600 text-white rounded font-bold fs-tiny sm:fs-small transition-colors shadow-sm shadow-red-800/30">Terminar Ruta</button>
-              <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(-1); resetTimer(); } }} title="Reiniciar la ruta desde la portada" className="px-2 sm:px-3 py-1 sm:py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded font-bold fs-tiny sm:fs-small transition-colors"><RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5 inline-block mr-0.5" />Reiniciar Ruta</button>
+              <button onClick={requestFinishRun} title="Terminar la ruta y guardar el tiempo" className="px-1.5 sm:px-3 py-0.5 sm:py-1.5 bg-red-700 hover:bg-red-600 text-white rounded font-bold text-[10px] sm:fs-small transition-colors shadow-sm shadow-red-800/30">Terminar Ruta</button>
+              <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(-1); resetTimer(); } }} title="Reiniciar la ruta desde la portada" className="px-1.5 sm:px-3 py-0.5 sm:py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded font-bold text-[10px] sm:fs-small transition-colors"><RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5 inline-block mr-0.5" />Reiniciar</button>
             </div>
           </div>
 
@@ -1135,7 +1135,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       )}
 
       {toastMessage && (
-        <div className="fixed bottom-4 right-4 z-50 bg-neutral-800 border border-neutral-700 shadow-2xl rounded px-3 py-1.5 text-white fs-body font-bold animate-in slide-in-from-bottom-4 fade-in">
+        <div className="fixed bottom-4 right-4 z-50 bg-neutral-800 border border-neutral-700 shadow-2xl rounded px-2.5 py-1.5 text-white fs-small md:fs-body font-bold animate-in slide-in-from-bottom-4 fade-in">
           {toastMessage}
         </div>
       )}
