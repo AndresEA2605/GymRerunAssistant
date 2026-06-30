@@ -805,7 +805,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     <div className={`app-enter ${appExiting ? "app-exit" : ""} flex h-screen bg-neutral-950 text-neutral-200 overflow-hidden font-sans relative`}>
       <PokeBackground />
       
-      <main className="flex-1 flex flex-col h-full relative z-10 overflow-hidden pb-20">
+      <main className={`flex-1 flex flex-col h-full relative z-10 overflow-hidden ${currentStepIndex === -1 ? 'pb-0' : 'pb-20'}`}>
         
         <header className="flex items-center justify-between p-4 border-b border-neutral-800 bg-neutral-900/50">
           <div className="flex items-center gap-3">
@@ -857,7 +857,10 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             <div className="flex flex-col items-center gap-4 mb-6">
               {currentStepIndex === -1 ? (
                 <>
-                  <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" title="Ver run de ejemplo en YouTube" className="w-full max-w-sm mx-auto mb-3 block group">
+                  <div className="w-full flex mb-2">
+                    <button onClick={() => goToMenu()} title="Volver al menú" className="px-2 py-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 rounded-lg fs-tiny font-bold uppercase tracking-wider self-start">← Menú</button>
+                  </div>
+                  <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" title="Ver run de ejemplo en YouTube" className="w-full max-w-sm mx-auto mb-2 block group">
                     <div className="relative rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl">
                       <img src="https://img.youtube.com/vi/himBCqDN2-I/maxresdefault.jpg" alt="Run de ejemplo" className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500" />
                       <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/10 transition-colors">
@@ -869,7 +872,24 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   </a>
                   <h2 className="fs-h2 font-black tracking-tight text-white">33 Gym Rerun</h2>
                   <p className="fs-body text-neutral-400">{description}</p>
-                  <button onClick={handleNext} className="w-full mt-2 py-3 bg-indigo-600 hover:bg-indigo-500 text-white fs-hero2 font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)]">
+                  {steps[0] && (
+                    <div className="w-full bg-neutral-950 rounded-xl border border-neutral-800 p-3 mt-1">
+                      <div className="fs-small text-neutral-500 uppercase font-bold tracking-widest mb-1">Primer gimnasio</div>
+                      <div className="flex items-center justify-center gap-2">
+                        <span className="p-1.5 bg-neutral-900 rounded-lg">{renderIcon(steps[0].type)}</span>
+                        <span className="fs-h3 font-black text-white">{steps[0].title}</span>
+                        {steps[0].region && <span className="fs-small font-bold uppercase tracking-widest px-2 py-0.5 rounded border bg-neutral-900 text-neutral-400 border-neutral-800">{steps[0].region}</span>}
+                      </div>
+                      {steps[0].type === "gym" && steps[0].gym && gymCoords[steps[0].gym as keyof typeof gymCoords] && (
+                        <div className="w-full max-w-[180px] h-24 mx-auto mt-2 relative rounded-lg border border-neutral-700/50 overflow-hidden bg-neutral-950 shadow-inner group">
+                          <img src={regionMap[gymCoords[steps[0].gym as keyof typeof gymCoords].region as keyof typeof regionMap]} alt="Map" className="absolute inset-0 w-full h-full object-cover opacity-70" />
+                          <div className="absolute inset-0 bg-indigo-900/10 mix-blend-color" />
+                          <div className="absolute w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.8)] -translate-x-1/2 -translate-y-1/2 animate-bounce" style={{ left: `${gymCoords[steps[0].gym as keyof typeof gymCoords].x}%`, top: `${gymCoords[steps[0].gym as keyof typeof gymCoords].y}%` }} />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <button onClick={handleNext} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white fs-hero2 font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)]">
                     ▶ COMENZAR RUTA
                   </button>
                 </>
@@ -999,6 +1019,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
         </div>
       </main>
 
+      {currentStepIndex !== -1 && (
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-neutral-900/95 border-t-2 border-indigo-500/40 backdrop-blur-sm px-3 py-1.5 sm:px-6 sm:py-3">
         <div className="flex sm:hidden items-center justify-center mb-1">
           <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
@@ -1011,7 +1032,6 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
           </div>
 
-          {currentStepIndex !== -1 && (
           <div className="flex items-center gap-0.5">
               <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="p-1 sm:p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
                 <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -1019,7 +1039,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               <button onClick={handleNext} disabled={currentStepIndex === steps.length - 1} title="Siguiente paso" className="p-1 sm:p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
                 <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-          </div>)}
+          </div>
 
           <div className="flex gap-0.5 sm:gap-1 shrink-0">
             {!timerIsRunning ? (
@@ -1049,6 +1069,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           <span className="text-[10px] sm:fs-tiny text-neutral-500 font-mono">F4 · Esp</span>
         </div>
       </div>
+      )}
 
       {toastMessage && (
         <div className="fixed bottom-4 right-4 z-50 bg-neutral-800 border border-neutral-700 shadow-2xl rounded px-3 py-1.5 text-white fs-body font-bold animate-in slide-in-from-bottom-4 fade-in">
