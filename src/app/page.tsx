@@ -234,7 +234,39 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Ad / Promo Space */}
+          {/* Earnings Breakdown */}
+          <div className="w-full bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
+            <div className="px-4 py-2 bg-neutral-950 border-b border-neutral-800 flex items-center justify-between">
+              <span className="text-[10px] uppercase font-black tracking-widest text-neutral-500">Ganancias Aproximadas (33 Gyms)</span>
+              <a
+                href="https://c4vv.github.io/CharmCalc/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] text-indigo-400 hover:text-indigo-300 font-semibold transition-colors"
+              >CharmCalc ↗</a>
+            </div>
+            <div className="grid grid-cols-2 divide-x divide-neutral-800">
+              {/* Sin amuleto */}
+              <div className="p-4 text-center">
+                <div className="text-[10px] uppercase tracking-widest text-neutral-500 mb-1">Sin Moneda Amuleto</div>
+                <div className="text-2xl font-black text-white">≈₽297k</div>
+                <div className="text-xs text-neutral-500 mt-1">~₽9,000 × 33 gyms</div>
+                <div className="mt-2 text-[10px] text-neutral-600">Multiplicador × 1.0</div>
+              </div>
+              {/* Con amuleto */}
+              <div className="p-4 text-center bg-emerald-950/10">
+                <div className="text-[10px] uppercase tracking-widest text-emerald-500 mb-1">Con Moneda Amuleto</div>
+                <div className="text-2xl font-black text-emerald-400">≈₽446k</div>
+                <div className="text-xs text-neutral-500 mt-1">~₽13,500 × 33 gyms</div>
+                <div className="mt-2 text-[10px] text-emerald-600 font-bold">Multiplicador × 1.5</div>
+              </div>
+            </div>
+            <div className="px-4 py-2 border-t border-neutral-800 text-[10px] text-neutral-600 text-center">
+              La Moneda Amuleto se obtiene en el juego o GTL · El precio varía — usa CharmCalc para ver cuál conviene
+            </div>
+          </div>
+
+          {/* YouTube link */}
           <div className="w-full bg-neutral-900/60 border border-dashed border-neutral-700 rounded-2xl p-4 flex items-center justify-between gap-4">
             <a
               href="https://www.youtube.com/watch?v=himBCqDN2-I"
