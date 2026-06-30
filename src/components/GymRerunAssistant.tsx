@@ -11,7 +11,6 @@ import {
   Heart,
   Swords,
   Sparkles,
-  List,
   X,
   History,
   Info,
@@ -226,7 +225,6 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const [showMenu, setShowMenu] = useState<boolean>(true);
   const [menuExiting, setMenuExiting] = useState<boolean>(false);
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [showTeam, setShowTeam] = useState<boolean>(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState<boolean>(false);
@@ -579,42 +577,45 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     <div className={`app-enter ${appExiting ? "app-exit" : ""} flex h-screen bg-neutral-950 text-neutral-200 overflow-hidden font-sans relative`}>
       <PokeBackground />
       
-      <aside className={`fixed md:static inset-y-0 left-0 z-40 w-60 bg-neutral-900 border-r border-neutral-800 flex flex-col transition-transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
-        <div className="p-4 border-b border-neutral-800 flex justify-between items-center bg-neutral-950">
-          <h1 className="fs-small font-bold tracking-widest text-neutral-400 uppercase">Ruta Gym</h1>
-          <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-neutral-500"><X className="w-5 h-5" /></button>
-        </div>
-        <div className="flex-1 overflow-y-auto p-2 space-y-0.5">
-          {steps.map((step, idx) => (
-            <button
-              key={step.id}
-              onClick={() => setCurrentStepIndex(idx)}
-              className={`w-full text-left px-3 py-1.5 rounded flex items-center gap-2 fs-small transition-colors ${idx === currentStepIndex ? "bg-indigo-600 text-white font-bold" : idx < currentStepIndex ? "text-neutral-500 hover:bg-neutral-800" : "text-neutral-300 hover:bg-neutral-800"}`}
-            >
-              <span className={`flex-shrink-0 w-6 text-center fs-tiny font-bold tabular-nums ${idx === currentStepIndex ? 'text-white' : idx < currentStepIndex ? 'text-neutral-600' : 'text-neutral-500'}`}>{idx + 1}</span>
-              <span className="opacity-70 flex-shrink-0">{renderIcon(step.type)}</span>
-              <span className="truncate">{step.title}</span>
-            </button>
-          ))}
-        </div>
-      </aside>
-
       <main className="flex-1 flex flex-col h-full relative z-10 overflow-hidden pb-20">
         
         <header className="flex items-center justify-between p-4 border-b border-neutral-800 bg-neutral-900/50">
           <div className="flex items-center gap-3">
-            <button onClick={() => setIsSidebarOpen(true)} className="md:hidden p-2 bg-neutral-800 rounded text-neutral-300"><List className="w-5 h-5" /></button>
+            <button onClick={() => goToMenu()} className="fs-small font-bold tracking-widest text-neutral-400 uppercase hover:text-white transition-colors">Ruta Gym</button>
+            <div className="w-px h-4 bg-neutral-700" />
             <div className="fs-small text-neutral-500">Paso <span className="font-bold text-neutral-300">{currentStepIndex + 1}</span> / {steps.length}</div>
+            <button onClick={() => goToMenu()} className="px-2 py-1 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700 fs-tiny font-bold uppercase tracking-wider">Menú</button>
           </div>
           
           <div className="flex items-center gap-2">
             <button onClick={() => setShowTeam(true)} className="px-3 py-1.5 bg-violet-900/40 text-violet-300 border border-violet-700/40 rounded hover:bg-violet-800/50 fs-small font-bold uppercase tracking-wider">Equipo</button>
             <button onClick={requestFinishRun} className="px-3 py-1.5 bg-emerald-900/40 text-emerald-300 border border-emerald-700/40 rounded hover:bg-emerald-800/50 fs-small font-bold uppercase tracking-wider">Terminar</button>
-            <button onClick={() => goToMenu()} className="px-3 py-1.5 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700 fs-small font-bold uppercase tracking-wider">Menú</button>
             <button onClick={() => setShowHistory(true)} className="p-2 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700"><History className="w-4 h-4" /></button>
             <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(0); resetTimer(); } }} className="p-2 bg-red-900/20 text-red-400 rounded hover:bg-red-900/40"><Power className="w-4 h-4" /></button>
           </div>
         </header>
+
+        <div className="flex-none overflow-x-auto px-4 py-2 border-b border-neutral-800/50 bg-neutral-950/40 scrollbar-thin">
+          <div className="flex gap-1 min-w-max">
+            {steps.map((step, idx) => (
+              <button
+                key={step.id}
+                onClick={() => setCurrentStepIndex(idx)}
+                className={`flex items-center gap-1 px-2 py-1 rounded fs-tiny font-bold whitespace-nowrap transition-colors ${
+                  idx === currentStepIndex
+                    ? "bg-indigo-600 text-white"
+                    : idx < currentStepIndex
+                    ? "text-neutral-500 hover:text-neutral-300"
+                    : "text-neutral-600 hover:text-neutral-400"
+                }`}
+              >
+                <span className="tabular-nums">{idx + 1}</span>
+                <span className="opacity-60">{renderIcon(step.type)}</span>
+                <span className="max-w-[80px] truncate">{step.title}</span>
+              </button>
+            ))}
+          </div>
+        </div>
 
         <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 lg:p-12 overflow-hidden">
           <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-5 md:p-8 lg:p-12 shadow-2xl overflow-hidden relative text-center ${slideClass}`}>
