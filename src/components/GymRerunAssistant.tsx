@@ -476,152 +476,107 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
         <PokeBackground />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none" />
 
-        <div className="relative z-10 w-full max-w-xl flex flex-col items-center gap-6" style={{ maxWidth: "min(100%, 36rem)" }}>
-
-          <span className="fs-tiny uppercase tracking-widest font-black text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-0.5 rounded-full">PokeMMO Speedrun Tool</span>
+        <div className="relative z-10 w-full max-w-xl flex flex-col items-center gap-2.5" style={{ maxWidth: "min(100%, 36rem)" }}>
 
           <div className="text-center">
-            <h1 className="fs-hero font-black tracking-tight text-white" style={{ textShadow: '0 0 60px rgba(99,102,241,0.5)' }}>GYM RERUN</h1>
-            <h2 className="fs-h2 font-bold text-indigo-400 tracking-widest mt-1">ASSISTANT</h2>
-            <p className="text-neutral-500 fs-body mt-2">{description}</p>
+            <span className="fs-tiny uppercase tracking-widest font-black text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-2 py-0.5 rounded-full">PokeMMO Speedrun Tool</span>
+            <h1 className="fs-hero font-black tracking-tight text-white leading-none mt-1" style={{ textShadow: '0 0 60px rgba(99,102,241,0.5)' }}>GYM RERUN</h1>
+            <h2 className="fs-h2 font-bold text-indigo-400 tracking-widest">ASSISTANT</h2>
           </div>
 
-          <div className="w-full grid grid-cols-3 gap-2.5 text-center">
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-2.5">
-              <div className="fs-h2 font-black text-white">{totalGyms}</div>
-              <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Gimnasios</div>
+          <div className="w-full grid grid-cols-3 gap-2 text-center">
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
+              <div className="fs-body font-black text-white">{totalGyms}</div>
+              <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Gimnasios</div>
             </div>
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-2.5">
-              <div className="fs-h2 font-black text-indigo-400">{steps.length}</div>
-              <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Pasos Totales</div>
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
+              <div className="fs-body font-black text-indigo-400">{steps.length}</div>
+              <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Pasos</div>
             </div>
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-2.5">
-              <div className="fs-h2 font-black text-amber-400">{bestRun ? formatTime(bestRun.elapsed) : '--:--:--'}</div>
-              <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Mejor Tiempo</div>
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
+              <div className="fs-body font-black text-amber-400">{bestRun ? formatTime(bestRun.elapsed) : '--:--'}</div>
+              <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Mejor Tiempo</div>
             </div>
           </div>
 
-          <div className="w-full">
-            <div className="fs-small uppercase font-black tracking-widest text-neutral-500 mb-3 text-center">Selecciona una Guía</div>
-            <div className="grid grid-cols-2 gap-3">
-              <button onClick={() => exitMenu()} className="bg-neutral-900 border-2 border-indigo-500/50 rounded-2xl p-4 text-left hover:bg-neutral-800 transition-all group relative overflow-hidden">
-                <div className="absolute -top-4 -right-4 w-16 h-16 opacity-[0.06]">
+          <div className="w-full grid grid-cols-4 gap-2">
+            <button onClick={() => exitMenu()} className="bg-neutral-900 border border-indigo-500/40 rounded-xl py-2 px-2 text-center hover:bg-neutral-800 transition-all group relative overflow-hidden">
+              <div className="flex flex-col items-center gap-0.5">
+                <div className="w-6 h-6 opacity-20">
                   <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/635.png" alt="" className="w-full h-full object-contain" />
                 </div>
-                <Swords className="w-5 h-5 text-indigo-400 mb-2" />
-                <div className="fs-body font-black text-white group-hover:text-indigo-300 transition-colors">33 Gym Rerun</div>
-                <div className="fs-tiny text-neutral-500 mt-0.5">Guía completa de 33 gimnasios</div>
-                <div className="mt-2 flex items-center gap-1">
-                  <span className="fs-tiny font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full">DISPONIBLE</span>
-                  {currentStepIndex > 0 && <span className="fs-tiny text-neutral-500">· Paso {currentStepIndex + 1}</span>}
-                </div>
-              </button>
-
-              <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-2xl p-4 text-left opacity-60 relative overflow-hidden">
-                <div className="absolute -top-4 -right-4 w-16 h-16 opacity-[0.04]">
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/143.png" alt="" className="w-full h-full object-contain" />
-                </div>
-                <Compass className="w-5 h-5 text-neutral-500 mb-2" />
-                <div className="fs-body font-black text-neutral-400">Nueva Ruta</div>
-                <div className="fs-tiny text-neutral-600 mt-0.5">Próximamente</div>
-                <div className="mt-2">
-                  <span className="fs-tiny font-bold text-neutral-600 bg-neutral-800 px-2 py-0.5 rounded-full">COMING SOON</span>
-                </div>
+                <span className="fs-tiny font-bold text-white leading-tight">33 Gyms</span>
+                <span className="fs-tiny font-bold text-indigo-400 bg-indigo-500/10 px-1.5 rounded-full leading-tight">PLAY</span>
               </div>
-
-              <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-2xl p-4 text-left opacity-60 relative overflow-hidden">
-                <div className="absolute -top-4 -right-4 w-16 h-16 opacity-[0.04]">
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="" className="w-full h-full object-contain" />
-                </div>
-                <Heart className="w-5 h-5 text-neutral-500 mb-2" />
-                <div className="fs-body font-black text-neutral-400">Ruta Alternativa</div>
-                <div className="fs-tiny text-neutral-600 mt-0.5">Próximamente</div>
-                <div className="mt-2">
-                  <span className="fs-tiny font-bold text-neutral-600 bg-neutral-800 px-2 py-0.5 rounded-full">COMING SOON</span>
-                </div>
+            </button>
+            <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-xl py-2 px-1 text-center opacity-50">
+              <div className="flex flex-col items-center gap-0.5">
+                <Compass className="w-4 h-4 text-neutral-500" />
+                <span className="fs-tiny font-bold text-neutral-400 leading-tight">Nueva</span>
+                <span className="fs-tiny text-neutral-600 leading-tight">Soon</span>
               </div>
-
-              <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-2xl p-4 text-left opacity-60 relative overflow-hidden">
-                <div className="absolute -top-4 -right-4 w-16 h-16 opacity-[0.04]">
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/149.png" alt="" className="w-full h-full object-contain" />
-                </div>
-                <Sparkles className="w-5 h-5 text-neutral-500 mb-2" />
-                <div className="fs-body font-black text-neutral-400">Otra Guía</div>
-                <div className="fs-tiny text-neutral-600 mt-0.5">Próximamente</div>
-                <div className="mt-2">
-                  <span className="fs-tiny font-bold text-neutral-600 bg-neutral-800 px-2 py-0.5 rounded-full">COMING SOON</span>
-                </div>
+            </div>
+            <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-xl py-2 px-1 text-center opacity-50">
+              <div className="flex flex-col items-center gap-0.5">
+                <Heart className="w-4 h-4 text-neutral-500" />
+                <span className="fs-tiny font-bold text-neutral-400 leading-tight">Alternativa</span>
+                <span className="fs-tiny text-neutral-600 leading-tight">Soon</span>
+              </div>
+            </div>
+            <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-xl py-2 px-1 text-center opacity-50">
+              <div className="flex flex-col items-center gap-0.5">
+                <Sparkles className="w-4 h-4 text-neutral-500" />
+                <span className="fs-tiny font-bold text-neutral-400 leading-tight">Otra</span>
+                <span className="fs-tiny text-neutral-600 leading-tight">Soon</span>
               </div>
             </div>
           </div>
 
-          <div className="w-full bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
-            <div className="px-3 py-1.5 bg-neutral-950 border-b border-neutral-800 flex items-center justify-between">
-              <span className="fs-tiny uppercase font-black tracking-widest text-neutral-500">Ganancias Aproximadas ({totalGyms} Gyms)</span>
-              <a href="https://c4vv.github.io/CharmCalc/" target="_blank" rel="noopener noreferrer" className="fs-tiny text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">CharmCalc ↗</a>
+          <div className="w-full grid grid-cols-2 gap-2">
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-1.5 text-center">
+              <div className="fs-tiny uppercase tracking-widest text-neutral-500 leading-tight">Sin Moneda</div>
+              <div className="fs-body font-black text-white">~297k</div>
             </div>
-            <div className="grid grid-cols-2 divide-x divide-neutral-800">
-              <div className="p-3 text-center">
-                <div className="fs-tiny uppercase tracking-widest text-neutral-500 mb-1">Sin Moneda Amuleto</div>
-                <div className="fs-h2 font-black text-white">~297,000</div>
-                <div className="fs-small text-neutral-500 mt-0.5">~9,000 × {totalGyms} gyms</div>
-                <div className="mt-1.5 fs-tiny text-neutral-600">Multiplicador × 1.0</div>
-              </div>
-              <div className="p-3 text-center bg-emerald-950/10">
-                <div className="fs-tiny uppercase tracking-widest text-emerald-500 mb-1">Con Moneda Amuleto</div>
-                <div className="fs-h2 font-black text-emerald-400">~446,000</div>
-                <div className="fs-small text-neutral-500 mt-0.5">~13,500 × {totalGyms} gyms</div>
-                <div className="mt-1.5 fs-tiny text-emerald-600 font-bold">Multiplicador × 1.5</div>
-              </div>
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-1.5 text-center bg-emerald-950/10">
+              <div className="fs-tiny uppercase tracking-widest text-emerald-500 leading-tight">Con Moneda</div>
+              <div className="fs-body font-black text-emerald-400">~446k</div>
             </div>
-            <div className="px-3 py-1.5 border-t border-neutral-800 fs-tiny text-neutral-600 text-center">
-              La Moneda Amuleto se obtiene en el juego o GTL · El precio varía — usa CharmCalc para ver cuál conviene
-            </div>
-          </div>
-
-          <div className="w-full bg-neutral-900/60 border border-dashed border-neutral-700 rounded-2xl p-3 flex items-center justify-between gap-3">
-            <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-left group flex-1">
-              <div className="w-9 h-9 flex-shrink-0 bg-red-600 rounded-xl flex items-center justify-center">
-                <svg viewBox="0 0 24 24" fill="white" className="w-4 h-4"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.386.507 9.386.507s7.518 0 9.387-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
-              </div>
-              <div>
-                <div className="fs-body font-bold text-white group-hover:text-indigo-300 transition-colors">Ver Run de Ejemplo</div>
-                <div className="fs-tiny text-neutral-500">{totalGyms} Gyms completo · YouTube</div>
-              </div>
-            </a>
-            <ChevronRight className="w-4 h-4 text-neutral-600" />
           </div>
 
           {currentStepIndex > 0 ? (
-            <div className="w-full flex flex-col gap-2.5">
-              <button onClick={() => exitMenu()} className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white fs-hero2 font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)] tracking-wide">
-                ▶ CONTINUAR RUTA
-                <span className="block fs-body font-normal text-indigo-300 mt-0.5">Paso {currentStepIndex + 1} / {steps.length}</span>
+            <div className="w-full flex flex-col gap-1.5">
+              <button onClick={() => exitMenu()} className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]">
+                ▶ CONTINUAR RUTA · Paso {currentStepIndex + 1}/{steps.length}
               </button>
-              <button onClick={() => exitMenu(() => { setCurrentStepIndex(0); resetTimer(); })} className="w-full py-2.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 fs-body font-bold rounded-xl transition-colors">
+              <button onClick={() => exitMenu(() => { setCurrentStepIndex(0); resetTimer(); })} className="w-full py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 fs-small font-bold rounded-lg transition-colors">
                 Reiniciar desde cero
               </button>
             </div>
           ) : (
-            <button onClick={() => exitMenu()} className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white fs-hero2 font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)] tracking-wide btn-glow-active">
+            <button onClick={() => exitMenu()} className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] btn-glow-active">
               ▶ INICIAR RUTA
             </button>
           )}
 
-          <p className="fs-small text-neutral-600">⌨ &nbsp;<kbd className="bg-neutral-800 border border-neutral-700 px-1.5 py-0.5 rounded text-neutral-400 font-mono fs-tiny">Espacio</kbd> para avanzar &nbsp;·&nbsp; <kbd className="bg-neutral-800 border border-neutral-700 px-1.5 py-0.5 rounded text-neutral-400 font-mono fs-tiny">F4</kbd> desde el juego</p>
-
-          <div className="w-full border-t border-neutral-800/60 pt-3 flex items-center justify-center gap-5">
-            <div className="flex items-center gap-1.5 text-neutral-500">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-pink-400"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-              <span className="fs-small font-semibold">Dreasy__</span>
+          <div className="w-full flex items-center justify-center gap-3 text-neutral-500">
+            <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 group">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-red-400"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.386.507 9.386.507s7.518 0 9.387-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              <span className="fs-tiny text-neutral-500 group-hover:text-white transition-colors">Run Ejemplo</span>
+            </a>
+            <span className="text-neutral-700">·</span>
+            <a href="/" className="fs-tiny text-neutral-500 hover:text-indigo-400 transition-colors">CharmCalc ↗</a>
+            <span className="text-neutral-700">·</span>
+            <div className="flex items-center gap-1">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3 text-pink-400"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+              <span className="fs-tiny text-neutral-500">Dreasy__</span>
             </div>
-            <div className="w-px h-3.5 bg-neutral-700" />
-            <div className="flex items-center gap-1.5 text-neutral-500">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-green-400"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
-              <span className="fs-small font-semibold">Dreasy</span>
+            <span className="text-neutral-700">·</span>
+            <div className="flex items-center gap-1">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3 text-green-400"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+              <span className="fs-tiny text-neutral-500">Dreasy</span>
             </div>
           </div>
-          <p className="fs-tiny text-neutral-700">Creado por Dreasy — PokeMMO Gym Rerun Assistant</p>
+          <p className="fs-tiny text-neutral-700">Creado por Dreasy · PokeMMO Gym Rerun Assistant</p>
         </div>
       </div>
     );
