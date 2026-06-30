@@ -242,9 +242,16 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const [showCountdown, setShowCountdown] = useState<boolean>(false);
   const [countdownValue, setCountdownValue] = useState<number>(5);
   const [skipChecklist, setSkipChecklist] = useState<boolean>(() => typeof window !== "undefined" && localStorage.getItem(`${storagePrefix}_skip_checklist`) === "true");
+  const [skipCountdown, setSkipCountdown] = useState<boolean>(() => typeof window !== "undefined" && localStorage.getItem(`${storagePrefix}_skip_countdown`) === "true");
+  const skipCountdownRef = useRef(skipCountdown);
+  useEffect(() => { skipCountdownRef.current = skipCountdown; }, [skipCountdown]);
 
   const beginRun = useCallback(() => {
     setShowStartCheck(false);
+    if (skipCountdownRef.current) {
+      handleNextRef.current();
+      return;
+    }
     setShowCountdown(true);
     let count = 5;
     setCountdownValue(count);
@@ -661,12 +668,18 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               <span className="fs-tiny font-semibold">Dreasy</span>
             </div>
           </div>
-          <div className="reveal-6 w-full flex items-center justify-center gap-2 mt-1">
+          <div className="reveal-6 w-full flex items-center justify-center gap-3 mt-1">
             <button onClick={() => { const next = !skipChecklist; localStorage.setItem(LS("skip_checklist"), String(next)); setSkipChecklist(next); }} className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-colors ${skipChecklist ? 'bg-indigo-500/10 text-indigo-400' : 'text-neutral-600 hover:text-neutral-400'}`}>
               <div className={`w-7 h-4 rounded-full border transition-colors relative ${skipChecklist ? 'bg-indigo-500 border-indigo-500' : 'bg-neutral-800 border-neutral-700'}`}>
                 <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all ${skipChecklist ? 'left-3.5' : 'left-0.5'}`} />
               </div>
-              <span className="fs-tiny font-semibold">Verif. inicio {skipChecklist ? 'OFF' : 'ON'}</span>
+              <span className="fs-tiny font-semibold">Verif. {skipChecklist ? 'OFF' : 'ON'}</span>
+            </button>
+            <button onClick={() => { const next = !skipCountdown; localStorage.setItem(LS("skip_countdown"), String(next)); setSkipCountdown(next); }} className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-colors ${skipCountdown ? 'bg-amber-500/10 text-amber-400' : 'text-neutral-600 hover:text-neutral-400'}`}>
+              <div className={`w-7 h-4 rounded-full border transition-colors relative ${skipCountdown ? 'bg-amber-500 border-amber-500' : 'bg-neutral-800 border-neutral-700'}`}>
+                <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all ${skipCountdown ? 'left-3.5' : 'left-0.5'}`} />
+              </div>
+              <span className="fs-tiny font-semibold">Cuenta atrás {skipCountdown ? 'OFF' : 'ON'}</span>
             </button>
           </div>
         </div>
@@ -1380,6 +1393,12 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               {countdownValue}
             </div>
             <div className="fs-h4 text-neutral-500 uppercase tracking-[0.3em] font-bold animate-pulse">Prepárate</div>
+            <button onClick={() => setSkipCountdown(prev => { const next = !prev; localStorage.setItem(LS("skip_countdown"), String(next)); return next; })} className="mt-8 flex items-center justify-center gap-2 mx-auto py-1.5 px-3 rounded-lg hover:bg-neutral-800/50 transition-colors">
+              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${skipCountdown ? 'bg-indigo-500 border-indigo-500' : 'border-neutral-600'}`}>
+                {skipCountdown && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+              </div>
+              <span className={`fs-tiny font-semibold ${skipCountdown ? 'text-neutral-400' : 'text-neutral-600'}`}>No mostrar cuenta atrás</span>
+            </button>
           </div>
         </div>
       )}
