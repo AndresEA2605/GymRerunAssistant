@@ -595,23 +595,26 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
         </header>
 
-        <div className="flex-none overflow-x-auto px-4 py-2 border-b border-neutral-800/50 bg-neutral-950/40 scrollbar-thin">
-          <div className="flex gap-1 min-w-max">
+        <div
+          className="flex-none overflow-x-auto px-4 py-2 border-b border-neutral-800/50 bg-neutral-950/40 scrollbar-thin"
+          onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}
+        >
+          <div className="flex gap-1.5 min-w-max">
             {steps.map((step, idx) => (
               <button
                 key={step.id}
                 onClick={() => setCurrentStepIndex(idx)}
-                className={`flex items-center gap-1 px-2 py-1 rounded fs-tiny font-bold whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg fs-tiny font-bold whitespace-nowrap transition-all ${
                   idx === currentStepIndex
-                    ? "bg-indigo-600 text-white"
+                    ? "bg-indigo-600 text-white shadow-[0_0_12px_rgba(99,102,241,0.4)]"
                     : idx < currentStepIndex
-                    ? "text-neutral-500 hover:text-neutral-300"
-                    : "text-neutral-600 hover:text-neutral-400"
+                    ? "bg-neutral-800/60 text-neutral-300 hover:bg-neutral-700/80"
+                    : "bg-neutral-800/30 text-neutral-400 hover:bg-neutral-700/60"
                 }`}
               >
-                <span className="tabular-nums">{idx + 1}</span>
-                <span className="opacity-60">{renderIcon(step.type)}</span>
-                <span className="max-w-[80px] truncate">{step.title}</span>
+                <span className="tabular-nums w-4 text-center">{idx + 1}</span>
+                <span>{renderIcon(step.type)}</span>
+                <span className="max-w-[90px] truncate">{step.title}</span>
               </button>
             ))}
           </div>
