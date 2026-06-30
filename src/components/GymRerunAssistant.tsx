@@ -1134,7 +1134,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
           <div className="h-5 w-px bg-neutral-700 hidden sm:block" />
 
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="hidden sm:flex items-center gap-1.5 sm:gap-2">
             <div className="flex items-center gap-1 sm:gap-1.5">
               <Clock className="w-3.5 h-3.5 sm:w-3.5 sm:h-3.5 text-emerald-400" />
               <span className="fs-tiny text-neutral-500 font-semibold mr-0.5">Gyms</span>
