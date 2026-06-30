@@ -71,7 +71,7 @@ const TimerDisplay = memo(({ isRunning, startTime, elapsedBeforePause }: { isRun
     return () => { if (frameId) cancelAnimationFrame(frameId); };
   }, [isRunning, startTime, elapsedBeforePause]);
 
-  return <span className="font-mono fs-mono font-bold tracking-wider">{formatTime(isRunning ? elapsed : elapsedBeforePause)}</span>;
+  return <span className={`font-mono fs-mono font-bold tracking-wider ${isRunning ? 'timer-running text-indigo-300' : ''}`}>{formatTime(isRunning ? elapsed : elapsedBeforePause)}</span>;
 });
 TimerDisplay.displayName = "TimerDisplay";
 
@@ -169,7 +169,7 @@ const POKEBALLS = [
   { x:"90%", dur:45, del:2  },
 ];
 const SIZES = [28, 20, 36, 16, 24, 32, 18, 22, 30];
-const STARS = Array.from({length: 28}, (_, i) => ({
+const STARS = Array.from({length: 18}, (_, i) => ({
   x: `${(i * 37 + 11) % 100}%`,
   y: `${(i * 53 + 7)  % 100}%`,
   s: (i % 3) + 2,
@@ -239,6 +239,25 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const [selectedGuide, setSelectedGuide] = useState<boolean>(false);
   const [showStartCheck, setShowStartCheck] = useState<boolean>(false);
   const [startChecks, setStartChecks] = useState<[boolean, boolean, boolean]>([false, false, false]);
+  const [showCountdown, setShowCountdown] = useState<boolean>(false);
+  const [countdownValue, setCountdownValue] = useState<number>(5);
+
+  const beginRun = useCallback(() => {
+    setShowStartCheck(false);
+    setShowCountdown(true);
+    let count = 5;
+    setCountdownValue(count);
+    const interval = setInterval(() => {
+      count--;
+      if (count <= 0) {
+        clearInterval(interval);
+        setShowCountdown(false);
+        handleNextRef.current();
+      } else {
+        setCountdownValue(count);
+      }
+    }, 1000);
+  }, []);
 
   const [timerIsRunning, setTimerIsRunning] = useState<boolean>(false);
   const [timerStartTime, setTimerStartTime] = useState<number | null>(null);
@@ -1330,11 +1349,23 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             </div>
             <button
               disabled={!startChecks.every(Boolean)}
-              onClick={() => { setShowStartCheck(false); handleNext(); }}
+              onClick={beginRun}
               className={`w-full mt-4 py-3 text-white text-lg font-black rounded-xl transition-all ${startChecks.every(Boolean) ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 shadow-[0_0_25px_rgba(99,102,241,0.3)] hover:shadow-[0_0_40px_rgba(99,102,241,0.5)] cursor-pointer' : 'bg-neutral-800 text-neutral-600 cursor-not-allowed'}`}
             >
               {startChecks.every(Boolean) ? "▶ COMENZAR RUTA" : "Marca todas las verificaciones"}
             </button>
+          </div>
+        </div>
+      )}
+
+      {showCountdown && (
+        <div className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center">
+          <div className="text-center">
+            <div key={countdownValue} className="countdown-pop text-[12rem] sm:text-[16rem] font-black text-indigo-400 leading-none mb-4 select-none"
+              style={{ textShadow: "0 0 80px rgba(99,102,241,0.5), 0 0 150px rgba(99,102,241,0.3)" }}>
+              {countdownValue}
+            </div>
+            <div className="fs-h4 text-neutral-500 uppercase tracking-[0.3em] font-bold animate-pulse">Prepárate</div>
           </div>
         </div>
       )}

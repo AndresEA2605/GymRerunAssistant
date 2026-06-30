@@ -291,3 +291,23 @@ body {
 .overlay-exit  { animation: overlay-out 0.18s ease both; }
 .app-exit      { animation: app-exit    0.30s cubic-bezier(0.4,0,0.2,1)     both; pointer-events: none; }
 .menu-enter    { animation: menu-enter  0.35s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+
+/* ── Countdown ────────────────────────────────────────────────────── */
+@keyframes countdown-pop {
+  0%   { opacity: 0; transform: scale(0.3); filter: blur(12px); }
+  40%  { opacity: 1; transform: scale(1.12); filter: blur(0); }
+  70%  { transform: scale(0.95); }
+  100% { opacity: 0.6; transform: scale(1); filter: blur(0); }
+}
+.countdown-pop {
+  animation: countdown-pop 0.9s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* ── Timer pulse when running ─────────────────────────────────────── */
+@keyframes timer-pulse {
+  0%,100% { opacity: 1; }
+  50%     { opacity: 0.6; }
+}
+.timer-running {
+  animation: timer-pulse 2s ease-in-out infinite;
+}
