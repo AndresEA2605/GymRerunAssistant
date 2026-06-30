@@ -61,6 +61,8 @@ export default function Home() {
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [showHistory, setShowHistory] = useState<boolean>(false);
+  const [slideClass, setSlideClass] = useState<string>("");
+  const [slideKey, setSlideKey] = useState<number>(0);
 
   const [timerIsRunning, setTimerIsRunning] = useState<boolean>(false);
   const [timerStartTime, setTimerStartTime] = useState<number | null>(null);
@@ -125,11 +127,24 @@ export default function Home() {
           return r;
         });
       }
+      if (nextIdx !== prev) {
+        setSlideClass("slide-in-right");
+        setSlideKey(k => k + 1);
+      }
       return nextIdx;
     });
   }, [triggerToast]);
 
-  const handlePrev = useCallback(() => setCurrentStepIndex((prev) => Math.max(prev - 1, 0)), []);
+  const handlePrev = useCallback(() => {
+    setCurrentStepIndex((prev) => {
+      const nextIdx = Math.max(prev - 1, 0);
+      if (nextIdx !== prev) {
+        setSlideClass("slide-in-left");
+        setSlideKey(k => k + 1);
+      }
+      return nextIdx;
+    });
+  }, []);
 
   const handleNextRef = useRef(handleNext);
   const handlePrevRef = useRef(handlePrev);
@@ -185,7 +200,7 @@ export default function Home() {
   if (showMenu) {
     const bestRun = history.length > 0 ? history.reduce((a, b) => a.elapsed < b.elapsed ? a : b) : null;
     return (
-      <div className="min-h-screen bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      <div className="fade-in-screen min-h-screen bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-6 relative overflow-hidden">
         {/* Subtle grid background */}
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle, #6366f1 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
         {/* Glow behind title */}
@@ -315,7 +330,7 @@ export default function Home() {
 
         {/* Card View */}
         <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
-          <div className="w-full max-w-2xl bg-neutral-900 rounded-2xl border border-neutral-800 p-6 md:p-10 shadow-2xl">
+          <div key={slideKey} className={`w-full max-w-2xl bg-neutral-900 rounded-2xl border border-neutral-800 p-6 md:p-10 shadow-2xl overflow-hidden ${slideClass}`}>
             
             <div className="flex items-center gap-3 mb-6">
               <span className="p-3 bg-neutral-950 rounded-xl border border-neutral-800">{renderIcon(currentStep.type)}</span>

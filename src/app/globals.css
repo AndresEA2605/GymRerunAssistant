@@ -52,6 +52,34 @@
   }
 }
 
+/* ── Slide transition animations ─────────────────────── */
+@keyframes slide-in-from-right {
+  from { transform: translateX(60px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes slide-in-from-left {
+  from { transform: translateX(-60px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes slide-out-to-left {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(-60px); opacity: 0; }
+}
+@keyframes slide-out-to-right {
+  from { transform: translateX(0);   opacity: 1; }
+  to   { transform: translateX(60px); opacity: 0; }
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: scale(0.98); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.slide-in-right  { animation: slide-in-from-right 0.18s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+.slide-in-left   { animation: slide-in-from-left  0.18s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+.slide-out-left  { animation: slide-out-to-left   0.14s cubic-bezier(0.55,0,1,0.45) both; }
+.slide-out-right { animation: slide-out-to-right  0.14s cubic-bezier(0.55,0,1,0.45) both; }
+.fade-in-screen  { animation: fade-in 0.22s ease both; }
+
 /* Custom base styles */
 :root {
   --neon-color: 255, 255, 255;
