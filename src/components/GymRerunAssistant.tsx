@@ -931,7 +931,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
         </div>
         )}
         <div className="flex-1 flex flex-col items-center justify-center p-1.5 md:p-8 lg:p-12 overflow-y-auto overflow-x-hidden">
-          <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-2 md:p-8 lg:p-12 shadow-2xl relative text-center ${slideClass}`}>
+          <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-2 md:p-8 lg:p-12 shadow-2xl relative text-center smooth-transition ${slideClass}`}>
             
             <div className="absolute -top-6 -right-6 w-24 h-24 opacity-[0.04] pointer-events-none select-none">
               <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="" className="w-full h-full object-contain" />
@@ -1106,24 +1106,24 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-neutral-900/95 border-t-2 border-indigo-500/40 backdrop-blur-sm md:px-6 md:py-3" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
         
         {/* Mobile: scrollable single row */}
-        <div className="flex sm:hidden items-center gap-2 overflow-x-auto px-2 py-1.5 scrollbar-thin whitespace-nowrap scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY * 1.5; }}>
+        <div className="flex sm:hidden items-center gap-2 overflow-x-auto px-2 py-1.5 scrollbar-thin whitespace-nowrap scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
           <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
           <span className="text-neutral-700 shrink-0">|</span>
           {!timerIsRunning ? (
-            <button onClick={startTimer} className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold fs-tiny flex items-center gap-1 shrink-0"><Play className="w-4 h-4 fill-current"/> Iniciar</button>
+            <button onClick={startTimer} className="smooth-transition px-3 py-1.5 bg-indigo-600 active:scale-95 hover:bg-indigo-500 text-white rounded-lg font-bold fs-tiny flex items-center gap-1 shrink-0"><Play className="w-4 h-4 fill-current"/> Iniciar</button>
           ) : (
-            <button onClick={pauseTimer} className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold fs-tiny flex items-center gap-1 shrink-0"><Pause className="w-4 h-4 fill-current"/> Pausar</button>
+            <button onClick={pauseTimer} className="smooth-transition px-3 py-1.5 bg-amber-600 active:scale-95 hover:bg-amber-500 text-white rounded-lg font-bold fs-tiny flex items-center gap-1 shrink-0"><Pause className="w-4 h-4 fill-current"/> Pausar</button>
           )}
-          <button onClick={resetTimer} className="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0"><RotateCcw className="w-4 h-4"/></button>
+          <button onClick={resetTimer} className="smooth-transition px-3 py-1.5 bg-neutral-700 active:scale-95 hover:bg-neutral-600 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0"><RotateCcw className="w-4 h-4"/></button>
           <span className="text-neutral-700 shrink-0">|</span>
           <div className="flex items-center gap-1 shrink-0">
             <Clock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
             <CooldownDisplay endAt={cooldown.endAt} />
           </div>
-          <button onClick={() => startGymCooldown(getLastCompletedGym())} className="px-2.5 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg font-bold fs-tiny shrink-0">18h</button>
-          <button onClick={openCooldownEditor} className="px-2.5 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0">Ajustar</button>
-          <button onClick={requestFinishRun} className="px-3 py-1.5 bg-red-700 hover:bg-red-600 text-white rounded-lg font-bold fs-tiny shrink-0">Terminar</button>
-          <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(-1); resetTimer(); } }} className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0"><RotateCcw className="w-4 h-4 inline-block mr-1" />Reinic.</button>
+          <button onClick={() => startGymCooldown(getLastCompletedGym())} className="smooth-transition px-2.5 py-1.5 bg-emerald-700 active:scale-95 hover:bg-emerald-600 text-white rounded-lg font-bold fs-tiny shrink-0">18h</button>
+          <button onClick={openCooldownEditor} className="smooth-transition px-2.5 py-1.5 bg-neutral-700 active:scale-95 hover:bg-neutral-600 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0">Ajustar</button>
+          <button onClick={requestFinishRun} className="smooth-transition px-3 py-1.5 bg-red-700 active:scale-95 hover:bg-red-600 text-white rounded-lg font-bold fs-tiny shrink-0">Terminar</button>
+          <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(-1); resetTimer(); } }} className="smooth-transition px-3 py-1.5 bg-neutral-800 active:scale-95 hover:bg-neutral-700 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0"><RotateCcw className="w-4 h-4 inline-block mr-1" />Reinic.</button>
         </div>
 
         {/* Desktop: normal row layout */}

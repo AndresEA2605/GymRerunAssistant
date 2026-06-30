@@ -317,19 +317,21 @@ body {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.reveal-1 { animation: fade-in-up 0.25s ease both; }
-.reveal-2 { animation: fade-in-up 0.25s ease 0.08s both; }
-.reveal-3 { animation: fade-in-up 0.25s ease 0.16s both; }
-.reveal-4 { animation: fade-in-up 0.25s ease 0.24s both; }
-.reveal-5 { animation: fade-in-up 0.25s ease 0.32s both; }
-.reveal-6 { animation: fade-in-up 0.25s ease 0.40s both; }
+.reveal-1 { animation: fade-in-up 0.3s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+.reveal-2 { animation: fade-in-up 0.3s cubic-bezier(0.25,0.46,0.45,0.94) 0.08s both; }
+.reveal-3 { animation: fade-in-up 0.3s cubic-bezier(0.25,0.46,0.45,0.94) 0.16s both; }
+.reveal-4 { animation: fade-in-up 0.3s cubic-bezier(0.25,0.46,0.45,0.94) 0.24s both; }
+.reveal-5 { animation: fade-in-up 0.3s cubic-bezier(0.25,0.46,0.45,0.94) 0.32s both; }
+.reveal-6 { animation: fade-in-up 0.3s cubic-bezier(0.25,0.46,0.45,0.94) 0.40s both; }
 
-/* ── Reduce motion for accessibility / performance ─────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-  .pokeball-float, .star-twinkle, .aurora-bg { display: none; }
+/* ── Smooth interactive utility ────────────────────────────────────── */
+.smooth-transition {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+button {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
 }
