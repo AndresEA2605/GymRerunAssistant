@@ -379,7 +379,7 @@ export default function Home() {
         <PokeBackground />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none" />
 
-        <div className="relative z-10 w-full min(100%,36rem) max-w-xl flex flex-col items-center gap-6">
+        <div className="relative z-10 w-full max-w-xl flex flex-col items-center gap-6" style={{ maxWidth: "min(100%, 36rem)" }}>
 
           <span className="fs-tiny uppercase tracking-widest font-black text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-0.5 rounded-full">PokeMMO Speedrun Tool</span>
 
@@ -482,7 +482,7 @@ export default function Home() {
       <PokeBackground />
       
       {/* Sidebar Compacta */}
-      <aside className={`fixed md:static inset-y-0 left-0 z-40 w-52 bg-neutral-900 border-r border-neutral-800 flex flex-col transition-transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
+      <aside className={`fixed md:static inset-y-0 left-0 z-40 w-56 bg-neutral-900 border-r border-neutral-800 flex flex-col transition-transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
         <div className="p-3 border-b border-neutral-800 flex justify-between items-center bg-neutral-950">
           <h1 className="fs-small font-bold tracking-widest text-neutral-400 uppercase">Ruta Gym</h1>
           <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-neutral-500"><X className="w-4 h-4" /></button>
@@ -492,7 +492,7 @@ export default function Home() {
             <button
               key={step.id}
               onClick={() => setCurrentStepIndex(idx)}
-              className={`w-full text-left px-1.5 py-1 rounded flex items-center gap-1.5 fs-small transition-colors ${idx === currentStepIndex ? "bg-indigo-600 text-white font-bold" : idx < currentStepIndex ? "text-neutral-500 hover:bg-neutral-800" : "text-neutral-300 hover:bg-neutral-800"}`}
+              className={`w-full text-left px-2 py-1 rounded flex items-center gap-1.5 fs-small transition-colors ${idx === currentStepIndex ? "bg-indigo-600 text-white font-bold" : idx < currentStepIndex ? "text-neutral-500 hover:bg-neutral-800" : "text-neutral-300 hover:bg-neutral-800"}`}
             >
               <span className={`flex-shrink-0 w-5 text-center fs-tiny font-bold tabular-nums ${idx === currentStepIndex ? 'text-white' : idx < currentStepIndex ? 'text-neutral-600' : 'text-neutral-500'}`}>{idx + 1}</span>
               <span className="opacity-70 flex-shrink-0">{renderIcon(step.type)}</span>
@@ -523,7 +523,7 @@ export default function Home() {
 
         {/* Card View */}
         <div className="flex-1 flex flex-col items-center justify-center p-3 md:p-6">
-          <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-4 md:p-5 shadow-2xl overflow-hidden ${slideClass}`}>
+          <div key={slideKey} className={`w-full max-w-3xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-4 md:p-6 md:px-8 shadow-2xl overflow-hidden ${slideClass}`}>
             
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
               <div className="flex items-center gap-2 w-full sm:w-auto min-w-0">
@@ -630,7 +630,7 @@ export default function Home() {
           </div>
 
           {/* Navigation */}
-          <div className="w-full max-w-4xl mt-4 space-y-2">
+          <div className="w-full max-w-3xl mt-4 space-y-2">
             <div className="flex gap-3">
               <button onClick={handlePrev} disabled={currentStepIndex === 0} className="flex-1 py-3 bg-neutral-900 rounded-xl fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
               <button onClick={currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext} className="flex-[2] py-3 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-body">
@@ -651,7 +651,7 @@ export default function Home() {
       </main>
 
       {/* ── Floating Timer Bar ─ always visible, bottom of viewport ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 bg-neutral-900/95 border-t-2 border-indigo-500/40 backdrop-blur-sm px-3 py-1.5 sm:px-4 sm:py-2">
+      <div className="fixed bottom-0 left-0 right-0 z-30 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 bg-neutral-900/95 border-t-2 border-indigo-500/40 backdrop-blur-sm px-3 py-1.5 sm:px-5 sm:py-2.5">
         
         {/* Navigation Arrows above/next to Timer */}
         <div className="flex items-center justify-center gap-3 sm:hidden mb-0.5 w-full">
@@ -687,7 +687,7 @@ export default function Home() {
             <button onClick={resetTimer} title="Reiniciar" className="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 rounded font-bold fs-small"><RotateCcw className="w-3 h-3"/></button>
           </div>
         </div>
-        <div className="flex w-full items-center justify-between gap-1.5 border-t border-neutral-800 pt-1.5 sm:w-auto sm:border-l sm:border-t-0 sm:pl-3 sm:pt-0">
+        <div className="flex w-full items-center justify-between gap-2 border-t border-neutral-800 pt-1.5 sm:w-auto sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <Clock className="w-3 h-3 text-emerald-400" />

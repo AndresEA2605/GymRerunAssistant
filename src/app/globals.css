@@ -169,13 +169,13 @@
 
 /* ── Fluid Typography Scale ──────────────────────────────────────── */
 .fs-hero  { font-size: clamp(2rem, 4vw, 3.75rem); }
-.fs-hero2 { font-size: clamp(1.1rem, 2vw, 2rem); }
-.fs-h2    { font-size: clamp(1rem, 1.8vw, 1.5rem); }
-.fs-h3    { font-size: clamp(1rem, 1.5vw, 1.35rem); }
-.fs-body  { font-size: clamp(0.8rem, 0.9vw, 0.95rem); }
-.fs-small { font-size: clamp(0.65rem, 0.6vw, 0.8rem); }
-.fs-tiny  { font-size: clamp(0.55rem, 0.45vw, 0.7rem); }
-.fs-mono  { font-size: clamp(0.85rem, 1.2vw, 1.25rem); }
+.fs-hero2 { font-size: clamp(1.2rem, 2vw, 2rem); }
+.fs-h2    { font-size: clamp(1.1rem, 1.5vw, 1.5rem); }
+.fs-h3    { font-size: clamp(1.1rem, 1.4vw, 1.45rem); }
+.fs-body  { font-size: clamp(0.85rem, 0.9vw, 1rem); }
+.fs-small { font-size: clamp(0.72rem, 0.6vw, 0.85rem); }
+.fs-tiny  { font-size: clamp(0.62rem, 0.5vw, 0.75rem); }
+.fs-mono  { font-size: clamp(0.9rem, 1.2vw, 1.3rem); }
 
 /* ── Custom base styles ───────────────────────────────────────────── */
 :root {
