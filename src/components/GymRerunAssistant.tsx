@@ -238,6 +238,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const [slideKey, setSlideKey] = useState<number>(0);
   const [selectedGuide, setSelectedGuide] = useState<boolean>(false);
   const [showStartCheck, setShowStartCheck] = useState<boolean>(false);
+  const [startChecks, setStartChecks] = useState<[boolean, boolean, boolean]>([false, false, false]);
 
   const [timerIsRunning, setTimerIsRunning] = useState<boolean>(false);
   const [timerStartTime, setTimerStartTime] = useState<number | null>(null);
@@ -890,7 +891,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                       )}
                     </div>
                   )}
-                  <button onClick={() => setShowStartCheck(true)} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white fs-hero2 font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)]">
+                  <button onClick={() => { setStartChecks([false, false, false]); setShowStartCheck(true); }} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white fs-hero2 font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)]">
                     ▶ COMENZAR RUTA
                   </button>
                 </>
@@ -1312,38 +1313,45 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               </div>
               <div>
                 <h3 className="font-black fs-h3 text-amber-300">¿Listo para empezar?</h3>
-                <p className="fs-tiny text-amber-500/70">Revisa antes de iniciar la ruta</p>
+                <p className="fs-tiny text-amber-500/70">Marca cada verificación para continuar</p>
               </div>
               <button onClick={() => setShowStartCheck(false)} className="ml-auto text-neutral-500 hover:text-white"><X className="w-5 h-5" /></button>
             </div>
             <div className="space-y-2">
-              <div className="flex items-start gap-3 bg-red-950/30 border border-red-800/40 p-3 rounded-xl">
-                <span className="text-xl mt-0.5 shrink-0">💰</span>
-                <div>
-                  <div className="fs-small font-black text-red-300 uppercase tracking-wider">Amulet Coin / Luck Incense</div>
-                  <div className="fs-tiny text-red-200/70 mt-0.5">Equipa este objeto en uno de tus Pokémon. ¡No lo olvides o perderás dinero extra!</div>
+              <button onClick={() => setStartChecks(prev => [true, prev[1], prev[2]])} className={`w-full flex items-start gap-3 p-3 rounded-xl border text-left transition-all ${startChecks[0] ? 'bg-emerald-950/30 border-emerald-700/50' : 'bg-red-950/30 border-red-800/40 hover:bg-red-900/30'}`}>
+                <div className={`w-5 h-5 mt-0.5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${startChecks[0] ? 'bg-emerald-500 border-emerald-500' : 'border-neutral-600'}`}>
+                  {startChecks[0] && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
                 </div>
-              </div>
-              <div className="flex items-start gap-3 bg-amber-950/30 border border-amber-800/40 p-3 rounded-xl">
-                <span className="text-xl mt-0.5 shrink-0">🗺️</span>
                 <div>
-                  <div className="fs-small font-black text-amber-300 uppercase tracking-wider">Ubicación correcta</div>
-                  <div className="fs-tiny text-amber-200/70 mt-0.5">Debes estar en <span className="font-bold text-white">{steps[0]?.title || "Endrino"}</span> ({steps[0]?.region || "Johto"}) antes de comenzar.</div>
+                  <div className={`fs-small font-black uppercase tracking-wider ${startChecks[0] ? 'text-emerald-300' : 'text-red-300'}`}>Amulet Coin / Luck Incense</div>
+                  <div className={`fs-tiny mt-0.5 ${startChecks[0] ? 'text-emerald-200/60' : 'text-red-200/70'}`}>Equipa este objeto en uno de tus Pokémon. ¡No lo olvides!</div>
                 </div>
-              </div>
-              <div className="flex items-start gap-3 bg-neutral-950 border border-neutral-800 p-3 rounded-xl">
-                <span className="text-xl mt-0.5 shrink-0">⚡</span>
+              </button>
+              <button onClick={() => setStartChecks(prev => [prev[0], true, prev[2]])} className={`w-full flex items-start gap-3 p-3 rounded-xl border text-left transition-all ${startChecks[1] ? 'bg-emerald-950/30 border-emerald-700/50' : 'bg-amber-950/30 border-amber-800/40 hover:bg-amber-900/30'}`}>
+                <div className={`w-5 h-5 mt-0.5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${startChecks[1] ? 'bg-emerald-500 border-emerald-500' : 'border-neutral-600'}`}>
+                  {startChecks[1] && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                </div>
                 <div>
-                  <div className="fs-small font-black text-neutral-300 uppercase tracking-wider">Equipo y objetos</div>
-                  <div className="fs-tiny text-neutral-500 mt-0.5">Verifica que tu equipo tenga los movimientos y objetos correctos según la guía.</div>
+                  <div className={`fs-small font-black uppercase tracking-wider ${startChecks[1] ? 'text-emerald-300' : 'text-amber-300'}`}>Ubicación correcta</div>
+                  <div className={`fs-tiny mt-0.5 ${startChecks[1] ? 'text-emerald-200/60' : 'text-amber-200/70'}`}>Debes estar en <span className="font-bold text-white">{steps[0]?.title || "Endrino"}</span> ({steps[0]?.region || "Johto"}).</div>
                 </div>
-              </div>
+              </button>
+              <button onClick={() => setStartChecks(prev => [prev[0], prev[1], true])} className={`w-full flex items-start gap-3 p-3 rounded-xl border text-left transition-all ${startChecks[2] ? 'bg-emerald-950/30 border-emerald-700/50' : 'bg-neutral-950 border-neutral-800 hover:bg-neutral-900'}`}>
+                <div className={`w-5 h-5 mt-0.5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${startChecks[2] ? 'bg-emerald-500 border-emerald-500' : 'border-neutral-600'}`}>
+                  {startChecks[2] && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                </div>
+                <div>
+                  <div className={`fs-small font-black uppercase tracking-wider ${startChecks[2] ? 'text-emerald-300' : 'text-neutral-300'}`}>Equipo y objetos</div>
+                  <div className={`fs-tiny mt-0.5 ${startChecks[2] ? 'text-emerald-200/60' : 'text-neutral-500'}`}>Verifica movimientos y objetos correctos según la guía.</div>
+                </div>
+              </button>
             </div>
             <button
+              disabled={!startChecks.every(Boolean)}
               onClick={() => { setShowStartCheck(false); handleNext(); }}
-              className="w-full mt-4 py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-lg font-black rounded-xl transition-all shadow-[0_0_25px_rgba(99,102,241,0.3)] hover:shadow-[0_0_40px_rgba(99,102,241,0.5)]"
+              className={`w-full mt-4 py-3 text-white text-lg font-black rounded-xl transition-all ${startChecks.every(Boolean) ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 shadow-[0_0_25px_rgba(99,102,241,0.3)] hover:shadow-[0_0_40px_rgba(99,102,241,0.5)] cursor-pointer' : 'bg-neutral-800 text-neutral-600 cursor-not-allowed'}`}
             >
-              ▶ COMENZAR RUTA
+              {startChecks.every(Boolean) ? "▶ COMENZAR RUTA" : "Marca todas las verificaciones"}
             </button>
           </div>
         </div>
