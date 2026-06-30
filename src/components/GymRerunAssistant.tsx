@@ -18,12 +18,26 @@ import {
   Power,
   Clock
 } from "lucide-react";
-import rawSteps from "../data/route.json";
 import { RouteStep, StepType, RunHistoryEntry } from "../types";
-import { GYM_COORDS, REGION_MAP } from "../data/gymCoords";
 
-const steps = rawSteps as RouteStep[];
-const GYM_RESET_MS = 18 * 60 * 60 * 1000;
+export type GymCoordMap = Record<string, { region: string; x: number; y: number }>;
+export type RegionMap = Record<string, string>;
+
+export interface GymRerunConfig {
+  totalGyms?: number;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  gymResetMs?: number;
+  storagePrefix?: string;
+}
+
+export interface GymRerunAssistantProps {
+  steps: RouteStep[];
+  gymCoords: GymCoordMap;
+  regionMap: RegionMap;
+  config?: GymRerunConfig;
+}
 
 type CooldownState = {
   endAt: number | null;
@@ -146,7 +160,16 @@ const PokeBackground = memo(() => (
 ));
 PokeBackground.displayName = "PokeBackground";
 
-export default function GymRerunAssistant() {
+export default function GymRerunAssistant({ steps, gymCoords, regionMap, config = {} }: GymRerunAssistantProps) {
+  const {
+    totalGyms = 33,
+    title = "GYM RERUN",
+    subtitle = "ASSISTANT",
+    description = "Guía secuencial para 33 Gym Reruns en PokeMMO",
+    gymResetMs = 18 * 60 * 60 * 1000,
+    storagePrefix = "pkmmo",
+  } = config;
+
   const [showMenu, setShowMenu] = useState<boolean>(true);
   const [menuExiting, setMenuExiting] = useState<boolean>(false);
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
@@ -171,8 +194,10 @@ export default function GymRerunAssistant() {
   const [history, setHistory] = useState<RunHistoryEntry[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const storagePrefixRef = useRef(storagePrefix);
 
   const currentStep = steps[currentStepIndex] || steps[0];
+  const LS = (key: string) => `${storagePrefix}_${key}`;
 
   const triggerToast = useCallback((message: string) => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
@@ -182,14 +207,16 @@ export default function GymRerunAssistant() {
 
   useEffect(() => {
     const loadId = window.setTimeout(() => {
-      const savedStep = localStorage.getItem("pkmmo_gym_step");
+      const savedStep = localStorage.getItem(LS("gym_step"));
       if (savedStep) {
         const idx = Number(savedStep);
-        setCurrentStepIndex(idx);
-        if (idx > 0) setShowMenu(false);
+        if (!isNaN(idx) && idx >= 0 && idx < steps.length) {
+          setCurrentStepIndex(idx);
+          if (idx > 0) setShowMenu(false);
+        }
       }
 
-      const savedTimer = localStorage.getItem("pkmmo_gym_timer");
+      const savedTimer = localStorage.getItem(LS("gym_timer"));
       if (savedTimer) {
         try {
           const parsed = JSON.parse(savedTimer);
@@ -199,12 +226,12 @@ export default function GymRerunAssistant() {
         } catch { /* ignore */ }
       }
 
-      const savedHistory = localStorage.getItem("pkmmo_gym_history");
+      const savedHistory = localStorage.getItem(LS("gym_history"));
       if (savedHistory) {
         try { setHistory(JSON.parse(savedHistory)); } catch { /* ignore */ }
       }
 
-      const savedCooldown = localStorage.getItem("pkmmo_gym_cooldown");
+      const savedCooldown = localStorage.getItem(LS("gym_cooldown"));
       if (savedCooldown) {
         try {
           const parsed = JSON.parse(savedCooldown);
@@ -214,12 +241,34 @@ export default function GymRerunAssistant() {
     }, 0);
 
     return () => window.clearTimeout(loadId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => localStorage.setItem("pkmmo_gym_step", currentStepIndex.toString()), [currentStepIndex]);
+  useEffect(() => {
+    window.history.pushState(null, "", window.location.href);
+    const handlePop = () => {
+      if (showMenu) {
+        window.history.pushState(null, "", window.location.href);
+        return;
+      }
+      if (currentStepIndex > 0) {
+        handlePrevRef.current();
+        window.history.pushState(null, "", window.location.href);
+      } else {
+        setMenuVisible(true);
+        setShowMenu(true);
+        window.history.pushState(null, "", window.location.href);
+      }
+    };
+    window.addEventListener("popstate", handlePop);
+    return () => window.removeEventListener("popstate", handlePop);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showMenu, currentStepIndex]);
+
+  useEffect(() => localStorage.setItem(LS("gym_step"), currentStepIndex.toString()), [currentStepIndex]);
 
   useEffect(() => {
-    localStorage.setItem("pkmmo_gym_timer", JSON.stringify({
+    localStorage.setItem(LS("gym_timer"), JSON.stringify({
       elapsed: timerElapsed,
       isRunning: timerIsRunning,
       startedAt: timerStartTime,
@@ -227,7 +276,7 @@ export default function GymRerunAssistant() {
   }, [timerElapsed, timerIsRunning, timerStartTime]);
 
   useEffect(() => {
-    localStorage.setItem("pkmmo_gym_cooldown", JSON.stringify(cooldown));
+    localStorage.setItem(LS("gym_cooldown"), JSON.stringify(cooldown));
   }, [cooldown]);
 
   const getLastCompletedGym = useCallback(() => {
@@ -238,7 +287,7 @@ export default function GymRerunAssistant() {
     return null;
   }, [currentStepIndex]);
 
-  const startGymCooldown = useCallback((gymName?: string | null, durationMs = GYM_RESET_MS) => {
+  const startGymCooldown = useCallback((gymName?: string | null, durationMs = gymResetMs) => {
     const lastGym = gymName || getLastCompletedGym() || "Gym desconocido";
     const nextCooldown = { endAt: Date.now() + durationMs, lastGym };
     setCooldown(nextCooldown);
@@ -317,7 +366,7 @@ export default function GymRerunAssistant() {
     };
     const updatedHistory = [newEntry, ...history].slice(0, 20);
     setHistory(updatedHistory);
-    localStorage.setItem("pkmmo_gym_history", JSON.stringify(updatedHistory));
+    localStorage.setItem(LS("gym_history"), JSON.stringify(updatedHistory));
     startGymCooldown(getLastCompletedGym());
     resetTimer();
     setShowFinishConfirm(false);
@@ -343,7 +392,7 @@ export default function GymRerunAssistant() {
   };
 
   const openCooldownEditor = () => {
-    const remaining = cooldown.endAt ? Math.max(0, cooldown.endAt - Date.now()) : GYM_RESET_MS;
+    const remaining = cooldown.endAt ? Math.max(0, cooldown.endAt - Date.now()) : gymResetMs;
     setCooldownHours(String(Math.floor(remaining / 3600000)));
     setCooldownMinutes(String(Math.floor((remaining % 3600000) / 60000)));
     setShowCooldownEditor(true);
@@ -383,12 +432,12 @@ export default function GymRerunAssistant() {
           <div className="text-center">
             <h1 className="fs-hero font-black tracking-tight text-white" style={{ textShadow: '0 0 60px rgba(99,102,241,0.5)' }}>GYM RERUN</h1>
             <h2 className="fs-h2 font-bold text-indigo-400 tracking-widest mt-1">ASSISTANT</h2>
-            <p className="text-neutral-500 fs-body mt-2">Guía secuencial para 33 Gym Reruns en PokeMMO</p>
+            <p className="text-neutral-500 fs-body mt-2">{description}</p>
           </div>
 
           <div className="w-full grid grid-cols-3 gap-2.5 text-center">
             <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-2.5">
-              <div className="fs-h2 font-black text-white">33</div>
+              <div className="fs-h2 font-black text-white">{totalGyms}</div>
               <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Gimnasios</div>
             </div>
             <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-2.5">
@@ -403,20 +452,20 @@ export default function GymRerunAssistant() {
 
           <div className="w-full bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
             <div className="px-3 py-1.5 bg-neutral-950 border-b border-neutral-800 flex items-center justify-between">
-              <span className="fs-tiny uppercase font-black tracking-widest text-neutral-500">Ganancias Aproximadas (33 Gyms)</span>
+              <span className="fs-tiny uppercase font-black tracking-widest text-neutral-500">Ganancias Aproximadas ({totalGyms} Gyms)</span>
               <a href="https://c4vv.github.io/CharmCalc/" target="_blank" rel="noopener noreferrer" className="fs-tiny text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">CharmCalc ↗</a>
             </div>
             <div className="grid grid-cols-2 divide-x divide-neutral-800">
               <div className="p-3 text-center">
                 <div className="fs-tiny uppercase tracking-widest text-neutral-500 mb-1">Sin Moneda Amuleto</div>
                 <div className="fs-h2 font-black text-white">~297,000</div>
-                <div className="fs-small text-neutral-500 mt-0.5">~9,000 × 33 gyms</div>
+                <div className="fs-small text-neutral-500 mt-0.5">~9,000 × {totalGyms} gyms</div>
                 <div className="mt-1.5 fs-tiny text-neutral-600">Multiplicador × 1.0</div>
               </div>
               <div className="p-3 text-center bg-emerald-950/10">
                 <div className="fs-tiny uppercase tracking-widest text-emerald-500 mb-1">Con Moneda Amuleto</div>
                 <div className="fs-h2 font-black text-emerald-400">~446,000</div>
-                <div className="fs-small text-neutral-500 mt-0.5">~13,500 × 33 gyms</div>
+                <div className="fs-small text-neutral-500 mt-0.5">~13,500 × {totalGyms} gyms</div>
                 <div className="mt-1.5 fs-tiny text-emerald-600 font-bold">Multiplicador × 1.5</div>
               </div>
             </div>
@@ -432,7 +481,7 @@ export default function GymRerunAssistant() {
               </div>
               <div>
                 <div className="fs-body font-bold text-white group-hover:text-indigo-300 transition-colors">Ver Run de Ejemplo</div>
-                <div className="fs-tiny text-neutral-500">33 Gyms completo · YouTube</div>
+                <div className="fs-tiny text-neutral-500">{totalGyms} Gyms completo · YouTube</div>
               </div>
             </a>
             <ChevronRight className="w-4 h-4 text-neutral-600" />
@@ -524,15 +573,15 @@ export default function GymRerunAssistant() {
                 {currentStep.region && <span className="ml-auto sm:ml-3 fs-small font-bold uppercase tracking-widest px-2 py-0.5 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentStep.region}</span>}
               </div>
 
-              {currentStep.type === "gym" && currentStep.gym && GYM_COORDS[currentStep.gym as keyof typeof GYM_COORDS] && (
+              {currentStep.type === "gym" && currentStep.gym && gymCoords[currentStep.gym as keyof typeof gymCoords] && (
                 <div className="w-full sm:w-32 h-20 sm:ml-auto relative rounded-lg border border-neutral-700/50 overflow-hidden shrink-0 bg-neutral-950 shadow-inner group">
-                  <img src={REGION_MAP[GYM_COORDS[currentStep.gym as keyof typeof GYM_COORDS].region as keyof typeof REGION_MAP]} alt="Region Map" className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
+                  <img src={regionMap[gymCoords[currentStep.gym as keyof typeof gymCoords].region as keyof typeof regionMap]} alt="Region Map" className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
                   <div className="absolute inset-0 bg-indigo-900/10 mix-blend-color" />
                   <div 
                     className="absolute w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.8)] -translate-x-1/2 -translate-y-1/2 animate-bounce"
                     style={{ 
-                      left: `${GYM_COORDS[currentStep.gym as keyof typeof GYM_COORDS].x}%`, 
-                      top: `${GYM_COORDS[currentStep.gym as keyof typeof GYM_COORDS].y}%` 
+                      left: `${gymCoords[currentStep.gym as keyof typeof gymCoords].x}%`, 
+                      top: `${gymCoords[currentStep.gym as keyof typeof gymCoords].y}%` 
                     }}
                   />
                   <div className="absolute bottom-0.5 right-1 fs-tiny font-black uppercase tracking-widest text-white/80 drop-shadow-md">MAPA</div>
