@@ -1,48 +1,81 @@
 // Gym map coordinates (x%, y% on each region map image)
-export const GYM_COORDS = {
-  // Johto (Custom Pixel Art Map)
-  "Endrino":          { region: "Johto",  x: 82, y: 10 },  // Blackthorn (Top Right)
-  "Trigal":           { region: "Johto",  x: 54, y: 49 },  // Goldenrod (Center)
-  "Azalea":           { region: "Johto",  x: 54, y: 71 },  // Azalea (Bottom Middle)
-  "Olivo":            { region: "Johto",  x: 29, y: 49 },  // Olivine (Middle Left)
-  "Orquidea":         { region: "Johto",  x:  7, y: 49 },  // Cianwood (Far Left)
-  "Caoba":            { region: "Johto",  x: 71, y: 22 },  // Mahogany (Top Middle-Right)
-  "Malva":            { region: "Johto",  x: 82, y: 37 },  // Violet (Middle Right)
+// Calibrated against the exact generated pixel-art map PNGs
 
-  // Hoenn (Sci-fi Stylized Map)
-  "Pueblo Azuliza":   { region: "Hoenn",  x: 25, y: 67 },  // Dewford (Big Hexagon Bottom Left)
-  "Ciudad Ferrica":   { region: "Hoenn",  x: 14, y: 21 },  // Rustboro (Node Above Petalburg)
-  "Ciudad Malvalona": { region: "Hoenn",  x: 37, y: 40 },  // Mauville (Labeled Center)
-  "Ciudad Petalia":   { region: "Hoenn",  x: 14, y: 40 },  // Petalburg (Labeled Left)
-  "Pueblo Lavacalda": { region: "Hoenn",  x: 37, y: 21 },  // Lavaridge (Node Above Mauville)
-  "Ciudad Arborada":  { region: "Hoenn",  x: 53, y: 40 },  // Fortree (Node Right of Mauville)
+export const GYM_COORDS: Record<string, { region: string; x: number; y: number }> = {
+  // ── Johto (HGSS-style pixel art) ──────────────────────────────────
+  // Blackthorn City → top-right corner (Ice Path area)
+  "Endrino":    { region: "Johto",  x: 86, y:  9 },
+  // Goldenrod City → center-left large city
+  "Trigal":     { region: "Johto",  x: 46, y: 56 },
+  // Azalea Town → bottom center
+  "Azalea":     { region: "Johto",  x: 46, y: 83 },
+  // Olivine City → left coast
+  "Olivo":      { region: "Johto",  x: 19, y: 65 },
+  // Cianwood City → far-left island
+  "Orquidea":   { region: "Johto",  x:  6, y: 32 },
+  // Mahogany Town → upper center
+  "Caoba":      { region: "Johto",  x: 52, y: 24 },
+  // Violet City → right middle
+  "Malva":      { region: "Johto",  x: 82, y: 43 },
 
-  // Sinnoh (Sci-fi Stylized Map)
-  "Ciudad Vetusta":   { region: "Sinnoh", x: 35, y: 30 },  // Eterna (Glowing Green Crystal Top Left)
-  "Ciudad Pirita":    { region: "Sinnoh", x: 45, y: 55 },  // Oreburgh (Approx South East of Jubilife)
-  "Ciudad Canal":     { region: "Sinnoh", x: 22, y: 49 },  // Canalave (Labeled Left)
-  "Ciudad Rocavelo":  { region: "Sinnoh", x: 81, y: 51 },  // Veilstone (Node Far Right Middle)
-  "Pueblo Pastoria":  { region: "Sinnoh", x: 76, y: 67 },  // Pastoria (Node Below Veilstone)
+  // ── Hoenn (Emerald-style pixel art) ───────────────────────────────
+  // Dewford Town → small island bottom-left
+  "Pueblo Azuliza":   { region: "Hoenn",  x: 10, y: 71 },
+  // Rustboro City → top-left
+  "Ciudad Ferrica":   { region: "Hoenn",  x: 11, y: 14 },
+  // Mauville City → center
+  "Ciudad Malvalona": { region: "Hoenn",  x: 42, y: 51 },
+  // Petalburg City → bottom-left
+  "Ciudad Petalia":   { region: "Hoenn",  x: 26, y: 79 },
+  // Lavaridge Town → top center
+  "Pueblo Lavacalda": { region: "Hoenn",  x: 33, y: 16 },
+  // Fortree City → top right
+  "Ciudad Arborada":  { region: "Hoenn",  x: 72, y: 14 },
 
-  // Kanto (Sci-fi Stylized Map)
-  "Carmin":           { region: "Kanto",  x: 52, y: 75 },  // Vermilion (Labeled Bottom Target)
-  "Isla Canela":      { region: "Kanto",  x: 23, y: 64 },  // Cinnabar (Labeled Bottom Left)
-  "Plateada":         { region: "Kanto",  x: 22, y: 43 },  // Pewter (Labeled Left)
-  "Celeste":          { region: "Kanto",  x: 66, y: 36 },  // Cerulean (Labeled Top Right)
-  "Azulona":          { region: "Kanto",  x: 55, y: 49 },  // Celadon (Between Saffron and Left)
-  "Fucsia":           { region: "Kanto",  x: 74, y: 58 },  // Fuchsia (Labeled Right)
+  // ── Sinnoh (Platinum-style pixel art) ─────────────────────────────
+  // Eterna City → top left (green building with [E])
+  "Ciudad Vetusta":  { region: "Sinnoh", x: 16, y: 18 },
+  // Oreburgh City → center (marked [O])
+  "Ciudad Pirita":   { region: "Sinnoh", x: 32, y: 55 },
+  // Canalave City → far left ([C] label)
+  "Ciudad Canal":    { region: "Sinnoh", x:  9, y: 60 },
+  // Veilstone City → right ([V] label)
+  "Ciudad Rocavelo": { region: "Sinnoh", x: 77, y: 46 },
+  // Pastoria City → bottom right ([P] label)
+  "Pueblo Pastoria": { region: "Sinnoh", x: 79, y: 78 },
 
-  // Unova (Sci-fi Stylized Map)
-  "Porcelana":        { region: "Unova",  x: 50, y: 78 },  // Castelia (Glowing City Bottom Center)
-  "Mayolica":         { region: "Unova",  x: 45, y: 40 },  // Nimbasa (Dots North of Castelia)
-  "Fayenza":          { region: "Unova",  x: 30, y: 45 },  // Driftveil (Dots Left of Nimbasa)
-  "Loza":             { region: "Unova",  x: 22, y: 30 },  // Mistralton (Dots Far Top Left)
-  "Caolin":           { region: "Unova",  x: 55, y: 30 },  // Opelucid (Dome Top Center)
-  "Striaton":         { region: "Unova",  x: 84, y: 58 },  // Striaton (Node Bottom Right)
-  "Esmalte":          { region: "Unova",  x: 65, y: 48 },  // Nacrene (Dome Right Center)
+  // ── Kanto (FRLG-style pixel art) ──────────────────────────────────
+  // Vermilion City → bottom center
+  "Carmin":     { region: "Kanto",  x: 59, y: 76 },
+  // Cinnabar Island → bottom left
+  "Isla Canela":{ region: "Kanto",  x: 31, y: 90 },
+  // Pewter City → left middle
+  "Plateada":   { region: "Kanto",  x: 18, y: 17 },
+  // Cerulean City → top right
+  "Celeste":    { region: "Kanto",  x: 64, y: 18 },
+  // Celadon City → center
+  "Azulona":    { region: "Kanto",  x: 38, y: 48 },
+  // Fuchsia City → bottom right
+  "Fucsia":     { region: "Kanto",  x: 84, y: 71 },
+
+  // ── Unova (Black/White-style pixel art) ───────────────────────────
+  // Castelia City → bottom center (huge city)
+  "Porcelana":  { region: "Unova",  x: 43, y: 90 },
+  // Nimbasa City → center (Musical Hall / Battle Subway)
+  "Mayolica":   { region: "Unova",  x: 43, y: 68 },
+  // Driftveil City → left center
+  "Fayenza":    { region: "Unova",  x: 18, y: 52 },
+  // Mistralton City → top left (airport/airplane)
+  "Loza":       { region: "Unova",  x: 14, y: 27 },
+  // Opelucid City → top right
+  "Caolin":     { region: "Unova",  x: 72, y: 27 },
+  // Striaton City → top center
+  "Striaton":   { region: "Unova",  x: 43, y:  6 },
+  // Nacrene City → upper center-left
+  "Esmalte":    { region: "Unova",  x: 47, y: 27 },
 };
 
-export const REGION_MAP = {
+export const REGION_MAP: Record<string, string> = {
   Johto:  "/images/maps/map_johto.png",
   Hoenn:  "/images/maps/map_hoenn.png",
   Sinnoh: "/images/maps/map_sinnoh.png",
@@ -50,7 +83,7 @@ export const REGION_MAP = {
   Unova:  "/images/maps/map_unova.png",
 };
 
-export const REGION_COLOR = {
+export const REGION_COLOR: Record<string, string> = {
   Johto:  "text-yellow-400  border-yellow-500/30 bg-yellow-500/10",
   Hoenn:  "text-red-400     border-red-500/30    bg-red-500/10",
   Sinnoh: "text-blue-400    border-blue-500/30   bg-blue-500/10",
