@@ -282,12 +282,17 @@ export default function Home() {
                   <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
                     <div className="text-[10px] text-blue-400 uppercase font-black tracking-widest mb-3 flex items-center gap-2"><Sparkles className="w-3 h-3"/> Equipar Objetos</div>
                     <ul className="space-y-2">
-                      {currentStep.items.map((it, i) => (
-                        <li key={i} className="flex items-center justify-between bg-neutral-900 p-3 rounded border border-neutral-800">
-                          <span className="font-semibold text-neutral-300">{it.pokemon.join(" • ")}</span>
-                          <span className="text-blue-400 font-bold text-sm bg-blue-900/20 px-2 py-1 rounded">➔ {it.item}</span>
-                        </li>
-                      ))}
+                      {currentStep.items.map((it, i) => {
+                        const isScarf = it.item.toLowerCase().includes("panuelo") || it.item.toLowerCase().includes("pañuelo");
+                        return (
+                          <li key={i} className={`flex items-center justify-between p-3 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
+                            <span className={`font-semibold ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{it.pokemon.join(" • ")}</span>
+                            <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-3 py-1 text-base shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-2 py-1 text-xs'} font-bold rounded uppercase tracking-wider`}>
+                              ➔ {it.item}
+                            </span>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 )}

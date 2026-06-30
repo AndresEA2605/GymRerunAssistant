@@ -70,8 +70,8 @@
   {
     "id": 6,
     "type": "note",
-    "title": "Nota Especial",
-    "description": "Usar Channel Glitch para salir"
+    "title": "Channel Glitch",
+    "description": "Abre el menú y cambia de canal (Change Channel). Al reconectar, aparecerás instantáneamente en la entrada del gimnasio, ahorrando el tiempo de caminar de regreso."
   },
   {
     "id": 7,
