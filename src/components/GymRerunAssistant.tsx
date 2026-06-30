@@ -237,6 +237,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const [slideClass, setSlideClass] = useState<string>("");
   const [slideKey, setSlideKey] = useState<number>(0);
   const [selectedGuide, setSelectedGuide] = useState<boolean>(false);
+  const [showStartCheck, setShowStartCheck] = useState<boolean>(false);
 
   const [timerIsRunning, setTimerIsRunning] = useState<boolean>(false);
   const [timerStartTime, setTimerStartTime] = useState<number | null>(null);
@@ -889,7 +890,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                       )}
                     </div>
                   )}
-                  <button onClick={handleNext} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white fs-hero2 font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)]">
+                  <button onClick={() => setShowStartCheck(true)} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white fs-hero2 font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)]">
                     ▶ COMENZAR RUTA
                   </button>
                 </>
@@ -1297,6 +1298,54 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               <div className="px-5 py-2.5 bg-neutral-950 border-t border-neutral-800 fs-tiny text-neutral-600 text-center">
                 Click fuera del modal para cerrar · Creado por Dreasy
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showStartCheck && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-3">
+          <div className="bg-neutral-900 rounded-2xl border border-neutral-800 w-full max-w-sm p-5">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-black fs-h2 text-white">Preparación</h3>
+              <button onClick={() => setShowStartCheck(false)} className="text-neutral-500 hover:text-white"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3 bg-neutral-950 p-3 rounded-xl border border-neutral-800">
+                <span className="text-lg mt-0.5">💰</span>
+                <div>
+                  <div className="fs-body font-bold text-white">Amulet Coin / Luck Incense</div>
+                  <div className="fs-tiny text-neutral-400">Asegúrate de tenerlo equipado en uno de tus Pokémon para ganar dinero extra.</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 bg-neutral-950 p-3 rounded-xl border border-neutral-800">
+                <span className="text-lg mt-0.5">🗺️</span>
+                <div>
+                  <div className="fs-body font-bold text-white">Estar en el gimnasio correcto</div>
+                  <div className="fs-tiny text-neutral-400">Dirígete a <span className="font-bold text-white">{steps[0]?.title || "Endrino"}</span> ({steps[0]?.region || "Johto"}) antes de comenzar.</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 bg-neutral-950 p-3 rounded-xl border border-neutral-800">
+                <span className="text-lg mt-0.5">⚡</span>
+                <div>
+                  <div className="fs-body font-bold text-white">Equipo listo</div>
+                  <div className="fs-tiny text-neutral-400">Verifica que tu equipo esté completo con los objetos y movimientos correctos.</div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2.5">
+              <button
+                onClick={() => setShowStartCheck(false)}
+                className="py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-black fs-body"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => { setShowStartCheck(false); handleNext(); }}
+                className="py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black fs-body shadow-lg shadow-indigo-900/30"
+              >
+                ▶ COMENZAR
+              </button>
             </div>
           </div>
         </div>
