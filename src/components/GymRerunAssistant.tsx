@@ -661,102 +661,84 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   <div className="flex items-center gap-2.5 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Hydreigon}.png`} alt="Hydreigon" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
-                      <div className="font-black fs-small text-indigo-300">H1 — Hydreigon</div>
-                      <div className="fs-tiny text-neutral-500">Levitate · Modest · Choice Specs</div>
+                      <div className="font-black fs-small text-indigo-300">HI — Hydreigon</div>
+                      <div className="fs-tiny text-neutral-500">Levitate · Modest</div>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-1">
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Dragon Pulse</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Dark Pulse</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Flamethrower</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Focus Blast</span>
+                  <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 6 HP / 252 SpA / 40 SpD / 252 Spe</div>
+                  <div className="grid grid-cols-2 gap-0.5">
+                    {['Surf','Sunny Day','Rain Dance','Tailwind'].map(m => <span key={m} className="fs-tiny bg-indigo-950/50 border border-indigo-800/30 px-1.5 py-0.5 rounded text-indigo-300">{m}</span>)}
                   </div>
-                  <div className="mt-1.5 fs-tiny text-neutral-500">252 SpA · 252 Spe · 4 HP</div>
-                </div>
-
-                <div className="bg-neutral-950 border border-violet-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK["Vanilluxe"]}.png`} alt="Vanilluxe" className="w-10 h-10 object-contain" loading="lazy" />
-                    <div>
-                      <div className="font-black fs-small text-violet-300">V1 — Vanilluxe</div>
-                      <div className="fs-tiny text-neutral-500">Snow Warning · Timid · Choice Scarf</div>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Blizzard</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Freeze-Dry</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Flash Cannon</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Water Pulse</span>
-                  </div>
-                  <div className="mt-1.5 fs-tiny text-neutral-500">252 SpA · 252 Spe · 4 HP</div>
                 </div>
 
                 <div className="bg-neutral-950 border border-cyan-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Weezing}.png`} alt="Weezing" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
-                      <div className="font-black fs-small text-cyan-300">W1 — Weezing</div>
-                      <div className="fs-tiny text-neutral-500">Levitate · Adamant · Choice Band</div>
+                      <div className="font-black fs-small text-cyan-300">WW — Weezing</div>
+                      <div className="fs-tiny text-neutral-500">Neutralizing Gas · Adamant · Choice Band</div>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-1">
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Play Rough</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Gunk Shot</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">U-turn</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Explosion</span>
+                  <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 Atk / 6 SpD / 252 Spe</div>
+                  <div className="grid grid-cols-2 gap-0.5">
+                    {['Explosion','Assurance','Incinerate','Sunny Day'].map(m => <span key={m} className="fs-tiny bg-cyan-950/50 border border-cyan-800/30 px-1.5 py-0.5 rounded text-cyan-300">{m}</span>)}
                   </div>
-                  <div className="mt-1.5 fs-tiny text-neutral-500">252 Atk · 252 Spe · 4 HP</div>
                 </div>
 
-                <div className="bg-neutral-950 border border-rose-500/20 rounded-xl p-3">
+                <div className="bg-neutral-950 border border-sky-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK["Mienshao"]}.png`} alt="Mienshao" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Togekiss}.png`} alt="Togekiss" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
-                      <div className="font-black fs-small text-rose-300">M1 — Mienshao</div>
-                      <div className="fs-tiny text-neutral-500">Regenerator · Jolly · Life Orb</div>
+                      <div className="font-black fs-small text-sky-300">TO — Togekiss</div>
+                      <div className="fs-tiny text-neutral-500">Serene Grace · Modest · Choice Scarf</div>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-1">
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Drain Punch</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Knock Off</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Fake Out</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Rock Slide</span>
+                  <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 6 SpD / 252 Spe</div>
+                  <div className="grid grid-cols-2 gap-0.5">
+                    {['Hyper Voice','Psyshock','Signal Beam','Psychic'].map(m => <span key={m} className="fs-tiny bg-sky-950/50 border border-sky-800/30 px-1.5 py-0.5 rounded text-sky-300">{m}</span>)}
                   </div>
-                  <div className="mt-1.5 fs-tiny text-neutral-500">252 Atk · 252 Spe · 4 HP</div>
-                </div>
-
-                <div className="bg-neutral-950 border border-yellow-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Cloyster}.png`} alt="Cloyster" className="w-10 h-10 object-contain" loading="lazy" />
-                    <div>
-                      <div className="font-black fs-small text-yellow-300">C1 — Cloyster</div>
-                      <div className="fs-tiny text-neutral-500">Skill Link · Adamant · Focus Sash</div>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Icicle Spear</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Rock Blast</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Ice Shard</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Shell Smash</span>
-                  </div>
-                  <div className="mt-1.5 fs-tiny text-neutral-500">252 Atk · 252 Spe · 4 HP</div>
                 </div>
 
                 <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK["Typhlosion"]}.png`} alt="Typhlosion" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Typhlosion}.png`} alt="Typhlosion" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
-                      <div className="font-black fs-small text-orange-300">T1 — Typhlosion</div>
-                      <div className="fs-tiny text-neutral-500">Blaze · Timid · Choice Specs</div>
+                      <div className="font-black fs-small text-orange-300">TY — Typhlosion</div>
+                      <div className="fs-tiny text-neutral-500">Blaze · Choice Specs</div>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-1">
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Eruption</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Flamethrower</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Focus Blast</span>
-                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Solar Beam</span>
+                  <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 6 SpD / 252 Spe</div>
+                  <div className="grid grid-cols-2 gap-0.5">
+                    {['Eruption','Swift','Cut','Helping Hand'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-1.5 py-0.5 rounded text-orange-300">{m}</span>)}
                   </div>
-                  <div className="mt-1.5 fs-tiny text-neutral-500">252 SpA · 252 Spe · 4 HP</div>
+                </div>
+
+                <div className="bg-neutral-950 border border-violet-500/20 rounded-xl p-3">
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Vanilluxe}.png`} alt="Vanilluxe" className="w-10 h-10 object-contain" loading="lazy" />
+                    <div>
+                      <div className="font-black fs-small text-violet-300">Vanilluxe @ Choice Scarf</div>
+                      <div className="fs-tiny text-neutral-500">Snow Warning · Timid · Lv. 100</div>
+                    </div>
+                  </div>
+                  <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 10 HP / 252 SpA / 248 Spe</div>
+                  <div className="grid grid-cols-2 gap-0.5">
+                    {['Blizzard','Hyper Voice','Water Pulse','Flash Cannon'].map(m => <span key={m} className="fs-tiny bg-violet-950/50 border border-violet-800/30 px-1.5 py-0.5 rounded text-violet-300">{m}</span>)}
+                  </div>
+                </div>
+
+                <div className="bg-neutral-950 border border-blue-500/20 rounded-xl p-3">
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Blastoise}.png`} alt="Blastoise" className="w-10 h-10 object-contain" loading="lazy" />
+                    <div>
+                      <div className="font-black fs-small text-blue-300">BW — Blastoise</div>
+                      <div className="fs-tiny text-neutral-500">Torrent · Modest · Choice Specs</div>
+                    </div>
+                  </div>
+                  <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 6 SpD / 252 Spe</div>
+                  <div className="grid grid-cols-2 gap-0.5">
+                    {['Water Spout','Helping Hand','Blizzard'].map(m => <span key={m} className="fs-tiny bg-blue-950/50 border border-blue-800/30 px-1.5 py-0.5 rounded text-blue-300">{m}</span>)}
+                  </div>
                 </div>
 
               </div>
