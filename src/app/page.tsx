@@ -182,43 +182,56 @@ export default function Home() {
   const CORRECT_PIN = process.env.NEXT_PUBLIC_APP_PIN || "1234";
   const MAX_ATTEMPTS = 5;
   const LOCKOUT_MS = 30000;
-  const pinInputRef = useRef<HTMLInputElement>(null);
 
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [pinError, setPinError] = useState("");
+  const [pinInput, setPinInput] = useState("");
   const [pinAttempts, setPinAttempts] = useState(0);
   const [pinLockedUntil, setPinLockedUntil] = useState(0);
+  const [pinError, setPinError] = useState("");
 
   useEffect(() => {
     const saved = localStorage.getItem("pkmmo_unlocked");
     if (saved === "true") setIsUnlocked(true);
   }, []);
 
-  const checkPin = useCallback(() => {
-    if (!pinInputRef.current) return;
-    const val = pinInputRef.current.value;
+  const handlePinDigit = (d: string) => {
+    if (pinInput.length >= CORRECT_PIN.length) return;
+    setPinInput(prev => prev + d);
+    setPinError("");
+  };
+
+  const handlePinBackspace = () => {
+    setPinInput(prev => prev.slice(0, -1));
+    setPinError("");
+  };
+
+  const handlePinSubmit = () => {
     if (Date.now() < pinLockedUntil) {
-      setPinError(`Espera ${Math.ceil((pinLockedUntil - Date.now()) / 1000)}s`);
+      setPinError(`Demasiados intentos. Espera ${Math.ceil((pinLockedUntil - Date.now()) / 1000)}s`);
       return;
     }
-    if (val === CORRECT_PIN) {
+    if (pinInput === CORRECT_PIN) {
       setIsUnlocked(true);
       localStorage.setItem("pkmmo_unlocked", "true");
+      setPinInput("");
     } else {
-      const next = pinAttempts + 1;
-      setPinAttempts(next);
-      pinInputRef.current.value = "";
-      if (next >= MAX_ATTEMPTS) {
+      const newAttempts = pinAttempts + 1;
+      setPinAttempts(newAttempts);
+      setPinInput("");
+      if (newAttempts >= MAX_ATTEMPTS) {
         setPinLockedUntil(Date.now() + LOCKOUT_MS);
         setPinAttempts(0);
-        setPinError("Demasiados intentos. Espera 30s.");
+        setPinError(`Demasiados intentos. Espera 30 segundos.`);
       } else {
-        setPinError(`PIN incorrecto (${next}/${MAX_ATTEMPTS})`);
+        setPinError(`PIN incorrecto. Intento ${newAttempts}/${MAX_ATTEMPTS}`);
       }
     }
-  }, [CORRECT_PIN, pinAttempts, pinLockedUntil]);
+  };
 
   if (!isUnlocked) {
+    const locked = Date.now() < pinLockedUntil;
+    const filled = pinInput.length;
+    const digits = [1,2,3,4,5,6,7,8,9,"",0,"⌫"] as const;
     return (
       <div className="min-h-screen bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-6 relative overflow-hidden">
         <PokeBackground />
@@ -230,40 +243,39 @@ export default function Home() {
 
           <div className="text-center">
             <h1 className="fs-h3 font-black text-white">Acceso Protegido</h1>
-            <p className="fs-tiny text-neutral-500 mt-1">Ingresa el PIN de {CORRECT_PIN.length} dígitos</p>
+            <p className="fs-tiny text-neutral-500 mt-1">Ingresa el PIN para continuar</p>
           </div>
 
-          <form
-            onSubmit={(e) => { e.preventDefault(); checkPin(); }}
-            className="w-full flex flex-col items-center gap-4"
+          <div className="flex gap-3">
+            {Array.from({length: CORRECT_PIN.length}).map((_, i) => (
+              <div key={i} className={`w-4 h-4 rounded-full border-2 transition-all ${i < filled ? "bg-indigo-400 border-indigo-400" : "border-neutral-600"}`} />
+            ))}
+          </div>
+
+          {pinError && (
+            <div className="flex items-center gap-1.5 text-red-400 fs-tiny font-semibold">
+              <AlertTriangle className="w-3.5 h-3.5" /> {pinError}
+            </div>
+          )}
+
+          <div className="grid grid-cols-3 gap-3 w-full max-w-[220px]">
+            {digits.map((d, i) => (
+              d === "" ? <div key={i} /> :
+              d === "⌫" ? (
+                <button key={i} onClick={handlePinBackspace} disabled={locked} className="h-12 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-lg disabled:opacity-20 transition-colors">⌫</button>
+              ) : (
+                <button key={i} onClick={() => handlePinDigit(String(d))} disabled={locked} className="h-12 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-lg disabled:opacity-20 transition-colors">{d}</button>
+              )
+            ))}
+          </div>
+
+          <button
+            onClick={handlePinSubmit}
+            disabled={pinInput.length < CORRECT_PIN.length || locked}
+            className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black disabled:opacity-30 transition-all"
           >
-            <input
-              ref={pinInputRef}
-              type="password"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              maxLength={CORRECT_PIN.length}
-              autoFocus
-              disabled={Date.now() < pinLockedUntil}
-              className="w-40 text-center text-2xl tracking-[0.5em] font-mono bg-neutral-950 border-2 border-neutral-700 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500 disabled:opacity-30 transition-colors"
-              placeholder="····"
-              onInput={() => setPinError("")}
-            />
-
-            {pinError && (
-              <div className="flex items-center gap-1.5 text-red-400 fs-tiny font-semibold">
-                <AlertTriangle className="w-3.5 h-3.5" /> {pinError}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={Date.now() < pinLockedUntil}
-              className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black disabled:opacity-30 transition-all"
-            >
-              {Date.now() < pinLockedUntil ? "BLOQUEADO" : "INGRESAR"}
-            </button>
-          </form>
+            {locked ? "BLOQUEADO" : "INGRESAR"}
+          </button>
         </div>
       </div>
     );
