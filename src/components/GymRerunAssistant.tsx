@@ -870,6 +870,15 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       
       <main className={`flex-1 flex flex-col h-full relative z-10 overflow-y-auto overflow-x-hidden ${currentStepIndex === -1 ? 'pb-0' : 'pb-20'}`}>
         
+        {currentStepIndex !== -1 && (<>
+          <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="sm:hidden fixed left-1.5 top-1/2 -translate-y-1/2 z-40 p-2 bg-neutral-900/70 backdrop-blur-sm rounded-full border border-neutral-700/50 hover:bg-neutral-800 disabled:opacity-20 disabled:pointer-events-none text-neutral-400 transition-all shadow-lg">
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button onClick={handleNext} disabled={currentStepIndex === steps.length - 1} title="Siguiente paso" className="sm:hidden fixed right-1.5 top-1/2 -translate-y-1/2 z-40 p-2 bg-indigo-600/70 backdrop-blur-sm rounded-full border border-indigo-500/30 hover:bg-indigo-500 disabled:opacity-20 disabled:pointer-events-none text-white transition-all shadow-lg shadow-indigo-500/20">
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </>)}
+        
         <header className="flex items-center justify-between p-2.5 md:p-4 border-b border-neutral-800 bg-neutral-900/50">
           <div className="flex items-center gap-3">
             <button onClick={() => goToMenu()} title="Volver al menú principal" className="fs-small font-bold tracking-widest text-neutral-400 uppercase hover:text-white transition-colors">Ruta Gym</button>
@@ -1095,7 +1104,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
           </div>
 
-          <div className="flex items-center gap-0.5">
+          <div className="hidden sm:flex items-center gap-0.5">
               <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="p-1 sm:p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
                 <ChevronLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
               </button>
