@@ -245,6 +245,9 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const [skipCountdown, setSkipCountdown] = useState<boolean>(() => typeof window !== "undefined" && localStorage.getItem(`${storagePrefix}_skip_countdown`) === "true");
   const skipCountdownRef = useRef(skipCountdown);
   useEffect(() => { skipCountdownRef.current = skipCountdown; }, [skipCountdown]);
+  const [manualTimer, setManualTimer] = useState<boolean>(() => typeof window !== "undefined" && localStorage.getItem(`${storagePrefix}_manual_timer`) === "true");
+  const manualTimerRef = useRef(manualTimer);
+  useEffect(() => { manualTimerRef.current = manualTimer; }, [manualTimer]);
 
   const beginRun = useCallback(() => {
     setShowStartCheck(false);
@@ -381,7 +384,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const handleNext = useCallback(() => {
     setCurrentStepIndex((prev) => {
       const nextIdx = prev === -1 ? 0 : Math.min(prev + 1, steps.length - 1);
-      if (prev === -1 || (prev === 0 && nextIdx === 1)) {
+      if ((!manualTimerRef.current && prev === -1) || (prev === 0 && nextIdx === 1)) {
         setTimerIsRunning(r => {
           if (!r) {
             setTimerStartTime(Date.now());
@@ -680,6 +683,12 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                 <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all ${skipCountdown ? 'left-3.5' : 'left-0.5'}`} />
               </div>
               <span className="fs-tiny font-semibold">Cuenta atrás {skipCountdown ? 'OFF' : 'ON'}</span>
+            </button>
+            <button onClick={() => { const next = !manualTimer; localStorage.setItem(LS("manual_timer"), String(next)); setManualTimer(next); }} className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-colors ${manualTimer ? 'bg-emerald-500/10 text-emerald-400' : 'text-neutral-600 hover:text-neutral-400'}`}>
+              <div className={`w-7 h-4 rounded-full border transition-colors relative ${manualTimer ? 'bg-emerald-500 border-emerald-500' : 'bg-neutral-800 border-neutral-700'}`}>
+                <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all ${manualTimer ? 'left-3.5' : 'left-0.5'}`} />
+              </div>
+              <span className="fs-tiny font-semibold">Timer: {manualTimer ? 'Manual' : 'Auto'}</span>
             </button>
           </div>
         </div>
