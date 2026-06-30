@@ -1305,48 +1305,46 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
       {showStartCheck && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-3">
-          <div className="bg-neutral-900 rounded-2xl border border-neutral-800 w-full max-w-sm p-5">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-black fs-h2 text-white">Preparación</h3>
-              <button onClick={() => setShowStartCheck(false)} className="text-neutral-500 hover:text-white"><X className="w-5 h-5" /></button>
+          <div className="bg-neutral-900 rounded-2xl border border-amber-700/50 w-full max-w-sm p-5 shadow-2xl shadow-amber-900/20">
+            <div className="flex items-center gap-3 mb-4 pb-3 border-b border-amber-800/30">
+              <div className="w-10 h-10 rounded-xl bg-amber-900/40 border border-amber-700/40 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+              </div>
+              <div>
+                <h3 className="font-black fs-h3 text-amber-300">¿Listo para empezar?</h3>
+                <p className="fs-tiny text-amber-500/70">Revisa antes de iniciar la ruta</p>
+              </div>
+              <button onClick={() => setShowStartCheck(false)} className="ml-auto text-neutral-500 hover:text-white"><X className="w-5 h-5" /></button>
             </div>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 bg-neutral-950 p-3 rounded-xl border border-neutral-800">
-                <span className="text-lg mt-0.5">💰</span>
+            <div className="space-y-2">
+              <div className="flex items-start gap-3 bg-red-950/30 border border-red-800/40 p-3 rounded-xl">
+                <span className="text-xl mt-0.5 shrink-0">💰</span>
                 <div>
-                  <div className="fs-body font-bold text-white">Amulet Coin / Luck Incense</div>
-                  <div className="fs-tiny text-neutral-400">Asegúrate de tenerlo equipado en uno de tus Pokémon para ganar dinero extra.</div>
+                  <div className="fs-small font-black text-red-300 uppercase tracking-wider">Amulet Coin / Luck Incense</div>
+                  <div className="fs-tiny text-red-200/70 mt-0.5">Equipa este objeto en uno de tus Pokémon. ¡No lo olvides o perderás dinero extra!</div>
                 </div>
               </div>
-              <div className="flex items-start gap-3 bg-neutral-950 p-3 rounded-xl border border-neutral-800">
-                <span className="text-lg mt-0.5">🗺️</span>
+              <div className="flex items-start gap-3 bg-amber-950/30 border border-amber-800/40 p-3 rounded-xl">
+                <span className="text-xl mt-0.5 shrink-0">🗺️</span>
                 <div>
-                  <div className="fs-body font-bold text-white">Estar en el gimnasio correcto</div>
-                  <div className="fs-tiny text-neutral-400">Dirígete a <span className="font-bold text-white">{steps[0]?.title || "Endrino"}</span> ({steps[0]?.region || "Johto"}) antes de comenzar.</div>
+                  <div className="fs-small font-black text-amber-300 uppercase tracking-wider">Ubicación correcta</div>
+                  <div className="fs-tiny text-amber-200/70 mt-0.5">Debes estar en <span className="font-bold text-white">{steps[0]?.title || "Endrino"}</span> ({steps[0]?.region || "Johto"}) antes de comenzar.</div>
                 </div>
               </div>
-              <div className="flex items-start gap-3 bg-neutral-950 p-3 rounded-xl border border-neutral-800">
-                <span className="text-lg mt-0.5">⚡</span>
+              <div className="flex items-start gap-3 bg-neutral-950 border border-neutral-800 p-3 rounded-xl">
+                <span className="text-xl mt-0.5 shrink-0">⚡</span>
                 <div>
-                  <div className="fs-body font-bold text-white">Equipo listo</div>
-                  <div className="fs-tiny text-neutral-400">Verifica que tu equipo esté completo con los objetos y movimientos correctos.</div>
+                  <div className="fs-small font-black text-neutral-300 uppercase tracking-wider">Equipo y objetos</div>
+                  <div className="fs-tiny text-neutral-500 mt-0.5">Verifica que tu equipo tenga los movimientos y objetos correctos según la guía.</div>
                 </div>
               </div>
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-2.5">
-              <button
-                onClick={() => setShowStartCheck(false)}
-                className="py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-black fs-body"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => { setShowStartCheck(false); handleNext(); }}
-                className="py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black fs-body shadow-lg shadow-indigo-900/30"
-              >
-                ▶ COMENZAR
-              </button>
-            </div>
+            <button
+              onClick={() => { setShowStartCheck(false); handleNext(); }}
+              className="w-full mt-4 py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-lg font-black rounded-xl transition-all shadow-[0_0_25px_rgba(99,102,241,0.3)] hover:shadow-[0_0_40px_rgba(99,102,241,0.5)]"
+            >
+              ▶ COMENZAR RUTA
+            </button>
           </div>
         </div>
       )}
