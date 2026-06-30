@@ -33,8 +33,8 @@
     "gym": "Trigal",
     "title": "Trigal",
     "lead": [
-      "Typhlosion en slot 2",
-      "Blastoise W"
+      "Typhlosion - Slot 2",
+      "Blastoise"
     ]
   },
   {
@@ -47,7 +47,7 @@
       {
         "item": "Gafas Elegidas",
         "pokemon": [
-          "Blastoise W"
+          "Blastoise"
         ]
       }
     ]
@@ -59,8 +59,8 @@
     "gym": "Azalea",
     "title": "Azalea",
     "lead": [
-      "Weezing variable",
-      "Blastoise W"
+      "Weezing",
+      "Blastoise"
     ],
     "actions": [
       "Butterfree o Ledian → Golpe Bajo (con Weezing)",
@@ -95,7 +95,7 @@
     "gym": "Olivo",
     "title": "Olivo",
     "lead": [
-      "Weezing variable",
+      "Weezing",
       "Typhlosion"
     ],
     "actions": [
@@ -159,7 +159,7 @@
     "title": "Caoba",
     "lead": [
       "Weezing",
-      "Hydreigon variable"
+      "Hydreigon"
     ],
     "switchTo": [
       "Typhlosion",
@@ -206,7 +206,7 @@
       {
         "item": "Panuelo Elegido",
         "pokemon": [
-          "Blastoise W"
+          "Blastoise"
         ]
       }
     ]
@@ -218,7 +218,7 @@
     "gym": "Pueblo Azuliza",
     "title": "Pueblo Azuliza",
     "lead": [
-      "Blastoise W",
+      "Blastoise",
       "Togekiss"
     ]
   },
@@ -230,7 +230,7 @@
     "title": "Ciudad Ferrica",
     "lead": [
       "Weezing",
-      "Blastoise W"
+      "Blastoise"
     ],
     "actions": [
       "Usar Golpe Bajo (con Weezing)"
@@ -246,7 +246,7 @@
       {
         "item": "Gafas Elegidas",
         "pokemon": [
-          "Blastoise W"
+          "Blastoise"
         ]
       }
     ]
@@ -317,7 +317,7 @@
     "title": "Pueblo Lavacalda",
     "lead": [
       "Togekiss",
-      "Blastoise W"
+      "Blastoise"
     ]
   },
   {
@@ -357,7 +357,7 @@
       {
         "item": "Panuelo Elegido",
         "pokemon": [
-          "Blastoise W"
+          "Blastoise"
         ]
       }
     ]
@@ -422,7 +422,7 @@
       {
         "item": "Gafas Elegidas",
         "pokemon": [
-          "Blastoise W"
+          "Blastoise"
         ]
       }
     ]
@@ -466,7 +466,7 @@
     "gym": "Ciudad Rocavelo",
     "title": "Ciudad Rocavelo",
     "lead": [
-      "Weezing variable",
+      "Weezing",
       "Hydreigon"
     ],
     "actions": [
@@ -545,11 +545,11 @@
     "title": "Isla Canela",
     "lead": [
       "Weezing",
-      "Hydreigon variable"
+      "Hydreigon"
     ],
     "switchTo": [
       "Togekiss",
-      "Blastoise W"
+      "Blastoise"
     ],
     "actions": [
       "Moltres, Arcanine o Flareon → Viento Afin (con Togekiss)",
@@ -575,7 +575,7 @@
     ],
     "switchTo": [
       "Togekiss",
-      "Blastoise W"
+      "Blastoise"
     ],
     "actions": [
       "Usar Surf (con Hydreigon)",
@@ -592,7 +592,7 @@
       {
         "item": "Panuelo Elegido",
         "pokemon": [
-          "Blastoise W"
+          "Blastoise"
         ]
       }
     ]
@@ -664,7 +664,7 @@
     "gym": "Fucsia",
     "title": "Fucsia",
     "lead": [
-      "Typhlosion en slot 1",
+      "Typhlosion - Slot 1",
       "Togekiss"
     ],
     "actions": [
@@ -696,7 +696,7 @@
     "title": "Porcelana",
     "lead": [
       "Typhlosion",
-      "Blastoise W"
+      "Blastoise"
     ]
   },
   {
@@ -706,7 +706,7 @@
     "gym": "Mayolica",
     "title": "Mayolica",
     "lead": [
-      "Blastoise W",
+      "Blastoise",
       "Togekiss"
     ]
   },
@@ -733,7 +733,7 @@
     "title": "Fayenza",
     "lead": [
       "Weezing",
-      "Blastoise W"
+      "Blastoise"
     ],
     "actions": [
       "Usar Golpe Bajo (con Weezing) / Salpicar (con Blastoise W)",
@@ -762,7 +762,7 @@
     "gym": "Loza",
     "title": "Loza",
     "lead": [
-      "Blastoise W",
+      "Blastoise",
       "Vanilluxe"
     ],
     "actions": [
@@ -816,7 +816,7 @@
       {
         "item": "Gafas Elegidas",
         "pokemon": [
-          "Blastoise W"
+          "Blastoise"
         ]
       }
     ]
@@ -847,7 +847,7 @@
     ],
     "switchTo": [
       "Togekiss",
-      "Blastoise W"
+      "Blastoise"
     ],
     "actions": [
       "Usar Danza Lluvia (con Hydreigon)"

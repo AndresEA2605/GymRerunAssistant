@@ -624,18 +624,18 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             </div>
 
             <div className="flex flex-col items-center gap-4 mb-6">
-              <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full">
                 <span className="p-3 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon(currentStep.type)}</span>
                 <h2 className="fs-h3 font-black tracking-tight text-white">{currentStep.title}</h2>
                 {currentStep.region && <span className="fs-small font-bold uppercase tracking-widest px-2 py-0.5 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentStep.region}</span>}
               </div>
 
               {currentStep.type === "gym" && currentStep.gym && gymCoords[currentStep.gym as keyof typeof gymCoords] && (
-                <div className="w-full sm:w-32 h-20 sm:ml-auto relative rounded-lg border border-neutral-700/50 overflow-hidden shrink-0 bg-neutral-950 shadow-inner group">
+                <div className="w-full max-w-[200px] h-28 relative rounded-lg border border-neutral-700/50 overflow-hidden shrink-0 bg-neutral-950 shadow-inner group">
                   <img src={regionMap[gymCoords[currentStep.gym as keyof typeof gymCoords].region as keyof typeof regionMap]} alt="Region Map" className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
                   <div className="absolute inset-0 bg-indigo-900/10 mix-blend-color" />
                   <div 
-                    className="absolute w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.8)] -translate-x-1/2 -translate-y-1/2 animate-bounce"
+                    className="absolute w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.8)] -translate-x-1/2 -translate-y-1/2 animate-bounce"
                     style={{ 
                       left: `${gymCoords[currentStep.gym as keyof typeof gymCoords].x}%`, 
                       top: `${gymCoords[currentStep.gym as keyof typeof gymCoords].y}%` 
