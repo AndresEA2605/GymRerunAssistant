@@ -513,6 +513,18 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             <h2 className="fs-h2 font-bold text-indigo-400 tracking-widest">ASSISTANT</h2>
           </div>
 
+          {!selectedGuide && (
+            <div className="w-full bg-gradient-to-r from-indigo-500/5 via-indigo-500/10 to-indigo-500/5 border border-indigo-500/20 rounded-xl px-3 py-2 text-center animate-pulse">
+              <p className="fs-body font-bold text-indigo-300">👇 Selecciona una ruta para comenzar</p>
+            </div>
+          )}
+
+          {!selectedGuide && (
+            <p className="fs-small text-neutral-500 text-center -mt-1.5">
+              {description}
+            </p>
+          )}
+
           <div className="w-full grid grid-cols-3 gap-2 text-center">
             {selectedGuide ? (
               <>
