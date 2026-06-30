@@ -1096,7 +1096,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-neutral-900/95 border-t-2 border-indigo-500/40 backdrop-blur-sm md:px-6 md:py-3" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
         
         {/* Mobile: scrollable single row */}
-        <div className="flex sm:hidden items-center gap-2 overflow-x-auto px-2 py-1.5 scrollbar-thin whitespace-nowrap">
+        <div className="flex sm:hidden items-center gap-2 overflow-x-auto px-2 py-1.5 scrollbar-thin whitespace-nowrap" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
           <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
           <span className="text-neutral-700 shrink-0">|</span>
           {!timerIsRunning ? (
