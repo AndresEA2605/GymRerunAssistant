@@ -599,7 +599,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col h-full relative z-10 overflow-y-auto pb-20">
+      <main className="flex-1 flex flex-col h-full relative z-10 overflow-hidden pb-20">
         
         <header className="flex items-center justify-between p-4 border-b border-neutral-800 bg-neutral-900/50">
           <div className="flex items-center gap-3">
