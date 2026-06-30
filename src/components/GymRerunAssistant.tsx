@@ -241,6 +241,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const [startChecks, setStartChecks] = useState<[boolean, boolean, boolean]>([false, false, false]);
   const [showCountdown, setShowCountdown] = useState<boolean>(false);
   const [countdownValue, setCountdownValue] = useState<number>(5);
+  const [skipChecklist, setSkipChecklist] = useState<boolean>(() => typeof window !== "undefined" && localStorage.getItem(`${storagePrefix}_skip_checklist`) === "true");
 
   const beginRun = useCallback(() => {
     setShowStartCheck(false);
@@ -660,7 +661,14 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               <span className="fs-tiny font-semibold">Dreasy</span>
             </div>
           </div>
-          <p className="fs-tiny text-neutral-700">Creado por Dreasy · PokeMMO Gym Rerun Assistant</p>
+          <div className="reveal-6 w-full flex items-center justify-center gap-2 mt-1">
+            <button onClick={() => { const next = !skipChecklist; localStorage.setItem(LS("skip_checklist"), String(next)); setSkipChecklist(next); }} className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-colors ${skipChecklist ? 'bg-indigo-500/10 text-indigo-400' : 'text-neutral-600 hover:text-neutral-400'}`}>
+              <div className={`w-7 h-4 rounded-full border transition-colors relative ${skipChecklist ? 'bg-indigo-500 border-indigo-500' : 'bg-neutral-800 border-neutral-700'}`}>
+                <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all ${skipChecklist ? 'left-3.5' : 'left-0.5'}`} />
+              </div>
+              <span className="fs-tiny font-semibold">Verif. inicio {skipChecklist ? 'OFF' : 'ON'}</span>
+            </button>
+          </div>
         </div>
 
       {showTeam && (
@@ -892,7 +900,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                       )}
                     </div>
                   )}
-                  <button onClick={() => { setStartChecks([false, false, false]); setShowStartCheck(true); }} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white fs-hero2 font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)]">
+                  <button onClick={() => { if (skipChecklist) { beginRun(); } else { setStartChecks([false, false, false]); setShowStartCheck(true); } }} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white fs-hero2 font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)]">
                     ▶ COMENZAR RUTA
                   </button>
                 </>
@@ -1347,6 +1355,12 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                 </div>
               </button>
             </div>
+            <button onClick={() => setSkipChecklist(prev => { const next = !prev; localStorage.setItem(LS("skip_checklist"), String(next)); return next; })} className="w-full flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-neutral-800/50 transition-colors mt-1">
+              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${skipChecklist ? 'bg-indigo-500 border-indigo-500' : 'border-neutral-600'}`}>
+                {skipChecklist && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+              </div>
+              <span className={`fs-tiny font-semibold ${skipChecklist ? 'text-neutral-400' : 'text-neutral-600'}`}>No volver a mostrar esta verificación</span>
+            </button>
             <button
               disabled={!startChecks.every(Boolean)}
               onClick={beginRun}
