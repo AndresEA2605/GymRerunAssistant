@@ -235,6 +235,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
   const [slideClass, setSlideClass] = useState<string>("");
   const [slideKey, setSlideKey] = useState<number>(0);
+  const [selectedGuide, setSelectedGuide] = useState<boolean>(false);
 
   const [timerIsRunning, setTimerIsRunning] = useState<boolean>(false);
   const [timerStartTime, setTimerStartTime] = useState<number | null>(null);
@@ -500,37 +501,67 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
 
           <div className="w-full grid grid-cols-3 gap-2 text-center">
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-              <div className="fs-body font-black text-white">{totalGyms}</div>
-              <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Gimnasios</div>
-            </div>
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-              <div className="fs-body font-black text-indigo-400">{steps.length}</div>
-              <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Pasos</div>
-            </div>
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-              <div className="fs-body font-black text-amber-400">{bestRun ? formatTime(bestRun.elapsed) : '--:--'}</div>
-              <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Mejor Tiempo</div>
-            </div>
+            {selectedGuide ? (
+              <>
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
+                  <div className="fs-body font-black text-white">{totalGyms}</div>
+                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Gimnasios</div>
+                </div>
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
+                  <div className="fs-body font-black text-indigo-400">{steps.length}</div>
+                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Pasos</div>
+                </div>
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
+                  <div className="fs-body font-black text-amber-400">{bestRun ? formatTime(bestRun.elapsed) : '--:--'}</div>
+                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Mejor Tiempo</div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
+                  <div className="fs-body font-black text-white">1</div>
+                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Guías Disp.</div>
+                </div>
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
+                  <div className="fs-body font-black text-neutral-400">33</div>
+                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Gyms por Guía</div>
+                </div>
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
+                  <div className="fs-body font-black text-neutral-400">59</div>
+                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Pasos por Guía</div>
+                </div>
+              </>
+            )}
+
           </div>
 
           <div className="w-full grid grid-cols-4 gap-2">
-            <button onClick={() => exitMenu()} className="bg-neutral-900 border border-indigo-500/40 rounded-xl py-2 px-2 text-center hover:bg-neutral-800 transition-all group relative overflow-hidden">
+            <button onClick={selectedGuide ? () => exitMenu() : () => setSelectedGuide(true)} className={`rounded-xl py-2 px-2 text-center transition-all relative overflow-hidden ${selectedGuide ? 'bg-indigo-600 border-2 border-indigo-400' : 'bg-neutral-900 border border-indigo-500/40 hover:bg-neutral-800'}`}>
               <div className="flex flex-col items-center gap-0.5">
                 <div className="w-6 h-6 opacity-20">
                   <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/635.png" alt="" className="w-full h-full object-contain" />
                 </div>
                 <span className="fs-tiny font-bold text-white leading-tight">33 Gyms</span>
-                <span className="fs-tiny font-bold text-indigo-400 bg-indigo-500/10 px-1.5 rounded-full leading-tight">PLAY</span>
+                <span className={`fs-tiny font-bold px-1.5 rounded-full leading-tight ${selectedGuide ? 'text-white bg-indigo-500/30' : 'text-indigo-400 bg-indigo-500/10'}`}>{selectedGuide ? 'INICIAR' : 'PLAY'}</span>
               </div>
             </button>
-            <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-xl py-2 px-1 text-center opacity-50">
-              <div className="flex flex-col items-center gap-0.5">
-                <Compass className="w-4 h-4 text-neutral-500" />
-                <span className="fs-tiny font-bold text-neutral-400 leading-tight">Nueva</span>
-                <span className="fs-tiny text-neutral-600 leading-tight">Soon</span>
+            {selectedGuide ? (
+              <button onClick={() => setSelectedGuide(false)} className="bg-neutral-800 border border-neutral-700 rounded-xl py-2 px-1 text-center hover:bg-neutral-700 transition-all">
+                <div className="flex flex-col items-center gap-0.5">
+                  <ChevronLeft className="w-4 h-4 text-neutral-400" />
+                  <span className="fs-tiny font-bold text-neutral-400 leading-tight">Volver</span>
+                  <span className="fs-tiny text-neutral-600 leading-tight">al menú</span>
+                </div>
+              </button>
+            ) : (
+              <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-xl py-2 px-1 text-center opacity-50">
+                <div className="flex flex-col items-center gap-0.5">
+                  <Compass className="w-4 h-4 text-neutral-500" />
+                  <span className="fs-tiny font-bold text-neutral-400 leading-tight">Nueva</span>
+                  <span className="fs-tiny text-neutral-600 leading-tight">Soon</span>
+                </div>
               </div>
-            </div>
+            )}
             <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-xl py-2 px-1 text-center opacity-50">
               <div className="flex flex-col items-center gap-0.5">
                 <Heart className="w-4 h-4 text-neutral-500" />
@@ -547,7 +578,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             </div>
           </div>
 
-          {currentStepIndex > 0 ? (
+          {selectedGuide && (currentStepIndex > 0 ? (
             <div className="w-full flex flex-col gap-1.5">
               <button onClick={() => exitMenu()} className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]">
                 ▶ CONTINUAR RUTA · Paso {currentStepIndex + 1}/{steps.length}
@@ -560,7 +591,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             <button onClick={() => exitMenu()} className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] btn-glow-active">
               ▶ INICIAR RUTA
             </button>
-          )}
+          ))}
 
           <div className="w-full border-t border-neutral-800/40 pt-2 flex items-center justify-center gap-4 text-neutral-500">
             <div className="flex items-center gap-1.5">
