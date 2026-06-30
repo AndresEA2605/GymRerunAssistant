@@ -57,6 +57,7 @@ const TimerDisplay = memo(({ isRunning, startTime, elapsedBeforePause }: { isRun
 TimerDisplay.displayName = "TimerDisplay";
 
 export default function Home() {
+  const [showMenu, setShowMenu] = useState<boolean>(true);
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [showHistory, setShowHistory] = useState<boolean>(false);
@@ -78,7 +79,12 @@ export default function Home() {
 
   useEffect(() => {
     const savedStep = localStorage.getItem("pkmmo_gym_step");
-    if (savedStep) setCurrentStepIndex(Number(savedStep));
+    if (savedStep) {
+      const idx = Number(savedStep);
+      setCurrentStepIndex(idx);
+      // If there's existing progress, skip the menu automatically
+      if (idx > 0) setShowMenu(false);
+    }
 
     const savedTimer = localStorage.getItem("pkmmo_gym_timer");
     if (savedTimer) {
@@ -175,6 +181,97 @@ export default function Home() {
     return <Compass className="w-4 h-4" />;
   };
 
+  // ── MENU SCREEN ──────────────────────────────────────────────────────────
+  if (showMenu) {
+    const bestRun = history.length > 0 ? history.reduce((a, b) => a.elapsed < b.elapsed ? a : b) : null;
+    return (
+      <div className="min-h-screen bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-6 relative overflow-hidden">
+        {/* Subtle grid background */}
+        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle, #6366f1 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+        {/* Glow behind title */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-40 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none" />
+
+        <div className="relative z-10 w-full max-w-lg flex flex-col items-center gap-8">
+
+          {/* Badge */}
+          <span className="text-[10px] uppercase tracking-widest font-black text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 rounded-full">PokeMMO Speedrun Tool</span>
+
+          {/* Title */}
+          <div className="text-center">
+            <h1 className="text-5xl md:text-6xl font-black tracking-tight text-white" style={{ textShadow: '0 0 60px rgba(99,102,241,0.5)' }}>GYM RERUN</h1>
+            <h2 className="text-2xl font-bold text-indigo-400 tracking-widest mt-1">ASSISTANT</h2>
+            <p className="text-neutral-500 text-sm mt-3">Guía secuencial para 33 Gym Reruns en PokeMMO</p>
+          </div>
+
+          {/* Stats Row */}
+          <div className="w-full grid grid-cols-3 gap-3 text-center">
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3">
+              <div className="text-2xl font-black text-white">{steps.filter(s => s.type === 'gym').length}</div>
+              <div className="text-[10px] text-neutral-500 uppercase tracking-wider">Gimnasios</div>
+            </div>
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3">
+              <div className="text-2xl font-black text-indigo-400">{steps.length}</div>
+              <div className="text-[10px] text-neutral-500 uppercase tracking-wider">Pasos Totales</div>
+            </div>
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3">
+              <div className="text-2xl font-black text-amber-400">{bestRun ? formatTime(bestRun.elapsed) : '--:--:--'}</div>
+              <div className="text-[10px] text-neutral-500 uppercase tracking-wider">Mejor Tiempo</div>
+            </div>
+          </div>
+
+          {/* Ad / Promo Space */}
+          <div className="w-full bg-neutral-900/60 border border-dashed border-neutral-700 rounded-2xl p-4 flex items-center justify-between gap-4">
+            <a
+              href="https://www.youtube.com/watch?v=himBCqDN2-I"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 text-left group flex-1"
+            >
+              <div className="w-10 h-10 flex-shrink-0 bg-red-600 rounded-xl flex items-center justify-center">
+                <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.386.507 9.386.507s7.518 0 9.387-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
+              </div>
+              <div>
+                <div className="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors">Ver Run de Ejemplo</div>
+                <div className="text-[11px] text-neutral-500">33 Gyms completo · YouTube</div>
+              </div>
+            </a>
+            <ChevronRight className="w-5 h-5 text-neutral-600" />
+          </div>
+
+          {/* Start Button */}
+          {currentStepIndex > 0 ? (
+            <div className="w-full flex flex-col gap-3">
+              <button
+                onClick={() => setShowMenu(false)}
+                className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white text-xl font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)] tracking-wide"
+              >
+                ▶ CONTINUAR RUTA
+                <span className="block text-sm font-normal text-indigo-300 mt-0.5">Paso {currentStepIndex + 1} / {steps.length}</span>
+              </button>
+              <button
+                onClick={() => { setCurrentStepIndex(0); resetTimer(); setShowMenu(false); }}
+                className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 text-sm font-bold rounded-xl transition-colors"
+              >
+                Reiniciar desde cero
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowMenu(false)}
+              className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white text-xl font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)] tracking-wide"
+            >
+              ▶ INICIAR RUTA
+            </button>
+          )}
+
+          {/* Hotkey tip */}
+          <p className="text-xs text-neutral-600">⌨ &nbsp;<kbd className="bg-neutral-800 border border-neutral-700 px-1.5 py-0.5 rounded text-neutral-400 font-mono text-[11px]">Espacio</kbd> para avanzar &nbsp;·&nbsp; <kbd className="bg-neutral-800 border border-neutral-700 px-1.5 py-0.5 rounded text-neutral-400 font-mono text-[11px]">F4</kbd> desde el juego</p>
+        </div>
+      </div>
+    );
+  }
+  // ── END MENU SCREEN ──────────────────────────────────────────────────────
+
   return (
     <div className="flex h-screen bg-neutral-950 text-neutral-200 overflow-hidden font-sans">
       
@@ -210,6 +307,7 @@ export default function Home() {
           </div>
           
           <div className="flex items-center gap-2">
+            <button onClick={() => setShowMenu(true)} className="px-3 py-1.5 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700 text-xs font-bold uppercase tracking-wider">Menú</button>
             <button onClick={() => setShowHistory(true)} className="p-2 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700"><History className="w-4 h-4" /></button>
             <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(0); resetTimer(); } }} className="p-2 bg-red-900/20 text-red-400 rounded hover:bg-red-900/40"><Power className="w-4 h-4" /></button>
           </div>
