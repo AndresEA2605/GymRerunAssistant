@@ -1391,7 +1391,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               </div>
               <span className={`fs-tiny font-semibold ${skipChecklist ? 'text-neutral-400' : 'text-neutral-600'}`}>No volver a mostrar esta verificación</span>
             </button>
-            <p className="fs-tiny text-neutral-700 text-center">En el menú puedes configurar todo esto</p>
+            <p className="fs-small text-neutral-400 text-center">En el <button onClick={() => { setShowStartCheck(false); goToMenu(); }} className="text-indigo-400 font-bold underline hover:text-indigo-300 transition-colors inline">menú</button> puedes configurar todo esto</p>
             <button
               disabled={!startChecks.every(Boolean)}
               onClick={beginRun}
