@@ -189,9 +189,10 @@ export default function Home() {
             <button
               key={step.id}
               onClick={() => setCurrentStepIndex(idx)}
-              className={`w-full text-left px-3 py-1.5 rounded flex items-center gap-2 text-sm transition-colors ${idx === currentStepIndex ? "bg-indigo-600 text-white font-bold" : idx < currentStepIndex ? "text-neutral-500 hover:bg-neutral-800" : "text-neutral-300 hover:bg-neutral-800"}`}
+              className={`w-full text-left px-2 py-1.5 rounded flex items-center gap-2 text-sm transition-colors ${idx === currentStepIndex ? "bg-indigo-600 text-white font-bold" : idx < currentStepIndex ? "text-neutral-500 hover:bg-neutral-800" : "text-neutral-300 hover:bg-neutral-800"}`}
             >
-              <span className="opacity-70">{renderIcon(step.type)}</span>
+              <span className={`flex-shrink-0 w-6 text-center text-[10px] font-bold tabular-nums ${idx === currentStepIndex ? 'text-white' : idx < currentStepIndex ? 'text-neutral-600' : 'text-neutral-500'}`}>{idx + 1}</span>
+              <span className="opacity-70 flex-shrink-0">{renderIcon(step.type)}</span>
               <span className="truncate">{step.title}</span>
             </button>
           ))}
@@ -199,26 +200,17 @@ export default function Home() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full relative z-10 overflow-y-auto bg-neutral-950">
+      <main className="flex-1 flex flex-col h-full relative z-10 overflow-y-auto bg-neutral-950 pb-20">
         
         {/* Header */}
         <header className="flex items-center justify-between p-4 border-b border-neutral-800 bg-neutral-900/50">
           <div className="flex items-center gap-3">
             <button onClick={() => setIsSidebarOpen(true)} className="md:hidden p-1.5 bg-neutral-800 rounded text-neutral-300"><List className="w-5 h-5" /></button>
-            <div className="hidden sm:block text-xs text-neutral-500">Paso {currentStepIndex + 1} de {steps.length}</div>
+            <div className="text-xs text-neutral-500">Paso <span className="font-bold text-neutral-300">{currentStepIndex + 1}</span> / {steps.length}</div>
           </div>
           
-          <div className="flex items-center gap-3">
-            <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
-            <div className="flex bg-neutral-800 rounded overflow-hidden">
-              {!timerIsRunning ? (
-                <button onClick={startTimer} className="p-2 hover:bg-indigo-500 hover:text-white text-indigo-400"><Play className="w-4 h-4 fill-current" /></button>
-              ) : (
-                <button onClick={pauseTimer} className="p-2 hover:bg-amber-500 hover:text-white text-amber-400"><Pause className="w-4 h-4 fill-current" /></button>
-              )}
-              <button onClick={resetTimer} className="p-2 hover:bg-neutral-700 text-neutral-400 border-l border-neutral-700"><RotateCcw className="w-4 h-4" /></button>
-              <button onClick={() => setShowHistory(true)} className="p-2 hover:bg-neutral-700 text-neutral-400 border-l border-neutral-700"><History className="w-4 h-4" /></button>
-            </div>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setShowHistory(true)} className="p-2 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700"><History className="w-4 h-4" /></button>
             <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(0); resetTimer(); } }} className="p-2 bg-red-900/20 text-red-400 rounded hover:bg-red-900/40"><Power className="w-4 h-4" /></button>
           </div>
         </header>
@@ -314,14 +306,40 @@ export default function Home() {
           </div>
 
           {/* Navigation */}
-          <div className="w-full max-w-2xl mt-6 flex gap-4">
-            <button onClick={handlePrev} disabled={currentStepIndex === 0} className="flex-1 py-4 bg-neutral-900 rounded-xl font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">Anterior</button>
-            <button onClick={currentStepIndex === steps.length - 1 ? finishRun : handleNext} className="flex-[2] py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all text-lg">
-              {currentStepIndex === steps.length - 1 ? "¡Finalizar!" : "Siguiente (Espacio)"}
-            </button>
+          <div className="w-full max-w-2xl mt-6 space-y-3">
+            <div className="flex gap-4">
+              <button onClick={handlePrev} disabled={currentStepIndex === 0} className="flex-1 py-4 bg-neutral-900 rounded-xl font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
+              <button onClick={currentStepIndex === steps.length - 1 ? finishRun : handleNext} className="flex-[2] py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all text-lg">
+                {currentStepIndex === steps.length - 1 ? "¡Finalizar!" : "Siguiente (Espacio) →"}
+              </button>
+            </div>
+            {/* Progress bar */}
+            <div className="w-full bg-neutral-800 rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-indigo-500 h-full rounded-full transition-all duration-300"
+                style={{ width: `${Math.round(((currentStepIndex + 1) / steps.length) * 100)}%` }}
+              />
+            </div>
+            <div className="text-center text-xs text-neutral-500 font-mono">
+              {Math.round(((currentStepIndex + 1) / steps.length) * 100)}% completado
+            </div>
           </div>
         </div>
       </main>
+
+      {/* ── Floating Timer Bar ─ always visible, bottom of viewport ── */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-center gap-6 bg-neutral-900/95 border-t-2 border-indigo-500/40 backdrop-blur-sm px-6 py-3">
+        <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
+        <div className="flex gap-1">
+          {!timerIsRunning ? (
+            <button onClick={startTimer} title="Iniciar" className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold text-sm flex items-center gap-1"><Play className="w-3.5 h-3.5 fill-current"/>Iniciar</button>
+          ) : (
+            <button onClick={pauseTimer} title="Pausar" className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-sm flex items-center gap-1"><Pause className="w-3.5 h-3.5 fill-current"/>Pausar</button>
+          )}
+          <button onClick={resetTimer} title="Reiniciar" className="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 rounded font-bold text-sm"><RotateCcw className="w-3.5 h-3.5"/></button>
+        </div>
+        <span className="text-xs text-neutral-500 font-mono hidden sm:inline">F4 en juego · Espacio en web</span>
+      </div>
 
       {/* Toast */}
       {toastMessage && (
