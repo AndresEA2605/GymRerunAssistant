@@ -101,15 +101,21 @@ const matchPokemon = (text: string): { name: string; id: number } | null => {
   return null;
 };
 
-const PokemonSprite = ({ name, id, size = 24 }: { name: string; id: number; size?: number }) => (
-  <img
-    src={`${SPRITE_BASE}/${id}.png`}
-    alt={name}
-    className="inline-block object-contain -mt-0.5 mr-1"
-    style={{ width: size, height: size }}
-    loading="lazy"
-  />
-);
+const PokemonSprite = ({ name, id, size = 24 }: { name: string; id: number; size?: number }) => {
+  const [errored, setErrored] = useState(false);
+  return errored ? (
+    <span className="inline-block w-[${size}px] h-[${size}px] mr-1 rounded bg-neutral-800 align-middle" />
+  ) : (
+    <img
+      src={`${SPRITE_BASE}/${id}.png`}
+      alt={name}
+      className="inline-block object-contain -mt-0.5 mr-1"
+      style={{ width: size, height: size }}
+      loading="lazy"
+      onError={() => setErrored(true)}
+    />
+  );
+};
 
 const renderWithSprites = (items: string[], sep = " • ") => (
   <span className="fs-body font-semibold inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
@@ -283,6 +289,9 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const storagePrefixRef = useRef(storagePrefix);
 
+  const getLS = (key: string, fallback: string = "") => { try { return localStorage.getItem(LS(key)) ?? fallback; } catch { return fallback; } };
+  const setLS = (key: string, value: string) => { try { localStorage.setItem(LS(key), value); } catch { /* storage full */ } };
+
   const currentStep = currentStepIndex >= 0 ? steps[currentStepIndex] || steps[0] : null;
   const LS = (key: string) => `${storagePrefix}_${key}`;
 
@@ -293,7 +302,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   }, []);
 
   useEffect(() => {
-    const savedStep = localStorage.getItem(LS("gym_step"));
+    const savedStep = getLS("gym_step");
     if (savedStep) {
       const idx = Number(savedStep);
       if (!isNaN(idx) && idx >= -1 && idx < steps.length) {
@@ -302,7 +311,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       }
     }
 
-    const savedTimer = localStorage.getItem(LS("gym_timer"));
+    const savedTimer = getLS("gym_timer");
     if (savedTimer) {
       try {
         const parsed = JSON.parse(savedTimer);
@@ -312,12 +321,12 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       } catch { /* ignore */ }
     }
 
-    const savedHistory = localStorage.getItem(LS("gym_history"));
+    const savedHistory = getLS("gym_history");
     if (savedHistory) {
       try { setHistory(JSON.parse(savedHistory)); } catch { /* ignore */ }
     }
 
-    const savedCooldown = localStorage.getItem(LS("gym_cooldown"));
+    const savedCooldown = getLS("gym_cooldown");
     if (savedCooldown) {
       try {
         const parsed = JSON.parse(savedCooldown);
@@ -352,10 +361,10 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showMenu, currentStepIndex]);
 
-  useEffect(() => localStorage.setItem(LS("gym_step"), currentStepIndex.toString()), [currentStepIndex]);
+  useEffect(() => setLS("gym_step", currentStepIndex.toString()), [currentStepIndex]);
 
   useEffect(() => {
-    localStorage.setItem(LS("gym_timer"), JSON.stringify({
+    setLS("gym_timer", JSON.stringify({
       elapsed: timerElapsed,
       isRunning: timerIsRunning,
       startedAt: timerStartTime,
@@ -363,7 +372,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   }, [timerElapsed, timerIsRunning, timerStartTime]);
 
   useEffect(() => {
-    localStorage.setItem(LS("gym_cooldown"), JSON.stringify(cooldown));
+    setLS("gym_cooldown", JSON.stringify(cooldown));
   }, [cooldown]);
 
   const getLastCompletedGym = useCallback(() => {
@@ -453,7 +462,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     };
     const updatedHistory = [newEntry, ...history].slice(0, 20);
     setHistory(updatedHistory);
-    localStorage.setItem(LS("gym_history"), JSON.stringify(updatedHistory));
+    setLS("gym_history", JSON.stringify(updatedHistory));
     startGymCooldown(getLastCompletedGym());
     resetTimer();
     setShowFinishConfirm(false);
@@ -800,7 +809,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   <p className="font-bold text-white fs-body">Verificación</p>
                   <p className="fs-tiny text-neutral-400 mt-0.5">Mostrar checklist al iniciar ruta</p>
                 </div>
-                <button onClick={() => { const next = !skipChecklist; localStorage.setItem(LS("skip_checklist"), String(next)); setSkipChecklist(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${skipChecklist ? 'bg-red-500' : 'bg-green-500'}`}>
+                <button onClick={() => { const next = !skipChecklist; setLS("skip_checklist", String(next)); setSkipChecklist(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${skipChecklist ? 'bg-red-500' : 'bg-green-500'}`}>
                   <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${skipChecklist ? 'translate-x-0' : 'translate-x-5'}`} />
                 </button>
               </div>
@@ -809,7 +818,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   <p className="font-bold text-white fs-body">Cuenta atrás</p>
                   <p className="fs-tiny text-neutral-400 mt-0.5">Mostrar 5-4-3-2-1 al empezar</p>
                 </div>
-                <button onClick={() => { const next = !skipCountdown; localStorage.setItem(LS("skip_countdown"), String(next)); setSkipCountdown(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${skipCountdown ? 'bg-red-500' : 'bg-green-500'}`}>
+                <button onClick={() => { const next = !skipCountdown; setLS("skip_countdown", String(next)); setSkipCountdown(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${skipCountdown ? 'bg-red-500' : 'bg-green-500'}`}>
                   <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${skipCountdown ? 'translate-x-0' : 'translate-x-5'}`} />
                 </button>
               </div>
@@ -818,7 +827,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   <p className="font-bold text-white fs-body">Timer</p>
                   <p className="fs-tiny text-neutral-400 mt-0.5">{manualTimer ? 'Manual: inicia al avanzar al paso 1' : 'Automático: inicia al comenzar'}</p>
                 </div>
-                <button onClick={() => { const next = !manualTimer; localStorage.setItem(LS("manual_timer"), String(next)); setManualTimer(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${manualTimer ? 'bg-red-500' : 'bg-green-500'}`}>
+                <button onClick={() => { const next = !manualTimer; setLS("manual_timer", String(next)); setManualTimer(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${manualTimer ? 'bg-red-500' : 'bg-green-500'}`}>
                   <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${manualTimer ? 'translate-x-0' : 'translate-x-5'}`} />
                 </button>
               </div>
@@ -847,7 +856,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                       onClick={() => {
                         const updated = history.filter(e => e.id !== entry.id);
                         setHistory(updated);
-                        localStorage.setItem(LS("gym_history"), JSON.stringify(updated));
+                        setLS("gym_history", JSON.stringify(updated));
                       }}
                       className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-400 transition-opacity"
                       title="Borrar"
@@ -1190,7 +1199,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                       onClick={() => {
                         const updated = history.filter(e => e.id !== entry.id);
                         setHistory(updated);
-                        localStorage.setItem(LS("gym_history"), JSON.stringify(updated));
+                        setLS("gym_history", JSON.stringify(updated));
                       }}
                       className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-400 transition-opacity"
                       title="Borrar"
@@ -1445,7 +1454,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                 ✕ Desmarcar todas
               </button>
             </div>
-            <button onClick={() => setSkipChecklist(prev => { const next = !prev; localStorage.setItem(LS("skip_checklist"), String(next)); return next; })} className="w-full flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-neutral-800/50 transition-colors">
+            <button onClick={() => setSkipChecklist(prev => { const next = !prev; setLS("skip_checklist", String(next)); return next; })} className="w-full flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-neutral-800/50 transition-colors">
               <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${skipChecklist ? 'bg-indigo-500 border-indigo-500' : 'border-neutral-600'}`}>
                 {skipChecklist && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
               </div>
@@ -1471,7 +1480,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               {countdownValue}
             </div>
             <div className="fs-h4 text-neutral-500 uppercase tracking-[0.3em] font-bold animate-pulse">Prepárate</div>
-            <button onClick={() => setSkipCountdown(prev => { const next = !prev; localStorage.setItem(LS("skip_countdown"), String(next)); return next; })} className="mt-8 flex items-center justify-center gap-2 mx-auto py-1.5 px-3 rounded-lg hover:bg-neutral-800/50 transition-colors">
+            <button onClick={() => setSkipCountdown(prev => { const next = !prev; setLS("skip_countdown", String(next)); return next; })} className="mt-8 flex items-center justify-center gap-2 mx-auto py-1.5 px-3 rounded-lg hover:bg-neutral-800/50 transition-colors">
               <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${skipCountdown ? 'bg-indigo-500 border-indigo-500' : 'border-neutral-600'}`}>
                 {skipCountdown && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
               </div>

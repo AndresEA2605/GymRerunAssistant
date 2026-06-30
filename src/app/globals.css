@@ -323,3 +323,13 @@ body {
 .reveal-4 { animation: fade-in-up 0.25s ease 0.24s both; }
 .reveal-5 { animation: fade-in-up 0.25s ease 0.32s both; }
 .reveal-6 { animation: fade-in-up 0.25s ease 0.40s both; }
+
+/* ── Reduce motion for accessibility / performance ─────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .pokeball-float, .star-twinkle, .aurora-bg { display: none; }
+}
