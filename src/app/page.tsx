@@ -130,6 +130,10 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [showTeam, setShowTeam] = useState<boolean>(false);
+  const [teamExiting, setTeamExiting] = useState<boolean>(false);
+  const [historyExiting, setHistoryExiting] = useState<boolean>(false);
+  const [appExiting, setAppExiting] = useState<boolean>(false);
+  const [menuVisible, setMenuVisible] = useState<boolean>(false);
   const [slideClass, setSlideClass] = useState<string>("");
   const [slideKey, setSlideKey] = useState<number>(0);
 
@@ -265,6 +269,10 @@ export default function Home() {
     return <Compass className="w-4 h-4" />;
   };
 
+  const closeTeam = () => { setTeamExiting(true); setTimeout(() => { setShowTeam(false); setTeamExiting(false); }, 185); };
+  const closeHistory = () => { setHistoryExiting(true); setTimeout(() => { setShowHistory(false); setHistoryExiting(false); }, 185); };
+  const goToMenu = () => { setAppExiting(true); setTimeout(() => { setMenuVisible(true); setShowMenu(true); setAppExiting(false); }, 310); };
+
   // ── MENU SCREEN ──────────────────────────────────────────────────────────
   const exitMenu = (callback?: () => void) => {
     setMenuExiting(true);
@@ -278,7 +286,7 @@ export default function Home() {
   if (showMenu) {
     const bestRun = history.length > 0 ? history.reduce((a, b) => a.elapsed < b.elapsed ? a : b) : null;
     return (
-      <div className={`fade-in-screen min-h-screen bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-6 relative overflow-hidden ${menuExiting ? 'menu-exit' : ''}`}>
+      <div className={`${menuVisible ? 'menu-enter' : 'fade-in-screen'} min-h-screen bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-6 relative overflow-hidden ${menuExiting ? 'menu-exit' : ''}`}>
         <PokeBackground />
         {/* Glow behind title */}
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-40 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none" />
@@ -411,7 +419,7 @@ export default function Home() {
   // ── END MENU SCREEN ──────────────────────────────────────────────────────
 
   return (
-    <div className="app-enter flex h-screen bg-neutral-950 text-neutral-200 overflow-hidden font-sans relative">
+    <div className={`app-enter ${appExiting ? "app-exit" : ""} flex h-screen bg-neutral-950 text-neutral-200 overflow-hidden font-sans relative`}>
       <PokeBackground />
       
       {/* Sidebar Compacta */}
@@ -447,7 +455,7 @@ export default function Home() {
           
           <div className="flex items-center gap-2">
             <button onClick={() => setShowTeam(true)} className="px-3 py-1.5 bg-violet-900/40 text-violet-300 border border-violet-700/40 rounded hover:bg-violet-800/50 text-xs font-bold uppercase tracking-wider">Equipo</button>
-            <button onClick={() => setShowMenu(true)} className="px-3 py-1.5 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700 text-xs font-bold uppercase tracking-wider">Menú</button>
+            <button onClick={() => goToMenu()} className="px-3 py-1.5 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700 text-xs font-bold uppercase tracking-wider">Menú</button>
             <button onClick={() => setShowHistory(true)} className="p-2 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700"><History className="w-4 h-4" /></button>
             <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(0); resetTimer(); } }} className="p-2 bg-red-900/20 text-red-400 rounded hover:bg-red-900/40"><Power className="w-4 h-4" /></button>
           </div>
@@ -588,11 +596,11 @@ export default function Home() {
 
       {/* History Modal */}
       {showHistory && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-neutral-900 rounded-2xl border border-neutral-800 w-full max-w-md p-6">
+        <div className={`fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 ${historyExiting ? 'overlay-exit' : 'overlay-enter'}`}>
+          <div className={`bg-neutral-900 rounded-2xl border border-neutral-800 w-full max-w-md p-6 ${historyExiting ? 'modal-exit' : 'modal-enter'}`}>
             <div className="flex justify-between items-center mb-6">
               <h3 className="font-bold text-xl">Historial</h3>
-              <button onClick={() => setShowHistory(false)} className="text-neutral-500 hover:text-white"><X className="w-6 h-6" /></button>
+              <button onClick={() => closeHistory()} className="text-neutral-500 hover:text-white"><X className="w-6 h-6" /></button>
             </div>
             <div className="max-h-[60vh] overflow-y-auto space-y-2">
               {history.length > 0 ? history.map((entry, idx) => (
@@ -611,8 +619,8 @@ export default function Home() {
 
       {/* Team Modal */}
       {showTeam && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-start justify-center p-4 overflow-y-auto" onClick={() => setShowTeam(false)}>
-          <div className="relative w-full max-w-3xl my-4" onClick={e => e.stopPropagation()}>
+        <div className={`fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-start justify-center p-4 overflow-y-auto ${teamExiting ? 'overlay-exit' : 'overlay-enter'}`} onClick={() => closeTeam()}>
+          <div className={`relative w-full max-w-3xl my-4 ${teamExiting ? 'modal-exit' : 'modal-enter'}`} onClick={e => e.stopPropagation()}>
             <div className="bg-neutral-900 rounded-2xl border border-neutral-800 overflow-hidden shadow-2xl">
               {/* Header */}
               <div className="flex items-center justify-between px-6 py-4 bg-neutral-950 border-b border-neutral-800">
@@ -620,7 +628,7 @@ export default function Home() {
                   <h3 className="font-black text-lg text-white">Equipo de la Run</h3>
                   <p className="text-xs text-neutral-500 mt-0.5">Choice Band Weezing · Scarf Vanilluxe · Specs resto</p>
                 </div>
-                <button onClick={() => setShowTeam(false)} className="text-neutral-500 hover:text-white"><X className="w-6 h-6" /></button>
+                <button onClick={() => closeTeam()} className="text-neutral-500 hover:text-white"><X className="w-6 h-6" /></button>
               </div>
               {/* Team Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4">
