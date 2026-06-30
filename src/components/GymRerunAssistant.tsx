@@ -777,7 +777,6 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           
           <div className="flex items-center gap-2">
             <button onClick={() => setShowTeam(true)} className="px-3 py-1.5 bg-violet-900/40 text-violet-300 border border-violet-700/40 rounded hover:bg-violet-800/50 fs-small font-bold uppercase tracking-wider">Equipo</button>
-            <button onClick={requestFinishRun} className="px-3 py-1.5 bg-red-900/40 text-red-300 border border-red-700/40 rounded hover:bg-red-800/50 fs-small font-bold uppercase tracking-wider">Terminar</button>
             <button onClick={() => setShowHistory(true)} className="p-2 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700"><History className="w-4 h-4" /></button>
             <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(0); resetTimer(); } }} className="p-2 bg-red-900/20 text-red-400 rounded hover:bg-red-900/40"><Power className="w-4 h-4" /></button>
           </div>
@@ -974,6 +973,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             <div className="flex gap-0.5 sm:gap-1">
               <button onClick={() => startGymCooldown(getLastCompletedGym())} title="Activar cooldown de 18 horas" className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded font-bold text-[10px] sm:fs-tiny">18h</button>
               <button onClick={openCooldownEditor} title="Ajustar cooldown" className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded font-bold text-[10px] sm:fs-tiny">Ajustar</button>
+              <button onClick={requestFinishRun} className="px-2 sm:px-3 py-1 sm:py-1.5 bg-red-700 hover:bg-red-600 text-white rounded font-bold fs-tiny sm:fs-small transition-colors shadow-sm shadow-red-800/30">Terminar</button>
             </div>
           </div>
 
