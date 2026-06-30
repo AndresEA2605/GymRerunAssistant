@@ -473,6 +473,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   if (showMenu) {
     const bestRun = history.length > 0 ? history.reduce((a, b) => a.elapsed < b.elapsed ? a : b) : null;
     return (
+      <>
       <div className={`${menuVisible ? 'menu-enter' : 'fade-in-screen'} min-h-screen bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-4 md:p-6 relative overflow-hidden ${menuExiting ? 'menu-exit' : ''}`}>
         <PokeBackground />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none" />
@@ -618,6 +619,11 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           ))}
 
           <div className="w-full border-t border-neutral-800/40 pt-2 flex items-center justify-center gap-4 text-neutral-500">
+            <button onClick={() => setShowTeam(true)} className="flex items-center gap-1.5 hover:text-violet-300 transition-colors">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+              <span className="fs-tiny font-semibold">Equipo</span>
+            </button>
+            <span className="text-neutral-700">·</span>
             <div className="flex items-center gap-1.5">
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-pink-400"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
               <span className="fs-tiny font-semibold">Dreasy__</span>
@@ -630,6 +636,128 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           <p className="fs-tiny text-neutral-700">Creado por Dreasy · PokeMMO Gym Rerun Assistant</p>
         </div>
       </div>
+
+      {showTeam && (
+        <div className={`fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-start justify-center p-3 overflow-y-auto ${teamExiting ? 'overlay-exit' : 'overlay-enter'}`} onClick={() => closeTeam()}>
+          <div className={`relative w-full max-w-3xl my-3 ${teamExiting ? 'modal-exit' : 'modal-enter'}`} onClick={e => e.stopPropagation()}>
+            <div className="bg-neutral-900 rounded-2xl border border-neutral-800 overflow-hidden shadow-2xl">
+              <div className="flex items-center justify-between px-5 py-3 bg-neutral-950 border-b border-neutral-800">
+                <div>
+                  <h3 className="font-black fs-h3 text-white">Equipo de la Run</h3>
+                  <p className="fs-tiny text-neutral-500 mt-0.5">Choice Band Weezing · Scarf Vanilluxe · Specs resto</p>
+                </div>
+                <button onClick={() => closeTeam()} className="text-neutral-500 hover:text-white"><X className="w-5 h-5" /></button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3">
+
+                <div className="bg-neutral-950 border border-indigo-500/20 rounded-xl p-3">
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Hydreigon}.png`} alt="Hydreigon" className="w-10 h-10 object-contain" loading="lazy" />
+                    <div>
+                      <div className="font-black fs-small text-indigo-300">H1 — Hydreigon</div>
+                      <div className="fs-tiny text-neutral-500">Levitate · Modest · Choice Specs</div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Dragon Pulse</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Dark Pulse</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Flamethrower</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Focus Blast</span>
+                  </div>
+                  <div className="mt-1.5 fs-tiny text-neutral-500">252 SpA · 252 Spe · 4 HP</div>
+                </div>
+
+                <div className="bg-neutral-950 border border-violet-500/20 rounded-xl p-3">
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK["Vanilluxe"]}.png`} alt="Vanilluxe" className="w-10 h-10 object-contain" loading="lazy" />
+                    <div>
+                      <div className="font-black fs-small text-violet-300">V1 — Vanilluxe</div>
+                      <div className="fs-tiny text-neutral-500">Snow Warning · Timid · Choice Scarf</div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Blizzard</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Freeze-Dry</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Flash Cannon</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Water Pulse</span>
+                  </div>
+                  <div className="mt-1.5 fs-tiny text-neutral-500">252 SpA · 252 Spe · 4 HP</div>
+                </div>
+
+                <div className="bg-neutral-950 border border-cyan-500/20 rounded-xl p-3">
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Weezing}.png`} alt="Weezing" className="w-10 h-10 object-contain" loading="lazy" />
+                    <div>
+                      <div className="font-black fs-small text-cyan-300">W1 — Weezing</div>
+                      <div className="fs-tiny text-neutral-500">Levitate · Adamant · Choice Band</div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Play Rough</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Gunk Shot</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">U-turn</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Explosion</span>
+                  </div>
+                  <div className="mt-1.5 fs-tiny text-neutral-500">252 Atk · 252 Spe · 4 HP</div>
+                </div>
+
+                <div className="bg-neutral-950 border border-rose-500/20 rounded-xl p-3">
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK["Mienshao"]}.png`} alt="Mienshao" className="w-10 h-10 object-contain" loading="lazy" />
+                    <div>
+                      <div className="font-black fs-small text-rose-300">M1 — Mienshao</div>
+                      <div className="fs-tiny text-neutral-500">Regenerator · Jolly · Life Orb</div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Drain Punch</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Knock Off</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Fake Out</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Rock Slide</span>
+                  </div>
+                  <div className="mt-1.5 fs-tiny text-neutral-500">252 Atk · 252 Spe · 4 HP</div>
+                </div>
+
+                <div className="bg-neutral-950 border border-yellow-500/20 rounded-xl p-3">
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Cloyster}.png`} alt="Cloyster" className="w-10 h-10 object-contain" loading="lazy" />
+                    <div>
+                      <div className="font-black fs-small text-yellow-300">C1 — Cloyster</div>
+                      <div className="fs-tiny text-neutral-500">Skill Link · Adamant · Focus Sash</div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Icicle Spear</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Rock Blast</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Ice Shard</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Shell Smash</span>
+                  </div>
+                  <div className="mt-1.5 fs-tiny text-neutral-500">252 Atk · 252 Spe · 4 HP</div>
+                </div>
+
+                <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-3">
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK["Typhlosion"]}.png`} alt="Typhlosion" className="w-10 h-10 object-contain" loading="lazy" />
+                    <div>
+                      <div className="font-black fs-small text-orange-300">T1 — Typhlosion</div>
+                      <div className="fs-tiny text-neutral-500">Blaze · Timid · Choice Specs</div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Eruption</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Flamethrower</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Focus Blast</span>
+                    <span className="fs-tiny bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Solar Beam</span>
+                  </div>
+                  <div className="mt-1.5 fs-tiny text-neutral-500">252 SpA · 252 Spe · 4 HP</div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      </>
     );
   }
 
@@ -649,7 +777,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           
           <div className="flex items-center gap-2">
             <button onClick={() => setShowTeam(true)} className="px-3 py-1.5 bg-violet-900/40 text-violet-300 border border-violet-700/40 rounded hover:bg-violet-800/50 fs-small font-bold uppercase tracking-wider">Equipo</button>
-            <button onClick={requestFinishRun} className="px-3 py-1.5 bg-emerald-900/40 text-emerald-300 border border-emerald-700/40 rounded hover:bg-emerald-800/50 fs-small font-bold uppercase tracking-wider">Terminar</button>
+            <button onClick={requestFinishRun} className="px-3 py-1.5 bg-red-900/40 text-red-300 border border-red-700/40 rounded hover:bg-red-800/50 fs-small font-bold uppercase tracking-wider">Terminar</button>
             <button onClick={() => setShowHistory(true)} className="p-2 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700"><History className="w-4 h-4" /></button>
             <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(0); resetTimer(); } }} className="p-2 bg-red-900/20 text-red-400 rounded hover:bg-red-900/40"><Power className="w-4 h-4" /></button>
           </div>
