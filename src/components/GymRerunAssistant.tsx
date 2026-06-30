@@ -800,7 +800,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   <p className="fs-tiny text-neutral-400 mt-0.5">Mostrar checklist al iniciar ruta</p>
                 </div>
                 <button onClick={() => { const next = !skipChecklist; localStorage.setItem(LS("skip_checklist"), String(next)); setSkipChecklist(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${skipChecklist ? 'bg-red-500' : 'bg-green-500'}`}>
-                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${skipChecklist ? 'translate-x-5' : 'translate-x-0'}`} />
+                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${skipChecklist ? 'translate-x-0' : 'translate-x-5'}`} />
                 </button>
               </div>
               <div className="flex items-center justify-between p-3 rounded-xl bg-neutral-950 border border-neutral-800">
@@ -809,7 +809,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   <p className="fs-tiny text-neutral-400 mt-0.5">Mostrar 5-4-3-2-1 al empezar</p>
                 </div>
                 <button onClick={() => { const next = !skipCountdown; localStorage.setItem(LS("skip_countdown"), String(next)); setSkipCountdown(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${skipCountdown ? 'bg-red-500' : 'bg-green-500'}`}>
-                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${skipCountdown ? 'translate-x-5' : 'translate-x-0'}`} />
+                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${skipCountdown ? 'translate-x-0' : 'translate-x-5'}`} />
                 </button>
               </div>
               <div className="flex items-center justify-between p-3 rounded-xl bg-neutral-950 border border-neutral-800">
@@ -818,7 +818,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   <p className="fs-tiny text-neutral-400 mt-0.5">{manualTimer ? 'Manual: inicia al avanzar al paso 1' : 'Automático: inicia al comenzar'}</p>
                 </div>
                 <button onClick={() => { const next = !manualTimer; localStorage.setItem(LS("manual_timer"), String(next)); setManualTimer(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${manualTimer ? 'bg-red-500' : 'bg-green-500'}`}>
-                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${!manualTimer ? 'translate-x-0' : 'translate-x-5'}`} />
+                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${manualTimer ? 'translate-x-0' : 'translate-x-5'}`} />
                 </button>
               </div>
             </div>
