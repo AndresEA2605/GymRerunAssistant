@@ -55,6 +55,73 @@ const TimerDisplay = memo(({ isRunning, startTime, elapsedBeforePause }: { isRun
   return <span className="font-mono text-xl md:text-2xl font-bold tracking-wider">{formatTime(elapsed)}</span>;
 });
 TimerDisplay.displayName = "TimerDisplay";
+/* -- Pokeball SVG -- */
+const PokeballSVG = ({ opacity = 0.18 }: { opacity?: number }) => (
+  <svg viewBox="0 0 100 100" style={{ width: "100%", height: "100%", opacity }}>
+    <circle cx="50" cy="50" r="47" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="3"/>
+    <path d="M 3 50 A 47 47 0 0 1 97 50 Z" fill="rgba(220,50,50,0.22)"/>
+    <line x1="3" y1="50" x2="97" y2="50" stroke="rgba(255,255,255,0.35)" strokeWidth="3"/>
+    <circle cx="50" cy="50" r="14" fill="rgba(10,10,15,0.8)" stroke="rgba(255,255,255,0.35)" strokeWidth="3"/>
+    <circle cx="50" cy="50" r="7" fill="rgba(255,255,255,0.12)"/>
+  </svg>
+);
+
+const POKEBALLS = [
+  { x:"8%",  dur:32, del:0  },
+  { x:"22%", dur:26, del:7  },
+  { x:"38%", dur:38, del:3  },
+  { x:"55%", dur:29, del:14 },
+  { x:"70%", dur:35, del:5  },
+  { x:"84%", dur:24, del:19 },
+  { x:"15%", dur:42, del:11 },
+  { x:"62%", dur:31, del:22 },
+  { x:"90%", dur:45, del:2  },
+];
+const SIZES = [28, 20, 36, 16, 24, 32, 18, 22, 30];
+const STARS = Array.from({length: 28}, (_, i) => ({
+  x: `${(i * 37 + 11) % 100}%`,
+  y: `${(i * 53 + 7)  % 100}%`,
+  s: (i % 3) + 2,
+  dur: 1.8 + (i % 5) * 0.6,
+  del: (i * 0.37) % 4,
+}));
+
+const PokeBackground = memo(() => (
+  <>
+    <div className="aurora-bg" />
+    {POKEBALLS.map((pb, i) => (
+      <div
+        key={i}
+        className="pokeball-float"
+        style={{
+          "--pb-x": pb.x,
+          "--pb-dur": `${pb.dur}s`,
+          "--pb-del": `${pb.del}s`,
+          width:  SIZES[i],
+          height: SIZES[i],
+        } as React.CSSProperties}
+      >
+        <PokeballSVG opacity={0.13 + (i % 3) * 0.03} />
+      </div>
+    ))}
+    {STARS.map((s, i) => (
+      <div
+        key={i}
+        className="star-twinkle"
+        style={{
+          left:   s.x,
+          top:    s.y,
+          width:  s.s,
+          height: s.s,
+          "--tw-dur": `${s.dur}s`,
+          "--tw-del": `${s.del}s`,
+        } as React.CSSProperties}
+      />
+    ))}
+  </>
+));
+PokeBackground.displayName = "PokeBackground";
+
 
 export default function Home() {
   const [showMenu, setShowMenu] = useState<boolean>(true);
@@ -201,8 +268,7 @@ export default function Home() {
     const bestRun = history.length > 0 ? history.reduce((a, b) => a.elapsed < b.elapsed ? a : b) : null;
     return (
       <div className="fade-in-screen min-h-screen bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-6 relative overflow-hidden">
-        {/* Subtle grid background */}
-        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle, #6366f1 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+        <PokeBackground />
         {/* Glow behind title */}
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-40 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none" />
 
@@ -320,7 +386,8 @@ export default function Home() {
   // ── END MENU SCREEN ──────────────────────────────────────────────────────
 
   return (
-    <div className="flex h-screen bg-neutral-950 text-neutral-200 overflow-hidden font-sans">
+    <div className="flex h-screen bg-neutral-950 text-neutral-200 overflow-hidden font-sans relative">
+      <PokeBackground />
       
       {/* Sidebar Compacta */}
       <aside className={`fixed md:static inset-y-0 left-0 z-40 w-64 bg-neutral-900 border-r border-neutral-800 flex flex-col transition-transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
@@ -459,9 +526,9 @@ export default function Home() {
               </button>
             </div>
             {/* Progress bar */}
-            <div className="w-full bg-neutral-800 rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-neutral-800 rounded-full h-2.5 overflow-hidden">
               <div
-                className="bg-indigo-500 h-full rounded-full transition-all duration-300"
+                className="progress-shimmer h-full rounded-full transition-all duration-300"
                 style={{ width: `${Math.round(((currentStepIndex + 1) / steps.length) * 100)}%` }}
               />
             </div>

@@ -35,24 +35,16 @@
 }
 
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
 }
 
 @keyframes scanline {
-  0% {
-    transform: translateY(-100%);
-  }
-  100% {
-    transform: translateY(100%);
-  }
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
 }
 
-/* ── Slide transition animations ─────────────────────── */
+/* ── Slide transition animations ─────────────────────────────────── */
 @keyframes slide-in-from-right {
   from { transform: translateX(60px); opacity: 0; }
   to   { transform: translateX(0);    opacity: 1; }
@@ -62,11 +54,11 @@
   to   { transform: translateX(0);     opacity: 1; }
 }
 @keyframes slide-out-to-left {
-  from { transform: translateX(0);    opacity: 1; }
+  from { transform: translateX(0);     opacity: 1; }
   to   { transform: translateX(-60px); opacity: 0; }
 }
 @keyframes slide-out-to-right {
-  from { transform: translateX(0);   opacity: 1; }
+  from { transform: translateX(0);    opacity: 1; }
   to   { transform: translateX(60px); opacity: 0; }
 }
 @keyframes fade-in {
@@ -80,7 +72,91 @@
 .slide-out-right { animation: slide-out-to-right  0.14s cubic-bezier(0.55,0,1,0.45) both; }
 .fade-in-screen  { animation: fade-in 0.22s ease both; }
 
-/* Custom base styles */
+/* ── Pokemon Background Animations ───────────────────────────────── */
+@keyframes pokefloat {
+  0%   { transform: translateY(108vh) translateX(0px)   rotate(0deg);   opacity: 0;    }
+  4%   { opacity: 0.16; }
+  30%  { transform: translateY(72vh)  translateX(20px)  rotate(90deg);  }
+  60%  { transform: translateY(38vh)  translateX(-16px) rotate(210deg); }
+  96%  { opacity: 0.16; }
+  100% { transform: translateY(-12vh) translateX(6px)   rotate(360deg); opacity: 0;    }
+}
+@keyframes twinkle {
+  0%,100% { opacity: 0.07; transform: scale(0.6); }
+  50%     { opacity: 0.6;  transform: scale(1.4); }
+}
+@keyframes aurora {
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
+}
+@keyframes shimmer-bar {
+  from { background-position: -200% center; }
+  to   { background-position:  200% center; }
+}
+@keyframes pulse-glow {
+  0%,100% { box-shadow: 0 0 8px  rgba(99,102,241,0.20); }
+  50%     { box-shadow: 0 0 30px rgba(99,102,241,0.65), 0 0 55px rgba(99,102,241,0.18); }
+}
+@keyframes card-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+@keyframes icon-pop {
+  0%,100% { transform: scale(1); }
+  50%     { transform: scale(1.15) rotate(-4deg); }
+}
+
+/* Utility classes */
+.pokeball-float {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+  left: var(--pb-x, 50%);
+  animation: pokefloat var(--pb-dur, 28s) var(--pb-del, 0s) linear infinite;
+  will-change: transform, opacity;
+}
+.star-twinkle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 50%;
+  background: white;
+  animation: twinkle var(--tw-dur, 2.5s) var(--tw-del, 0s) ease-in-out infinite;
+  will-change: opacity, transform;
+}
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    120deg,
+    rgba(99,102,241,0.05) 0%,
+    rgba(139,92,246,0.04) 25%,
+    rgba(236,72,153,0.03) 50%,
+    rgba(99,102,241,0.05) 75%,
+    rgba(59,130,246,0.04) 100%
+  );
+  background-size: 300% 300%;
+  animation: aurora 20s ease infinite;
+}
+.progress-shimmer {
+  background: linear-gradient(
+    90deg,
+    #6366f1 0%, #818cf8 35%, #a78bfa 50%, #818cf8 65%, #6366f1 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer-bar 2.4s linear infinite;
+}
+.btn-glow-active {
+  animation: pulse-glow 2.2s ease-in-out infinite;
+}
+.icon-bounce {
+  animation: icon-pop 3s ease-in-out infinite;
+}
+
+/* ── Custom base styles ───────────────────────────────────────────── */
 :root {
   --neon-color: 255, 255, 255;
   color-scheme: dark;
@@ -90,20 +166,19 @@ body {
   background-color: var(--color-gaming-dark);
   color: #f1f3f5;
   overflow-x: hidden;
-  background-image: 
-    radial-gradient(circle at 50% 0%, rgba(20, 30, 55, 0.4) 0%, transparent 60%),
+  background-image:
+    radial-gradient(circle at 50% 0%,  rgba(20, 30, 55, 0.4) 0%, transparent 60%),
     radial-gradient(circle at 0% 100%, rgba(15, 20, 35, 0.3) 0%, transparent 40%);
   background-attachment: fixed;
 }
 
-/* Glassmorphism custom components */
+/* Glassmorphism */
 .glass-panel {
   background: var(--color-gaming-card);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--color-gaming-border);
 }
-
 .glass-panel-hover:hover {
   background: var(--color-gaming-card-hover);
   border-color: var(--color-gaming-border-hover);
@@ -111,73 +186,53 @@ body {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Neon utilities based on type */
-.neon-johto { --neon-color: 229, 193, 88; }
-.neon-hoenn { --neon-color: 255, 107, 107; }
-.neon-sinnoh { --neon-color: 77, 171, 247; }
-.neon-kanto { --neon-color: 255, 169, 77; }
-.neon-unova { --neon-color: 166, 167, 171; }
+/* Neon utilities */
+.neon-johto  { --neon-color: 229, 193, 88;  }
+.neon-hoenn  { --neon-color: 255, 107, 107; }
+.neon-sinnoh { --neon-color: 77,  171, 247; }
+.neon-kanto  { --neon-color: 255, 169, 77;  }
+.neon-unova  { --neon-color: 166, 167, 171; }
 
-.neon-heal { --neon-color: 255, 107, 139; }
-.neon-item { --neon-color: 59, 130, 246; }
-.neon-note { --neon-color: 250, 176, 5; }
-.neon-travel { --neon-color: 32, 201, 151; }
+.neon-heal   { --neon-color: 255, 107, 139; }
+.neon-item   { --neon-color: 59,  130, 246; }
+.neon-note   { --neon-color: 250, 176, 5;   }
+.neon-travel { --neon-color: 32,  201, 151; }
 
 .neon-glow {
   box-shadow: 0 0 15px rgba(var(--neon-color), 0.2);
   border-color: rgba(var(--neon-color), 0.3);
 }
-
 .neon-glow-active {
   box-shadow: 0 0 25px rgba(var(--neon-color), 0.35);
   border-color: rgba(var(--neon-color), 0.6);
 }
 
 /* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(13,17,28,0.3); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
 
-::-webkit-scrollbar-track {
-  background: rgba(13, 17, 28, 0.3);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-/* Custom grid dots background */
+/* Grid dots */
 .bg-grid-dots {
   background-size: 24px 24px;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
 }
 
-.scanlines {
-  position: relative;
-  overflow: hidden;
-}
-
+.scanlines { position: relative; overflow: hidden; }
 .scanlines::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   background: linear-gradient(
-    rgba(18, 16, 16, 0) 50%,
-    rgba(0, 0, 0, 0.25) 50%
+    rgba(18,16,16,0) 50%,
+    rgba(0,0,0,0.25) 50%
   ), linear-gradient(
     90deg,
-    rgba(255, 0, 0, 0.04),
-    rgba(0, 255, 0, 0.01),
-    rgba(0, 0, 255, 0.04)
+    rgba(255,0,0,0.04),
+    rgba(0,255,0,0.01),
+    rgba(0,0,255,0.04)
   );
   background-size: 100% 4px, 6px 100%;
   z-index: 10;
