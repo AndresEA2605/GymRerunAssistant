@@ -504,7 +504,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
           {selectedGuide && (
             <>
-              <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" title="Ver run de ejemplo en YouTube — de aquí se extrajo toda la información" className="w-full bg-red-950/20 border border-red-800/50 rounded-2xl p-3 flex items-center gap-3 group hover:bg-red-950/30 transition-all cursor-pointer">
+              <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" title="Ver run de ejemplo en YouTube — de aquí se extrajo toda la información" className="reveal-1 w-full bg-red-950/20 border border-red-800/50 rounded-2xl p-3 flex items-center gap-3 group hover:bg-red-950/30 transition-all cursor-pointer">
                 <div className="w-10 h-10 flex-shrink-0 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30">
                   <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.386.507 9.386.507s7.518 0 9.387-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                 </div>
@@ -515,7 +515,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                 <ChevronRight className="w-5 h-5 text-red-400/60 group-hover:text-red-400 transition-colors shrink-0" />
               </a>
 
-              <div className="w-full flex items-stretch gap-2">
+              <div className="reveal-2 w-full flex items-stretch gap-2">
                 <div className="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-2.5 py-1.5 text-center">
                   <div className="fs-tiny uppercase tracking-widest text-neutral-500 leading-tight">Sin Moneda Amuleto</div>
                   <div className="fs-body font-black text-white">~297,000</div>
@@ -530,25 +530,25 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             </>
           )}
 
-          <div className="text-center">
+          <div className="reveal-1 text-center">
             <span className="fs-tiny uppercase tracking-widest font-black text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-2 py-0.5 rounded-full">PokeMMO Speedrun Tool</span>
             <h1 className="fs-hero font-black tracking-tight text-white leading-none mt-1" style={{ textShadow: '0 0 60px rgba(99,102,241,0.5)' }}>GYM RERUN</h1>
             <h2 className="fs-h2 font-bold text-indigo-400 tracking-widest">ASSISTANT</h2>
           </div>
 
           {!selectedGuide && (
-            <div className="w-full bg-gradient-to-r from-indigo-500/5 via-indigo-500/10 to-indigo-500/5 border border-indigo-500/20 rounded-xl px-3 py-2 text-center animate-pulse">
+            <div className="reveal-2 w-full bg-gradient-to-r from-indigo-500/5 via-indigo-500/10 to-indigo-500/5 border border-indigo-500/20 rounded-xl px-3 py-2 text-center animate-pulse">
               <p className="fs-body font-bold text-indigo-300">👇 Selecciona una ruta para comenzar</p>
             </div>
           )}
 
           {!selectedGuide && (
-            <p className="fs-small text-neutral-500 text-center -mt-1.5">
+            <p className="reveal-3 fs-small text-neutral-500 text-center -mt-1.5">
               {description}
             </p>
           )}
 
-          <div className="w-full grid grid-cols-3 gap-2 text-center">
+          <div className="reveal-2 w-full grid grid-cols-3 gap-2 text-center">
             {selectedGuide ? (
               <>
                 <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
@@ -582,7 +582,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             )}
           </div>
 
-          <div className="w-full grid grid-cols-4 gap-2">
+          <div className="reveal-3 w-full grid grid-cols-4 gap-2">
             <button onClick={selectedGuide ? () => exitMenu() : () => setSelectedGuide(true)} title={selectedGuide ? "Iniciar la ruta seleccionada" : "Seleccionar esta guía"} className={`rounded-xl py-2 px-2 text-center transition-all relative overflow-hidden ${selectedGuide ? 'bg-indigo-600 border-2 border-indigo-400' : 'bg-neutral-900 border border-indigo-500/40 hover:bg-neutral-800'}`}>
               <div className="flex flex-col items-center gap-0.5">
                 <div className="w-6 h-6 opacity-20">
@@ -626,7 +626,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
 
           {selectedGuide && (currentStepIndex > 0 ? (
-            <div className="w-full flex flex-col gap-1.5">
+            <div className="reveal-4 w-full flex flex-col gap-1.5">
               <button onClick={() => exitMenu()} title="Continuar la ruta desde donde la dejaste" className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]">
                 ▶ CONTINUAR RUTA · Paso {currentStepIndex + 1}/{steps.length}
               </button>
@@ -635,18 +635,18 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               </button>
             </div>
           ) : (
-            <button onClick={() => exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); })} title="Comenzar la ruta seleccionada" className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] btn-glow-active">
+            <button onClick={() => exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); })} title="Comenzar la ruta seleccionada" className="reveal-4 w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] btn-glow-active">
               ▶ INICIAR RUTA
             </button>
           ))}
 
           {selectedGuide && (
-            <button onClick={() => setShowTeam(true)} title="Ver el equipo Pokémon recomendado para esta ruta" className="w-full py-2.5 bg-violet-600 hover:bg-violet-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)]">
+            <button onClick={() => setShowTeam(true)} title="Ver el equipo Pokémon recomendado para esta ruta" className="reveal-5 w-full py-2.5 bg-violet-600 hover:bg-violet-500 text-white fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)]">
               <Users className="w-5 h-5 inline-block mr-2 -mt-0.5" />VER EQUIPO DE LA RUTA
             </button>
           )}
 
-          <div className="w-full border-t border-neutral-800/40 pt-2 flex items-center justify-center gap-4 text-neutral-500">
+          <div className="reveal-6 w-full border-t border-neutral-800/40 pt-2 flex items-center justify-center gap-4 text-neutral-500">
             <button onClick={() => setShowHistory(true)} title="Historial de runs completadas" className="flex items-center gap-1.5 hover:text-white transition-colors">
               <History className="w-3.5 h-3.5 text-neutral-500" />
               <span className="fs-tiny font-semibold">Historial</span>
