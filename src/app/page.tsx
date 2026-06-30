@@ -16,9 +16,7 @@ import {
   History,
   Info,
   Power,
-  Clock,
-  Lock,
-  AlertTriangle
+  Clock
 } from "lucide-react";
 import rawSteps from "../data/route.json";
 import { RouteStep, StepType, RunHistoryEntry } from "../types";
@@ -177,109 +175,6 @@ export default function Home() {
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentStep = steps[currentStepIndex] || steps[0];
-
-  // ── PIN Access Gate ─────────────────────────────────────────────
-  const CORRECT_PIN = process.env.NEXT_PUBLIC_APP_PIN || "1234";
-  const MAX_ATTEMPTS = 5;
-  const LOCKOUT_MS = 30000;
-
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [pinInput, setPinInput] = useState("");
-  const [pinAttempts, setPinAttempts] = useState(0);
-  const [pinLockedUntil, setPinLockedUntil] = useState(0);
-  const [pinError, setPinError] = useState("");
-
-  useEffect(() => {
-    const saved = localStorage.getItem("pkmmo_unlocked");
-    if (saved === "true") setIsUnlocked(true);
-  }, []);
-
-  const handlePinDigit = (d: string) => {
-    if (pinInput.length >= CORRECT_PIN.length) return;
-    setPinInput(prev => prev + d);
-    setPinError("");
-  };
-
-  const handlePinBackspace = () => {
-    setPinInput(prev => prev.slice(0, -1));
-    setPinError("");
-  };
-
-  const handlePinSubmit = () => {
-    if (Date.now() < pinLockedUntil) {
-      setPinError(`Demasiados intentos. Espera ${Math.ceil((pinLockedUntil - Date.now()) / 1000)}s`);
-      return;
-    }
-    if (pinInput === CORRECT_PIN) {
-      setIsUnlocked(true);
-      localStorage.setItem("pkmmo_unlocked", "true");
-      setPinInput("");
-    } else {
-      const newAttempts = pinAttempts + 1;
-      setPinAttempts(newAttempts);
-      setPinInput("");
-      if (newAttempts >= MAX_ATTEMPTS) {
-        setPinLockedUntil(Date.now() + LOCKOUT_MS);
-        setPinAttempts(0);
-        setPinError(`Demasiados intentos. Espera 30 segundos.`);
-      } else {
-        setPinError(`PIN incorrecto. Intento ${newAttempts}/${MAX_ATTEMPTS}`);
-      }
-    }
-  };
-
-  if (!isUnlocked) {
-    const locked = Date.now() < pinLockedUntil;
-    const filled = pinInput.length;
-    const digits = [1,2,3,4,5,6,7,8,9,"",0,"⌫"] as const;
-    return (
-      <div className="min-h-screen bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-6 relative overflow-hidden">
-        <PokeBackground />
-        <div className="relative z-10 w-full max-w-xs flex flex-col items-center gap-6">
-          
-          <div className="w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center">
-            <Lock className="w-8 h-8 text-indigo-400" />
-          </div>
-
-          <div className="text-center">
-            <h1 className="fs-h3 font-black text-white">Acceso Protegido</h1>
-            <p className="fs-tiny text-neutral-500 mt-1">Ingresa el PIN para continuar</p>
-          </div>
-
-          <div className="flex gap-3">
-            {Array.from({length: CORRECT_PIN.length}).map((_, i) => (
-              <div key={i} className={`w-4 h-4 rounded-full border-2 transition-all ${i < filled ? "bg-indigo-400 border-indigo-400" : "border-neutral-600"}`} />
-            ))}
-          </div>
-
-          {pinError && (
-            <div className="flex items-center gap-1.5 text-red-400 fs-tiny font-semibold">
-              <AlertTriangle className="w-3.5 h-3.5" /> {pinError}
-            </div>
-          )}
-
-          <div className="grid grid-cols-3 gap-3 w-full max-w-[220px]">
-            {digits.map((d, i) => (
-              d === "" ? <div key={i} /> :
-              d === "⌫" ? (
-                <button key={i} onClick={handlePinBackspace} disabled={locked} className="h-12 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-lg disabled:opacity-20 transition-colors">⌫</button>
-              ) : (
-                <button key={i} onClick={() => handlePinDigit(String(d))} disabled={locked} className="h-12 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-lg disabled:opacity-20 transition-colors">{d}</button>
-              )
-            ))}
-          </div>
-
-          <button
-            onClick={handlePinSubmit}
-            disabled={pinInput.length < CORRECT_PIN.length || locked}
-            className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black disabled:opacity-30 transition-all"
-          >
-            {locked ? "BLOQUEADO" : "INGRESAR"}
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   const triggerToast = useCallback((message: string) => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
