@@ -71,6 +71,17 @@
 .slide-out-left  { animation: slide-out-to-left   0.14s cubic-bezier(0.55,0,1,0.45) both; }
 .slide-out-right { animation: slide-out-to-right  0.14s cubic-bezier(0.55,0,1,0.45) both; }
 .fade-in-screen  { animation: fade-in 0.22s ease both; }
+@keyframes menu-exit-anim {
+  0%   { opacity: 1; transform: scale(1)    translateY(0);   filter: blur(0px);    }
+  60%  { opacity: 0.4; transform: scale(1.04) translateY(-12px); filter: blur(2px); }
+  100% { opacity: 0; transform: scale(1.08) translateY(-24px); filter: blur(6px);  }
+}
+@keyframes app-enter {
+  0%   { opacity: 0; transform: scale(0.97) translateY(16px); filter: blur(4px); }
+  100% { opacity: 1; transform: scale(1)    translateY(0);    filter: blur(0px); }
+}
+.menu-exit   { animation: menu-exit-anim 0.38s cubic-bezier(0.4,0,0.2,1) forwards; pointer-events: none; }
+.app-enter   { animation: app-enter      0.42s cubic-bezier(0.25,0.46,0.45,0.94) both; }
 
 /* ── Pokemon Background Animations ───────────────────────────────── */
 @keyframes pokefloat {

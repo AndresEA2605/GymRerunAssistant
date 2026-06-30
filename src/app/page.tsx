@@ -125,6 +125,7 @@ PokeBackground.displayName = "PokeBackground";
 
 export default function Home() {
   const [showMenu, setShowMenu] = useState<boolean>(true);
+  const [menuExiting, setMenuExiting] = useState<boolean>(false);
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [showHistory, setShowHistory] = useState<boolean>(false);
@@ -264,10 +265,19 @@ export default function Home() {
   };
 
   // ── MENU SCREEN ──────────────────────────────────────────────────────────
+  const exitMenu = (callback?: () => void) => {
+    setMenuExiting(true);
+    setTimeout(() => {
+      if (callback) callback();
+      setShowMenu(false);
+      setMenuExiting(false);
+    }, 380);
+  };
+
   if (showMenu) {
     const bestRun = history.length > 0 ? history.reduce((a, b) => a.elapsed < b.elapsed ? a : b) : null;
     return (
-      <div className="fade-in-screen min-h-screen bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      <div className={`fade-in-screen min-h-screen bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-6 relative overflow-hidden ${menuExiting ? 'menu-exit' : ''}`}>
         <PokeBackground />
         {/* Glow behind title */}
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-40 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none" />
@@ -355,14 +365,14 @@ export default function Home() {
           {currentStepIndex > 0 ? (
             <div className="w-full flex flex-col gap-3">
               <button
-                onClick={() => setShowMenu(false)}
+                onClick={() => exitMenu()}
                 className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white text-xl font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)] tracking-wide"
               >
                 ▶ CONTINUAR RUTA
                 <span className="block text-sm font-normal text-indigo-300 mt-0.5">Paso {currentStepIndex + 1} / {steps.length}</span>
               </button>
               <button
-                onClick={() => { setCurrentStepIndex(0); resetTimer(); setShowMenu(false); }}
+                onClick={() => exitMenu(() => { setCurrentStepIndex(0); resetTimer(); })}
                 className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 text-sm font-bold rounded-xl transition-colors"
               >
                 Reiniciar desde cero
@@ -370,8 +380,8 @@ export default function Home() {
             </div>
           ) : (
             <button
-              onClick={() => setShowMenu(false)}
-              className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white text-xl font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)] tracking-wide"
+              onClick={() => exitMenu()}
+              className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white text-xl font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)] tracking-wide btn-glow-active"
             >
               ▶ INICIAR RUTA
             </button>
@@ -379,6 +389,20 @@ export default function Home() {
 
           {/* Hotkey tip */}
           <p className="text-xs text-neutral-600">⌨ &nbsp;<kbd className="bg-neutral-800 border border-neutral-700 px-1.5 py-0.5 rounded text-neutral-400 font-mono text-[11px]">Espacio</kbd> para avanzar &nbsp;·&nbsp; <kbd className="bg-neutral-800 border border-neutral-700 px-1.5 py-0.5 rounded text-neutral-400 font-mono text-[11px]">F4</kbd> desde el juego</p>
+
+          {/* Credits */}
+          <div className="w-full border-t border-neutral-800/60 pt-4 flex items-center justify-center gap-6">
+            <div className="flex items-center gap-2 text-neutral-500">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-pink-400"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+              <span className="text-xs font-semibold">Dreasy__</span>
+            </div>
+            <div className="w-px h-4 bg-neutral-700" />
+            <div className="flex items-center gap-2 text-neutral-500">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-green-400"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+              <span className="text-xs font-semibold">Dreasy</span>
+            </div>
+          </div>
+          <p className="text-[10px] text-neutral-700">Creado por Dreasy — PokeMMO Gym Rerun Assistant</p>
         </div>
       </div>
     );
@@ -386,7 +410,7 @@ export default function Home() {
   // ── END MENU SCREEN ──────────────────────────────────────────────────────
 
   return (
-    <div className="flex h-screen bg-neutral-950 text-neutral-200 overflow-hidden font-sans relative">
+    <div className="app-enter flex h-screen bg-neutral-950 text-neutral-200 overflow-hidden font-sans relative">
       <PokeBackground />
       
       {/* Sidebar Compacta */}
