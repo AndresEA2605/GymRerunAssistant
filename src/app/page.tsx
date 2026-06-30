@@ -649,29 +649,17 @@ export default function Home() {
         </div>
       </main>
 
-      {/* ── Floating Timer Bar ─ always visible, bottom of viewport ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 bg-neutral-900/95 border-t-2 border-indigo-500/40 backdrop-blur-sm px-4 py-2 sm:px-6 sm:py-3">
+      {/* ── Floating Timer Bar ─ always visible, bottom-right aligned ── */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 flex flex-col sm:flex-row items-center sm:justify-end gap-2 sm:gap-4 bg-neutral-900/95 border-t-2 border-indigo-500/40 backdrop-blur-sm px-4 py-2 sm:px-6 sm:py-3">
         
-        {/* Navigation Arrows above/next to Timer */}
-        <div className="flex items-center justify-center gap-4 sm:hidden mb-1 w-full">
-           <button onClick={handlePrev} disabled={currentStepIndex === 0} className="p-2 bg-neutral-800/80 rounded-lg hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
-             <ChevronLeft className="w-6 h-6" />
-           </button>
-           <button onClick={handleNext} disabled={currentStepIndex === steps.length - 1} className="p-2 bg-indigo-600/80 rounded-lg hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-lg shadow-indigo-500/20">
-             <ChevronRight className="w-6 h-6" />
-           </button>
-        </div>
+        <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-center sm:justify-end">
+          
+          <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
 
-        <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto justify-between sm:justify-center">
-          <div className="hidden sm:flex items-center gap-2">
+          <div className="flex items-center gap-1">
              <button onClick={handlePrev} disabled={currentStepIndex === 0} className="p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
                <ChevronLeft className="w-5 h-5" />
              </button>
-          </div>
-
-          <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
-          
-          <div className="hidden sm:flex items-center gap-2">
              <button onClick={handleNext} disabled={currentStepIndex === steps.length - 1} className="p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
                <ChevronRight className="w-5 h-5" />
              </button>
@@ -679,29 +667,33 @@ export default function Home() {
 
           <div className="flex gap-1 shrink-0">
             {!timerIsRunning ? (
-              <button onClick={startTimer} title="Iniciar" className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold fs-small flex items-center gap-1"><Play className="w-3.5 h-3.5 fill-current"/><span className="hidden sm:inline">Iniciar</span></button>
+              <button onClick={startTimer} title="Iniciar" className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold fs-small flex items-center gap-1"><Play className="w-3.5 h-3.5 fill-current"/><span>Iniciar</span></button>
             ) : (
-              <button onClick={pauseTimer} title="Pausar" className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold fs-small flex items-center gap-1"><Pause className="w-3.5 h-3.5 fill-current"/><span className="hidden sm:inline">Pausar</span></button>
+              <button onClick={pauseTimer} title="Pausar" className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold fs-small flex items-center gap-1"><Pause className="w-3.5 h-3.5 fill-current"/><span>Pausar</span></button>
             )}
             <button onClick={resetTimer} title="Reiniciar" className="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 rounded font-bold fs-small"><RotateCcw className="w-3.5 h-3.5"/></button>
           </div>
-        </div>
-        <div className="flex w-full items-center justify-between gap-2 border-t border-neutral-800 pt-2 sm:w-auto sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <Clock className="w-3.5 h-3.5 text-emerald-400" />
-              <CooldownDisplay endAt={cooldown.endAt} />
+
+          <div className="h-6 w-px bg-neutral-700 hidden sm:block" />
+
+          <div className="flex items-center gap-2">
+            <div>
+              <div className="flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                <CooldownDisplay endAt={cooldown.endAt} />
+              </div>
+              <div className="max-w-[160px] truncate fs-tiny text-neutral-500">
+                últ: {cooldown.lastGym || getLastCompletedGym() || "--"}
+              </div>
             </div>
-            <div className="max-w-[140px] truncate fs-tiny text-neutral-500">
-              Reset gyms · últ: {cooldown.lastGym || getLastCompletedGym() || "--"}
+            <div className="flex gap-1">
+              <button onClick={() => startGymCooldown(getLastCompletedGym())} title="Activar cooldown de 18 horas" className="px-2 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded font-bold fs-tiny">18h</button>
+              <button onClick={openCooldownEditor} title="Ajustar cooldown" className="px-2 py-1 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded font-bold fs-tiny">Ajustar</button>
             </div>
           </div>
-          <div className="flex gap-1">
-            <button onClick={() => startGymCooldown(getLastCompletedGym())} title="Activar cooldown de 18 horas" className="px-2 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded font-bold fs-tiny">18h</button>
-            <button onClick={openCooldownEditor} title="Ajustar cooldown" className="px-2 py-1 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded font-bold fs-tiny">Ajustar</button>
-          </div>
+
+          <span className="fs-tiny text-neutral-500 font-mono">F4 · Espacio</span>
         </div>
-        <span className="fs-tiny text-neutral-500 font-mono hidden md:inline ml-auto">F4 · Espacio</span>
       </div>
 
       {/* Toast */}
