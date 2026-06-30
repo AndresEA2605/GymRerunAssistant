@@ -221,7 +221,7 @@ export default function Home() {
           {/* Stats Row */}
           <div className="w-full grid grid-cols-3 gap-3 text-center">
             <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3">
-              <div className="text-2xl font-black text-white">{steps.filter(s => s.type === 'gym').length}</div>
+              <div className="text-2xl font-black text-white">33</div>
               <div className="text-[10px] text-neutral-500 uppercase tracking-wider">Gimnasios</div>
             </div>
             <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3">
@@ -249,15 +249,15 @@ export default function Home() {
               {/* Sin amuleto */}
               <div className="p-4 text-center">
                 <div className="text-[10px] uppercase tracking-widest text-neutral-500 mb-1">Sin Moneda Amuleto</div>
-                <div className="text-2xl font-black text-white">≈₽297k</div>
-                <div className="text-xs text-neutral-500 mt-1">~₽9,000 × 33 gyms</div>
+                <div className="text-2xl font-black text-white">~297,000</div>
+                <div className="text-xs text-neutral-500 mt-1">~9,000 × 33 gyms</div>
                 <div className="mt-2 text-[10px] text-neutral-600">Multiplicador × 1.0</div>
               </div>
               {/* Con amuleto */}
               <div className="p-4 text-center bg-emerald-950/10">
                 <div className="text-[10px] uppercase tracking-widest text-emerald-500 mb-1">Con Moneda Amuleto</div>
-                <div className="text-2xl font-black text-emerald-400">≈₽446k</div>
-                <div className="text-xs text-neutral-500 mt-1">~₽13,500 × 33 gyms</div>
+                <div className="text-2xl font-black text-emerald-400">~446,000</div>
+                <div className="text-xs text-neutral-500 mt-1">~13,500 × 33 gyms</div>
                 <div className="mt-2 text-[10px] text-emerald-600 font-bold">Multiplicador × 1.5</div>
               </div>
             </div>
