@@ -129,6 +129,7 @@ export default function Home() {
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [showHistory, setShowHistory] = useState<boolean>(false);
+  const [showTeam, setShowTeam] = useState<boolean>(false);
   const [slideClass, setSlideClass] = useState<string>("");
   const [slideKey, setSlideKey] = useState<number>(0);
 
@@ -445,6 +446,7 @@ export default function Home() {
           </div>
           
           <div className="flex items-center gap-2">
+            <button onClick={() => setShowTeam(true)} className="px-3 py-1.5 bg-violet-900/40 text-violet-300 border border-violet-700/40 rounded hover:bg-violet-800/50 text-xs font-bold uppercase tracking-wider">Equipo</button>
             <button onClick={() => setShowMenu(true)} className="px-3 py-1.5 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700 text-xs font-bold uppercase tracking-wider">Menú</button>
             <button onClick={() => setShowHistory(true)} className="p-2 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700"><History className="w-4 h-4" /></button>
             <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(0); resetTimer(); } }} className="p-2 bg-red-900/20 text-red-400 rounded hover:bg-red-900/40"><Power className="w-4 h-4" /></button>
@@ -602,6 +604,127 @@ export default function Home() {
                   <div className="font-mono text-lg font-bold text-indigo-400">{formatTime(entry.elapsed)}</div>
                 </div>
               )) : <div className="text-neutral-500 text-center py-8">No hay historial.</div>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Team Modal */}
+      {showTeam && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-start justify-center p-4 overflow-y-auto" onClick={() => setShowTeam(false)}>
+          <div className="relative w-full max-w-3xl my-4" onClick={e => e.stopPropagation()}>
+            <div className="bg-neutral-900 rounded-2xl border border-neutral-800 overflow-hidden shadow-2xl">
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 bg-neutral-950 border-b border-neutral-800">
+                <div>
+                  <h3 className="font-black text-lg text-white">Equipo de la Run</h3>
+                  <p className="text-xs text-neutral-500 mt-0.5">Choice Band Weezing · Scarf Vanilluxe · Specs resto</p>
+                </div>
+                <button onClick={() => setShowTeam(false)} className="text-neutral-500 hover:text-white"><X className="w-6 h-6" /></button>
+              </div>
+              {/* Team Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4">
+
+                {/* Hydreigon */}
+                <div className="bg-neutral-950 border border-indigo-500/20 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-lg">&#x1F409;</span>
+                    <div>
+                      <div className="font-black text-indigo-300">H1 — Hydreigon</div>
+                      <div className="text-[10px] text-neutral-500">Levitate · Modest · Choice Specs</div>
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-neutral-400 mb-2">EVs: 6 HP / 212 SpA / 40 SpD / 252 Spe</div>
+                  <div className="text-[11px] text-neutral-500 mb-2">IVs: Max 14 HP / X Atk / Max 14 Def / 31 Spa / Low Spd / 31 Spe</div>
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Surf','Sunny Day','Rain Dance','Tailwind'].map(m => <span key={m} className="text-[11px] bg-indigo-950/50 border border-indigo-800/30 px-2 py-0.5 rounded text-indigo-300">{m}</span>)}
+                  </div>
+                </div>
+
+                {/* Weezing */}
+                <div className="bg-neutral-950 border border-purple-500/20 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-lg">&#x1F4A8;</span>
+                    <div>
+                      <div className="font-black text-purple-300">W1 — Weezing</div>
+                      <div className="text-[10px] text-neutral-500">Neutralizing Gas · Adamant · Choice Band</div>
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-neutral-400 mb-2">EVs: 252 Atk / 6 SpD / 252 Spe</div>
+                  <div className="text-[11px] text-neutral-500 mb-2">IVs: 31 HP / 31 Atk / High Def / X Spa / 31 Spd / 31 Spe</div>
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Explosion','Assurance','Incinerate','Sunny Day'].map(m => <span key={m} className="text-[11px] bg-purple-950/50 border border-purple-800/30 px-2 py-0.5 rounded text-purple-300">{m}</span>)}
+                  </div>
+                </div>
+
+                {/* Togekiss */}
+                <div className="bg-neutral-950 border border-sky-500/20 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-lg">&#x1F54A;</span>
+                    <div>
+                      <div className="font-black text-sky-300">TO — Togekiss</div>
+                      <div className="text-[10px] text-neutral-500">Serene Grace · Modest · Choice Scarf</div>
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-neutral-400 mb-2">EVs: 252 SpA / 6 SpD / 252 Spe</div>
+                  <div className="text-[11px] text-neutral-500 mb-2">IVs: X HP / X Atk / X Def / 31 Spa / X Spd / 31 Spe</div>
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Hyper Voice','Psyshock','Signal Beam','Psychic'].map(m => <span key={m} className="text-[11px] bg-sky-950/50 border border-sky-800/30 px-2 py-0.5 rounded text-sky-300">{m}</span>)}
+                  </div>
+                </div>
+
+                {/* Typhlosion */}
+                <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-lg">&#x1F525;</span>
+                    <div>
+                      <div className="font-black text-orange-300">TY — Typhlosion</div>
+                      <div className="text-[10px] text-neutral-500">Blaze · Modest · Choice Specs</div>
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-neutral-400 mb-2">EVs: 252 SpA / 6 SpD / 252 Spe</div>
+                  <div className="text-[11px] text-neutral-500 mb-2">IVs: X HP / X Atk / X Def / 31 Spa / X Spd / 31 Spe</div>
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Eruption','Swift','Cut','Helping Hand'].map(m => <span key={m} className="text-[11px] bg-orange-950/50 border border-orange-800/30 px-2 py-0.5 rounded text-orange-300">{m}</span>)}
+                  </div>
+                </div>
+
+                {/* Vanilluxe */}
+                <div className="bg-neutral-950 border border-cyan-500/20 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-lg">&#x2744;</span>
+                    <div>
+                      <div className="font-black text-cyan-300">Vanilluxe @ Choice Scarf</div>
+                      <div className="text-[10px] text-neutral-500">Snow Warning · Timid · Lv. 100</div>
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-neutral-400 mb-2">EVs: 10 HP / 252 SpA / 248 Spe</div>
+                  <div className="text-[11px] text-neutral-500 mb-2">IVs: X HP / X Atk / X Def / 31 Spa / X Spd / 31 Spe</div>
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Blizzard','Hyper Voice','Water Pulse','Flash Cannon'].map(m => <span key={m} className="text-[11px] bg-cyan-950/50 border border-cyan-800/30 px-2 py-0.5 rounded text-cyan-300">{m}</span>)}
+                  </div>
+                </div>
+
+                {/* Blastoise */}
+                <div className="bg-neutral-950 border border-blue-500/20 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-lg">&#x1F30A;</span>
+                    <div>
+                      <div className="font-black text-blue-300">BW — Blastoise</div>
+                      <div className="text-[10px] text-neutral-500">Torrent · Modest · Choice Specs</div>
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-neutral-400 mb-2">EVs: 252 SpA / 10 SpD / 248 Spe</div>
+                  <div className="text-[11px] text-neutral-500 mb-2">IVs: 31 HP / 31 Spe · High Spd / 31 Spa</div>
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Water Spout','Helping Hand','Blizzard'].map(m => <span key={m} className="text-[11px] bg-blue-950/50 border border-blue-800/30 px-2 py-0.5 rounded text-blue-300">{m}</span>)}
+                  </div>
+                </div>
+
+              </div>
+              <div className="px-6 py-3 bg-neutral-950 border-t border-neutral-800 text-[10px] text-neutral-600 text-center">
+                Click fuera del modal para cerrar · Creado por Dreasy
+              </div>
             </div>
           </div>
         </div>
