@@ -919,14 +919,14 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
         </div>
         )}
-        <div className="flex-1 flex flex-col items-center justify-center p-2.5 md:p-8 lg:p-12 overflow-y-auto overflow-x-hidden">
-          <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-3 md:p-8 lg:p-12 shadow-2xl relative text-center ${slideClass}`}>
+        <div className="flex-1 flex flex-col items-center justify-center p-1.5 md:p-8 lg:p-12 overflow-y-auto overflow-x-hidden">
+          <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-2 md:p-8 lg:p-12 shadow-2xl relative text-center ${slideClass}`}>
             
             <div className="absolute -top-6 -right-6 w-24 h-24 opacity-[0.04] pointer-events-none select-none">
               <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="" className="w-full h-full object-contain" />
             </div>
 
-            <div className="flex flex-col items-center gap-3 mb-4 md:gap-4 md:mb-6">
+            <div className="flex flex-col items-center gap-2 mb-3 md:gap-4 md:mb-6">
               {currentStepIndex === -1 ? (
                 <>
                   <div className="w-full flex mb-2">
@@ -945,15 +945,15 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   <h2 className="fs-h2 font-black tracking-tight text-white">33 Gym Rerun</h2>
                   <p className="fs-body text-neutral-400">{description}</p>
                   {steps[0] && (
-                    <div className="w-full bg-neutral-950 rounded-xl border border-neutral-800 p-3 mt-1">
-                      <div className="fs-small text-neutral-500 uppercase font-bold tracking-widest mb-1">Primer gimnasio</div>
-                      <div className="flex items-center justify-center gap-2">
-                        <span className="p-1.5 bg-neutral-900 rounded-lg">{renderIcon(steps[0].type)}</span>
+                    <div className="w-full bg-neutral-950 rounded-xl border border-neutral-800 p-2 md:p-3 mt-1">
+                      <div className="fs-tiny md:fs-small text-neutral-500 uppercase font-bold tracking-widest mb-0.5 md:mb-1">Primer gimnasio</div>
+                      <div className="flex items-center justify-center gap-1.5 md:gap-2">
+                        <span className="p-1 md:p-1.5 bg-neutral-900 rounded-lg">{renderIcon(steps[0].type)}</span>
                         <span className="fs-h3 font-black text-white">{steps[0].title}</span>
                         {steps[0].region && <span className="fs-small font-bold uppercase tracking-widest px-2 py-0.5 rounded border bg-neutral-900 text-neutral-400 border-neutral-800">{steps[0].region}</span>}
                       </div>
                       {steps[0].type === "gym" && steps[0].gym && gymCoords[steps[0].gym as keyof typeof gymCoords] && (
-                        <div className="w-full max-w-[180px] h-24 mx-auto mt-2 relative rounded-lg border border-neutral-700/50 overflow-hidden bg-neutral-950 shadow-inner group">
+                        <div className="w-full max-w-[160px] h-20 md:max-w-[180px] md:h-24 mx-auto mt-1 md:mt-2 relative rounded-lg border border-neutral-700/50 overflow-hidden bg-neutral-950 shadow-inner group">
                           <img src={regionMap[gymCoords[steps[0].gym as keyof typeof gymCoords].region as keyof typeof regionMap]} alt="Map" className="absolute inset-0 w-full h-full object-cover opacity-70" />
                           <div className="absolute inset-0 bg-indigo-900/10 mix-blend-color" />
                           <div className="absolute w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.8)] -translate-x-1/2 -translate-y-1/2 animate-bounce" style={{ left: `${gymCoords[steps[0].gym as keyof typeof gymCoords].x}%`, top: `${gymCoords[steps[0].gym as keyof typeof gymCoords].y}%` }} />
@@ -966,14 +966,14 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   </button>
                 </>
               ) : (<> 
-                <div className="reveal-1 flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-3 w-full">
-                  <span className="p-2 md:p-3 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon(currentStep!.type)}</span>
+                <div className="reveal-1 flex flex-col sm:flex-row items-center justify-center gap-1.5 md:gap-3 w-full">
+                  <span className="p-1.5 md:p-3 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon(currentStep!.type)}</span>
                   <h2 className="fs-h3 font-black tracking-tight text-white">{currentStep!.title}</h2>
                   {currentStep!.region && <span className="fs-tiny md:fs-small font-bold uppercase tracking-widest px-1.5 md:px-2 py-0.5 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentStep!.region}</span>}
                 </div>
 
               {currentStep!.type === "gym" && currentStep!.gym && gymCoords[currentStep!.gym as keyof typeof gymCoords] && (
-                <div className="reveal-2 w-full max-w-[200px] h-28 relative rounded-lg border border-neutral-700/50 overflow-hidden shrink-0 bg-neutral-950 shadow-inner group">
+                <div className="reveal-2 w-full max-w-[160px] h-20 md:max-w-[200px] md:h-28 relative rounded-lg border border-neutral-700/50 overflow-hidden shrink-0 bg-neutral-950 shadow-inner group">
                   <img src={regionMap[gymCoords[currentStep!.gym as keyof typeof gymCoords].region as keyof typeof regionMap]} alt="Region Map" className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
                   <div className="absolute inset-0 bg-indigo-900/10 mix-blend-color" />
                   <div 
@@ -992,29 +992,29 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             {currentStep && (<>
             
             {currentStep.type === "gym" && (
-              <div className="space-y-3 md:space-y-5">
-                <div className="flex flex-col sm:flex-row justify-center gap-2 md:gap-4">
+              <div className="space-y-2 md:space-y-5">
+                <div className="flex flex-col sm:flex-row justify-center gap-1.5 md:gap-4">
                   {currentStep.lead && (
-                    <div className="reveal-3 bg-neutral-950 p-3 md:p-4 rounded-xl border border-neutral-800 flex-1 min-w-[150px] md:min-w-[180px]">
-                      <div className="fs-tiny md:fs-small text-indigo-400 uppercase font-black tracking-widest mb-2">Leads</div>
+                    <div className="reveal-3 bg-neutral-950 p-2 md:p-4 rounded-xl border border-neutral-800 flex-1 min-w-[140px] md:min-w-[180px]">
+                      <div className="fs-tiny md:fs-small text-indigo-400 uppercase font-black tracking-widest mb-1.5 md:mb-2">Leads</div>
                       <div className="flex justify-center">{renderWithSprites(currentStep.lead)}</div>
                     </div>
                   )}
                   {currentStep.switchTo && (
-                    <div className="reveal-4 bg-neutral-950 p-3 md:p-4 rounded-xl border border-neutral-800 flex-1 min-w-[150px] md:min-w-[180px]">
-                      <div className="fs-tiny md:fs-small text-emerald-400 uppercase font-black tracking-widest mb-2">Cambios Seguros</div>
+                    <div className="reveal-4 bg-neutral-950 p-2 md:p-4 rounded-xl border border-neutral-800 flex-1 min-w-[140px] md:min-w-[180px]">
+                      <div className="fs-tiny md:fs-small text-emerald-400 uppercase font-black tracking-widest mb-1.5 md:mb-2">Cambios Seguros</div>
                       <div className="flex justify-center">{renderWithSprites(currentStep.switchTo)}</div>
                     </div>
                   )}
                 </div>
                 {currentStep.actions && (
-                  <div className="reveal-5 bg-neutral-950 p-3 md:p-4 rounded-xl border border-neutral-800">
-                    <div className="fs-tiny md:fs-small text-amber-400 uppercase font-black tracking-widest mb-2 md:mb-3 text-center">Estrategia vs Variantes</div>
-                    <ul className="space-y-1.5 md:space-y-2">
+                  <div className="reveal-5 bg-neutral-950 p-2 md:p-4 rounded-xl border border-neutral-800">
+                    <div className="fs-tiny md:fs-small text-amber-400 uppercase font-black tracking-widest mb-1.5 md:mb-3 text-center">Estrategia vs Variantes</div>
+                    <ul className="space-y-1 md:space-y-2">
                       {currentStep.actions.map((act, i) => {
                         const parts = act.split("→");
                         return (
-                          <li key={i} className="flex flex-col sm:flex-row items-center justify-center gap-1.5 md:gap-2 fs-tiny md:fs-body bg-neutral-900 p-1.5 md:p-2 rounded border border-neutral-800">
+                          <li key={i} className="flex flex-col sm:flex-row items-center justify-center gap-1 md:gap-2 fs-tiny md:fs-body bg-neutral-900 p-1 md:p-2 rounded border border-neutral-800">
                             {parts.length > 1 ? (
                               <><span className="font-bold text-white">{parts[0].trim()}</span> <span className="text-neutral-500 hidden sm:inline">→</span> <span className="text-neutral-300">{parts[1].trim()}</span></>
                             ) : <span className="text-center">{act}</span>}
@@ -1028,20 +1028,20 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             )}
 
             {currentStep.type === "prep" && (
-              <div className="space-y-3 md:space-y-4">
+              <div className="space-y-2 md:space-y-4">
                 {currentStep.heal && (
-                  <div className="reveal-2 flex items-center justify-center gap-2.5 bg-red-950/20 border border-red-900/30 p-3 md:p-4 rounded-xl text-red-400 fs-small md:fs-body font-bold">
-                    <Heart className="w-4 h-4 md:w-5 md:h-5 fill-current" /> Curar equipo en el Centro Pokémon
+                  <div className="reveal-2 flex items-center justify-center gap-2 bg-red-950/20 border border-red-900/30 p-2 md:p-4 rounded-xl text-red-400 fs-tiny md:fs-body font-bold">
+                    <Heart className="w-3.5 h-3.5 md:w-5 md:h-5 fill-current" /> Curar equipo en el Centro Pokémon
                   </div>
                 )}
                 {currentStep.items && currentStep.items.length > 0 && (
-                  <div className="reveal-3 bg-neutral-950 p-3 md:p-4 rounded-xl border border-neutral-800">
-                    <div className="fs-tiny md:fs-small text-blue-400 uppercase font-black tracking-widest mb-2 md:mb-3 flex items-center justify-center gap-2"><Sparkles className="w-3 h-3 md:w-3.5 md:h-3.5"/> Equipar Objetos</div>
-                    <ul className="space-y-1.5 md:space-y-2">
+                  <div className="reveal-3 bg-neutral-950 p-2 md:p-4 rounded-xl border border-neutral-800">
+                    <div className="fs-tiny md:fs-small text-blue-400 uppercase font-black tracking-widest mb-1.5 md:mb-3 flex items-center justify-center gap-1.5 md:gap-2"><Sparkles className="w-3 h-3 md:w-3.5 md:h-3.5"/> Equipar Objetos</div>
+                    <ul className="space-y-1 md:space-y-2">
                       {currentStep.items.map((it, i) => {
                         const isScarf = it.item.toLowerCase().includes("panuelo") || it.item.toLowerCase().includes("pañuelo");
                         return (
-                          <li key={i} className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 md:gap-2 p-2 md:p-3 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
+                          <li key={i} className={`flex flex-col sm:flex-row items-center justify-center gap-1 md:gap-2 p-1.5 md:p-3 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
                             <span className={`fs-tiny md:fs-body ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{renderWithSprites(it.pokemon, " • ")}</span>
                             <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-2 md:px-3 py-0.5 md:py-1 fs-tiny md:fs-small shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-1.5 md:px-2 py-0.5 fs-tiny'} font-bold rounded uppercase tracking-wider`}>
                               ➔ {it.item}
@@ -1053,15 +1053,15 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   </div>
                 )}
                 {currentStep.travel && (
-                  <div className="reveal-4 flex items-center justify-center gap-2.5 bg-teal-950/20 border border-teal-900/30 p-3 md:p-4 rounded-xl text-teal-400 fs-small md:fs-body font-bold">
-                    <Compass className="w-4 h-4 md:w-5 md:h-5" /> Viajar hacia {currentStep.travel}
+                  <div className="reveal-4 flex items-center justify-center gap-2 bg-teal-950/20 border border-teal-900/30 p-2 md:p-4 rounded-xl text-teal-400 fs-tiny md:fs-body font-bold">
+                    <Compass className="w-3.5 h-3.5 md:w-5 md:h-5" /> Viajar hacia {currentStep.travel}
                   </div>
                 )}
               </div>
             )}
 
             {currentStep.type === "note" && (
-              <div className="reveal-2 bg-amber-950/20 border border-amber-900/30 p-4 md:p-6 rounded-xl text-amber-400 fs-small md:fs-body font-bold text-center">
+              <div className="reveal-2 bg-amber-950/20 border border-amber-900/30 p-3 md:p-6 rounded-xl text-amber-400 fs-tiny md:fs-body font-bold text-center">
                 {currentStep.description}
               </div>
             )}
