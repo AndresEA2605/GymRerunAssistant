@@ -1,45 +1,45 @@
 // Gym map coordinates (x%, y% on each region map image)
 export const GYM_COORDS = {
-  // Johto
-  "Endrino":          { region: "Johto",  x: 85, y: 45 },  // Blackthorn
-  "Trigal":           { region: "Johto",  x: 35, y: 55 },  // Goldenrod
-  "Azalea":           { region: "Johto",  x: 45, y: 80 },  // Azalea
-  "Olivo":            { region: "Johto",  x: 18, y: 45 },  // Olivine
-  "Orquidea":         { region: "Johto",  x: 40, y: 30 },  // Ecruteak
-  "Caoba":            { region: "Johto",  x: 65, y: 30 },  // Mahogany
-  "Malva":            { region: "Johto",  x: 55, y: 40 },  // Violet
+  // Johto (Custom Pixel Art Map)
+  "Endrino":          { region: "Johto",  x: 82, y: 10 },  // Blackthorn (Top Right)
+  "Trigal":           { region: "Johto",  x: 54, y: 49 },  // Goldenrod (Center)
+  "Azalea":           { region: "Johto",  x: 54, y: 71 },  // Azalea (Bottom Middle)
+  "Olivo":            { region: "Johto",  x: 29, y: 49 },  // Olivine (Middle Left)
+  "Orquidea":         { region: "Johto",  x:  7, y: 49 },  // Cianwood (Far Left)
+  "Caoba":            { region: "Johto",  x: 71, y: 22 },  // Mahogany (Top Middle-Right)
+  "Malva":            { region: "Johto",  x: 82, y: 37 },  // Violet (Middle Right)
 
-  // Hoenn
-  "Pueblo Azuliza":   { region: "Hoenn",  x: 18, y: 82 },  // Dewford
-  "Ciudad Ferrica":   { region: "Hoenn",  x: 12, y: 45 },  // Rustboro
-  "Ciudad Malvalona": { region: "Hoenn",  x: 45, y: 55 },  // Mauville
-  "Ciudad Petalia":   { region: "Hoenn",  x: 25, y: 70 },  // Petalburg
-  "Pueblo Lavacalda": { region: "Hoenn",  x: 40, y: 30 },  // Lavaridge
-  "Ciudad Arborada":  { region: "Hoenn",  x: 65, y: 20 },  // Fortree
+  // Hoenn (Sci-fi Stylized Map)
+  "Pueblo Azuliza":   { region: "Hoenn",  x: 25, y: 67 },  // Dewford (Big Hexagon Bottom Left)
+  "Ciudad Ferrica":   { region: "Hoenn",  x: 14, y: 21 },  // Rustboro (Node Above Petalburg)
+  "Ciudad Malvalona": { region: "Hoenn",  x: 37, y: 40 },  // Mauville (Labeled Center)
+  "Ciudad Petalia":   { region: "Hoenn",  x: 14, y: 40 },  // Petalburg (Labeled Left)
+  "Pueblo Lavacalda": { region: "Hoenn",  x: 37, y: 21 },  // Lavaridge (Node Above Mauville)
+  "Ciudad Arborada":  { region: "Hoenn",  x: 53, y: 40 },  // Fortree (Node Right of Mauville)
 
-  // Sinnoh
-  "Ciudad Vetusta":   { region: "Sinnoh", x: 30, y: 30 },  // Eterna
-  "Ciudad Pirita":    { region: "Sinnoh", x: 45, y: 60 },  // Oreburgh
-  "Ciudad Canal":     { region: "Sinnoh", x: 10, y: 50 },  // Canalave
-  "Ciudad Rocavelo":  { region: "Sinnoh", x: 75, y: 45 },  // Veilstone
-  "Pueblo Pastoria":  { region: "Sinnoh", x: 65, y: 80 },  // Pastoria
+  // Sinnoh (Sci-fi Stylized Map)
+  "Ciudad Vetusta":   { region: "Sinnoh", x: 35, y: 30 },  // Eterna (Glowing Green Crystal Top Left)
+  "Ciudad Pirita":    { region: "Sinnoh", x: 45, y: 55 },  // Oreburgh (Approx South East of Jubilife)
+  "Ciudad Canal":     { region: "Sinnoh", x: 22, y: 49 },  // Canalave (Labeled Left)
+  "Ciudad Rocavelo":  { region: "Sinnoh", x: 81, y: 51 },  // Veilstone (Node Far Right Middle)
+  "Pueblo Pastoria":  { region: "Sinnoh", x: 76, y: 67 },  // Pastoria (Node Below Veilstone)
 
-  // Kanto
-  "Carmin":           { region: "Kanto",  x: 60, y: 60 },  // Vermilion
-  "Isla Canela":      { region: "Kanto",  x: 20, y: 85 },  // Cinnabar
-  "Plateada":         { region: "Kanto",  x: 25, y: 30 },  // Pewter
-  "Celeste":          { region: "Kanto",  x: 60, y: 20 },  // Cerulean
-  "Azulona":          { region: "Kanto",  x: 45, y: 45 },  // Celadon
-  "Fucsia":           { region: "Kanto",  x: 50, y: 80 },  // Fuchsia
+  // Kanto (Sci-fi Stylized Map)
+  "Carmin":           { region: "Kanto",  x: 52, y: 75 },  // Vermilion (Labeled Bottom Target)
+  "Isla Canela":      { region: "Kanto",  x: 23, y: 64 },  // Cinnabar (Labeled Bottom Left)
+  "Plateada":         { region: "Kanto",  x: 22, y: 43 },  // Pewter (Labeled Left)
+  "Celeste":          { region: "Kanto",  x: 66, y: 36 },  // Cerulean (Labeled Top Right)
+  "Azulona":          { region: "Kanto",  x: 55, y: 49 },  // Celadon (Between Saffron and Left)
+  "Fucsia":           { region: "Kanto",  x: 74, y: 58 },  // Fuchsia (Labeled Right)
 
-  // Unova
-  "Porcelana":        { region: "Unova",  x: 50, y: 80 },  // Castelia
-  "Mayolica":         { region: "Unova",  x: 50, y: 55 },  // Nimbasa
-  "Fayenza":          { region: "Unova",  x: 25, y: 50 },  // Driftveil
-  "Loza":             { region: "Unova",  x: 18, y: 30 },  // Mistralton
-  "Caolin":           { region: "Unova",  x: 68, y: 25 },  // Opelucid
-  "Striaton":         { region: "Unova",  x: 82, y: 80 },  // Striaton
-  "Esmalte":          { region: "Unova",  x: 70, y: 75 },  // Nacrene
+  // Unova (Sci-fi Stylized Map)
+  "Porcelana":        { region: "Unova",  x: 50, y: 78 },  // Castelia (Glowing City Bottom Center)
+  "Mayolica":         { region: "Unova",  x: 45, y: 40 },  // Nimbasa (Dots North of Castelia)
+  "Fayenza":          { region: "Unova",  x: 30, y: 45 },  // Driftveil (Dots Left of Nimbasa)
+  "Loza":             { region: "Unova",  x: 22, y: 30 },  // Mistralton (Dots Far Top Left)
+  "Caolin":           { region: "Unova",  x: 55, y: 30 },  // Opelucid (Dome Top Center)
+  "Striaton":         { region: "Unova",  x: 84, y: 58 },  // Striaton (Node Bottom Right)
+  "Esmalte":          { region: "Unova",  x: 65, y: 48 },  // Nacrene (Dome Right Center)
 };
 
 export const REGION_MAP = {
