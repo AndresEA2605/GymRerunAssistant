@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import rawSteps from "../data/route.json";
 import { RouteStep, StepType, RunHistoryEntry } from "../types";
+import { GYM_COORDS, REGION_MAP, REGION_COLOR } from "../data/gymCoords";
 
 const steps = rawSteps as RouteStep[];
 
@@ -465,10 +466,29 @@ export default function Home() {
         <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
           <div key={slideKey} className={`w-full max-w-2xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-6 md:p-10 shadow-2xl overflow-hidden ${slideClass}`}>
             
-            <div className="flex items-center gap-3 mb-6">
-              <span className="p-3 bg-neutral-950 rounded-xl border border-neutral-800">{renderIcon(currentStep.type)}</span>
-              <h2 className="text-3xl font-black tracking-tight text-white">{currentStep.title}</h2>
-              {currentStep.region && <span className="ml-auto text-xs font-bold text-neutral-500 uppercase tracking-widest bg-neutral-950 px-2 py-1 rounded">{currentStep.region}</span>}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <span className="p-3 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon(currentStep.type)}</span>
+                <h2 className="text-3xl font-black tracking-tight text-white truncate">{currentStep.title}</h2>
+                {currentStep.region && <span className="ml-auto sm:ml-4 text-xs font-bold uppercase tracking-widest px-2 py-1 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentStep.region}</span>}
+              </div>
+
+              {/* Minimap for Gyms */}
+              {currentStep.type === "gym" && currentStep.gym && GYM_COORDS[currentStep.gym as keyof typeof GYM_COORDS] && (
+                <div className="w-full sm:w-32 h-20 sm:ml-auto relative rounded-lg border border-neutral-700/50 overflow-hidden shrink-0 bg-neutral-950 shadow-inner group">
+                  <img src={REGION_MAP[GYM_COORDS[currentStep.gym as keyof typeof GYM_COORDS].region as keyof typeof REGION_MAP]} alt="Region Map" className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute inset-0 bg-indigo-900/10 mix-blend-color" />
+                  {/* Pin */}
+                  <div 
+                    className="absolute w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.8)] -translate-x-1/2 -translate-y-1/2 animate-bounce"
+                    style={{ 
+                      left: `${GYM_COORDS[currentStep.gym as keyof typeof GYM_COORDS].x}%`, 
+                      top: `${GYM_COORDS[currentStep.gym as keyof typeof GYM_COORDS].y}%` 
+                    }}
+                  />
+                  <div className="absolute bottom-1 right-1 text-[8px] font-black uppercase tracking-widest text-white/80 drop-shadow-md">MAPA</div>
+                </div>
+              )}
             </div>
 
             {/* Gym View */}
@@ -574,17 +594,43 @@ export default function Home() {
       </main>
 
       {/* ── Floating Timer Bar ─ always visible, bottom of viewport ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-center gap-6 bg-neutral-900/95 border-t-2 border-indigo-500/40 backdrop-blur-sm px-6 py-3">
-        <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
-        <div className="flex gap-1">
-          {!timerIsRunning ? (
-            <button onClick={startTimer} title="Iniciar" className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold text-sm flex items-center gap-1"><Play className="w-3.5 h-3.5 fill-current"/>Iniciar</button>
-          ) : (
-            <button onClick={pauseTimer} title="Pausar" className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-sm flex items-center gap-1"><Pause className="w-3.5 h-3.5 fill-current"/>Pausar</button>
-          )}
-          <button onClick={resetTimer} title="Reiniciar" className="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 rounded font-bold text-sm"><RotateCcw className="w-3.5 h-3.5"/></button>
+      <div className="fixed bottom-0 left-0 right-0 z-30 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 bg-neutral-900/95 border-t-2 border-indigo-500/40 backdrop-blur-sm px-4 py-2 sm:px-6 sm:py-3">
+        
+        {/* Navigation Arrows above/next to Timer */}
+        <div className="flex items-center justify-center gap-4 sm:hidden mb-1 w-full">
+           <button onClick={handlePrevStep} disabled={currentStepIndex === 0} className="p-2 bg-neutral-800/80 rounded-lg hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
+             <ChevronLeft className="w-6 h-6" />
+           </button>
+           <button onClick={handleNextStep} disabled={currentStepIndex === steps.length - 1} className="p-2 bg-indigo-600/80 rounded-lg hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-lg shadow-indigo-500/20">
+             <ChevronRight className="w-6 h-6" />
+           </button>
         </div>
-        <span className="text-xs text-neutral-500 font-mono hidden sm:inline">F4 en juego · Espacio en web</span>
+
+        <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto justify-between sm:justify-center">
+          <div className="hidden sm:flex items-center gap-2">
+             <button onClick={handlePrevStep} disabled={currentStepIndex === 0} className="p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
+               <ChevronLeft className="w-5 h-5" />
+             </button>
+          </div>
+
+          <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
+          
+          <div className="hidden sm:flex items-center gap-2">
+             <button onClick={handleNextStep} disabled={currentStepIndex === steps.length - 1} className="p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
+               <ChevronRight className="w-5 h-5" />
+             </button>
+          </div>
+
+          <div className="flex gap-1 shrink-0">
+            {!timerIsRunning ? (
+              <button onClick={startTimer} title="Iniciar" className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold text-sm flex items-center gap-1"><Play className="w-3.5 h-3.5 fill-current"/><span className="hidden sm:inline">Iniciar</span></button>
+            ) : (
+              <button onClick={pauseTimer} title="Pausar" className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-sm flex items-center gap-1"><Pause className="w-3.5 h-3.5 fill-current"/><span className="hidden sm:inline">Pausar</span></button>
+            )}
+            <button onClick={resetTimer} title="Reiniciar" className="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 rounded font-bold text-sm"><RotateCcw className="w-3.5 h-3.5"/></button>
+          </div>
+        </div>
+        <span className="text-[10px] sm:text-xs text-neutral-500 font-mono hidden md:inline ml-auto">F4 en juego · Espacio en web</span>
       </div>
 
       {/* Toast */}
