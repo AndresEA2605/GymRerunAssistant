@@ -1377,6 +1377,9 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                 </div>
               </button>
             </div>
+            <button onClick={() => setStartChecks([true, true, true])} className="w-full py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 fs-tiny font-bold rounded-lg transition-colors">
+              ✓ Marcar todas
+            </button>
             <button onClick={() => setSkipChecklist(prev => { const next = !prev; localStorage.setItem(LS("skip_checklist"), String(next)); return next; })} className="w-full flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-neutral-800/50 transition-colors mt-1">
               <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${skipChecklist ? 'bg-indigo-500 border-indigo-500' : 'border-neutral-600'}`}>
                 {skipChecklist && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
