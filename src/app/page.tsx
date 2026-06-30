@@ -411,7 +411,7 @@ export default function Home() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full relative z-10 overflow-y-auto bg-neutral-950 pb-20">
+      <main className="flex-1 flex flex-col h-full relative z-10 overflow-y-auto pb-20">
         
         {/* Header */}
         <header className="flex items-center justify-between p-4 border-b border-neutral-800 bg-neutral-900/50">
@@ -429,7 +429,7 @@ export default function Home() {
 
         {/* Card View */}
         <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
-          <div key={slideKey} className={`w-full max-w-2xl bg-neutral-900 rounded-2xl border border-neutral-800 p-6 md:p-10 shadow-2xl overflow-hidden ${slideClass}`}>
+          <div key={slideKey} className={`w-full max-w-2xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-6 md:p-10 shadow-2xl overflow-hidden ${slideClass}`}>
             
             <div className="flex items-center gap-3 mb-6">
               <span className="p-3 bg-neutral-950 rounded-xl border border-neutral-800">{renderIcon(currentStep.type)}</span>
