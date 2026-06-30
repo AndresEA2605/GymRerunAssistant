@@ -1377,20 +1377,25 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                 </div>
               </button>
             </div>
-            <button onClick={() => setStartChecks([true, true, true])} className="w-full py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 fs-tiny font-bold rounded-lg transition-colors">
-              ✓ Marcar todas
-            </button>
-            <button onClick={() => setSkipChecklist(prev => { const next = !prev; localStorage.setItem(LS("skip_checklist"), String(next)); return next; })} className="w-full flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-neutral-800/50 transition-colors mt-1">
+            <div className="flex gap-2 mt-1">
+              <button onClick={() => setStartChecks([true, true, true])} className="flex-1 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 fs-tiny font-bold rounded-lg transition-colors">
+                ✓ Marcar todas
+              </button>
+              <button onClick={() => setStartChecks([false, false, false])} className="flex-1 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-500 fs-tiny font-bold rounded-lg transition-colors">
+                ✕ Desmarcar todas
+              </button>
+            </div>
+            <button onClick={() => setSkipChecklist(prev => { const next = !prev; localStorage.setItem(LS("skip_checklist"), String(next)); return next; })} className="w-full flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-neutral-800/50 transition-colors">
               <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${skipChecklist ? 'bg-indigo-500 border-indigo-500' : 'border-neutral-600'}`}>
                 {skipChecklist && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
               </div>
               <span className={`fs-tiny font-semibold ${skipChecklist ? 'text-neutral-400' : 'text-neutral-600'}`}>No volver a mostrar esta verificación</span>
             </button>
-            <p className="fs-tiny text-neutral-700 text-center mt-1">En el menú puedes configurar todo esto</p>
+            <p className="fs-tiny text-neutral-700 text-center">En el menú puedes configurar todo esto</p>
             <button
               disabled={!startChecks.every(Boolean)}
               onClick={beginRun}
-              className={`w-full mt-4 py-3 text-white text-lg font-black rounded-xl transition-all ${startChecks.every(Boolean) ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 shadow-[0_0_25px_rgba(99,102,241,0.3)] hover:shadow-[0_0_40px_rgba(99,102,241,0.5)] cursor-pointer' : 'bg-neutral-800 text-neutral-600 cursor-not-allowed'}`}
+              className={`w-full py-3 text-white text-lg font-black rounded-xl transition-all ${startChecks.every(Boolean) ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 shadow-[0_0_25px_rgba(99,102,241,0.3)] hover:shadow-[0_0_40px_rgba(99,102,241,0.5)] cursor-pointer' : 'bg-neutral-800 text-neutral-600 cursor-not-allowed'}`}
             >
               {startChecks.every(Boolean) ? "▶ COMENZAR RUTA" : "Marca todas las verificaciones"}
             </button>
