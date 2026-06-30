@@ -598,17 +598,17 @@ export default function Home() {
         
         {/* Navigation Arrows above/next to Timer */}
         <div className="flex items-center justify-center gap-4 sm:hidden mb-1 w-full">
-           <button onClick={handlePrevStep} disabled={currentStepIndex === 0} className="p-2 bg-neutral-800/80 rounded-lg hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
+           <button onClick={handlePrev} disabled={currentStepIndex === 0} className="p-2 bg-neutral-800/80 rounded-lg hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
              <ChevronLeft className="w-6 h-6" />
            </button>
-           <button onClick={handleNextStep} disabled={currentStepIndex === steps.length - 1} className="p-2 bg-indigo-600/80 rounded-lg hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-lg shadow-indigo-500/20">
+           <button onClick={handleNext} disabled={currentStepIndex === steps.length - 1} className="p-2 bg-indigo-600/80 rounded-lg hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-lg shadow-indigo-500/20">
              <ChevronRight className="w-6 h-6" />
            </button>
         </div>
 
         <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto justify-between sm:justify-center">
           <div className="hidden sm:flex items-center gap-2">
-             <button onClick={handlePrevStep} disabled={currentStepIndex === 0} className="p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
+             <button onClick={handlePrev} disabled={currentStepIndex === 0} className="p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
                <ChevronLeft className="w-5 h-5" />
              </button>
           </div>
@@ -616,7 +616,7 @@ export default function Home() {
           <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
           
           <div className="hidden sm:flex items-center gap-2">
-             <button onClick={handleNextStep} disabled={currentStepIndex === steps.length - 1} className="p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
+             <button onClick={handleNext} disabled={currentStepIndex === steps.length - 1} className="p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
                <ChevronRight className="w-5 h-5" />
              </button>
           </div>
