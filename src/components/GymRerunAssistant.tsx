@@ -158,13 +158,21 @@ const POKEBALLS = [
   { x:"90%", dur:45, del:2  },
 ];
 const SIZES = [28, 20, 36, 16, 24, 32, 18, 22, 30];
-const STARS = Array.from({length: 28}, (_, i) => ({
-  x: `${(i * 37 + 11) % 100}%`,
-  y: `${(i * 53 + 7)  % 100}%`,
-  s: (i % 3) + 2,
-  dur: 1.8 + (i % 5) * 0.6,
-  del: (i * 0.37) % 4,
-}));
+
+const FLOATING_POKEMON = [
+  { id: 6,  x: "5%",  y: "15%",  s: 28, dur: 35, del: 0,  d: "up" },
+  { id: 25, x: "90%", y: "10%",  s: 22, dur: 28, del: 5,  d: "diag" },
+  { id: 143, x: "75%", y: "80%", s: 32, dur: 42, del: 12, d: "down" },
+  { id: 149, x: "15%", y: "70%", s: 26, dur: 30, del: 3,  d: "up" },
+  { id: 94,  x: "45%", y: "20%", s: 20, dur: 38, del: 8,  d: "diag" },
+  { id: 196, x: "60%", y: "85%", s: 24, dur: 25, del: 15, d: "up" },
+  { id: 6,   x: "35%", y: "50%", s: 30, dur: 45, del: 20, d: "down" },
+  { id: 59,  x: "82%", y: "45%", s: 18, dur: 32, del: 6,  d: "diag" },
+  { id: 448, x: "20%", y: "40%", s: 26, dur: 36, del: 10, d: "up" },
+  { id: 248, x: "50%", y: "65%", s: 22, dur: 40, del: 18, d: "diag" },
+  { id: 65,  x: "70%", y: "25%", s: 20, dur: 28, del: 2,  d: "up" },
+  { id: 130, x: "8%",  y: "88%", s: 24, dur: 34, del: 14, d: "down" },
+];
 
 const PokeBackground = memo(() => (
   <>
@@ -184,19 +192,26 @@ const PokeBackground = memo(() => (
         <PokeballSVG opacity={0.13 + (i % 3) * 0.03} />
       </div>
     ))}
-    {STARS.map((s, i) => (
+    {FLOATING_POKEMON.map((p, i) => (
       <div
         key={i}
-        className="star-twinkle"
+        className={`pokemon-float-${p.d}`}
         style={{
-          left:   s.x,
-          top:    s.y,
-          width:  s.s,
-          height: s.s,
-          "--tw-dur": `${s.dur}s`,
-          "--tw-del": `${s.del}s`,
+          left: p.x,
+          top: p.y,
+          width: p.s,
+          height: p.s,
+          "--fp-dur": `${p.dur}s`,
+          "--fp-del": `${p.del}s`,
         } as React.CSSProperties}
-      />
+      >
+        <img
+          src={`${SPRITE_BASE}/${p.id}.png`}
+          alt=""
+          className="w-full h-full object-contain opacity-[0.06] pointer-events-none select-none"
+          loading="lazy"
+        />
+      </div>
     ))}
   </>
 ));
