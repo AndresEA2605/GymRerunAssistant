@@ -482,19 +482,19 @@ export default function Home() {
       <PokeBackground />
       
       {/* Sidebar Compacta */}
-      <aside className={`fixed md:static inset-y-0 left-0 z-40 w-56 bg-neutral-900 border-r border-neutral-800 flex flex-col transition-transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
-        <div className="p-3 border-b border-neutral-800 flex justify-between items-center bg-neutral-950">
+      <aside className={`fixed md:static inset-y-0 left-0 z-40 w-60 bg-neutral-900 border-r border-neutral-800 flex flex-col transition-transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
+        <div className="p-3 md:p-4 border-b border-neutral-800 flex justify-between items-center bg-neutral-950">
           <h1 className="fs-small font-bold tracking-widest text-neutral-400 uppercase">Ruta Gym</h1>
           <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-neutral-500"><X className="w-4 h-4" /></button>
         </div>
-        <div className="flex-1 overflow-y-auto p-1.5 space-y-0.5">
+        <div className="flex-1 overflow-y-auto p-1.5 md:p-2 space-y-0.5">
           {steps.map((step, idx) => (
             <button
               key={step.id}
               onClick={() => setCurrentStepIndex(idx)}
-              className={`w-full text-left px-2 py-1 rounded flex items-center gap-1.5 fs-small transition-colors ${idx === currentStepIndex ? "bg-indigo-600 text-white font-bold" : idx < currentStepIndex ? "text-neutral-500 hover:bg-neutral-800" : "text-neutral-300 hover:bg-neutral-800"}`}
+              className={`w-full text-left px-2 py-1 md:py-1.5 rounded flex items-center gap-1.5 md:gap-2 fs-small transition-colors ${idx === currentStepIndex ? "bg-indigo-600 text-white font-bold" : idx < currentStepIndex ? "text-neutral-500 hover:bg-neutral-800" : "text-neutral-300 hover:bg-neutral-800"}`}
             >
-              <span className={`flex-shrink-0 w-5 text-center fs-tiny font-bold tabular-nums ${idx === currentStepIndex ? 'text-white' : idx < currentStepIndex ? 'text-neutral-600' : 'text-neutral-500'}`}>{idx + 1}</span>
+              <span className={`flex-shrink-0 w-5 md:w-6 text-center fs-tiny font-bold tabular-nums ${idx === currentStepIndex ? 'text-white' : idx < currentStepIndex ? 'text-neutral-600' : 'text-neutral-500'}`}>{idx + 1}</span>
               <span className="opacity-70 flex-shrink-0">{renderIcon(step.type)}</span>
               <span className="truncate">{step.title}</span>
             </button>
@@ -506,39 +506,38 @@ export default function Home() {
       <main className="flex-1 flex flex-col h-full relative z-10 overflow-y-auto pb-20">
         
         {/* Header */}
-        <header className="flex items-center justify-between p-3 border-b border-neutral-800 bg-neutral-900/50">
-          <div className="flex items-center gap-2">
+        <header className="flex items-center justify-between p-3 md:p-4 border-b border-neutral-800 bg-neutral-900/50">
+          <div className="flex items-center gap-2 md:gap-3">
             <button onClick={() => setIsSidebarOpen(true)} className="md:hidden p-1.5 bg-neutral-800 rounded text-neutral-300"><List className="w-4 h-4" /></button>
-            <div className="fs-small text-neutral-500">Paso <span className="font-bold text-neutral-300">{currentStepIndex + 1}</span> / {steps.length}</div>
+            <div className="fs-small md:fs-body text-neutral-500">Paso <span className="font-bold text-neutral-300">{currentStepIndex + 1}</span> / {steps.length}</div>
           </div>
           
-          <div className="flex items-center gap-1.5">
-            <button onClick={() => setShowTeam(true)} className="px-2.5 py-1 bg-violet-900/40 text-violet-300 border border-violet-700/40 rounded hover:bg-violet-800/50 fs-tiny font-bold uppercase tracking-wider">Equipo</button>
-            <button onClick={requestFinishRun} className="px-2.5 py-1 bg-emerald-900/40 text-emerald-300 border border-emerald-700/40 rounded hover:bg-emerald-800/50 fs-tiny font-bold uppercase tracking-wider">Terminar</button>
-            <button onClick={() => goToMenu()} className="px-2.5 py-1 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700 fs-tiny font-bold uppercase tracking-wider">Menú</button>
-            <button onClick={() => setShowHistory(true)} className="p-1.5 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700"><History className="w-3.5 h-3.5" /></button>
-            <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(0); resetTimer(); } }} className="p-1.5 bg-red-900/20 text-red-400 rounded hover:bg-red-900/40"><Power className="w-3.5 h-3.5" /></button>
+          <div className="flex items-center gap-1.5 md:gap-2">
+            <button onClick={() => setShowTeam(true)} className="px-2.5 md:px-3 py-1 md:py-1.5 bg-violet-900/40 text-violet-300 border border-violet-700/40 rounded hover:bg-violet-800/50 fs-tiny md:fs-small font-bold uppercase tracking-wider">Equipo</button>
+            <button onClick={requestFinishRun} className="px-2.5 md:px-3 py-1 md:py-1.5 bg-emerald-900/40 text-emerald-300 border border-emerald-700/40 rounded hover:bg-emerald-800/50 fs-tiny md:fs-small font-bold uppercase tracking-wider">Terminar</button>
+            <button onClick={() => goToMenu()} className="px-2.5 md:px-3 py-1 md:py-1.5 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700 fs-tiny md:fs-small font-bold uppercase tracking-wider">Menú</button>
+            <button onClick={() => setShowHistory(true)} className="p-1.5 md:p-2 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700"><History className="w-3.5 md:w-4 h-3.5 md:h-4" /></button>
+            <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(0); resetTimer(); } }} className="p-1.5 md:p-2 bg-red-900/20 text-red-400 rounded hover:bg-red-900/40"><Power className="w-3.5 md:w-4 h-3.5 md:h-4" /></button>
           </div>
         </header>
 
         {/* Card View */}
-        <div className="flex-1 flex flex-col items-center justify-center p-3 md:p-6">
-          <div key={slideKey} className={`w-full max-w-3xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-4 md:p-6 md:px-8 shadow-2xl overflow-hidden ${slideClass}`}>
+        <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
+          <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-5 md:p-8 lg:p-10 shadow-2xl overflow-hidden ${slideClass}`}>
             
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
-              <div className="flex items-center gap-2 w-full sm:w-auto min-w-0">
-                <span className="p-2.5 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon(currentStep.type)}</span>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4 mb-4 md:mb-6">
+              <div className="flex items-center gap-2 md:gap-3 w-full sm:w-auto min-w-0">
+                <span className="p-2.5 md:p-3 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon(currentStep.type)}</span>
                 <h2 className="fs-h3 font-black tracking-tight text-white truncate">{currentStep.title}</h2>
-                {currentStep.region && <span className="ml-auto sm:ml-3 fs-tiny font-bold uppercase tracking-widest px-1.5 py-0.5 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentStep.region}</span>}
+                {currentStep.region && <span className="ml-auto sm:ml-3 fs-tiny md:fs-small font-bold uppercase tracking-widest px-1.5 md:px-2 py-0.5 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentStep.region}</span>}
               </div>
 
-              {/* Minimap for Gyms */}
               {currentStep.type === "gym" && currentStep.gym && GYM_COORDS[currentStep.gym as keyof typeof GYM_COORDS] && (
-                <div className="w-full sm:w-24 h-16 sm:ml-auto relative rounded-lg border border-neutral-700/50 overflow-hidden shrink-0 bg-neutral-950 shadow-inner group">
+                <div className="w-full sm:w-28 md:w-32 h-16 md:h-20 sm:ml-auto relative rounded-lg border border-neutral-700/50 overflow-hidden shrink-0 bg-neutral-950 shadow-inner group">
                   <img src={REGION_MAP[GYM_COORDS[currentStep.gym as keyof typeof GYM_COORDS].region as keyof typeof REGION_MAP]} alt="Region Map" className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
                   <div className="absolute inset-0 bg-indigo-900/10 mix-blend-color" />
                   <div 
-                    className="absolute w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.8)] -translate-x-1/2 -translate-y-1/2 animate-bounce"
+                    className="absolute w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.8)] -translate-x-1/2 -translate-y-1/2 animate-bounce"
                     style={{ 
                       left: `${GYM_COORDS[currentStep.gym as keyof typeof GYM_COORDS].x}%`, 
                       top: `${GYM_COORDS[currentStep.gym as keyof typeof GYM_COORDS].y}%` 
@@ -551,29 +550,29 @@ export default function Home() {
 
             {/* Gym View */}
             {currentStep.type === "gym" && (
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-3 md:space-y-4">
+                <div className="grid grid-cols-2 gap-3 md:gap-4">
                   {currentStep.lead && (
-                    <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-800">
-                      <div className="fs-tiny text-indigo-400 uppercase font-black tracking-widest mb-1.5">Leads</div>
+                    <div className="bg-neutral-950 p-3 md:p-4 rounded-xl border border-neutral-800">
+                      <div className="fs-tiny md:fs-small text-indigo-400 uppercase font-black tracking-widest mb-1.5 md:mb-2">Leads</div>
                       <div className="fs-body font-semibold">{currentStep.lead.join(" • ")}</div>
                     </div>
                   )}
                   {currentStep.switchTo && (
-                    <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-800">
-                      <div className="fs-tiny text-emerald-400 uppercase font-black tracking-widest mb-1.5">Cambios Seguros</div>
+                    <div className="bg-neutral-950 p-3 md:p-4 rounded-xl border border-neutral-800">
+                      <div className="fs-tiny md:fs-small text-emerald-400 uppercase font-black tracking-widest mb-1.5 md:mb-2">Cambios Seguros</div>
                       <div className="fs-body font-semibold">{currentStep.switchTo.join(" • ")}</div>
                     </div>
                   )}
                 </div>
                 {currentStep.actions && (
-                  <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-800">
-                    <div className="fs-tiny text-amber-400 uppercase font-black tracking-widest mb-2">Estrategia vs Variantes</div>
-                    <ul className="space-y-1.5">
+                  <div className="bg-neutral-950 p-3 md:p-4 rounded-xl border border-neutral-800">
+                    <div className="fs-tiny md:fs-small text-amber-400 uppercase font-black tracking-widest mb-2 md:mb-3">Estrategia vs Variantes</div>
+                    <ul className="space-y-1.5 md:space-y-2">
                       {currentStep.actions.map((act, i) => {
                         const parts = act.split("→");
                         return (
-                          <li key={i} className="flex flex-col sm:flex-row sm:items-center gap-1.5 fs-body bg-neutral-900 p-1.5 rounded border border-neutral-800">
+                          <li key={i} className="flex flex-col sm:flex-row sm:items-center gap-1.5 md:gap-2 fs-body bg-neutral-900 p-1.5 md:p-2 rounded border border-neutral-800">
                             {parts.length > 1 ? (
                               <><span className="font-bold text-white whitespace-nowrap">{parts[0].trim()}</span> <span className="text-neutral-500 hidden sm:inline">→</span> <span className="text-neutral-300">{parts[1].trim()}</span></>
                             ) : <span>{act}</span>}
@@ -588,22 +587,22 @@ export default function Home() {
 
             {/* Prep View */}
             {currentStep.type === "prep" && (
-              <div className="space-y-3">
+              <div className="space-y-3 md:space-y-4">
                 {currentStep.heal && (
-                  <div className="flex items-center gap-2 bg-red-950/20 border border-red-900/30 p-3 rounded-xl text-red-400 fs-body font-bold">
-                    <Heart className="w-4 h-4 fill-current" /> Curar equipo en el Centro Pokémon
+                  <div className="flex items-center gap-2 md:gap-3 bg-red-950/20 border border-red-900/30 p-3 md:p-4 rounded-xl text-red-400 fs-body font-bold">
+                    <Heart className="w-4 md:w-5 h-4 md:h-5 fill-current" /> Curar equipo en el Centro Pokémon
                   </div>
                 )}
                 {currentStep.items && currentStep.items.length > 0 && (
-                  <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-800">
-                    <div className="fs-tiny text-blue-400 uppercase font-black tracking-widest mb-2 flex items-center gap-1.5"><Sparkles className="w-3 h-3"/> Equipar Objetos</div>
-                    <ul className="space-y-1.5">
+                  <div className="bg-neutral-950 p-3 md:p-4 rounded-xl border border-neutral-800">
+                    <div className="fs-tiny md:fs-small text-blue-400 uppercase font-black tracking-widest mb-2 md:mb-3 flex items-center gap-1.5 md:gap-2"><Sparkles className="w-3 md:w-3.5 h-3 md:h-3.5"/> Equipar Objetos</div>
+                    <ul className="space-y-1.5 md:space-y-2">
                       {currentStep.items.map((it, i) => {
                         const isScarf = it.item.toLowerCase().includes("panuelo") || it.item.toLowerCase().includes("pañuelo");
                         return (
-                          <li key={i} className={`flex items-center justify-between p-2 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
+                          <li key={i} className={`flex items-center justify-between p-2 md:p-3 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
                             <span className={`fs-body font-semibold ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{it.pokemon.join(" • ")}</span>
-                            <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-2.5 py-0.5 fs-small shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-2 py-0.5 fs-tiny'} font-bold rounded uppercase tracking-wider`}>
+                            <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-2.5 md:px-3 py-0.5 md:py-1 fs-small shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-2 py-0.5 fs-tiny'} font-bold rounded uppercase tracking-wider`}>
                               ➔ {it.item}
                             </span>
                           </li>
@@ -613,8 +612,8 @@ export default function Home() {
                   </div>
                 )}
                 {currentStep.travel && (
-                  <div className="flex items-center gap-2 bg-teal-950/20 border border-teal-900/30 p-3 rounded-xl text-teal-400 fs-body font-bold">
-                    <Compass className="w-4 h-4" /> Viajar hacia {currentStep.travel}
+                  <div className="flex items-center gap-2 md:gap-3 bg-teal-950/20 border border-teal-900/30 p-3 md:p-4 rounded-xl text-teal-400 fs-body font-bold">
+                    <Compass className="w-4 md:w-5 h-4 md:h-5" /> Viajar hacia {currentStep.travel}
                   </div>
                 )}
               </div>
@@ -622,7 +621,7 @@ export default function Home() {
 
             {/* Note View */}
             {currentStep.type === "note" && (
-              <div className="bg-amber-950/20 border border-amber-900/30 p-4 rounded-xl text-amber-400 fs-body font-bold text-center">
+              <div className="bg-amber-950/20 border border-amber-900/30 p-4 md:p-6 rounded-xl text-amber-400 fs-body font-bold text-center">
                 {currentStep.description}
               </div>
             )}
@@ -630,20 +629,20 @@ export default function Home() {
           </div>
 
           {/* Navigation */}
-          <div className="w-full max-w-3xl mt-4 space-y-2">
-            <div className="flex gap-3">
-              <button onClick={handlePrev} disabled={currentStepIndex === 0} className="flex-1 py-3 bg-neutral-900 rounded-xl fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
-              <button onClick={currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext} className="flex-[2] py-3 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-body">
+          <div className="w-full max-w-4xl mt-4 md:mt-6 space-y-2 md:space-y-3">
+            <div className="flex gap-3 md:gap-4">
+              <button onClick={handlePrev} disabled={currentStepIndex === 0} className="flex-1 py-3 md:py-4 bg-neutral-900 rounded-xl fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
+              <button onClick={currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext} className="flex-[2] py-3 md:py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-body">
                 {currentStepIndex === steps.length - 1 ? "¡Finalizar!" : "Siguiente (Espacio) →"}
               </button>
             </div>
-            <div className="w-full bg-neutral-800 rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-neutral-800 rounded-full h-2 md:h-2.5 overflow-hidden">
               <div
                 className="progress-shimmer h-full rounded-full transition-all duration-300"
                 style={{ width: `${Math.round(((currentStepIndex + 1) / steps.length) * 100)}%` }}
               />
             </div>
-            <div className="text-center fs-tiny text-neutral-500 font-mono">
+            <div className="text-center fs-tiny md:fs-small text-neutral-500 font-mono">
               {Math.round(((currentStepIndex + 1) / steps.length) * 100)}% completado
             </div>
           </div>
