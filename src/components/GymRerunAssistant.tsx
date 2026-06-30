@@ -509,7 +509,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     const bestRun = history.length > 0 ? history.reduce((a, b) => a.elapsed < b.elapsed ? a : b) : null;
     return (
       <>
-      <div className={`${menuVisible ? 'menu-enter' : 'fade-in-screen'} min-h-screen bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-3 md:p-6 relative overflow-y-auto overflow-x-hidden ${menuExiting ? 'menu-exit' : ''}`}>
+      <div className={`${menuVisible ? 'menu-enter' : 'fade-in-screen'} bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-3 md:p-6 relative overflow-y-auto overflow-x-hidden ${menuExiting ? 'menu-exit' : ''}`} style={{ minHeight: '100dvh' }}>
         <PokeBackground />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none" />
 
@@ -866,7 +866,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   }
 
   return (
-    <div className={`app-enter ${appExiting ? "app-exit" : ""} flex h-screen bg-neutral-950 text-neutral-200 overflow-hidden font-sans relative`}>
+    <div className={`app-enter ${appExiting ? "app-exit" : ""} flex bg-neutral-950 text-neutral-200 overflow-hidden font-sans relative`} style={{ height: '100dvh' }}>
       <PokeBackground />
       
       <main className={`flex-1 flex flex-col h-full relative z-10 overflow-y-auto overflow-x-hidden ${currentStepIndex === -1 ? 'pb-0' : 'pb-28 md:pb-20'}`}>

@@ -14,6 +14,10 @@ export const metadata: Metadata = {
   description: "Guía interactiva paso a paso para optimizar tus rutas de Gym Reruns en PokeMMO.",
 };
 
+export const viewport = {
+  viewportFit: "cover",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
