@@ -144,7 +144,7 @@ const SPRITE_BASE = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sp
 const POKEMON_ARTWORK: Record<string, number> = {
   // Team members
   Hydreigon: 635, Weezing: 110, Togekiss: 468,
-  Typhlosion: 157, Vanilluxe: 584, Blastoise: 9,
+  Typhlosion: 157, Vanilluxe: 584, Blastoise: 9, Cloyster: 91, Mienshao: 620,
   // Opponents & wild Pokémon from the route
   Dragonite: 149, Butterfree: 12, Ledian: 166, Metagross: 376,
   Glalie: 362, Stantler: 234, Spinda: 327, Blissey: 242,
