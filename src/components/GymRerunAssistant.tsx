@@ -868,7 +868,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     <div className={`app-enter ${appExiting ? "app-exit" : ""} flex h-screen bg-neutral-950 text-neutral-200 overflow-hidden font-sans relative`}>
       <PokeBackground />
       
-      <main className={`flex-1 flex flex-col h-full relative z-10 overflow-y-auto overflow-x-hidden ${currentStepIndex === -1 ? 'pb-0' : 'pb-20'}`}>
+      <main className={`flex-1 flex flex-col h-full relative z-10 overflow-y-auto overflow-x-hidden ${currentStepIndex === -1 ? 'pb-0' : 'pb-28 md:pb-20'}`}>
         
         {currentStepIndex !== -1 && (<>
           <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="sm:hidden fixed left-1.5 top-1/2 -translate-y-1/2 z-40 p-2 bg-neutral-900/70 backdrop-blur-sm rounded-full border border-neutral-700/50 hover:bg-neutral-800 disabled:opacity-20 disabled:pointer-events-none text-neutral-400 transition-all shadow-lg">
@@ -1092,12 +1092,22 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       </main>
 
       {currentStepIndex !== -1 && (
-      <div className="fixed bottom-0 left-0 right-0 z-30 bg-neutral-900/95 border-t-2 border-indigo-500/40 backdrop-blur-sm px-2 py-1 md:px-6 md:py-3">
-        <div className="flex sm:hidden items-center justify-center mb-0.5">
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-neutral-900/95 border-t-2 border-indigo-500/40 backdrop-blur-sm px-2 py-1.5 md:px-6 md:py-3">
+        
+        {/* Mobile: timer + play/pause row */}
+        <div className="flex sm:hidden items-center justify-center gap-2 mb-1.5">
           <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
+          <div className="flex gap-1.5">
+            {!timerIsRunning ? (
+              <button onClick={startTimer} title="Iniciar cronómetro" className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold fs-tiny flex items-center gap-1"><Play className="w-4 h-4 fill-current"/> Iniciar</button>
+            ) : (
+              <button onClick={pauseTimer} title="Pausar cronómetro" className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold fs-tiny flex items-center gap-1"><Pause className="w-4 h-4 fill-current"/> Pausar</button>
+            )}
+            <button onClick={resetTimer} title="Reiniciar cronómetro" className="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded-lg font-bold fs-tiny"><RotateCcw className="w-4 h-4"/></button>
+          </div>
         </div>
 
-        <div className="flex items-center justify-center gap-1 md:gap-4 flex-wrap">
+        <div className="flex items-center justify-center gap-1.5 md:gap-4 flex-wrap">
           
           <div className="hidden sm:flex items-center gap-1">
             <span className="text-[10px] sm:fs-tiny text-neutral-500 font-semibold">Ruta</span>
@@ -1105,40 +1115,53 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
 
           <div className="hidden sm:flex items-center gap-0.5">
-              <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="p-1 sm:p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
-                <ChevronLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
+              <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
+                <ChevronLeft className="w-5 h-5" />
               </button>
-              <button onClick={handleNext} disabled={currentStepIndex === steps.length - 1} title="Siguiente paso" className="p-1 sm:p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
-                <ChevronRight className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
+              <button onClick={handleNext} disabled={currentStepIndex === steps.length - 1} title="Siguiente paso" className="p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
+                <ChevronRight className="w-5 h-5" />
               </button>
           </div>
 
-          <div className="flex gap-0.5 sm:gap-1 shrink-0">
+          <div className="hidden sm:flex gap-1 shrink-0">
             {!timerIsRunning ? (
-              <button onClick={startTimer} title="Iniciar cronómetro de la ruta" className="px-1.5 sm:px-3 py-0.5 sm:py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold text-[10px] sm:fs-small flex items-center gap-0.5 sm:gap-1"><Play className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current"/><span className="text-[10px] sm:text-xs">Iniciar</span></button>
+              <button onClick={startTimer} title="Iniciar cronómetro de la ruta" className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold fs-small flex items-center gap-1"><Play className="w-3.5 h-3.5 fill-current"/><span>Iniciar</span></button>
             ) : (
-              <button onClick={pauseTimer} title="Pausar cronómetro de la ruta" className="px-1.5 sm:px-3 py-0.5 sm:py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-[10px] sm:fs-small flex items-center gap-0.5 sm:gap-1"><Pause className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current"/><span className="text-[10px] sm:text-xs">Pausar</span></button>
+              <button onClick={pauseTimer} title="Pausar cronómetro de la ruta" className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold fs-small flex items-center gap-1"><Pause className="w-3.5 h-3.5 fill-current"/><span>Pausar</span></button>
             )}
-            <button onClick={resetTimer} title="Reiniciar cronómetro a cero" className="px-1.5 sm:px-3 py-0.5 sm:py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 rounded font-bold text-[10px] sm:fs-small"><RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5"/></button>
+            <button onClick={resetTimer} title="Reiniciar cronómetro a cero" className="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 rounded font-bold fs-small"><RotateCcw className="w-3.5 h-3.5"/></button>
           </div>
 
           <div className="h-5 w-px bg-neutral-700 hidden sm:block" />
 
-          <div className="flex items-center gap-1 sm:gap-2">
-            <div className="flex items-center gap-0.5 sm:gap-1.5">
-              <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400" />
-              <span className="text-[10px] sm:fs-tiny text-neutral-500 font-semibold mr-0.5">Gyms</span>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              <Clock className="w-3.5 h-3.5 sm:w-3.5 sm:h-3.5 text-emerald-400" />
+              <span className="fs-tiny text-neutral-500 font-semibold mr-0.5">Gyms</span>
               <CooldownDisplay endAt={cooldown.endAt} />
             </div>
-            <div className="flex gap-0.5 sm:gap-1">
-              <button onClick={() => startGymCooldown(getLastCompletedGym())} title="Activar cooldown de 18 horas" className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded font-bold text-[10px] sm:fs-tiny">18h</button>
-              <button onClick={openCooldownEditor} title="Ajustar cooldown" className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded font-bold text-[10px] sm:fs-tiny">Ajustar</button>
-              <button onClick={requestFinishRun} title="Terminar la ruta y guardar el tiempo" className="px-1.5 sm:px-3 py-0.5 sm:py-1.5 bg-red-700 hover:bg-red-600 text-white rounded font-bold text-[10px] sm:fs-small transition-colors shadow-sm shadow-red-800/30">Terminar Ruta</button>
-              <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(-1); resetTimer(); } }} title="Reiniciar la ruta desde la portada" className="px-1.5 sm:px-3 py-0.5 sm:py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded font-bold text-[10px] sm:fs-small transition-colors"><RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5 inline-block mr-0.5" />Reiniciar</button>
+            <div className="flex gap-1 sm:gap-1">
+              <button onClick={() => startGymCooldown(getLastCompletedGym())} title="Activar cooldown de 18 horas" className="px-2.5 py-1.5 sm:px-2 sm:py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg sm:rounded font-bold fs-tiny">18h</button>
+              <button onClick={openCooldownEditor} title="Ajustar cooldown" className="px-2.5 py-1.5 sm:px-2 sm:py-1 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded-lg sm:rounded font-bold fs-tiny">Ajustar</button>
+              <button onClick={requestFinishRun} title="Terminar la ruta y guardar el tiempo" className="px-3 py-1.5 sm:px-3 sm:py-1.5 bg-red-700 hover:bg-red-600 text-white rounded-lg sm:rounded font-bold fs-tiny transition-colors shadow-sm shadow-red-800/30">Terminar Ruta</button>
+              <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(-1); resetTimer(); } }} title="Reiniciar la ruta desde la portada" className="px-3 py-1.5 sm:px-3 sm:py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded-lg sm:rounded font-bold fs-tiny transition-colors"><RotateCcw className="w-4 h-4 inline-block mr-1" />Reiniciar</button>
             </div>
           </div>
 
-          <span className="text-[10px] sm:fs-tiny text-neutral-500 font-mono">F4 · Esp</span>
+          <span className="fs-tiny text-neutral-500 font-mono hidden sm:inline">F4 · Esp</span>
+        </div>
+
+        {/* Mobile: cooldown + action buttons row */}
+        <div className="flex sm:hidden items-center justify-center gap-1.5 mt-1">
+          <div className="flex items-center gap-1">
+            <Clock className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="fs-tiny text-neutral-500 font-semibold mr-0.5">Gyms</span>
+            <CooldownDisplay endAt={cooldown.endAt} />
+          </div>
+          <button onClick={() => startGymCooldown(getLastCompletedGym())} title="Activar cooldown de 18 horas" className="px-2.5 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg font-bold fs-tiny">18h</button>
+          <button onClick={openCooldownEditor} title="Ajustar cooldown" className="px-2.5 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded-lg font-bold fs-tiny">Ajustar</button>
+          <button onClick={requestFinishRun} title="Terminar la ruta y guardar el tiempo" className="px-3 py-1.5 bg-red-700 hover:bg-red-600 text-white rounded-lg font-bold fs-tiny">Terminar</button>
+          <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(-1); resetTimer(); } }} title="Reiniciar la ruta desde la portada" className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded-lg font-bold fs-tiny"><RotateCcw className="w-4 h-4 inline-block mr-1" />Reinic.</button>
         </div>
       </div>
       )}
