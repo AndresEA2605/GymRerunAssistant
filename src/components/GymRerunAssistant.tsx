@@ -620,9 +620,8 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col p-4 md:p-8 lg:p-12 overflow-hidden gap-4">
-          <div className="flex-1 min-h-0 flex flex-col items-center justify-center">
-            <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-5 md:p-8 lg:p-12 shadow-2xl overflow-y-auto relative text-center ${slideClass}`}>
+        <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 lg:p-12 overflow-hidden">
+          <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-5 md:p-8 lg:p-12 shadow-2xl overflow-hidden relative text-center ${slideClass}`}>
             
             <div className="absolute -top-6 -right-6 w-24 h-24 opacity-[0.04] pointer-events-none select-none">
               <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="" className="w-full h-full object-contain" />
@@ -727,9 +726,8 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             )}
             
           </div>
-          </div>
 
-          <div className="w-full max-w-4xl mx-auto shrink-0 space-y-3">
+          <div className="w-full max-w-4xl mt-6 space-y-3">
             <div className="flex gap-4">
               <button onClick={handlePrev} disabled={currentStepIndex === 0} className="flex-1 py-4 bg-neutral-900 rounded-xl fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
               <button onClick={currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext} className="flex-[2] py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-body">
