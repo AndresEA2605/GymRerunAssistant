@@ -747,12 +747,25 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             </div>
             <div className="max-h-[60vh] overflow-y-auto space-y-1.5">
               {history.length > 0 ? history.map((entry, idx) => (
-                <div key={entry.id} className="bg-neutral-950 p-2.5 rounded flex justify-between items-center border border-neutral-800">
+                <div key={entry.id} className="bg-neutral-950 p-2.5 rounded flex justify-between items-center border border-neutral-800 group">
                   <div>
                     <div className="font-bold fs-body">Run #{history.length - idx}</div>
                     <div className="fs-tiny text-neutral-500">{new Date(entry.finishedAt).toLocaleDateString()}</div>
                   </div>
-                  <div className="font-mono fs-body font-bold text-indigo-400">{formatTime(entry.elapsed)}</div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono fs-body font-bold text-indigo-400">{formatTime(entry.elapsed)}</span>
+                    <button
+                      onClick={() => {
+                        const updated = history.filter(e => e.id !== entry.id);
+                        setHistory(updated);
+                        localStorage.setItem(LS("gym_history"), JSON.stringify(updated));
+                      }}
+                      className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-400 transition-opacity"
+                      title="Borrar"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               )) : <div className="text-neutral-500 text-center py-6 fs-body">No hay historial.</div>}
             </div>
