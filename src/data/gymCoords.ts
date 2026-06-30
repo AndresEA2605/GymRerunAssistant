@@ -59,20 +59,20 @@ export const GYM_COORDS: Record<string, { region: string; x: number; y: number }
   "Fucsia":     { region: "Kanto",  x: 84, y: 71 },
 
   // ── Unova (Black/White-style pixel art) ───────────────────────────
-  // Castelia City → bottom center (huge city)
-  "Porcelana":  { region: "Unova",  x: 43, y: 90 },
-  // Nimbasa City → center (Musical Hall / Battle Subway)
-  "Mayolica":   { region: "Unova",  x: 43, y: 68 },
-  // Driftveil City → left center
-  "Fayenza":    { region: "Unova",  x: 18, y: 52 },
-  // Mistralton City → top left (airport/airplane)
-  "Loza":       { region: "Unova",  x: 14, y: 27 },
-  // Opelucid City → top right
-  "Caolin":     { region: "Unova",  x: 72, y: 27 },
-  // Striaton City → top center
-  "Striaton":   { region: "Unova",  x: 43, y:  6 },
-  // Nacrene City → upper center-left
-  "Esmalte":    { region: "Unova",  x: 47, y: 27 },
+  // Castelia City → glowing city bottom center
+  "Porcelana":  { region: "Unova",  x: 50, y: 78 },
+  // Nimbasa City → dots north of Castelia
+  "Mayolica":   { region: "Unova",  x: 45, y: 40 },
+  // Driftveil City → dots left of Nimbasa
+  "Fayenza":    { region: "Unova",  x: 30, y: 45 },
+  // Mistralton City → dots far top left
+  "Loza":       { region: "Unova",  x: 22, y: 30 },
+  // Opelucid City → dome top center
+  "Caolin":     { region: "Unova",  x: 55, y: 30 },
+  // Striaton City → node bottom right
+  "Striaton":   { region: "Unova",  x: 84, y: 58 },
+  // Nacrene City → dome right center
+  "Esmalte":    { region: "Unova",  x: 65, y: 48 },
 };
 
 export const REGION_MAP: Record<string, string> = {
