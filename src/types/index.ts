@@ -1,4 +1,4 @@
-export type StepType = 'travel' | 'gym' | 'heal' | 'item' | 'note';
+export type StepType = 'travel' | 'gym' | 'heal' | 'item' | 'note' | 'prep';
 
 export interface RouteStep {
   id: number;
@@ -11,6 +11,10 @@ export interface RouteStep {
   switchTo?: string[];
   actions?: string[];
   completed?: boolean;
+  // Prep specific fields
+  heal?: boolean;
+  travel?: string | null;
+  items?: { item: string; pokemon: string[] }[];
 }
 
 export interface AppState {
