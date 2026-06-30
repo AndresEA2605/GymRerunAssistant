@@ -518,7 +518,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     const bestRun = history.length > 0 ? history.reduce((a, b) => a.elapsed < b.elapsed ? a : b) : null;
     return (
       <>
-      <div className={`${menuVisible ? 'menu-enter' : 'fade-in-screen'} bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-3 md:p-6 relative overflow-y-auto overflow-x-hidden ${menuExiting ? 'menu-exit' : ''}`} style={{ minHeight: '100dvh' }}>
+      <div className={`${menuVisible ? 'menu-enter' : 'fade-in-screen'} bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-3 md:p-6 relative overflow-hidden ${menuExiting ? 'menu-exit' : ''}`} style={{ minHeight: '100dvh' }}>
         <PokeBackground />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none" />
 
