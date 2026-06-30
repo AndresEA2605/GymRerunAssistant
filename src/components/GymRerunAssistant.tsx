@@ -104,6 +104,11 @@ const PokeballSVG = ({ opacity = 0.18 }: { opacity?: number }) => (
   </svg>
 );
 
+const POKEMON_ARTWORK: Record<string, number> = {
+  Hydreigon: 635, Weezing: 110, Togekiss: 468,
+  Typhlosion: 157, Vanilluxe: 584, Blastoise: 9,
+};
+
 const POKEBALLS = [
   { x:"8%",  dur:32, del:0  },
   { x:"22%", dur:26, del:7  },
@@ -564,8 +569,12 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
         </header>
 
         <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 lg:p-12">
-          <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-5 md:p-8 lg:p-12 shadow-2xl overflow-hidden ${slideClass}`}>
+          <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-5 md:p-8 lg:p-12 shadow-2xl overflow-hidden relative ${slideClass}`}>
             
+            <div className="absolute -top-6 -right-6 w-24 h-24 opacity-[0.04] pointer-events-none select-none">
+              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="" className="w-full h-full object-contain" />
+            </div>
+
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
               <div className="flex items-center gap-3 w-full sm:w-auto min-w-0">
                 <span className="p-3 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon(currentStep.type)}</span>
@@ -865,8 +874,8 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3">
 
                 <div className="bg-neutral-950 border border-indigo-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <span className="fs-body">&#x1F409;</span>
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Hydreigon}.png`} alt="Hydreigon" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-indigo-300">H1 — Hydreigon</div>
                       <div className="fs-tiny text-neutral-500">Levitate · Modest · Choice Specs</div>
@@ -880,8 +889,8 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                 </div>
 
                 <div className="bg-neutral-950 border border-purple-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <span className="fs-body">&#x1F4A8;</span>
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Weezing}.png`} alt="Weezing" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-purple-300">W1 — Weezing</div>
                       <div className="fs-tiny text-neutral-500">Neutralizing Gas · Adamant · Choice Band</div>
@@ -895,8 +904,8 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                 </div>
 
                 <div className="bg-neutral-950 border border-sky-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <span className="fs-body">&#x1F54A;</span>
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Togekiss}.png`} alt="Togekiss" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-sky-300">TO — Togekiss</div>
                       <div className="fs-tiny text-neutral-500">Serene Grace · Modest · Choice Scarf</div>
@@ -910,8 +919,8 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                 </div>
 
                 <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <span className="fs-body">&#x1F525;</span>
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Typhlosion}.png`} alt="Typhlosion" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-orange-300">TY — Typhlosion</div>
                       <div className="fs-tiny text-neutral-500">Blaze · Modest · Choice Specs</div>
@@ -925,8 +934,8 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                 </div>
 
                 <div className="bg-neutral-950 border border-cyan-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <span className="fs-body">&#x2744;</span>
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Vanilluxe}.png`} alt="Vanilluxe" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-cyan-300">Vanilluxe @ Choice Scarf</div>
                       <div className="fs-tiny text-neutral-500">Snow Warning · Timid · Lv. 100</div>
@@ -940,8 +949,8 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                 </div>
 
                 <div className="bg-neutral-950 border border-blue-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <span className="fs-body">&#x1F30A;</span>
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Blastoise}.png`} alt="Blastoise" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-blue-300">BW — Blastoise</div>
                       <div className="fs-tiny text-neutral-500">Torrent · Modest · Choice Specs</div>
