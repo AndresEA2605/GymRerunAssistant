@@ -501,6 +501,60 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             </div>
           </div>
 
+          <div className="w-full">
+            <div className="fs-small uppercase font-black tracking-widest text-neutral-500 mb-3 text-center">Selecciona una Guía</div>
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={() => exitMenu()} className="bg-neutral-900 border-2 border-indigo-500/50 rounded-2xl p-4 text-left hover:bg-neutral-800 transition-all group relative overflow-hidden">
+                <div className="absolute -top-4 -right-4 w-16 h-16 opacity-[0.06]">
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/635.png" alt="" className="w-full h-full object-contain" />
+                </div>
+                <Swords className="w-5 h-5 text-indigo-400 mb-2" />
+                <div className="fs-body font-black text-white group-hover:text-indigo-300 transition-colors">33 Gym Rerun</div>
+                <div className="fs-tiny text-neutral-500 mt-0.5">Guía completa de 33 gimnasios</div>
+                <div className="mt-2 flex items-center gap-1">
+                  <span className="fs-tiny font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full">DISPONIBLE</span>
+                  {currentStepIndex > 0 && <span className="fs-tiny text-neutral-500">· Paso {currentStepIndex + 1}</span>}
+                </div>
+              </button>
+
+              <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-2xl p-4 text-left opacity-60 relative overflow-hidden">
+                <div className="absolute -top-4 -right-4 w-16 h-16 opacity-[0.04]">
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/143.png" alt="" className="w-full h-full object-contain" />
+                </div>
+                <Compass className="w-5 h-5 text-neutral-500 mb-2" />
+                <div className="fs-body font-black text-neutral-400">Nueva Ruta</div>
+                <div className="fs-tiny text-neutral-600 mt-0.5">Próximamente</div>
+                <div className="mt-2">
+                  <span className="fs-tiny font-bold text-neutral-600 bg-neutral-800 px-2 py-0.5 rounded-full">COMING SOON</span>
+                </div>
+              </div>
+
+              <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-2xl p-4 text-left opacity-60 relative overflow-hidden">
+                <div className="absolute -top-4 -right-4 w-16 h-16 opacity-[0.04]">
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="" className="w-full h-full object-contain" />
+                </div>
+                <Heart className="w-5 h-5 text-neutral-500 mb-2" />
+                <div className="fs-body font-black text-neutral-400">Ruta Alternativa</div>
+                <div className="fs-tiny text-neutral-600 mt-0.5">Próximamente</div>
+                <div className="mt-2">
+                  <span className="fs-tiny font-bold text-neutral-600 bg-neutral-800 px-2 py-0.5 rounded-full">COMING SOON</span>
+                </div>
+              </div>
+
+              <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-2xl p-4 text-left opacity-60 relative overflow-hidden">
+                <div className="absolute -top-4 -right-4 w-16 h-16 opacity-[0.04]">
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/149.png" alt="" className="w-full h-full object-contain" />
+                </div>
+                <Sparkles className="w-5 h-5 text-neutral-500 mb-2" />
+                <div className="fs-body font-black text-neutral-400">Otra Guía</div>
+                <div className="fs-tiny text-neutral-600 mt-0.5">Próximamente</div>
+                <div className="mt-2">
+                  <span className="fs-tiny font-bold text-neutral-600 bg-neutral-800 px-2 py-0.5 rounded-full">COMING SOON</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="w-full bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
             <div className="px-3 py-1.5 bg-neutral-950 border-b border-neutral-800 flex items-center justify-between">
               <span className="fs-tiny uppercase font-black tracking-widest text-neutral-500">Ganancias Aproximadas ({totalGyms} Gyms)</span>
