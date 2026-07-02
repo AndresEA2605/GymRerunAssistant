@@ -113,6 +113,18 @@ export default function DailyTasks({ gymsCompleted, isOpen, onToggle }: DailyTas
         <Target className="w-5 h-5" />
       </button>
 
+      {!isOpen && completedCount < totalCount && (
+        <div
+          className="fixed right-16 z-50 pointer-events-none select-none"
+          style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 90px)" }}
+        >
+          <div className="relative bg-indigo-600/90 text-white fs-tiny font-bold px-3 py-1.5 rounded-xl shadow-lg animate-bounce-slow whitespace-nowrap">
+            <span>¡Tareas diarias!</span>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 rotate-45 w-2.5 h-2.5 bg-indigo-600/90" style={{ clipPath: "polygon(0 0, 100% 0, 100% 100%)" }} />
+          </div>
+        </div>
+      )}
+
       {isOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 flex justify-end" onClick={onToggle}>
           <div

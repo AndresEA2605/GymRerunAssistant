@@ -317,6 +317,13 @@ body {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes bounce-slow {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-6px); }
+}
+.animate-bounce-slow {
+  animation: bounce-slow 2.2s ease-in-out infinite;
+}
 .reveal-1 { animation: fade-in-up 0.3s cubic-bezier(0.25,0.46,0.45,0.94) both; }
 .reveal-2 { animation: fade-in-up 0.3s cubic-bezier(0.25,0.46,0.45,0.94) 0.08s both; }
 .reveal-3 { animation: fade-in-up 0.3s cubic-bezier(0.25,0.46,0.45,0.94) 0.16s both; }
