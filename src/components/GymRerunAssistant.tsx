@@ -1242,10 +1242,9 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
         
         <header className="flex items-center justify-between p-2.5 md:p-4 border-b border-neutral-800 bg-neutral-900/50">
           <div className="flex items-center gap-3">
-            <button onClick={() => goToMenu()} title="Volver al menú principal" className="fs-small font-bold tracking-widest text-neutral-400 uppercase hover:text-white transition-colors">Ruta Gym</button>
+            <span className="fs-small font-bold tracking-widest text-neutral-500 uppercase">Ruta Gym</span>
             <div className="w-px h-4 bg-neutral-700" />
             <div className="fs-small text-neutral-500">{currentStepIndex === -1 ? "Portada" : <>Paso <span className="font-bold text-neutral-300">{currentStepIndex + 1}</span> / {steps.length}</>}</div>
-            <button onClick={() => goToMenu()} title="Volver al menú principal" className="px-2 py-1 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700 fs-tiny font-bold uppercase tracking-wider">Menú</button>
           </div>
         </header>
 
