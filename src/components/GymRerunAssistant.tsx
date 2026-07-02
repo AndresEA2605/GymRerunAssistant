@@ -900,7 +900,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           )}
 
           <div className="reveal-4 w-full grid grid-cols-4 gap-1.5 md:gap-2">
-            <button onClick={selectedGuide ? () => exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); }) : () => setSelectedGuide(true)} title={selectedGuide ? "Iniciar la ruta seleccionada" : "Seleccionar esta guía"} className={`rounded-xl py-1.5 px-1 md:py-2 md:px-2 text-center transition-all relative overflow-hidden ${selectedGuide ? 'bg-indigo-600 border-2 border-indigo-400' : 'bg-neutral-900 border border-indigo-500/40 hover:bg-neutral-800'}`}>
+            <button onClick={selectedGuide ? () => exitMenu(currentStepIndex >= 0 ? undefined : () => { setCurrentStepIndex(-1); resetTimer(); }) : () => setSelectedGuide(true)} title={selectedGuide ? "Iniciar la ruta seleccionada" : "Seleccionar esta guía"} className={`rounded-xl py-1.5 px-1 md:py-2 md:px-2 text-center transition-all relative overflow-hidden ${selectedGuide ? 'bg-indigo-600 border-2 border-indigo-400' : 'bg-neutral-900 border border-indigo-500/40 hover:bg-neutral-800'}`}>
               <div className="flex flex-col items-center gap-0.5">
                 <div className="w-6 h-6 opacity-20">
                   <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/635.png" alt="" className="w-full h-full object-contain" />
