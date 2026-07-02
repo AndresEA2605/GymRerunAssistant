@@ -517,9 +517,6 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   }, [cooldown.endAt, getLastCompletedGym, gymResetMs, startGymCooldown]);
 
   const handleNext = useCallback(() => {
-    const leavingStep = currentStepIndex >= 0 ? steps[currentStepIndex] : null;
-    const isLeavingGym = leavingStep?.type === "gym" && currentStepIndex < steps.length - 1;
-
     setCurrentStepIndex((prev) => {
       const nextIdx = prev === -1 ? 0 : Math.min(prev + 1, steps.length - 1);
       if (nextIdx !== prev) {
@@ -528,11 +525,20 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       }
       return nextIdx;
     });
-
-    if (isLeavingGym) {
-      setSessionGymCount(prev => prev + 1);
-    }
   }, [currentStepIndex, steps]);
+
+  const completeGym = useCallback(() => {
+    setSessionGymCount(prev => prev + 1);
+    triggerToast("Gym completado");
+    setCurrentStepIndex((prev) => {
+      const nextIdx = prev === -1 ? 0 : Math.min(prev + 1, steps.length - 1);
+      if (nextIdx !== prev) {
+        setSlideClass("slide-in-right");
+        setSlideKey(k => k + 1);
+      }
+      return nextIdx;
+    });
+  }, [currentStepIndex, steps, triggerToast]);
 
   const handlePrev = useCallback(() => {
     setCurrentStepIndex((prev) => {
@@ -635,8 +641,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
   const finishRun = () => {
     const finalElapsed = timerIsRunning && timerStartTime ? timerElapsed + (Date.now() - timerStartTime) : timerElapsed;
-    const currentIsGym = currentStepIndex >= 0 && steps[currentStepIndex]?.type === "gym";
-    const totalGymsDone = sessionGymCount + (currentIsGym ? 1 : 0);
+    const totalGymsDone = sessionGymCount;
     const newEntry: RunHistoryEntry = {
       id: Math.random().toString(36).substr(2, 9),
       finishedAt: Date.now(),
@@ -1443,9 +1448,22 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           <div className="w-full max-w-4xl mt-4 md:mt-6 space-y-2 md:space-y-3">
             <div className="flex gap-2 md:gap-4">
               <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="flex-1 py-3 md:py-4 bg-neutral-900 rounded-xl fs-tiny md:fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
-              <button onClick={currentStepIndex === -1 ? handleNext : (currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext)} title={currentStepIndex === -1 ? "Comenzar la ruta" : currentStepIndex === steps.length - 1 ? "Finalizar la ruta" : "Siguiente paso"} className="flex-[2] py-3 md:py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-tiny md:fs-body">
-                {currentStepIndex === -1 ? "▶ COMENZAR" : currentStepIndex === steps.length - 1 ? "¡Finalizar!" : "Siguiente (Espacio) →"}
-              </button>
+              {currentStepIndex >= 0 && steps[currentStepIndex]?.type === "gym" && currentStepIndex < steps.length - 1 ? (
+                <>
+                  <button onClick={handleNext} className="flex-1 py-3 md:py-4 bg-neutral-800 rounded-xl font-bold text-neutral-400 hover:text-white hover:bg-neutral-700 transition-all fs-tiny md:fs-body">Saltar →</button>
+                  <button onClick={completeGym} className="flex-[2] py-3 md:py-4 bg-emerald-700 rounded-xl font-bold text-white hover:bg-emerald-600 shadow-lg shadow-emerald-900/20 transition-all fs-tiny md:fs-body">✓ Completar Gym</button>
+                </>
+              ) : currentStepIndex >= 0 && steps[currentStepIndex]?.type === "gym" && currentStepIndex === steps.length - 1 ? (
+                <>
+                  <button onClick={handleNext} className="flex-1 py-3 md:py-4 bg-neutral-800 rounded-xl font-bold text-neutral-400 hover:text-white hover:bg-neutral-700 transition-all fs-tiny md:fs-body">Saltar →</button>
+                  <button onClick={completeGym} className="flex-[2] py-3 md:py-4 bg-emerald-700 rounded-xl font-bold text-white hover:bg-emerald-600 shadow-lg shadow-emerald-900/20 transition-all fs-tiny md:fs-body">✓ Completar Gym</button>
+                  <button onClick={requestFinishRun} className="flex-1 py-3 md:py-4 bg-red-700 rounded-xl font-bold text-white hover:bg-red-600 transition-all fs-tiny md:fs-body">Finalizar</button>
+                </>
+              ) : (
+                <button onClick={currentStepIndex === -1 ? handleNext : (currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext)} title={currentStepIndex === -1 ? "Comenzar la ruta" : currentStepIndex === steps.length - 1 ? "Finalizar la ruta" : "Siguiente paso"} className="flex-[2] py-3 md:py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-tiny md:fs-body">
+                  {currentStepIndex === -1 ? "▶ COMENZAR" : currentStepIndex === steps.length - 1 ? "¡Finalizar!" : "Siguiente (Espacio) →"}
+                </button>
+              )}
             </div>
             <div className="w-full bg-neutral-800 rounded-full h-1.5 md:h-2.5 overflow-hidden">
               <div
