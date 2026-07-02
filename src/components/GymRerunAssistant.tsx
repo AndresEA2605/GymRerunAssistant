@@ -17,8 +17,10 @@ import {
   Power,
   Clock,
   Users,
+  Target,
 } from "lucide-react";
-import { RouteStep, StepType, RunHistoryEntry } from "../types";
+import { RouteStep, StepType, RunHistoryEntry, LastRunStats } from "../types";
+import DailyTasks from "./DailyTasks";
 
 export type GymCoordMap = Record<string, { region: string; x: number; y: number }>;
 export type RegionMap = Record<string, string>;
@@ -270,6 +272,9 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const [timerIsRunning, setTimerIsRunning] = useState<boolean>(false);
   const [timerStartTime, setTimerStartTime] = useState<number | null>(null);
   const [timerElapsed, setTimerElapsed] = useState<number>(0);
+  const [sessionGymCount, setSessionGymCount] = useState<number>(0);
+  const [showTasks, setShowTasks] = useState<boolean>(false);
+  const [lastRunStats, setLastRunStats] = useState<LastRunStats | null>(null);
   const [cooldown, setCooldown] = useState<CooldownState>({ endAt: null, lastGym: null });
   const [cooldownHours, setCooldownHours] = useState<string>("18");
   const [cooldownMinutes, setCooldownMinutes] = useState<string>("0");
@@ -424,6 +429,9 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   }, [cooldown.endAt, getLastCompletedGym, gymResetMs, startGymCooldown]);
 
   const handleNext = useCallback(() => {
+    const leavingStep = currentStepIndex >= 0 ? steps[currentStepIndex] : null;
+    const isLeavingGym = leavingStep?.type === "gym" && currentStepIndex < steps.length - 1;
+
     setCurrentStepIndex((prev) => {
       const nextIdx = prev === -1 ? 0 : Math.min(prev + 1, steps.length - 1);
       if ((!manualTimerRef.current && prev === -1) || (prev === 0 && nextIdx === 1)) {
@@ -443,7 +451,10 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       return nextIdx;
     });
 
-  }, [currentStepIndex, startGymCooldown, steps, triggerToast]);
+    if (isLeavingGym) {
+      setSessionGymCount(prev => prev + 1);
+    }
+  }, [currentStepIndex, steps, triggerToast]);
 
   const handlePrev = useCallback(() => {
     setCurrentStepIndex((prev) => {
@@ -538,6 +549,8 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
   const finishRun = () => {
     const finalElapsed = timerIsRunning && timerStartTime ? timerElapsed + (Date.now() - timerStartTime) : timerElapsed;
+    const currentIsGym = currentStepIndex >= 0 && steps[currentStepIndex]?.type === "gym";
+    const totalGymsDone = sessionGymCount + (currentIsGym ? 1 : 0);
     const newEntry: RunHistoryEntry = {
       id: Math.random().toString(36).substr(2, 9),
       finishedAt: Date.now(),
@@ -548,9 +561,13 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     const updatedHistory = [newEntry, ...history].slice(0, 20);
     setHistory(updatedHistory);
     setLS("gym_history", JSON.stringify(updatedHistory));
+    setLastRunStats({ elapsed: finalElapsed, gymsCompleted: totalGymsDone, totalGyms, finishedAt: Date.now() });
     startGymCooldown(getLastCompletedGym());
     resetTimer();
+    setSessionGymCount(0);
+    setCurrentStepIndex(-1);
     setShowFinishConfirm(false);
+    goToMenu();
     triggerToast("¡Run completada!");
   };
 
@@ -767,7 +784,30 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             )}
           </div>
 
-          <div className="reveal-3 w-full grid grid-cols-4 gap-1.5 md:gap-2">
+          {lastRunStats && selectedGuide && (
+            <div className="reveal-3 w-full bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border border-indigo-500/30 rounded-2xl p-3 md:p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Clock className="w-4 h-4 text-indigo-400" />
+                <h3 className="font-black fs-body text-indigo-300 uppercase tracking-wider">Última Run</h3>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div>
+                  <div className="fs-h3 font-black text-white">{formatTime(lastRunStats.elapsed)}</div>
+                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Tiempo</div>
+                </div>
+                <div>
+                  <div className="fs-h3 font-black text-emerald-400">{lastRunStats.gymsCompleted}/{lastRunStats.totalGyms}</div>
+                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Gyms Completados</div>
+                </div>
+                <div>
+                  <div className="fs-h3 font-black text-amber-400">{new Date(lastRunStats.finishedAt).toLocaleDateString()}</div>
+                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Fecha</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="reveal-4 w-full grid grid-cols-4 gap-1.5 md:gap-2">
             <button onClick={selectedGuide ? () => exitMenu() : () => setSelectedGuide(true)} title={selectedGuide ? "Iniciar la ruta seleccionada" : "Seleccionar esta guía"} className={`rounded-xl py-1.5 px-1 md:py-2 md:px-2 text-center transition-all relative overflow-hidden ${selectedGuide ? 'bg-indigo-600 border-2 border-indigo-400' : 'bg-neutral-900 border border-indigo-500/40 hover:bg-neutral-800'}`}>
               <div className="flex flex-col items-center gap-0.5">
                 <div className="w-6 h-6 opacity-20">
@@ -1035,6 +1075,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       )}
       {resumePromptModal}
       {resetConfirmModal}
+      <DailyTasks gymsCompleted={sessionGymCount} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} />
       </>
     );
   }
@@ -1668,6 +1709,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     </div>
     {resetConfirmModal}
     {resumePromptModal}
+    <DailyTasks gymsCompleted={sessionGymCount} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} />
     </>
   );
 }

@@ -34,3 +34,24 @@ export interface RunHistoryEntry {
   completedStepsCount: number;
   totalSteps: number;
 }
+
+export interface DailyTask {
+  id: string;
+  label: string;
+  description: string;
+  targetCount: number;
+  currentCount: number;
+  completed: boolean;
+}
+
+export interface DailyTasksState {
+  tasks: DailyTask[];
+  lastResetAt: number;
+}
+
+export interface LastRunStats {
+  elapsed: number;
+  gymsCompleted: number;
+  totalGyms: number;
+  finishedAt: number;
+}
