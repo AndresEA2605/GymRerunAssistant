@@ -811,6 +811,40 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     </div>
   ) : null;
 
+  const historyModal = showHistory ? (
+    <div className={`fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-3 ${historyExiting ? 'overlay-exit' : 'overlay-enter'}`}>
+      <div className={`bg-neutral-900 rounded-2xl border border-neutral-800 w-full max-w-md p-5 ${historyExiting ? 'modal-exit' : 'modal-enter'}`}>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-bold fs-h2">Historial</h3>
+          <button onClick={() => closeHistory()} className="text-neutral-500 hover:text-white"><X className="w-5 h-5" /></button>
+        </div>
+        <div className="max-h-[60vh] overflow-y-auto space-y-1.5">
+          {history.length > 0 ? history.map((entry, idx) => (
+            <div key={entry.id} className="bg-neutral-950 p-2.5 rounded flex justify-between items-center border border-neutral-800 group">
+              <div>
+                <div className="font-bold fs-body">Run #{history.length - idx}</div>
+                <div className="fs-tiny text-neutral-500">{new Date(entry.finishedAt).toLocaleDateString()}</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-mono fs-body font-bold text-indigo-400">{formatTime(entry.elapsed)}</span>
+                <button
+                  onClick={() => {
+                    const updated = history.filter(e => e.id !== entry.id);
+                    setHistory(updated);
+                  }}
+                  className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-400 transition-opacity"
+                  title="Borrar"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )) : <div className="text-neutral-500 text-center py-6 fs-body">No hay historial.</div>}
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   if (showMenu) {
     const bestRun = history.length > 0 ? history.reduce((a, b) => a.elapsed < b.elapsed ? a : b) : null;
     return (
@@ -1013,6 +1047,10 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-green-400"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
               <span className="fs-tiny font-semibold">Dreasy</span>
             </a>
+            <a href="https://open.spotify.com/intl-es/artist/728Rey8DKDMb40oWhQkzQz?si=L-P1GPu0Ti2AX3LR3xCPWQ" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-white transition-colors">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-emerald-400"><path d="M12 0a12 12 0 1 0 12 12A12 12 0 0 0 12 0Zm5.33 17.1a.76.76 0 0 1-1.03.25c-2.82-1.73-6.37-2.12-10.54-1.16a.76.76 0 0 1-.95-.47.76.76 0 0 1 .47-.95c4.46-1.03 8.38-.62 11.56 1.34a.76.76 0 0 1 .25 1.03Zm1.47-3.28a.95.95 0 0 1-1.3.31c-3.22-1.98-8.14-2.56-11.95-1.39a.95.95 0 0 1-1.15-.72.95.95 0 0 1 .72-1.15c4.25-1.25 9.69-.64 13.48 1.58a.95.95 0 0 1 .31 1.3Zm.13-3.41c-3.86-2.29-10.24-2.5-13.93-1.39a1.14 1.14 0 0 1-1.46-.83 1.14 1.14 0 0 1 .83-1.46c4.09-1.24 11.55-.99 16.1 1.58a1.14 1.14 0 0 1-.54 2.12Z"/></svg>
+              <span className="fs-tiny font-semibold">Spotify</span>
+            </a>
           </div>
            <div className="reveal-6 w-full flex items-center justify-center mt-1">
              <button onClick={() => setShowSettings(true)} title="Configuración" className="flex items-center gap-2 px-4 py-2 text-neutral-500 hover:text-white hover:bg-neutral-800/60 rounded-xl transition-all group">
@@ -1022,6 +1060,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
            </div>
          </div>
        </div>
+       {historyModal}
 
       {showTeam && (
         <div className={`fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-start justify-center p-3 overflow-y-auto ${teamExiting ? 'overlay-exit' : 'overlay-enter'}`} onClick={() => closeTeam()}>
@@ -1564,40 +1603,6 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             <Info className="w-4 h-4 mt-0.5 shrink-0 text-amber-300" />
             <span className="flex-1">{storageWarning}</span>
             <button onClick={() => setStorageWarning(null)} className="text-amber-300 hover:text-white font-black">×</button>
-          </div>
-        </div>
-      )}
-
-      {showHistory && (
-        <div className={`fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-3 ${historyExiting ? 'overlay-exit' : 'overlay-enter'}`}>
-          <div className={`bg-neutral-900 rounded-2xl border border-neutral-800 w-full max-w-md p-5 ${historyExiting ? 'modal-exit' : 'modal-enter'}`}>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold fs-h2">Historial</h3>
-              <button onClick={() => closeHistory()} className="text-neutral-500 hover:text-white"><X className="w-5 h-5" /></button>
-            </div>
-            <div className="max-h-[60vh] overflow-y-auto space-y-1.5">
-              {history.length > 0 ? history.map((entry, idx) => (
-                <div key={entry.id} className="bg-neutral-950 p-2.5 rounded flex justify-between items-center border border-neutral-800 group">
-                  <div>
-                    <div className="font-bold fs-body">Run #{history.length - idx}</div>
-                    <div className="fs-tiny text-neutral-500">{new Date(entry.finishedAt).toLocaleDateString()}</div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono fs-body font-bold text-indigo-400">{formatTime(entry.elapsed)}</span>
-                    <button
-                      onClick={() => {
-                        const updated = history.filter(e => e.id !== entry.id);
-                        setHistory(updated);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-400 transition-opacity"
-                      title="Borrar"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              )) : <div className="text-neutral-500 text-center py-6 fs-body">No hay historial.</div>}
-            </div>
           </div>
         </div>
       )}
