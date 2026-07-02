@@ -5,6 +5,7 @@ import { GYM_COORDS, REGION_MAP } from "@/data/gymCoords";
 import { RouteStep } from "@/types";
 
 const steps = rawSteps as RouteStep[];
+const totalGyms = steps.filter((step) => step.type === "gym").length;
 
 export default function Home() {
   if (!steps || steps.length === 0) {
@@ -22,10 +23,10 @@ export default function Home() {
         gymCoords={GYM_COORDS}
         regionMap={REGION_MAP}
         config={{
-          totalGyms: 33,
+          totalGyms,
           title: "GYM RERUN",
           subtitle: "ASSISTANT",
-          description: "Guía secuencial para 33 Gym Reruns en PokeMMO",
+          description: `Guía secuencial para ${totalGyms} Gym Reruns en PokeMMO`,
         }}
       />
     </ErrorBoundary>

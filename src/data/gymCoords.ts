@@ -12,7 +12,7 @@ export const GYM_COORDS: Record<string, { region: string; x: number; y: number }
   // Olivine City → left coast
   "Olivo":      { region: "Johto",  x: 19, y: 65 },
   // Cianwood City → far-left island
-  "Orquidea":   { region: "Johto",  x:  6, y: 32 },
+  "Orquídea":   { region: "Johto",  x:  6, y: 32 },
   // Mahogany Town → upper center
   "Caoba":      { region: "Johto",  x: 52, y: 24 },
   // Violet City → right middle
@@ -22,7 +22,7 @@ export const GYM_COORDS: Record<string, { region: string; x: number; y: number }
   // Dewford Town → small island bottom-left
   "Pueblo Azuliza":   { region: "Hoenn",  x: 10, y: 71 },
   // Rustboro City → top-left
-  "Ciudad Ferrica":   { region: "Hoenn",  x: 11, y: 14 },
+  "Ciudad Férrica":   { region: "Hoenn",  x: 11, y: 14 },
   // Mauville City → center
   "Ciudad Malvalona": { region: "Hoenn",  x: 42, y: 51 },
   // Petalburg City → bottom-left
@@ -46,7 +46,7 @@ export const GYM_COORDS: Record<string, { region: string; x: number; y: number }
 
   // ── Kanto (FRLG-style pixel art) ──────────────────────────────────
   // Vermilion City → bottom center
-  "Carmin":     { region: "Kanto",  x: 59, y: 76 },
+  "Carmín":     { region: "Kanto",  x: 59, y: 76 },
   // Cinnabar Island → bottom left
   "Isla Canela":{ region: "Kanto",  x: 31, y: 90 },
   // Pewter City → left middle
@@ -62,13 +62,13 @@ export const GYM_COORDS: Record<string, { region: string; x: number; y: number }
   // Castelia City → glowing city bottom center
   "Porcelana":  { region: "Unova",  x: 50, y: 78 },
   // Nimbasa City → dots north of Castelia
-  "Mayolica":   { region: "Unova",  x: 45, y: 40 },
+  "Mayólica":   { region: "Unova",  x: 45, y: 40 },
   // Driftveil City → dots left of Nimbasa
   "Fayenza":    { region: "Unova",  x: 30, y: 45 },
   // Mistralton City → dots far top left
   "Loza":       { region: "Unova",  x: 22, y: 30 },
   // Opelucid City → dome top center
-  "Caolin":     { region: "Unova",  x: 55, y: 30 },
+  "Caolín":     { region: "Unova",  x: 55, y: 30 },
   // Striaton City → node bottom right
   "Striaton":   { region: "Unova",  x: 84, y: 58 },
   // Nacrene City → dome right center

@@ -15,8 +15,8 @@
     ],
     "actions": [
       "Dragonite → Surf (con Hydreigon)",
-      "Blastoise → Dia Soleado (con Togekiss)",
-      "Resto → Viento Afin (con Togekiss)"
+      "Blastoise → Día Soleado (con Togekiss)",
+      "Resto → Viento Afín (con Togekiss)"
     ]
   },
   {
@@ -99,7 +99,7 @@
       "Typhlosion"
     ],
     "actions": [
-      "Metagross → T1 -> Dia Soleado (con Typhlosion), T2 -> Golpe Bajo (con Weezing)",
+      "Metagross → T1 -> Día Soleado (con Typhlosion), T2 -> Golpe Bajo (con Weezing)",
       "Resto → Golpe Bajo (con Weezing)"
     ]
   },
@@ -122,8 +122,8 @@
     "id": 10,
     "type": "gym",
     "region": "Johto",
-    "gym": "Orquidea",
-    "title": "Orquidea",
+    "gym": "Orquídea",
+    "title": "Orquídea",
     "lead": [
       "Weezing",
       "Hydreigon"
@@ -133,7 +133,7 @@
       "Togekiss"
     ],
     "actions": [
-      "Usar Dia Soleado (con Hydreigon)"
+      "Usar Día Soleado (con Hydreigon)"
     ]
   },
   {
@@ -144,7 +144,7 @@
     "travel": null,
     "items": [
       {
-        "item": "Panuelo Elegido",
+        "item": "Pañuelo Elegido",
         "pokemon": [
           "Togekiss"
         ]
@@ -166,7 +166,7 @@
       "Togekiss"
     ],
     "actions": [
-      "Glalie → Dia Soleado (con Togekiss)",
+      "Glalie → Día Soleado (con Togekiss)",
       "Resto → Surf (con Hydreigon)"
     ]
   },
@@ -178,7 +178,7 @@
     "travel": null,
     "items": [
       {
-        "item": "Panuelo Elegido",
+        "item": "Pañuelo Elegido",
         "pokemon": [
           "Typhlosion"
         ]
@@ -204,7 +204,7 @@
     "travel": "HOENN",
     "items": [
       {
-        "item": "Panuelo Elegido",
+        "item": "Pañuelo Elegido",
         "pokemon": [
           "Blastoise"
         ]
@@ -226,8 +226,8 @@
     "id": 17,
     "type": "gym",
     "region": "Hoenn",
-    "gym": "Ciudad Ferrica",
-    "title": "Ciudad Ferrica",
+    "gym": "Ciudad Férrica",
+    "title": "Ciudad Férrica",
     "lead": [
       "Weezing",
       "Blastoise"
@@ -342,9 +342,9 @@
       "Togekiss"
     ],
     "actions": [
-      "Swellow + Tropius → Dia Soleado (con Togekiss)",
-      "Altaria + Swellow → Viento Afin (con Togekiss)",
-      "Resto → Surf (con Hydreigon) + Explosion (con Weezing)"
+      "Swellow + Tropius → Día Soleado (con Togekiss)",
+      "Altaria + Swellow → Viento Afín (con Togekiss)",
+      "Resto → Surf (con Hydreigon) + Explosión (con Weezing)"
     ]
   },
   {
@@ -355,7 +355,7 @@
     "travel": "SINNOH",
     "items": [
       {
-        "item": "Panuelo Elegido",
+        "item": "Pañuelo Elegido",
         "pokemon": [
           "Blastoise"
         ]
@@ -377,7 +377,7 @@
       "Togekiss"
     ],
     "actions": [
-      "Whimsicott, Vileplume o Lilligant → Viento Afin (con Togekiss)",
+      "Whimsicott, Vileplume o Lilligant → Viento Afín (con Togekiss)",
       "Roserade o Amoonguss → Surf (con Hydreigon)"
     ]
   },
@@ -409,7 +409,7 @@
     "actions": [
       "Usar Surf (con Hydreigon)",
       "Excadrill → Cambiar a: Typhlosion + Togekiss",
-      "Resto → Cambiar a: Togekiss + Blastoise W"
+      "Resto → Cambiar a: Togekiss + Blastoise (BW)"
     ]
   },
   {
@@ -439,9 +439,9 @@
     ],
     "actions": [
       "Usar Surf (con Hydreigon)",
-      "Pelipper → Cambiar a: Togekiss + Blastoise W",
+      "Pelipper → Cambiar a: Togekiss + Blastoise (BW)",
       "Gigalith + Aron → Cambiar a: Typhlosion + Togekiss",
-      "Bastiodon → Cambiar a: Vanilluxe + Blastoise W"
+      "Bastiodon → Cambiar a: Vanilluxe + Blastoise (BW)"
     ]
   },
   {
@@ -452,7 +452,7 @@
     "travel": null,
     "items": [
       {
-        "item": "Panuelo Elegido",
+        "item": "Pañuelo Elegido",
         "pokemon": [
           "Vanilluxe"
         ]
@@ -471,7 +471,7 @@
     ],
     "actions": [
       "Lucario o Wobbuffet → Surf (con Hydreigon) -> Cambiar a: Typhlosion + Togekiss",
-      "Resto → Viento Afin (con Togekiss) -> Cambiar a: Typhlosion + Togekiss"
+      "Resto → Viento Afín (con Togekiss) -> Cambiar a: Typhlosion + Togekiss"
     ]
   },
   {
@@ -482,7 +482,7 @@
     "travel": null,
     "items": [
       {
-        "item": "Panuelo Elegido",
+        "item": "Pañuelo Elegido",
         "pokemon": [
           "Hydreigon"
         ]
@@ -504,8 +504,8 @@
       "Togekiss"
     ],
     "actions": [
-      "Ludicolo, Mantine o Poliwrath → Viento Afin (con Togekiss)",
-      "Resto → Surf (con Hydreigon) + Explosion (con Weezing)"
+      "Ludicolo, Mantine o Poliwrath → Viento Afín (con Togekiss)",
+      "Resto → Surf (con Hydreigon) + Explosión (con Weezing)"
     ]
   },
   {
@@ -519,14 +519,14 @@
     "id": 37,
     "type": "gym",
     "region": "Kanto",
-    "gym": "Carmin",
-    "title": "Carmin",
+    "gym": "Carmín",
+    "title": "Carmín",
     "lead": [
       "Typhlosion",
       "Togekiss"
     ],
     "actions": [
-      "Curar si algun Pokemon recibio dano",
+      "Curar si algún Pokémon recibió daño",
       "Si hay lluvia -> Usar Rapidez (con Typhlosion)"
     ]
   },
@@ -552,7 +552,7 @@
       "Blastoise"
     ],
     "actions": [
-      "Moltres, Arcanine o Flareon → Viento Afin (con Togekiss)",
+      "Moltres, Arcanine o Flareon → Viento Afín (con Togekiss)",
       "Typhlosion o Charizard → Surf (con Hydreigon)"
     ]
   },
@@ -590,7 +590,7 @@
     "travel": null,
     "items": [
       {
-        "item": "Panuelo Elegido",
+        "item": "Pañuelo Elegido",
         "pokemon": [
           "Blastoise"
         ]
@@ -612,8 +612,8 @@
       "Togekiss"
     ],
     "actions": [
-      "Carracosta → Dia Soleado (con Togekiss)",
-      "Resto → Viento Afin (con Togekiss)"
+      "Carracosta → Día Soleado (con Togekiss)",
+      "Resto → Viento Afín (con Togekiss)"
     ]
   },
   {
@@ -639,7 +639,7 @@
     ],
     "actions": [
       "Whimsicott → Surf (con Hydreigon)",
-      "Resto → Viento Afin (con Togekiss)"
+      "Resto → Viento Afín (con Togekiss)"
     ]
   },
   {
@@ -650,7 +650,7 @@
     "travel": null,
     "items": [
       {
-        "item": "Panuelo Elegido",
+        "item": "Pañuelo Elegido",
         "pokemon": [
           "Togekiss"
         ]
@@ -668,9 +668,9 @@
       "Togekiss"
     ],
     "actions": [
-      "Tentacruel → Psiquico (con Togekiss)",
-      "Nidoqueen → Senal Luminosa (con Togekiss)",
-      "Resto → Vozarron (con Togekiss)"
+      "Tentacruel → Psíquico (con Togekiss)",
+      "Nidoqueen → Señal Luminosa (con Togekiss)",
+      "Resto → Vozarrón (con Togekiss)"
     ]
   },
   {
@@ -681,7 +681,7 @@
     "travel": "UNOVA",
     "items": [
       {
-        "item": "Panuelo Elegido",
+        "item": "Pañuelo Elegido",
         "pokemon": [
           "Typhlosion"
         ]
@@ -703,8 +703,8 @@
     "id": 50,
     "type": "gym",
     "region": "Unova",
-    "gym": "Mayolica",
-    "title": "Mayolica",
+    "gym": "Mayólica",
+    "title": "Mayólica",
     "lead": [
       "Blastoise",
       "Togekiss"
@@ -736,7 +736,7 @@
       "Blastoise"
     ],
     "actions": [
-      "Usar Golpe Bajo (con Weezing) / Salpicar (con Blastoise W)",
+      "Usar Golpe Bajo (con Weezing) / Salpicar (con Blastoise (BW))",
       "Si Weezing cae -> entrar Vanilluxe"
     ]
   },
@@ -748,7 +748,7 @@
     "travel": null,
     "items": [
       {
-        "item": "Panuelo Elegido",
+        "item": "Pañuelo Elegido",
         "pokemon": [
           "Weezing"
         ]
@@ -766,7 +766,7 @@
       "Vanilluxe"
     ],
     "actions": [
-      "Unfezant → Cambiar a Weezing en T1 por Blastoise W. Usar Golpe Bajo en T2 y T3 (con Weezing)"
+      "Unfezant → Cambiar a Weezing en T1 por Blastoise (BW). Usar Golpe Bajo en T2 y T3 (con Weezing)"
     ]
   },
   {
@@ -794,8 +794,8 @@
     "id": 56,
     "type": "gym",
     "region": "Unova",
-    "gym": "Caolin",
-    "title": "Caolin",
+    "gym": "Caolín",
+    "title": "Caolín",
     "lead": [
       "Weezing",
       "Hydreigon"
@@ -828,10 +828,10 @@
     "gym": "Striaton",
     "title": "Striaton",
     "actions": [
-      "Lider Fuego -> Equipo: Togekiss + Blastoise W",
-      "Lider Planta -> Equipo: Typhlosion + Togekiss",
-      "Lider Agua -> Equipo: Typhlosion + Togekiss",
-      "Estrategia: Refuerzo (con Togekiss) + Vozarron (con Typhlosion)",
+      "Líder Fuego -> Equipo: Togekiss + Blastoise (BW)",
+      "Líder Planta -> Equipo: Typhlosion + Togekiss",
+      "Líder Agua -> Equipo: Typhlosion + Togekiss",
+      "Estrategia: Refuerzo (con Togekiss) + Vozarrón (con Typhlosion)",
       "Si alguno cae -> entrar Weezing y usar Golpe Bajo"
     ]
   },

@@ -44,6 +44,14 @@ type CooldownState = {
   lastGym: string | null;
 };
 
+type StoredTimerState = {
+  elapsed?: unknown;
+  isRunning?: unknown;
+  startedAt?: unknown;
+};
+
+type PendingResetAction = "timer" | "route" | "cooldown" | null;
+
 const formatTime = (ms: number): string => {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
   const hours = Math.floor(totalSeconds / 3600);
@@ -236,6 +244,8 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [showTeam, setShowTeam] = useState<boolean>(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState<boolean>(false);
+  const [showResumePrompt, setShowResumePrompt] = useState<boolean>(false);
+  const [pendingResetAction, setPendingResetAction] = useState<PendingResetAction>(null);
   const [teamExiting, setTeamExiting] = useState<boolean>(false);
   const [historyExiting, setHistoryExiting] = useState<boolean>(false);
   const [showCooldownEditor, setShowCooldownEditor] = useState<boolean>(false);
@@ -284,16 +294,42 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const [cooldown, setCooldown] = useState<CooldownState>({ endAt: null, lastGym: null });
   const [cooldownHours, setCooldownHours] = useState<string>("18");
   const [cooldownMinutes, setCooldownMinutes] = useState<string>("0");
+  const [pendingCooldownDurationMs, setPendingCooldownDurationMs] = useState<number>(gymResetMs);
   const [history, setHistory] = useState<RunHistoryEntry[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [storageWarning, setStorageWarning] = useState<string | null>(null);
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const storagePrefixRef = useRef(storagePrefix);
 
-  const getLS = (key: string, fallback: string = "") => { try { return localStorage.getItem(LS(key)) ?? fallback; } catch { return fallback; } };
-  const setLS = (key: string, value: string) => { try { localStorage.setItem(LS(key), value); } catch { /* storage full */ } };
+  const LS = (key: string) => `${storagePrefix}_${key}`;
+  const getLS = (key: string, fallback: string = "") => {
+    try {
+      return localStorage.getItem(LS(key)) ?? fallback;
+    } catch {
+      setStorageWarning("No se pudo leer el progreso local. La app sigue funcionando.");
+      return fallback;
+    }
+  };
+  const setLS = (key: string, value: string) => {
+    try {
+      localStorage.setItem(LS(key), value);
+    } catch {
+      setStorageWarning("No se pudo guardar el progreso local. Revisa el almacenamiento del navegador.");
+    }
+  };
+
+  const parseLS = <T,>(key: string): T | null => {
+    const raw = getLS(key);
+    if (!raw) return null;
+
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      setStorageWarning(`Datos corruptos en ${key}. Se ignoraron para proteger la sesión.`);
+      return null;
+    }
+  };
 
   const currentStep = currentStepIndex >= 0 ? steps[currentStepIndex] || steps[0] : null;
-  const LS = (key: string) => `${storagePrefix}_${key}`;
 
   const triggerToast = useCallback((message: string) => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
@@ -307,31 +343,33 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       const idx = Number(savedStep);
       if (!isNaN(idx) && idx >= -1 && idx < steps.length) {
         setCurrentStepIndex(idx);
-        setShowMenu(false);
+        if (idx >= 0) {
+          setSelectedGuide(true);
+          setShowResumePrompt(true);
+        }
       }
     }
 
-    const savedTimer = getLS("gym_timer");
+    const savedTimer = parseLS<StoredTimerState>("gym_timer");
     if (savedTimer) {
-      try {
-        const parsed = JSON.parse(savedTimer);
-        setTimerElapsed(parsed.elapsed || 0);
-        setTimerIsRunning(parsed.isRunning || false);
-        if (parsed.isRunning && parsed.startedAt) setTimerStartTime(parsed.startedAt);
-      } catch { /* ignore */ }
+      const elapsed = typeof savedTimer.elapsed === "number" && Number.isFinite(savedTimer.elapsed) ? savedTimer.elapsed : 0;
+      const startedAt = typeof savedTimer.startedAt === "number" && Number.isFinite(savedTimer.startedAt) ? savedTimer.startedAt : null;
+      const isRunning = savedTimer.isRunning === true && startedAt !== null;
+      setTimerElapsed(elapsed);
+      setTimerIsRunning(isRunning);
+      setTimerStartTime(isRunning ? startedAt : null);
     }
 
-    const savedHistory = getLS("gym_history");
-    if (savedHistory) {
-      try { setHistory(JSON.parse(savedHistory)); } catch { /* ignore */ }
+    const savedHistory = parseLS<RunHistoryEntry[]>("gym_history");
+    if (Array.isArray(savedHistory)) {
+      setHistory(savedHistory);
     }
 
-    const savedCooldown = getLS("gym_cooldown");
+    const savedCooldown = parseLS<CooldownState>("gym_cooldown");
     if (savedCooldown) {
-      try {
-        const parsed = JSON.parse(savedCooldown);
-        setCooldown({ endAt: parsed.endAt || null, lastGym: parsed.lastGym || null });
-      } catch { /* ignore */ }
+      const endAt = typeof savedCooldown.endAt === "number" && Number.isFinite(savedCooldown.endAt) ? savedCooldown.endAt : null;
+      const lastGym = typeof savedCooldown.lastGym === "string" ? savedCooldown.lastGym : null;
+      setCooldown({ endAt, lastGym });
     }
 
     setLoaded(true);
@@ -361,19 +399,24 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showMenu, currentStepIndex]);
 
-  useEffect(() => setLS("gym_step", currentStepIndex.toString()), [currentStepIndex]);
+  useEffect(() => {
+    if (!loaded) return;
+    setLS("gym_step", currentStepIndex.toString());
+  }, [loaded, currentStepIndex]);
 
   useEffect(() => {
+    if (!loaded) return;
     setLS("gym_timer", JSON.stringify({
       elapsed: timerElapsed,
       isRunning: timerIsRunning,
       startedAt: timerStartTime,
     }));
-  }, [timerElapsed, timerIsRunning, timerStartTime]);
+  }, [loaded, timerElapsed, timerIsRunning, timerStartTime]);
 
   useEffect(() => {
+    if (!loaded) return;
     setLS("gym_cooldown", JSON.stringify(cooldown));
-  }, [cooldown]);
+  }, [loaded, cooldown]);
 
   const getLastCompletedGym = useCallback(() => {
     for (let i = currentStepIndex; i >= 0; i--) {
@@ -381,7 +424,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       if (step?.type === "gym") return step.gym || step.title;
     }
     return null;
-  }, [currentStepIndex]);
+  }, [currentStepIndex, steps]);
 
   const startGymCooldown = useCallback((gymName?: string | null, durationMs = gymResetMs) => {
     const lastGym = gymName || getLastCompletedGym() || "Gym desconocido";
@@ -390,9 +433,23 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     setCooldownHours(String(Math.floor(durationMs / 3600000)));
     setCooldownMinutes(String(Math.round((durationMs % 3600000) / 60000)));
     triggerToast(`Reset gyms activo: ${lastGym}`);
-  }, [getLastCompletedGym, triggerToast]);
+  }, [getLastCompletedGym, gymResetMs, triggerToast]);
+
+  const requestGymCooldownStart = useCallback((durationMs = gymResetMs) => {
+    setPendingCooldownDurationMs(durationMs);
+    if (cooldown.endAt && cooldown.endAt > Date.now()) {
+      setPendingResetAction("cooldown");
+      return;
+    }
+    startGymCooldown(getLastCompletedGym(), durationMs);
+  }, [cooldown.endAt, getLastCompletedGym, gymResetMs, startGymCooldown]);
 
   const handleNext = useCallback(() => {
+    const leavingStep = currentStepIndex >= 0 ? steps[currentStepIndex] : null;
+    const shouldMarkGymDone = Boolean(
+      leavingStep?.type === "gym" && currentStepIndex < steps.length - 1
+    );
+
     setCurrentStepIndex((prev) => {
       const nextIdx = prev === -1 ? 0 : Math.min(prev + 1, steps.length - 1);
       if ((!manualTimerRef.current && prev === -1) || (prev === 0 && nextIdx === 1)) {
@@ -411,7 +468,11 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       }
       return nextIdx;
     });
-  }, [triggerToast]);
+
+    if (shouldMarkGymDone) {
+      startGymCooldown(leavingStep?.gym || leavingStep?.title);
+    }
+  }, [currentStepIndex, startGymCooldown, steps, triggerToast]);
 
   const handlePrev = useCallback(() => {
     setCurrentStepIndex((prev) => {
@@ -450,6 +511,27 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     setTimerStartTime(null);
   };
   const resetTimer = () => { setTimerIsRunning(false); setTimerStartTime(null); setTimerElapsed(0); };
+  const requestTimerReset = () => setPendingResetAction("timer");
+  const requestRouteReset = () => setPendingResetAction("route");
+
+  const confirmPendingReset = () => {
+    if (pendingResetAction === "timer") {
+      resetTimer();
+      triggerToast("Cronómetro reiniciado");
+    }
+
+    if (pendingResetAction === "route") {
+      setCurrentStepIndex(-1);
+      resetTimer();
+      triggerToast("Ruta reiniciada");
+    }
+
+    if (pendingResetAction === "cooldown") {
+      startGymCooldown(getLastCompletedGym(), pendingCooldownDurationMs);
+    }
+
+    setPendingResetAction(null);
+  };
 
   const finishRun = () => {
     const finalElapsed = timerIsRunning && timerStartTime ? timerElapsed + (Date.now() - timerStartTime) : timerElapsed;
@@ -513,6 +595,84 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       setMenuExiting(false);
     }, 380);
   };
+
+  const pendingResetCopy = {
+    timer: {
+      title: "¿Reiniciar cronómetro?",
+      body: "Se perderá el tiempo actual de esta ruta. El cooldown de gyms no se toca.",
+      confirm: "Sí, reiniciar",
+    },
+    route: {
+      title: "¿Reiniciar ruta?",
+      body: "Volverás al inicio y se borrará el cronómetro actual. El cooldown de gyms se conserva.",
+      confirm: "Sí, reiniciar ruta",
+    },
+    cooldown: {
+      title: "¿Reiniciar timer de gyms?",
+      body: `Se reemplazará el reset actual de ${cooldown.lastGym || getLastCompletedGym() || "último gym"} por un nuevo conteo.`,
+      confirm: "Sí, activar nuevo timer",
+    },
+  } as const;
+
+  const resetConfirmModal = pendingResetAction ? (
+    <div className="fixed inset-0 z-[70] bg-black/85 flex items-center justify-center p-3">
+      <div className="bg-neutral-900 rounded-2xl border border-red-800/50 w-full max-w-sm p-5 shadow-2xl shadow-red-950/30">
+        <h3 className="font-black fs-h2 text-white">{pendingResetCopy[pendingResetAction].title}</h3>
+        <p className="fs-body text-neutral-400 mt-2">{pendingResetCopy[pendingResetAction].body}</p>
+        <div className="mt-4 grid grid-cols-2 gap-2.5">
+          <button
+            autoFocus
+            onClick={() => setPendingResetAction(null)}
+            className="py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-black fs-body"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={confirmPendingReset}
+            className="py-2.5 rounded-xl bg-red-700 hover:bg-red-600 text-white font-black fs-body"
+          >
+            {pendingResetCopy[pendingResetAction].confirm}
+          </button>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
+  const resumePromptModal = showResumePrompt ? (
+    <div className="fixed inset-0 z-[65] bg-black/85 flex items-center justify-center p-3">
+      <div className="bg-neutral-900 rounded-2xl border border-indigo-700/50 w-full max-w-sm p-5 shadow-2xl shadow-indigo-950/30">
+        <h3 className="font-black fs-h2 text-white">Sesión anterior encontrada</h3>
+        <p className="fs-body text-neutral-400 mt-2">
+          Hay una ruta guardada en el paso {Math.max(0, currentStepIndex + 1)}/{steps.length}. Puedes continuar sin perder cronómetro ni cooldown.
+        </p>
+        {storageWarning && (
+          <p className="mt-3 rounded-xl border border-amber-700/50 bg-amber-950/30 px-3 py-2 fs-tiny text-amber-200">
+            {storageWarning}
+          </p>
+        )}
+        <div className="mt-4 grid grid-cols-2 gap-2.5">
+          <button
+            onClick={() => {
+              setShowResumePrompt(false);
+              setPendingResetAction("route");
+            }}
+            className="py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-black fs-body"
+          >
+            Empezar cero
+          </button>
+          <button
+            onClick={() => {
+              setShowResumePrompt(false);
+              exitMenu();
+            }}
+            className="py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black fs-body"
+          >
+            Continuar
+          </button>
+        </div>
+      </div>
+    </div>
+  ) : null;
 
   if (showMenu) {
     const bestRun = history.length > 0 ? history.reduce((a, b) => a.elapsed < b.elapsed ? a : b) : null;
@@ -652,7 +812,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               <button onClick={() => exitMenu()} title="Continuar la ruta desde donde la dejaste" className="w-full py-2 md:py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-small md:fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]">
                 ▶ CONTINUAR RUTA · Paso {currentStepIndex + 1}/{steps.length}
               </button>
-              <button onClick={() => exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); })} title="Empezar la ruta desde el principio" className="w-full py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 fs-tiny md:fs-small font-bold rounded-lg transition-colors">
+              <button onClick={() => setPendingResetAction("route")} title="Empezar la ruta desde el principio" className="w-full py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 fs-tiny md:fs-small font-bold rounded-lg transition-colors">
                 Reiniciar desde cero
               </button>
             </div>
@@ -697,7 +857,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               <div className="flex items-center justify-between px-5 py-3 bg-neutral-950 border-b border-neutral-800">
                 <div>
                   <h3 className="font-black fs-h3 text-white">Equipo de la Run</h3>
-                  <p className="fs-tiny text-neutral-500 mt-0.5">Choice Band Weezing · Scarf Vanilluxe · Specs resto</p>
+                  <p className="fs-tiny text-neutral-500 mt-0.5">Weezing con Cinta Elegida · Vanilluxe con Pañuelo Elegido · resto con Gafas Elegidas</p>
                 </div>
                 <button onClick={() => closeTeam()} className="text-neutral-500 hover:text-white"><X className="w-5 h-5" /></button>
               </div>
@@ -708,12 +868,12 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Hydreigon}.png`} alt="Hydreigon" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-indigo-300">HI — Hydreigon</div>
-                      <div className="fs-tiny text-neutral-500">Levitate · Modest</div>
+                      <div className="fs-tiny text-neutral-500">Levitación · Modesta</div>
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 6 HP / 252 SpA / 40 SpD / 252 Spe</div>
                   <div className="grid grid-cols-2 gap-0.5">
-                    {['Surf','Sunny Day','Rain Dance','Tailwind'].map(m => <span key={m} className="fs-tiny bg-indigo-950/50 border border-indigo-800/30 px-1.5 py-0.5 rounded text-indigo-300">{m}</span>)}
+                    {['Surf','Día Soleado','Danza Lluvia','Viento Afín'].map(m => <span key={m} className="fs-tiny bg-indigo-950/50 border border-indigo-800/30 px-1.5 py-0.5 rounded text-indigo-300">{m}</span>)}
                   </div>
                 </div>
 
@@ -722,12 +882,12 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Weezing}.png`} alt="Weezing" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-cyan-300">WW — Weezing</div>
-                      <div className="fs-tiny text-neutral-500">Neutralizing Gas · Adamant · Choice Band</div>
+                      <div className="fs-tiny text-neutral-500">Gas Reactivo · Firme · Cinta Elegida</div>
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 Atk / 6 SpD / 252 Spe</div>
                   <div className="grid grid-cols-2 gap-0.5">
-                    {['Explosion','Assurance','Incinerate','Sunny Day'].map(m => <span key={m} className="fs-tiny bg-cyan-950/50 border border-cyan-800/30 px-1.5 py-0.5 rounded text-cyan-300">{m}</span>)}
+                    {['Explosión','Buena Baza','Incinerar','Día Soleado'].map(m => <span key={m} className="fs-tiny bg-cyan-950/50 border border-cyan-800/30 px-1.5 py-0.5 rounded text-cyan-300">{m}</span>)}
                   </div>
                 </div>
 
@@ -736,12 +896,12 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Togekiss}.png`} alt="Togekiss" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-sky-300">TO — Togekiss</div>
-                      <div className="fs-tiny text-neutral-500">Serene Grace · Modest · Choice Scarf</div>
+                      <div className="fs-tiny text-neutral-500">Dicha · Modesta · Pañuelo Elegido</div>
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 6 SpD / 252 Spe</div>
                   <div className="grid grid-cols-2 gap-0.5">
-                    {['Hyper Voice','Psyshock','Signal Beam','Psychic'].map(m => <span key={m} className="fs-tiny bg-sky-950/50 border border-sky-800/30 px-1.5 py-0.5 rounded text-sky-300">{m}</span>)}
+                    {['Vozarrón','Psicocarga','Señal Luminosa','Psíquico'].map(m => <span key={m} className="fs-tiny bg-sky-950/50 border border-sky-800/30 px-1.5 py-0.5 rounded text-sky-300">{m}</span>)}
                   </div>
                 </div>
 
@@ -750,12 +910,12 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Typhlosion}.png`} alt="Typhlosion" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-orange-300">TY — Typhlosion</div>
-                      <div className="fs-tiny text-neutral-500">Blaze · Choice Specs</div>
+                      <div className="fs-tiny text-neutral-500">Mar Llamas · Gafas Elegidas</div>
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 6 SpD / 252 Spe</div>
                   <div className="grid grid-cols-2 gap-0.5">
-                    {['Eruption','Swift','Cut','Helping Hand'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-1.5 py-0.5 rounded text-orange-300">{m}</span>)}
+                    {['Estallido','Rapidez','Corte','Refuerzo'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-1.5 py-0.5 rounded text-orange-300">{m}</span>)}
                   </div>
                 </div>
 
@@ -763,13 +923,13 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   <div className="flex items-center gap-2.5 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Vanilluxe}.png`} alt="Vanilluxe" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
-                      <div className="font-black fs-small text-violet-300">Vanilluxe @ Choice Scarf</div>
-                      <div className="fs-tiny text-neutral-500">Snow Warning · Timid · Lv. 100</div>
+                      <div className="font-black fs-small text-violet-300">Vanilluxe @ Pañuelo Elegido</div>
+                      <div className="fs-tiny text-neutral-500">Nevada · Miedosa · Lv. 100</div>
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 10 HP / 252 SpA / 248 Spe</div>
                   <div className="grid grid-cols-2 gap-0.5">
-                    {['Blizzard','Hyper Voice','Water Pulse','Flash Cannon'].map(m => <span key={m} className="fs-tiny bg-violet-950/50 border border-violet-800/30 px-1.5 py-0.5 rounded text-violet-300">{m}</span>)}
+                    {['Ventisca','Vozarrón','Hidropulso','Foco Resplandor'].map(m => <span key={m} className="fs-tiny bg-violet-950/50 border border-violet-800/30 px-1.5 py-0.5 rounded text-violet-300">{m}</span>)}
                   </div>
                 </div>
 
@@ -778,12 +938,12 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Blastoise}.png`} alt="Blastoise" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-blue-300">BW — Blastoise</div>
-                      <div className="fs-tiny text-neutral-500">Torrent · Modest · Choice Specs</div>
+                      <div className="fs-tiny text-neutral-500">Torrente · Modesta · Gafas Elegidas</div>
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 6 SpD / 252 Spe</div>
                   <div className="grid grid-cols-2 gap-0.5">
-                    {['Water Spout','Helping Hand','Blizzard'].map(m => <span key={m} className="fs-tiny bg-blue-950/50 border border-blue-800/30 px-1.5 py-0.5 rounded text-blue-300">{m}</span>)}
+                    {['Salpicar','Refuerzo','Ventisca'].map(m => <span key={m} className="fs-tiny bg-blue-950/50 border border-blue-800/30 px-1.5 py-0.5 rounded text-blue-300">{m}</span>)}
                   </div>
                 </div>
 
@@ -870,11 +1030,14 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
         </div>
       )}
+      {resumePromptModal}
+      {resetConfirmModal}
       </>
     );
   }
 
   return (
+    <>
     <div className={`app-enter ${appExiting ? "app-exit" : ""} flex bg-neutral-950 text-neutral-200 overflow-hidden font-sans relative`} style={{ height: '100dvh' }}>
       <PokeBackground />
       
@@ -1114,16 +1277,16 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           ) : (
             <button onClick={pauseTimer} className="smooth-transition px-3 py-1.5 bg-amber-600 active:scale-95 hover:bg-amber-500 text-white rounded-lg font-bold fs-tiny flex items-center gap-1 shrink-0"><Pause className="w-4 h-4 fill-current"/> Pausar</button>
           )}
-          <button onClick={resetTimer} className="smooth-transition px-3 py-1.5 bg-neutral-700 active:scale-95 hover:bg-neutral-600 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0"><RotateCcw className="w-4 h-4"/></button>
+          <button onClick={requestTimerReset} className="smooth-transition px-3 py-1.5 bg-neutral-700 active:scale-95 hover:bg-neutral-600 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0"><RotateCcw className="w-4 h-4"/></button>
           <span className="text-neutral-700 shrink-0">|</span>
           <div className="flex items-center gap-1 shrink-0">
             <Clock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
             <CooldownDisplay endAt={cooldown.endAt} />
           </div>
-          <button onClick={() => startGymCooldown(getLastCompletedGym())} className="smooth-transition px-2.5 py-1.5 bg-emerald-700 active:scale-95 hover:bg-emerald-600 text-white rounded-lg font-bold fs-tiny shrink-0">18h</button>
+          <button onClick={() => requestGymCooldownStart()} className="smooth-transition px-2.5 py-1.5 bg-emerald-700 active:scale-95 hover:bg-emerald-600 text-white rounded-lg font-bold fs-tiny shrink-0">18h</button>
           <button onClick={openCooldownEditor} className="smooth-transition px-2.5 py-1.5 bg-neutral-700 active:scale-95 hover:bg-neutral-600 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0">Ajustar</button>
           <button onClick={requestFinishRun} className="smooth-transition px-3 py-1.5 bg-red-700 active:scale-95 hover:bg-red-600 text-white rounded-lg font-bold fs-tiny shrink-0">Terminar</button>
-          <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(-1); resetTimer(); } }} className="smooth-transition px-3 py-1.5 bg-neutral-800 active:scale-95 hover:bg-neutral-700 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0"><RotateCcw className="w-4 h-4 inline-block mr-1" />Reinic.</button>
+          <button onClick={requestRouteReset} className="smooth-transition px-3 py-1.5 bg-neutral-800 active:scale-95 hover:bg-neutral-700 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0"><RotateCcw className="w-4 h-4 inline-block mr-1" />Reinic.</button>
         </div>
 
         {/* Desktop: normal row layout */}
@@ -1149,7 +1312,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             ) : (
               <button onClick={pauseTimer} className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold fs-small flex items-center gap-1"><Pause className="w-3.5 h-3.5 fill-current"/><span>Pausar</span></button>
             )}
-            <button onClick={resetTimer} className="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 rounded font-bold fs-small"><RotateCcw className="w-3.5 h-3.5"/></button>
+            <button onClick={requestTimerReset} className="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 rounded font-bold fs-small"><RotateCcw className="w-3.5 h-3.5"/></button>
           </div>
 
           <div className="h-5 w-px bg-neutral-700" />
@@ -1161,10 +1324,10 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               <CooldownDisplay endAt={cooldown.endAt} />
             </div>
             <div className="flex gap-1">
-              <button onClick={() => startGymCooldown(getLastCompletedGym())} className="px-2 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded font-bold fs-tiny">18h</button>
+              <button onClick={() => requestGymCooldownStart()} className="px-2 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded font-bold fs-tiny">18h</button>
               <button onClick={openCooldownEditor} className="px-2 py-1 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded font-bold fs-tiny">Ajustar</button>
               <button onClick={requestFinishRun} className="px-3 py-1.5 bg-red-700 hover:bg-red-600 text-white rounded font-bold fs-small">Terminar Ruta</button>
-              <button onClick={() => { if(window.confirm("¿Reiniciar ruta?")) { setCurrentStepIndex(-1); resetTimer(); } }} className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded font-bold fs-small"><RotateCcw className="w-3.5 h-3.5 inline-block mr-1" />Reiniciar</button>
+              <button onClick={requestRouteReset} className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded font-bold fs-small"><RotateCcw className="w-3.5 h-3.5 inline-block mr-1" />Reiniciar</button>
             </div>
           </div>
 
@@ -1176,6 +1339,16 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       {toastMessage && (
         <div className="fixed bottom-4 right-4 z-50 bg-neutral-800 border border-neutral-700 shadow-2xl rounded px-2.5 py-1.5 text-white fs-small md:fs-body font-bold animate-in slide-in-from-bottom-4 fade-in">
           {toastMessage}
+        </div>
+      )}
+
+      {storageWarning && !showResumePrompt && (
+        <div className="fixed top-16 right-3 left-3 sm:left-auto z-50 max-w-md bg-amber-950/95 border border-amber-700/60 shadow-2xl rounded-xl px-3 py-2 text-amber-100 fs-small">
+          <div className="flex items-start gap-2">
+            <Info className="w-4 h-4 mt-0.5 shrink-0 text-amber-300" />
+            <span className="flex-1">{storageWarning}</span>
+            <button onClick={() => setStorageWarning(null)} className="text-amber-300 hover:text-white font-black">×</button>
+          </div>
         </div>
       )}
 
@@ -1251,7 +1424,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
             <div className="mt-4 grid grid-cols-2 gap-2.5">
               <button
-                onClick={() => startGymCooldown(getLastCompletedGym())}
+                onClick={() => requestGymCooldownStart()}
                 className="py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black fs-body"
               >
                 Activar 18h
@@ -1299,7 +1472,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
               <div className="flex items-center justify-between px-5 py-3 bg-neutral-950 border-b border-neutral-800">
                 <div>
                   <h3 className="font-black fs-h3 text-white">Equipo de la Run</h3>
-                  <p className="fs-tiny text-neutral-500 mt-0.5">Choice Band Weezing · Scarf Vanilluxe · Specs resto</p>
+                  <p className="fs-tiny text-neutral-500 mt-0.5">Weezing con Cinta Elegida · Vanilluxe con Pañuelo Elegido · resto con Gafas Elegidas</p>
                 </div>
                 <button onClick={() => closeTeam()} className="text-neutral-500 hover:text-white"><X className="w-5 h-5" /></button>
               </div>
@@ -1310,13 +1483,13 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Hydreigon}.png`} alt="Hydreigon" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-indigo-300">H1 — Hydreigon</div>
-                      <div className="fs-tiny text-neutral-500">Levitate · Modest · Choice Specs</div>
+                      <div className="fs-tiny text-neutral-500">Levitación · Modesta · Gafas Elegidas</div>
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 6 HP / 212 SpA / 40 SpD / 252 Spe</div>
                   <div className="fs-tiny text-neutral-500 mb-1.5">IVs: Max 14 HP / X Atk / Max 14 Def / 31 Spa / Low Spd / 31 Spe</div>
                   <div className="grid grid-cols-2 gap-0.5">
-                    {['Surf','Sunny Day','Rain Dance','Tailwind'].map(m => <span key={m} className="fs-tiny bg-indigo-950/50 border border-indigo-800/30 px-1.5 py-0.5 rounded text-indigo-300">{m}</span>)}
+                    {['Surf','Día Soleado','Danza Lluvia','Viento Afín'].map(m => <span key={m} className="fs-tiny bg-indigo-950/50 border border-indigo-800/30 px-1.5 py-0.5 rounded text-indigo-300">{m}</span>)}
                   </div>
                 </div>
 
@@ -1325,13 +1498,13 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Weezing}.png`} alt="Weezing" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-purple-300">W1 — Weezing</div>
-                      <div className="fs-tiny text-neutral-500">Neutralizing Gas · Adamant · Choice Band</div>
+                      <div className="fs-tiny text-neutral-500">Gas Reactivo · Firme · Cinta Elegida</div>
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 Atk / 6 SpD / 252 Spe</div>
                   <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 31 HP / 31 Atk / High Def / X Spa / 31 Spd / 31 Spe</div>
                   <div className="grid grid-cols-2 gap-0.5">
-                    {['Explosion','Assurance','Incinerate','Sunny Day'].map(m => <span key={m} className="fs-tiny bg-purple-950/50 border border-purple-800/30 px-1.5 py-0.5 rounded text-purple-300">{m}</span>)}
+                    {['Explosión','Buena Baza','Incinerar','Día Soleado'].map(m => <span key={m} className="fs-tiny bg-purple-950/50 border border-purple-800/30 px-1.5 py-0.5 rounded text-purple-300">{m}</span>)}
                   </div>
                 </div>
 
@@ -1340,13 +1513,13 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Togekiss}.png`} alt="Togekiss" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-sky-300">TO — Togekiss</div>
-                      <div className="fs-tiny text-neutral-500">Serene Grace · Modest · Choice Scarf</div>
+                      <div className="fs-tiny text-neutral-500">Dicha · Modesta · Pañuelo Elegido</div>
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 6 SpD / 252 Spe</div>
                   <div className="fs-tiny text-neutral-500 mb-1.5">IVs: X HP / X Atk / X Def / 31 Spa / X Spd / 31 Spe</div>
                   <div className="grid grid-cols-2 gap-0.5">
-                    {['Hyper Voice','Psyshock','Signal Beam','Psychic'].map(m => <span key={m} className="fs-tiny bg-sky-950/50 border border-sky-800/30 px-1.5 py-0.5 rounded text-sky-300">{m}</span>)}
+                    {['Vozarrón','Psicocarga','Señal Luminosa','Psíquico'].map(m => <span key={m} className="fs-tiny bg-sky-950/50 border border-sky-800/30 px-1.5 py-0.5 rounded text-sky-300">{m}</span>)}
                   </div>
                 </div>
 
@@ -1355,13 +1528,13 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Typhlosion}.png`} alt="Typhlosion" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-orange-300">TY — Typhlosion</div>
-                      <div className="fs-tiny text-neutral-500">Blaze · Modest · Choice Specs</div>
+                      <div className="fs-tiny text-neutral-500">Mar Llamas · Modesta · Gafas Elegidas</div>
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 6 SpD / 252 Spe</div>
                   <div className="fs-tiny text-neutral-500 mb-1.5">IVs: X HP / X Atk / X Def / 31 Spa / X Spd / 31 Spe</div>
                   <div className="grid grid-cols-2 gap-0.5">
-                    {['Eruption','Swift','Cut','Helping Hand'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-1.5 py-0.5 rounded text-orange-300">{m}</span>)}
+                    {['Estallido','Rapidez','Corte','Refuerzo'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-1.5 py-0.5 rounded text-orange-300">{m}</span>)}
                   </div>
                 </div>
 
@@ -1369,14 +1542,14 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   <div className="flex items-center gap-2.5 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Vanilluxe}.png`} alt="Vanilluxe" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
-                      <div className="font-black fs-small text-cyan-300">Vanilluxe @ Choice Scarf</div>
-                      <div className="fs-tiny text-neutral-500">Snow Warning · Timid · Lv. 100</div>
+                      <div className="font-black fs-small text-cyan-300">Vanilluxe @ Pañuelo Elegido</div>
+                      <div className="fs-tiny text-neutral-500">Nevada · Miedosa · Lv. 100</div>
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 10 HP / 252 SpA / 248 Spe</div>
                   <div className="fs-tiny text-neutral-500 mb-1.5">IVs: X HP / X Atk / X Def / 31 Spa / X Spd / 31 Spe</div>
                   <div className="grid grid-cols-2 gap-0.5">
-                    {['Blizzard','Hyper Voice','Water Pulse','Flash Cannon'].map(m => <span key={m} className="fs-tiny bg-cyan-950/50 border border-cyan-800/30 px-1.5 py-0.5 rounded text-cyan-300">{m}</span>)}
+                    {['Ventisca','Vozarrón','Hidropulso','Foco Resplandor'].map(m => <span key={m} className="fs-tiny bg-cyan-950/50 border border-cyan-800/30 px-1.5 py-0.5 rounded text-cyan-300">{m}</span>)}
                   </div>
                 </div>
 
@@ -1385,13 +1558,13 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Blastoise}.png`} alt="Blastoise" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-blue-300">BW — Blastoise</div>
-                      <div className="fs-tiny text-neutral-500">Torrent · Modest · Choice Specs</div>
+                      <div className="fs-tiny text-neutral-500">Torrente · Modesta · Gafas Elegidas</div>
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 10 SpD / 248 Spe</div>
                   <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 31 HP / 31 Spe · High Spd / 31 Spa</div>
                   <div className="grid grid-cols-2 gap-0.5">
-                    {['Water Spout','Helping Hand','Blizzard'].map(m => <span key={m} className="fs-tiny bg-blue-950/50 border border-blue-800/30 px-1.5 py-0.5 rounded text-blue-300">{m}</span>)}
+                    {['Salpicar','Refuerzo','Ventisca'].map(m => <span key={m} className="fs-tiny bg-blue-950/50 border border-blue-800/30 px-1.5 py-0.5 rounded text-blue-300">{m}</span>)}
                   </div>
                 </div>
 
@@ -1423,7 +1596,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                   {startChecks[0] && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
                 </div>
                 <div>
-                  <div className={`fs-small font-black uppercase tracking-wider ${startChecks[0] ? 'text-emerald-300' : 'text-red-300'}`}>Amulet Coin / Luck Incense</div>
+                  <div className={`fs-small font-black uppercase tracking-wider ${startChecks[0] ? 'text-emerald-300' : 'text-red-300'}`}>Moneda Amuleto / Incienso Duplo</div>
                   <div className={`fs-tiny mt-0.5 ${startChecks[0] ? 'text-emerald-200/60' : 'text-red-200/70'}`}>Equipa este objeto en uno de tus Pokémon. ¡No lo olvides!</div>
                 </div>
               </button>
@@ -1490,5 +1663,9 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
         </div>
       )}
     </div>
+    {resetConfirmModal}
+    {resumePromptModal}
+    </>
   );
 }
+
