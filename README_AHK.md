@@ -12,3 +12,5 @@ Para poder ir marcando la guía "paso a paso" sin tener que salirte del juego (P
 4. Mientras juegas a PokeMMO, simplemente presiona **F4**. 
 
 El script enviará automáticamente la señal a la página para marcar tu siguiente paso y te regresará inmediatamente al juego, haciendo que no pierdas tiempo cambiando de ventana manualmente.
+
+**Nota:** Cambio menor aplicado el 2026-07-02 para forzar un commit/push.
