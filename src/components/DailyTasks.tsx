@@ -138,130 +138,129 @@ export default function DailyTasks({ gymsCompleted, isOpen, onToggle }: DailyTas
       </div>
 
       {isOpen && (
-        <div
-          className={`fixed inset-0 z-50 flex justify-end transition-all duration-300 ease-out ${
-            panelVisible ? "bg-black/60" : "bg-transparent pointer-events-none"
-          }`}
-          onClick={onToggle}
-        >
+        <>
+          <div className="fixed inset-0 z-40" onClick={onToggle} />
           <div
-            className={`w-full max-w-sm bg-neutral-900 h-full overflow-y-auto shadow-2xl border-l border-neutral-800 transition-all duration-300 ease-out ${
-              panelVisible ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"
+            className={`fixed z-50 right-3 transition-all duration-300 ease-out ${
+              panelVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
             }`}
-            onClick={e => e.stopPropagation()}
+            style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 148px)", maxHeight: "calc(100dvh - 180px)" }}
           >
-            <div className="sticky top-0 z-10 bg-gradient-to-b from-neutral-900 to-neutral-900/95 backdrop-blur-sm px-4 pt-4 pb-3 border-b border-neutral-800">
-              <div className="flex items-center justify-between">
+            <div
+              className="w-[340px] max-w-[calc(100vw-24px)] bg-neutral-900/95 backdrop-blur-xl rounded-2xl border border-neutral-800 shadow-2xl overflow-hidden flex flex-col"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="shrink-0 flex items-center justify-between px-4 pt-3 pb-2 border-b border-neutral-800">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-500/20">
                     <MessageCircle className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-black fs-body text-white">Tareas Diarias</h3>
+                    <h3 className="font-black fs-small text-white">Tareas Diarias</h3>
                     <p className="fs-tiny text-neutral-500">{completedCount}/{totalCount} · Reset {timeUntilReset}</p>
                   </div>
                 </div>
-                <button onClick={onToggle} className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition-all">
-                  <X className="w-4 h-4" />
+                <button onClick={onToggle} className="w-7 h-7 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition-all shrink-0">
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </div>
-            </div>
 
-            <div className="p-4 space-y-4">
-              <div className="flex items-start gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shrink-0 mt-1 shadow-md shadow-indigo-500/20">
-                  <MessageCircle className="w-4 h-4 text-white" />
-                </div>
-                <div className="bg-neutral-800 rounded-2xl px-3.5 py-2.5 max-w-[85%]"
-                  style={{ borderRadius: "4px 18px 18px 18px" }}
-                >
-                  <p className="fs-small text-neutral-300 leading-relaxed">
-                    ¡Hola! Estas son tus tareas disponibles. Completa los gimnasios para ganar. 💪
-                  </p>
-                  <span className="fs-tiny text-neutral-600 mt-1 block">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
-              </div>
-
-              {tasksState.tasks.map((task, idx) => {
-                const pct = Math.min(100, Math.round((task.currentCount / task.targetCount) * 100));
-                return (
-                  <div key={task.id} className="flex items-start gap-2.5 justify-end">
-                    <div
-                      className={`rounded-2xl px-3.5 py-2.5 max-w-[85%] transition-all ${
-                        task.completed
-                          ? "bg-emerald-700/40 border border-emerald-600/30"
-                          : "bg-indigo-700/30 border border-indigo-600/25"
-                      }`}
-                      style={{ borderRadius: "18px 4px 18px 18px" }}
-                    >
-                      <div className="flex items-center gap-1.5 mb-1">
-                        {task.completed && <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
-                        <span className={`font-black fs-small ${task.completed ? 'text-emerald-300' : 'text-indigo-200'}`}>
-                          {task.label}
-                        </span>
-                        <span className={`ml-auto fs-tiny font-bold ${task.completed ? 'text-emerald-400' : 'text-indigo-300'}`}>
-                          {task.currentCount}/{task.targetCount}
-                        </span>
-                      </div>
-                      <p className={`fs-tiny ${task.completed ? 'text-emerald-200/70' : 'text-indigo-200/60'} mb-2`}>
-                        {task.description}
-                      </p>
-                      <div className="w-full h-2 bg-black/30 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-700 ease-out ${
-                            task.completed
-                              ? "bg-gradient-to-r from-emerald-400 to-emerald-300"
-                              : "bg-gradient-to-r from-indigo-500 to-violet-500"
-                          }`}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                      <span className="fs-tiny text-neutral-600 mt-1.5 block">
-                        {task.completed ? "✅ Completada" : `${pct}% completado`}
-                      </span>
-                    </div>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1 shadow-md ${
-                      task.completed
-                        ? "bg-emerald-600/30 border border-emerald-500/30"
-                        : "bg-indigo-600/20 border border-indigo-500/20"
-                    }`}>
-                      <span className={`text-xs font-black ${task.completed ? 'text-emerald-400' : 'text-indigo-300'}`}>
-                        {idx + 1}
-                      </span>
-                    </div>
+              <div className="overflow-y-auto p-3 space-y-3">
+                <div className="flex items-start gap-2">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shrink-0 mt-0.5 shadow-sm shadow-indigo-500/20">
+                    <MessageCircle className="w-3.5 h-3.5 text-white" />
                   </div>
-                );
-              })}
-
-              {completedCount === totalCount && (
-                <div className="flex items-start gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0 mt-1 shadow-md shadow-emerald-500/20">
-                    <CheckCircle className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="bg-emerald-800/30 border border-emerald-700/30 rounded-2xl px-3.5 py-2.5 max-w-[85%]"
-                    style={{ borderRadius: "4px 18px 18px 18px" }}
+                  <div className="bg-neutral-800 rounded-2xl px-3 py-2 max-w-[260px]"
+                    style={{ borderRadius: "4px 16px 16px 16px" }}
                   >
-                    <p className="fs-small text-emerald-200 font-bold">¡Todas las tareas completadas! 🎉</p>
-                    <p className="fs-tiny text-emerald-300/70 mt-0.5">Vuelve cuando se reinicien en {timeUntilReset}.</p>
+                    <p className="fs-tiny text-neutral-300 leading-relaxed">
+                      ¡Hola! Estas son tus tareas disponibles. Completa los gimnasios para ganar. 💪
+                    </p>
+                    <span className="fs-tiny text-neutral-600 mt-1 block">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                 </div>
-              )}
 
-              <div className="flex items-start gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shrink-0 mt-1 shadow-md shadow-indigo-500/20">
-                  <Clock className="w-4 h-4 text-white" />
-                </div>
-                <div className="bg-neutral-800 rounded-2xl px-3.5 py-2 max-w-[85%]"
-                  style={{ borderRadius: "4px 18px 18px 18px" }}
-                >
-                  <p className="fs-tiny text-neutral-400">
-                    Las tareas se reinician automáticamente cada <span className="font-bold text-neutral-200">18h</span>.
-                  </p>
+                {tasksState.tasks.map((task, idx) => {
+                  const pct = Math.min(100, Math.round((task.currentCount / task.targetCount) * 100));
+                  return (
+                    <div key={task.id} className="flex items-start gap-2 justify-end">
+                      <div
+                        className={`rounded-2xl px-3 py-2.5 min-w-[200px] max-w-[260px] transition-all ${
+                          task.completed
+                            ? "bg-emerald-700/40 border border-emerald-600/30"
+                            : "bg-indigo-700/30 border border-indigo-600/25"
+                        }`}
+                        style={{ borderRadius: "16px 4px 16px 16px" }}
+                      >
+                        <div className="flex items-center gap-1.5 mb-1">
+                          {task.completed && <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
+                          <span className={`font-black fs-tiny ${task.completed ? 'text-emerald-300' : 'text-indigo-200'}`}>
+                            {task.label}
+                          </span>
+                          <span className={`ml-auto fs-tiny font-bold ${task.completed ? 'text-emerald-400' : 'text-indigo-300'}`}>
+                            {task.currentCount}/{task.targetCount}
+                          </span>
+                        </div>
+                        <p className={`fs-tiny ${task.completed ? 'text-emerald-200/70' : 'text-indigo-200/60'} mb-2`}>
+                          {task.description}
+                        </p>
+                        <div className="w-full h-1.5 bg-black/30 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-700 ease-out ${
+                              task.completed
+                                ? "bg-gradient-to-r from-emerald-400 to-emerald-300"
+                                : "bg-gradient-to-r from-indigo-500 to-violet-500"
+                            }`}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                        <span className="fs-tiny text-neutral-600 mt-1 block">
+                          {task.completed ? "✅ Completada" : `${pct}% completado`}
+                        </span>
+                      </div>
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow-sm ${
+                        task.completed
+                          ? "bg-emerald-600/30 border border-emerald-500/30"
+                          : "bg-indigo-600/20 border border-indigo-500/20"
+                      }`}>
+                        <span className={`text-[10px] font-black ${task.completed ? 'text-emerald-400' : 'text-indigo-300'}`}>
+                          {idx + 1}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {completedCount === totalCount && (
+                  <div className="flex items-start gap-2">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0 mt-0.5 shadow-sm shadow-emerald-500/20">
+                      <CheckCircle className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    <div className="bg-emerald-800/30 border border-emerald-700/30 rounded-2xl px-3 py-2 max-w-[260px]"
+                      style={{ borderRadius: "4px 16px 16px 16px" }}
+                    >
+                      <p className="fs-tiny text-emerald-200 font-bold">¡Todas las tareas completadas! 🎉</p>
+                      <p className="fs-tiny text-emerald-300/70 mt-0.5">Vuelve cuando se reinicien en {timeUntilReset}.</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-start gap-2">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-neutral-600 to-neutral-700 flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                    <Clock className="w-3.5 h-3.5 text-neutral-300" />
+                  </div>
+                  <div className="bg-neutral-800 rounded-2xl px-3 py-2 max-w-[260px]"
+                    style={{ borderRadius: "4px 16px 16px 16px" }}
+                  >
+                    <p className="fs-tiny text-neutral-400">
+                      Las tareas se reinician automáticamente cada <span className="font-bold text-neutral-200">18h</span>.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </>
   );

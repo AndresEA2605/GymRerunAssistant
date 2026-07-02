@@ -520,16 +520,6 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
     setCurrentStepIndex((prev) => {
       const nextIdx = prev === -1 ? 0 : Math.min(prev + 1, steps.length - 1);
-      if ((!manualTimerRef.current && prev === -1) || (prev === 0 && nextIdx === 1)) {
-        setTimerIsRunning(r => {
-          if (!r) {
-            setTimerStartTime(Date.now());
-            triggerToast("¡Ruta iniciada!");
-            return true;
-          }
-          return r;
-        });
-      }
       if (nextIdx !== prev) {
         setSlideClass("slide-in-right");
         setSlideKey(k => k + 1);
@@ -540,7 +530,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     if (isLeavingGym) {
       setSessionGymCount(prev => prev + 1);
     }
-  }, [currentStepIndex, steps, triggerToast]);
+  }, [currentStepIndex, steps]);
 
   const handlePrev = useCallback(() => {
     setCurrentStepIndex((prev) => {
@@ -560,6 +550,9 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
 
   const beginRun = useCallback(() => {
     setShowStartCheck(false);
+    setTimerIsRunning(true);
+    setTimerStartTime(Date.now());
+    triggerToast("¡Ruta iniciada!");
     if (!cooldown.endAt || cooldown.endAt <= Date.now()) {
       const firstGym = steps.find(s => s.type === "gym");
       if (firstGym) startGymCooldown(firstGym.gym || firstGym.title);
@@ -581,7 +574,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
         setCountdownValue(count);
       }
     }, 1000);
-  }, [cooldown.endAt, startGymCooldown, steps]);
+  }, [cooldown.endAt, startGymCooldown, steps, triggerToast]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
