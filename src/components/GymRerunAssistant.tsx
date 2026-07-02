@@ -267,27 +267,6 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const manualTimerRef = useRef(manualTimer);
   useEffect(() => { manualTimerRef.current = manualTimer; }, [manualTimer]);
 
-  const beginRun = useCallback(() => {
-    setShowStartCheck(false);
-    if (skipCountdownRef.current) {
-      handleNextRef.current();
-      return;
-    }
-    setShowCountdown(true);
-    let count = 5;
-    setCountdownValue(count);
-    const interval = setInterval(() => {
-      count--;
-      if (count <= 0) {
-        clearInterval(interval);
-        setShowCountdown(false);
-        handleNextRef.current();
-      } else {
-        setCountdownValue(count);
-      }
-    }, 1000);
-  }, []);
-
   const [timerIsRunning, setTimerIsRunning] = useState<boolean>(false);
   const [timerStartTime, setTimerStartTime] = useState<number | null>(null);
   const [timerElapsed, setTimerElapsed] = useState<number>(0);
@@ -445,11 +424,6 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   }, [cooldown.endAt, getLastCompletedGym, gymResetMs, startGymCooldown]);
 
   const handleNext = useCallback(() => {
-    const leavingStep = currentStepIndex >= 0 ? steps[currentStepIndex] : null;
-    const shouldMarkGymDone = Boolean(
-      leavingStep?.type === "gym" && currentStepIndex < steps.length - 1
-    );
-
     setCurrentStepIndex((prev) => {
       const nextIdx = prev === -1 ? 0 : Math.min(prev + 1, steps.length - 1);
       if ((!manualTimerRef.current && prev === -1) || (prev === 0 && nextIdx === 1)) {
@@ -469,9 +443,6 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       return nextIdx;
     });
 
-    if (shouldMarkGymDone) {
-      startGymCooldown(leavingStep?.gym || leavingStep?.title);
-    }
   }, [currentStepIndex, startGymCooldown, steps, triggerToast]);
 
   const handlePrev = useCallback(() => {
@@ -490,6 +461,31 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   useEffect(() => { handleNextRef.current = handleNext; }, [handleNext]);
   useEffect(() => { handlePrevRef.current = handlePrev; }, [handlePrev]);
 
+  const beginRun = useCallback(() => {
+    setShowStartCheck(false);
+    if (!cooldown.endAt || cooldown.endAt <= Date.now()) {
+      const firstGym = steps.find(s => s.type === "gym");
+      if (firstGym) startGymCooldown(firstGym.gym || firstGym.title);
+    }
+    if (skipCountdownRef.current) {
+      handleNextRef.current();
+      return;
+    }
+    setShowCountdown(true);
+    let count = 5;
+    setCountdownValue(count);
+    const interval = setInterval(() => {
+      count--;
+      if (count <= 0) {
+        clearInterval(interval);
+        setShowCountdown(false);
+        handleNextRef.current();
+      } else {
+        setCountdownValue(count);
+      }
+    }, 1000);
+  }, [cooldown.endAt, startGymCooldown, steps]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName || "")) return;
@@ -504,7 +500,14 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const startTimer = () => { setTimerIsRunning(true); setTimerStartTime(Date.now()); };
+  const startTimer = () => {
+    setTimerIsRunning(true);
+    setTimerStartTime(Date.now());
+    if (!cooldown.endAt || cooldown.endAt <= Date.now()) {
+      const firstGym = steps.find(s => s.type === "gym");
+      if (firstGym) startGymCooldown(firstGym.gym || firstGym.title);
+    }
+  };
   const pauseTimer = () => {
     setTimerIsRunning(false);
     if (timerStartTime) setTimerElapsed(prev => prev + (Date.now() - timerStartTime));
