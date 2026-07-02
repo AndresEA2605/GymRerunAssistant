@@ -333,6 +333,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const [sessionGymCount, setSessionGymCount] = useState<number>(0);
   const [showTasks, setShowTasks] = useState<boolean>(false);
   const [showCooldownNotice, setShowCooldownNotice] = useState<boolean>(false);
+  const [showActiveSessionModal, setShowActiveSessionModal] = useState<boolean>(false);
   const [lastRunStats, setLastRunStats] = useState<LastRunStats | null>(null);
   const [cooldown, setCooldown] = useState<CooldownState>({ endAt: null, lastGym: null });
   const [cooldownHours, setCooldownHours] = useState<string>("18");
@@ -898,7 +899,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           )}
 
           <div className="reveal-4 w-full grid grid-cols-4 gap-1.5 md:gap-2">
-            <button onClick={selectedGuide ? () => exitMenu() : () => setSelectedGuide(true)} title={selectedGuide ? "Iniciar la ruta seleccionada" : "Seleccionar esta guía"} className={`rounded-xl py-1.5 px-1 md:py-2 md:px-2 text-center transition-all relative overflow-hidden ${selectedGuide ? 'bg-indigo-600 border-2 border-indigo-400' : 'bg-neutral-900 border border-indigo-500/40 hover:bg-neutral-800'}`}>
+            <button onClick={selectedGuide ? () => { if (currentStepIndex >= 0) { setShowActiveSessionModal(true); } else { exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); }); } } : () => setSelectedGuide(true)} title={selectedGuide ? "Iniciar la ruta seleccionada" : "Seleccionar esta guía"} className={`rounded-xl py-1.5 px-1 md:py-2 md:px-2 text-center transition-all relative overflow-hidden ${selectedGuide ? 'bg-indigo-600 border-2 border-indigo-400' : 'bg-neutral-900 border border-indigo-500/40 hover:bg-neutral-800'}`}>
               <div className="flex flex-col items-center gap-0.5">
                 <div className="w-6 h-6 opacity-20">
                   <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/635.png" alt="" className="w-full h-full object-contain" />
@@ -941,13 +942,24 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
 
           {selectedGuide && (currentStepIndex > 0 ? (
-            <div className="reveal-4 w-full flex flex-col gap-1.5">
-              <button onClick={() => exitMenu()} title="Continuar la ruta desde donde la dejaste" className="w-full py-2 md:py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-small md:fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]">
-                ▶ CONTINUAR RUTA · Paso {currentStepIndex + 1}/{steps.length}
-              </button>
-              <button onClick={() => setPendingResetAction("route")} title="Empezar la ruta desde el principio" className="w-full py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 fs-tiny md:fs-small font-bold rounded-lg transition-colors">
-                Reiniciar desde cero
-              </button>
+            <div className="reveal-4 w-full space-y-2">
+              <div className="w-full bg-amber-950/20 border border-amber-700/40 rounded-xl p-3 flex items-start gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-900/40 border border-amber-700/30 flex items-center justify-center shrink-0 mt-0.5">
+                  <Info className="w-4 h-4 text-amber-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-black fs-small text-amber-300">Sesión activa</p>
+                  <p className="fs-tiny text-amber-200/70 mt-0.5">Hay una ruta en progreso en el paso {currentStepIndex + 1}/{steps.length}.</p>
+                  <div className="flex gap-2 mt-2">
+                    <button onClick={() => exitMenu()} className="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white fs-tiny font-bold rounded-lg transition-colors">
+                      Continuar
+                    </button>
+                    <button onClick={() => setPendingResetAction("route")} className="px-3 py-1 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 fs-tiny font-bold rounded-lg transition-colors">
+                      Empezar de cero
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : (
             <button onClick={() => exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); })} title="Comenzar la ruta seleccionada" className="reveal-4 w-full py-2 md:py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-small md:fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] btn-glow-active">
@@ -1167,6 +1179,44 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       {resetConfirmModal}
       {showCooldownNotice && (
         <CooldownNoticeModal cooldown={cooldown} onDismiss={() => setShowCooldownNotice(false)} />
+      )}
+      {showActiveSessionModal && (
+        <div className="fixed inset-0 z-[75] bg-black/85 flex items-center justify-center p-3">
+          <div className="bg-neutral-900 rounded-2xl border border-amber-700/50 w-full max-w-sm p-5 shadow-2xl shadow-amber-950/30">
+            <div className="flex items-start gap-3 mb-4 pb-3 border-b border-amber-800/30">
+              <div className="w-10 h-10 rounded-xl bg-amber-900/40 border border-amber-700/40 flex items-center justify-center shrink-0">
+                <Info className="w-5 h-5 text-amber-400" />
+              </div>
+              <div>
+                <h3 className="font-black fs-h3 text-amber-300">Sesión activa</h3>
+                <p className="fs-tiny text-amber-500/70 mt-0.5">Hay una ruta en progreso</p>
+              </div>
+            </div>
+            <p className="fs-body text-neutral-300 mb-1">
+              Tienes una ruta guardada en el paso {currentStepIndex + 1}/{steps.length}.
+            </p>
+            <p className="fs-tiny text-neutral-500 mb-4">
+              ¿Qué deseas hacer?
+            </p>
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                onClick={() => { setShowActiveSessionModal(false); exitMenu(); }}
+                className="py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black fs-body"
+              >
+                Continuar
+              </button>
+              <button
+                onClick={() => { setShowActiveSessionModal(false); setPendingResetAction("route"); }}
+                className="py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-black fs-body"
+              >
+                Empezar cero
+              </button>
+            </div>
+            <button onClick={() => setShowActiveSessionModal(false)} className="w-full mt-2 py-1.5 text-neutral-500 hover:text-white fs-tiny font-bold transition-colors">
+              Cancelar
+            </button>
+          </div>
+        </div>
       )}
       <DailyTasks gymsCompleted={sessionGymCount} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} />
       </>
@@ -1817,6 +1867,44 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     {resumePromptModal}
     {showCooldownNotice && (
       <CooldownNoticeModal cooldown={cooldown} onDismiss={() => setShowCooldownNotice(false)} />
+    )}
+    {showActiveSessionModal && (
+      <div className="fixed inset-0 z-[75] bg-black/85 flex items-center justify-center p-3">
+        <div className="bg-neutral-900 rounded-2xl border border-amber-700/50 w-full max-w-sm p-5 shadow-2xl shadow-amber-950/30">
+          <div className="flex items-start gap-3 mb-4 pb-3 border-b border-amber-800/30">
+            <div className="w-10 h-10 rounded-xl bg-amber-900/40 border border-amber-700/40 flex items-center justify-center shrink-0">
+              <Info className="w-5 h-5 text-amber-400" />
+            </div>
+            <div>
+              <h3 className="font-black fs-h3 text-amber-300">Sesión activa</h3>
+              <p className="fs-tiny text-amber-500/70 mt-0.5">Hay una ruta en progreso</p>
+            </div>
+          </div>
+          <p className="fs-body text-neutral-300 mb-1">
+            Tienes una ruta guardada en el paso {currentStepIndex + 1}/{steps.length}.
+          </p>
+          <p className="fs-tiny text-neutral-500 mb-4">
+            ¿Qué deseas hacer?
+          </p>
+          <div className="grid grid-cols-2 gap-2.5">
+            <button
+              onClick={() => { setShowActiveSessionModal(false); exitMenu(); }}
+              className="py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black fs-body"
+            >
+              Continuar
+            </button>
+            <button
+              onClick={() => { setShowActiveSessionModal(false); setPendingResetAction("route"); }}
+              className="py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-black fs-body"
+            >
+              Empezar cero
+            </button>
+          </div>
+          <button onClick={() => setShowActiveSessionModal(false)} className="w-full mt-2 py-1.5 text-neutral-500 hover:text-white fs-tiny font-bold transition-colors">
+            Cancelar
+          </button>
+        </div>
+      </div>
     )}
     <DailyTasks gymsCompleted={sessionGymCount} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} />
     </>
