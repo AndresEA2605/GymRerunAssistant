@@ -942,7 +942,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             </div>
           </div>
 
-          {selectedGuide && (currentStepIndex > 0 ? (
+          {selectedGuide && (currentStepIndex >= 0 ? (
             <div className="reveal-4 w-full space-y-2">
               <div className="w-full bg-amber-950/20 border border-amber-700/40 rounded-xl p-3 flex items-start gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-amber-900/40 border border-amber-700/30 flex items-center justify-center shrink-0 mt-0.5">
