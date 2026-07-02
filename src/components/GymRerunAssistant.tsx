@@ -104,6 +104,21 @@ const TimerDisplay = memo(({ isRunning, startTime, elapsedBeforePause }: { isRun
 TimerDisplay.displayName = "TimerDisplay";
 
 
+const CooldownBadge = ({ endAt }: { endAt: number | null }) => {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, []);
+  if (!endAt) return <span className="text-neutral-600 fs-tiny">--:--:--</span>;
+  const remaining = Math.max(0, endAt - now);
+  return (
+    <span className={`fs-tiny font-bold ${remaining > 0 ? "text-emerald-400" : "text-amber-400"}`}>
+      {remaining > 0 ? formatTime(remaining) : "LISTO"}
+    </span>
+  );
+};
+
 const matchPokemon = (text: string): { name: string; id: number } | null => {
   for (const [name, id] of Object.entries(POKEMON_ARTWORK)) {
     if (text.startsWith(name)) return { name, id };
@@ -238,16 +253,19 @@ const CooldownNoticeModal = memo(({ cooldown, onDismiss }: { cooldown: CooldownS
   const remaining = cooldown.endAt ? Math.max(0, cooldown.endAt - now) : 0;
   const expired = remaining <= 0 && cooldown.endAt !== null;
   return (
-    <div className="fixed inset-0 z-[80] bg-black/85 flex items-center justify-center p-3">
-      <div className="bg-neutral-900 rounded-3xl border border-emerald-700/50 w-full max-w-md p-6 shadow-2xl shadow-emerald-950/30">
-        <div className="text-center mb-5">
-          <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">Tiempo de reset de gyms</h2>
-          {cooldown.lastGym && (
-            <p className="fs-small text-neutral-500 mt-1">Último reset: <span className="font-bold text-neutral-300">{cooldown.lastGym}</span></p>
-          )}
+    <div className="fixed inset-0 z-[80] pointer-events-none flex items-center justify-center p-3">
+      <div className="pointer-events-auto bg-neutral-900/95 backdrop-blur-xl rounded-3xl border border-emerald-700/50 w-full max-w-md p-6 shadow-2xl shadow-emerald-950/30">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl md:text-2xl font-black text-white leading-tight">Tiempo de reset de gyms</h2>
+          <button onClick={onDismiss} className="w-7 h-7 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition-all shrink-0">
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
-        <div className="my-6 text-center">
-          <span className={`font-mono text-6xl md:text-7xl font-black tracking-tight ${expired ? "text-amber-400" : "text-emerald-400"}`} style={{ lineHeight: 1.1 }}>
+        {cooldown.lastGym && (
+          <p className="fs-small text-neutral-500 mb-1">Último reset: <span className="font-bold text-neutral-300">{cooldown.lastGym}</span></p>
+        )}
+        <div className="my-5 text-center">
+          <span className={`font-mono text-5xl md:text-6xl font-black tracking-tight ${expired ? "text-amber-400" : "text-emerald-400"}`} style={{ lineHeight: 1.1 }}>
             {expired ? "LISTO" : formatRemaining(remaining)}
           </span>
           <p className="fs-body text-neutral-400 mt-3">
@@ -259,7 +277,7 @@ const CooldownNoticeModal = memo(({ cooldown, onDismiss }: { cooldown: CooldownS
         <button
           autoFocus
           onClick={onDismiss}
-          className="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black fs-body transition-colors"
+          className="w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black fs-body transition-colors"
         >
           Entendido
         </button>
@@ -1459,7 +1477,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           <span className="text-neutral-700 shrink-0">|</span>
           <button onClick={() => setShowCooldownNotice(true)} className="flex items-center gap-1 shrink-0 smooth-transition px-2.5 py-1.5 bg-neutral-800 active:scale-95 hover:bg-neutral-700 text-neutral-300 rounded-lg font-bold fs-tiny">
             <Clock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span>Reset</span>
+            <CooldownBadge endAt={cooldown.endAt} />
           </button>
           <button onClick={() => requestGymCooldownStart()} className="smooth-transition px-2.5 py-1.5 bg-emerald-700 active:scale-95 hover:bg-emerald-600 text-white rounded-lg font-bold fs-tiny shrink-0">18h</button>
           <button onClick={openCooldownEditor} className="smooth-transition px-2.5 py-1.5 bg-neutral-700 active:scale-95 hover:bg-neutral-600 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0">Ajustar</button>
@@ -1499,6 +1517,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             <button onClick={() => setShowCooldownNotice(true)} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
               <Clock className="w-3.5 h-3.5 text-emerald-400" />
               <span className="fs-tiny text-neutral-500 font-semibold mr-0.5">Gyms</span>
+              <CooldownBadge endAt={cooldown.endAt} />
             </button>
             <div className="flex gap-1">
               <button onClick={() => requestGymCooldownStart()} className="px-2 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded font-bold fs-tiny">18h</button>
