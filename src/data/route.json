@@ -33,8 +33,12 @@
     "gym": "Trigal",
     "title": "Trigal",
     "lead": [
-      "Typhlosion - Slot 2",
+      "Typhlosion",
       "Blastoise"
+    ],
+    "actions": [
+      "Typhlosion (segundo slot) → usar en el turno 1",
+      "Blastoise (BW) → cambiar a Gafas Elegidas"
     ]
   },
   {
@@ -99,7 +103,7 @@
       "Typhlosion"
     ],
     "actions": [
-      "Metagross → T1 -> Día Soleado (con Typhlosion), T2 -> Golpe Bajo (con Weezing)",
+      "Metagross → Día Soleado (con Typhlosion)",
       "Resto → Golpe Bajo (con Weezing)"
     ]
   },
@@ -133,7 +137,8 @@
       "Togekiss"
     ],
     "actions": [
-      "Usar Día Soleado (con Hydreigon)"
+      "Usar Día Soleado (con Hydreigon)",
+      "Resto → Viento Afín (con Togekiss)"
     ]
   },
   {
@@ -194,6 +199,9 @@
     "lead": [
       "Typhlosion",
       "Vanilluxe"
+    ],
+    "actions": [
+      "Usar Typhlosion + Vanilluxe para el combate final"
     ]
   },
   {
@@ -220,6 +228,10 @@
     "lead": [
       "Blastoise",
       "Togekiss"
+    ],
+    "actions": [
+      "Usar Blastoise + Togekiss",
+      "Curar si recibe daño"
     ]
   },
   {
@@ -233,7 +245,8 @@
       "Blastoise"
     ],
     "actions": [
-      "Usar Golpe Bajo (con Weezing)"
+      "Usar Golpe Bajo (con Weezing)",
+      "Resto → Surf (con Blastoise)"
     ]
   },
   {
@@ -260,6 +273,10 @@
     "lead": [
       "Typhlosion",
       "Togekiss"
+    ],
+    "actions": [
+      "Usar Typhlosion + Togekiss",
+      "Cambiar a Gafas Elegidas para Typhlosion y Togekiss"
     ]
   },
   {
@@ -289,9 +306,12 @@
       "Hydreigon"
     ],
     "actions": [
-      "Usar Surf (con Hydreigon)",
-      "Stantler, Spinda, Blissey o Chansey → Cambiar a: Typhlosion + Togekiss (Psicocarga a Blissey con Togekiss)",
-      "Spinda (Turno 4) → Cambiar a: Vanilluxe + Togekiss"
+      "Stantler, Spinda, Blissey o Chansey → cambiar a Typhlosion + Togekiss (Psicocarga a Blissey)",
+      "Spinda (turno 4) → cambiar a Vanilluxe + Togekiss"
+    ],
+    "switchTo": [
+      "Typhlosion",
+      "Togekiss"
     ]
   },
   {
@@ -318,6 +338,9 @@
     "lead": [
       "Togekiss",
       "Blastoise"
+    ],
+    "actions": [
+      "Usar Togekiss + Blastoise"
     ]
   },
   {
@@ -407,9 +430,8 @@
       "Hydreigon"
     ],
     "actions": [
-      "Usar Surf (con Hydreigon)",
-      "Excadrill → Cambiar a: Typhlosion + Togekiss",
-      "Resto → Cambiar a: Togekiss + Blastoise (BW)"
+      "Excadrill → cambiar a Typhlosion + Togekiss",
+      "Resto → cambiar a Togekiss + Blastoise (BW)"
     ]
   },
   {
@@ -438,10 +460,9 @@
       "Hydreigon"
     ],
     "actions": [
-      "Usar Surf (con Hydreigon)",
-      "Pelipper → Cambiar a: Togekiss + Blastoise (BW)",
-      "Gigalith + Aron → Cambiar a: Typhlosion + Togekiss",
-      "Bastiodon → Cambiar a: Vanilluxe + Blastoise (BW)"
+      "Pelipper → cambiar a Togekiss + Blastoise (BW)",
+      "Gigalith + Aron → cambiar a Typhlosion + Togekiss",
+      "Bastiodon → cambiar a Vanilluxe + Blastoise (BW)"
     ]
   },
   {
@@ -470,8 +491,8 @@
       "Hydreigon"
     ],
     "actions": [
-      "Lucario o Wobbuffet → Surf (con Hydreigon) -> Cambiar a: Typhlosion + Togekiss",
-      "Resto → Viento Afín (con Togekiss) -> Cambiar a: Typhlosion + Togekiss"
+      "Lucario o Wobbuffet → Surf (con Hydreigon) y cambiar a Typhlosion + Togekiss",
+      "Resto → Viento Afín (con Togekiss)"
     ]
   },
   {
@@ -526,8 +547,8 @@
       "Togekiss"
     ],
     "actions": [
-      "Curar si algún Pokémon recibió daño",
-      "Si hay lluvia -> Usar Rapidez (con Typhlosion)"
+      "Si hay lluvia → Rapidez (con Typhlosion)",
+      "Curar si algún Pokémon recibió daño"
     ]
   },
   {
@@ -664,7 +685,7 @@
     "gym": "Fucsia",
     "title": "Fucsia",
     "lead": [
-      "Typhlosion - Slot 1",
+      "Typhlosion",
       "Togekiss"
     ],
     "actions": [
@@ -697,6 +718,9 @@
     "lead": [
       "Typhlosion",
       "Blastoise"
+    ],
+    "actions": [
+      "Usar Typhlosion + Blastoise"
     ]
   },
   {
@@ -708,6 +732,9 @@
     "lead": [
       "Blastoise",
       "Togekiss"
+    ],
+    "actions": [
+      "Usar Blastoise + Togekiss"
     ]
   },
   {
@@ -736,8 +763,8 @@
       "Blastoise"
     ],
     "actions": [
-      "Usar Golpe Bajo (con Weezing) / Salpicar (con Blastoise (BW))",
-      "Si Weezing cae -> entrar Vanilluxe"
+      "Usar Golpe Bajo (con Weezing)",
+      "Si Weezing cae → entrar Vanilluxe"
     ]
   },
   {
@@ -766,7 +793,7 @@
       "Vanilluxe"
     ],
     "actions": [
-      "Unfezant → Cambiar a Weezing en T1 por Blastoise (BW). Usar Golpe Bajo en T2 y T3 (con Weezing)"
+      "Unfezant → cambiar a Weezing en T1 y usar Golpe Bajo en T2 y T3"
     ]
   },
   {
@@ -802,8 +829,8 @@
     ],
     "actions": [
       "Usar Surf (con Hydreigon)",
-      "Hydreigon → Cambiar a: Typhlosion + Togekiss",
-      "Resto → Cambiar a: Vanilluxe + Togekiss"
+      "Hydreigon → cambiar a Typhlosion + Togekiss",
+      "Resto → cambiar a Vanilluxe + Togekiss"
     ]
   },
   {
@@ -828,11 +855,15 @@
     "gym": "Striaton",
     "title": "Striaton",
     "actions": [
-      "Líder Fuego -> Equipo: Togekiss + Blastoise (BW)",
-      "Líder Planta -> Equipo: Typhlosion + Togekiss",
-      "Líder Agua -> Equipo: Typhlosion + Togekiss",
-      "Estrategia: Refuerzo (con Togekiss) + Vozarrón (con Typhlosion)",
-      "Si alguno cae -> entrar Weezing y usar Golpe Bajo"
+      "Líder Fuego → Togekiss + Blastoise (BW)",
+      "Líder Planta → Typhlosion + Togekiss",
+      "Líder Agua → Typhlosion + Togekiss",
+      "Estrategia → Refuerzo (con Togekiss) + Vozarrón (con Typhlosion)",
+      "Si alguno cae → entrar Weezing y usar Golpe Bajo"
+    ],
+    "lead": [
+      "Togekiss",
+      "Blastoise"
     ]
   },
   {
