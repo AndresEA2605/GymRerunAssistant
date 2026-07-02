@@ -42,6 +42,7 @@ export interface DailyTask {
   targetCount: number;
   currentCount: number;
   completed: boolean;
+  targetElapsedMs?: number;
 }
 
 export interface DailyTasksState {

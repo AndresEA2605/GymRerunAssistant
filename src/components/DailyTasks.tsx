@@ -1,30 +1,79 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { X, CheckCircle, Clock, MessageCircle } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { X, CheckCircle, Clock, MessageCircle, Zap, Timer, Medal, Flame } from "lucide-react";
 import { DailyTask, DailyTasksState } from "../types";
 
-const DAILY_TASKS_SEED: DailyTask[] = [
-  {
-    id: "gyms_10",
-    label: "10 Gyms",
-    description: "Completa 10 gimnasios",
-    targetCount: 10,
-    currentCount: 0,
-    completed: false,
-  },
-  {
-    id: "gyms_15",
-    label: "15 Gyms (Diaria)",
-    description: "Completa 15 gimnasios — tarea diaria completada",
-    targetCount: 15,
-    currentCount: 0,
-    completed: false,
-  },
+interface PoolTask {
+  id: string;
+  label: string;
+  description: string;
+  targetCount: number;
+  targetElapsedMs?: number;
+}
+
+const TASK_POOL: PoolTask[] = [
+  { id: "t1", label: "Aquecimento", description: "Completa 3 gimnasios", targetCount: 3 },
+  { id: "t2", label: "5 Gyms", description: "Completa 5 gimnasios", targetCount: 5 },
+  { id: "t3", label: "10 Gyms", description: "Llega a 10 gimnasios", targetCount: 10 },
+  { id: "t4", label: "15 Gyms", description: "Meta principal: completa los 15 gimnasios", targetCount: 15 },
+  { id: "t5", label: "20 Gyms", description: "Llega a 20 gimnasios", targetCount: 20 },
+  { id: "t6", label: "25 Gyms", description: "Supera los 25 gimnasios", targetCount: 25 },
+  { id: "t7", label: "30 Gyms", description: "Casi la full run: 30 gimnasios", targetCount: 30 },
+  { id: "t8", label: "Full Run", description: "Completa los 33 gimnasios de una run", targetCount: 33 },
+  { id: "t9", label: "Explorador", description: "Descubre 8 gimnasios diferentes", targetCount: 8 },
+  { id: "t10", label: "Rápido", description: "Completa 8 gimnasios en menos de 12 min", targetCount: 8, targetElapsedMs: 12 * 60 * 1000 },
+  { id: "t11", label: "Express", description: "10 gimnasios en menos de 18 min", targetCount: 10, targetElapsedMs: 18 * 60 * 1000 },
+  { id: "t12", label: "Maratón", description: "La run dura más de 30 min", targetCount: 1, targetElapsedMs: 30 * 60 * 1000 },
+  { id: "t13", label: "Acelerando", description: "Primeros 3 gimnasios en menos de 4 min", targetCount: 3, targetElapsedMs: 4 * 60 * 1000 },
+  { id: "t14", label: "Ritmo Constante", description: "12 gimnasios en menos de 20 min", targetCount: 12, targetElapsedMs: 20 * 60 * 1000 },
+  { id: "t15", label: "Calentamiento", description: "Completa 2 gimnasios", targetCount: 2 },
+  { id: "t16", label: "Imparable", description: "Completa 18 gimnasios", targetCount: 18 },
+  { id: "t17", label: "Medio Camino", description: "Llega a 7 gimnasios", targetCount: 7 },
+  { id: "t18", label: "Décimo", description: "Completa exactamente 10 gimnasios", targetCount: 10 },
+  { id: "t19", label: "Arrasando", description: "22 gimnasios en la run", targetCount: 22 },
+  { id: "t20", label: "Sprint Final", description: "Completa 6 gimnasios seguidos", targetCount: 6 },
 ];
 
+const TASKS_PER_DAY = 5;
 const TASKS_LS_KEY = "pkmmo_daily_tasks";
 const RESET_MS = 18 * 60 * 60 * 1000;
+
+function seededRandom(seed: number): () => number {
+  let s = seed;
+  return () => {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    return (s >>> 0) / 0xffffffff;
+  };
+}
+
+function pickDailyTasks(dateSeed: number): PoolTask[] {
+  const rng = seededRandom(dateSeed);
+  const pool = [...TASK_POOL];
+  const picked: PoolTask[] = [];
+  for (let i = 0; i < TASKS_PER_DAY && pool.length > 0; i++) {
+    const idx = Math.floor(rng() * pool.length);
+    picked.push(pool.splice(idx, 1)[0]);
+  }
+  return picked;
+}
+
+function getDateSeed(): number {
+  const now = Date.now();
+  return Math.floor(now / RESET_MS);
+}
+
+function poolToTasks(pool: PoolTask[]): DailyTask[] {
+  return pool.map(t => ({
+    id: t.id,
+    label: t.label,
+    description: t.description,
+    targetCount: t.targetCount,
+    targetElapsedMs: t.targetElapsedMs,
+    currentCount: 0,
+    completed: false,
+  }));
+}
 
 function loadTasks(): DailyTasksState {
   try {
@@ -36,7 +85,8 @@ function loadTasks(): DailyTasksState {
       }
     }
   } catch {}
-  return { tasks: DAILY_TASKS_SEED.map(t => ({ ...t })), lastResetAt: Date.now() };
+  const seed = getDateSeed();
+  return { tasks: poolToTasks(pickDailyTasks(seed)), lastResetAt: Date.now() };
 }
 
 function saveTasks(state: DailyTasksState) {
@@ -45,11 +95,12 @@ function saveTasks(state: DailyTasksState) {
 
 interface DailyTasksProps {
   gymsCompleted: number;
+  timerElapsedMs?: number;
   isOpen: boolean;
   onToggle: () => void;
 }
 
-export default function DailyTasks({ gymsCompleted, isOpen, onToggle }: DailyTasksProps) {
+export default function DailyTasks({ gymsCompleted, timerElapsedMs = 0, isOpen, onToggle }: DailyTasksProps) {
   const [tasksState, setTasksState] = useState<DailyTasksState>(loadTasks);
   const [panelVisible, setPanelVisible] = useState(false);
 
@@ -65,7 +116,8 @@ export default function DailyTasks({ gymsCompleted, isOpen, onToggle }: DailyTas
     setTasksState(prev => {
       const elapsed = Date.now() - prev.lastResetAt;
       if (elapsed >= RESET_MS) {
-        const fresh: DailyTasksState = { tasks: DAILY_TASKS_SEED.map(t => ({ ...t })), lastResetAt: Date.now() };
+        const seed = getDateSeed();
+        const fresh: DailyTasksState = { tasks: poolToTasks(pickDailyTasks(seed)), lastResetAt: Date.now() };
         saveTasks(fresh);
         return fresh;
       }
@@ -75,16 +127,26 @@ export default function DailyTasks({ gymsCompleted, isOpen, onToggle }: DailyTas
 
   useEffect(() => {
     setTasksState(prev => {
-      const updated = prev.tasks.map(task => ({
-        ...task,
-        currentCount: Math.min(gymsCompleted, task.targetCount),
-        completed: Math.min(gymsCompleted, task.targetCount) >= task.targetCount,
-      }));
+      const updated = prev.tasks.map(task => {
+        let currentCount: number;
+        if (task.targetElapsedMs != null) {
+          currentCount = timerElapsedMs >= task.targetElapsedMs && gymsCompleted >= task.targetCount
+            ? task.targetCount
+            : Math.min(gymsCompleted, task.targetCount);
+        } else {
+          currentCount = Math.min(gymsCompleted, task.targetCount);
+        }
+        return {
+          ...task,
+          currentCount,
+          completed: currentCount >= task.targetCount,
+        };
+      });
       const next: DailyTasksState = { ...prev, tasks: updated };
       saveTasks(next);
       return next;
     });
-  }, [gymsCompleted]);
+  }, [gymsCompleted, timerElapsedMs]);
 
   const timeUntilReset = (() => {
     const elapsed = Date.now() - tasksState.lastResetAt;
@@ -97,6 +159,8 @@ export default function DailyTasks({ gymsCompleted, isOpen, onToggle }: DailyTas
   const completedCount = tasksState.tasks.filter(t => t.completed).length;
   const totalCount = tasksState.tasks.length;
   const pendingCount = totalCount - completedCount;
+
+  const icons = [Zap, Timer, Medal, Flame, CheckCircle];
 
   return (
     <>
@@ -174,7 +238,7 @@ export default function DailyTasks({ gymsCompleted, isOpen, onToggle }: DailyTas
                     style={{ borderRadius: "4px 16px 16px 16px" }}
                   >
                     <p className="fs-tiny text-neutral-300 leading-relaxed">
-                      ¡Hola! Estas son tus tareas disponibles. Completa los gimnasios para ganar. 💪
+                      ¡Tareas del día! Completá gimnasios para ganar. 💪
                     </p>
                     <span className="fs-tiny text-neutral-600 mt-1 block">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
@@ -182,34 +246,47 @@ export default function DailyTasks({ gymsCompleted, isOpen, onToggle }: DailyTas
 
                 {tasksState.tasks.map((task, idx) => {
                   const pct = Math.min(100, Math.round((task.currentCount / task.targetCount) * 100));
+                  const Icon = icons[idx % icons.length];
                   return (
                     <div key={task.id} className="flex items-start gap-2 justify-end">
                       <div
                         className={`rounded-2xl px-3 py-2.5 min-w-[200px] max-w-[260px] transition-all ${
                           task.completed
                             ? "bg-emerald-700/40 border border-emerald-600/30"
-                            : "bg-indigo-700/30 border border-indigo-600/25"
+                            : task.targetElapsedMs != null
+                              ? "bg-amber-700/25 border border-amber-600/20"
+                              : "bg-indigo-700/30 border border-indigo-600/25"
                         }`}
                         style={{ borderRadius: "16px 4px 16px 16px" }}
                       >
                         <div className="flex items-center gap-1.5 mb-1">
                           {task.completed && <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
-                          <span className={`font-black fs-tiny ${task.completed ? 'text-emerald-300' : 'text-indigo-200'}`}>
+                          <span className={`font-black fs-tiny ${task.completed ? 'text-emerald-300' : task.targetElapsedMs != null ? 'text-amber-200' : 'text-indigo-200'}`}>
                             {task.label}
                           </span>
-                          <span className={`ml-auto fs-tiny font-bold ${task.completed ? 'text-emerald-400' : 'text-indigo-300'}`}>
+                          {task.targetElapsedMs != null && (
+                            <Timer className={`w-3 h-3 ${task.completed ? 'text-emerald-400' : 'text-amber-300'}`} />
+                          )}
+                          <span className={`ml-auto fs-tiny font-bold ${task.completed ? 'text-emerald-400' : task.targetElapsedMs != null ? 'text-amber-300' : 'text-indigo-300'}`}>
                             {task.currentCount}/{task.targetCount}
                           </span>
                         </div>
-                        <p className={`fs-tiny ${task.completed ? 'text-emerald-200/70' : 'text-indigo-200/60'} mb-2`}>
+                        <p className={`fs-tiny ${task.completed ? 'text-emerald-200/70' : task.targetElapsedMs != null ? 'text-amber-200/60' : 'text-indigo-200/60'} mb-2`}>
                           {task.description}
+                          {task.targetElapsedMs != null && (
+                            <span className="block mt-0.5 font-mono opacity-70">
+                              ⏱ {Math.floor(task.targetElapsedMs / 60000)}min
+                            </span>
+                          )}
                         </p>
                         <div className="w-full h-1.5 bg-black/30 rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all duration-700 ease-out ${
                               task.completed
                                 ? "bg-gradient-to-r from-emerald-400 to-emerald-300"
-                                : "bg-gradient-to-r from-indigo-500 to-violet-500"
+                                : task.targetElapsedMs != null
+                                  ? "bg-gradient-to-r from-amber-500 to-orange-400"
+                                  : "bg-gradient-to-r from-indigo-500 to-violet-500"
                             }`}
                             style={{ width: `${pct}%` }}
                           />
@@ -221,11 +298,11 @@ export default function DailyTasks({ gymsCompleted, isOpen, onToggle }: DailyTas
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow-sm ${
                         task.completed
                           ? "bg-emerald-600/30 border border-emerald-500/30"
-                          : "bg-indigo-600/20 border border-indigo-500/20"
+                          : task.targetElapsedMs != null
+                            ? "bg-amber-600/20 border border-amber-500/20"
+                            : "bg-indigo-600/20 border border-indigo-500/20"
                       }`}>
-                        <span className={`text-[10px] font-black ${task.completed ? 'text-emerald-400' : 'text-indigo-300'}`}>
-                          {idx + 1}
-                        </span>
+                        <Icon className={`w-3.5 h-3.5 ${task.completed ? 'text-emerald-400' : task.targetElapsedMs != null ? 'text-amber-300' : 'text-indigo-300'}`} />
                       </div>
                     </div>
                   );
@@ -239,8 +316,8 @@ export default function DailyTasks({ gymsCompleted, isOpen, onToggle }: DailyTas
                     <div className="bg-emerald-800/30 border border-emerald-700/30 rounded-2xl px-3 py-2 max-w-[260px]"
                       style={{ borderRadius: "4px 16px 16px 16px" }}
                     >
-                      <p className="fs-tiny text-emerald-200 font-bold">¡Todas las tareas completadas! 🎉</p>
-                      <p className="fs-tiny text-emerald-300/70 mt-0.5">Vuelve cuando se reinicien en {timeUntilReset}.</p>
+                      <p className="fs-tiny text-emerald-200 font-bold">¡Todas completadas! 🎉</p>
+                      <p className="fs-tiny text-emerald-300/70 mt-0.5">Volvé en {timeUntilReset} para nuevas tareas.</p>
                     </div>
                   </div>
                 )}
@@ -253,7 +330,7 @@ export default function DailyTasks({ gymsCompleted, isOpen, onToggle }: DailyTas
                     style={{ borderRadius: "4px 16px 16px 16px" }}
                   >
                     <p className="fs-tiny text-neutral-400">
-                      Las tareas se reinician automáticamente cada <span className="font-bold text-neutral-200">18h</span>.
+                      Tareas renovadas cada <span className="font-bold text-neutral-200">18h</span>. ¡Siempre hay nuevos desafíos!
                     </p>
                   </div>
                 </div>

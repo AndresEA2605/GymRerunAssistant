@@ -103,24 +103,6 @@ const TimerDisplay = memo(({ isRunning, startTime, elapsedBeforePause }: { isRun
 });
 TimerDisplay.displayName = "TimerDisplay";
 
-const CooldownDisplay = memo(({ endAt }: { endAt: number | null }) => {
-  const [now, setNow] = useState(() => Date.now());
-
-  useEffect(() => {
-    const intervalId = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(intervalId);
-  }, []);
-
-  if (!endAt) return <span className="font-mono fs-body font-black text-neutral-500">--:--:--</span>;
-
-  const remaining = Math.max(0, endAt - now);
-  return (
-    <span className={`font-mono fs-body font-black ${remaining > 0 ? "text-emerald-400" : "text-amber-400"}`}>
-      {remaining > 0 ? formatTime(remaining) : "LISTO"}
-    </span>
-  );
-});
-CooldownDisplay.displayName = "CooldownDisplay";
 
 const matchPokemon = (text: string): { name: string; id: number } | null => {
   for (const [name, id] of Object.entries(POKEMON_ARTWORK)) {
@@ -257,27 +239,27 @@ const CooldownNoticeModal = memo(({ cooldown, onDismiss }: { cooldown: CooldownS
   const expired = remaining <= 0 && cooldown.endAt !== null;
   return (
     <div className="fixed inset-0 z-[80] bg-black/85 flex items-center justify-center p-3">
-      <div className="bg-neutral-900 rounded-2xl border border-emerald-700/50 w-full max-w-sm p-5 shadow-2xl shadow-emerald-950/30">
-        <h3 className="font-black fs-h2 text-white">{expired ? "⏰ Reset de Gyms Listo" : "⏳ Reset de Gyms Activo"}</h3>
-        <p className="fs-body text-neutral-400 mt-2">
-          {expired
-            ? "El tiempo de espera de 18h ya terminó. ¡Puedes volver a hacer los gimnasios!"
-            : "Tiempo restante para que se reinicien los gimnasios:"}
-        </p>
-        <div className="my-5 text-center">
-          <span className={`font-mono text-5xl font-black ${expired ? "text-amber-400" : "text-emerald-400"}`}>
+      <div className="bg-neutral-900 rounded-3xl border border-emerald-700/50 w-full max-w-md p-6 shadow-2xl shadow-emerald-950/30">
+        <div className="text-center mb-5">
+          <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">Tiempo de reset de gyms</h2>
+          {cooldown.lastGym && (
+            <p className="fs-small text-neutral-500 mt-1">Último reset: <span className="font-bold text-neutral-300">{cooldown.lastGym}</span></p>
+          )}
+        </div>
+        <div className="my-6 text-center">
+          <span className={`font-mono text-6xl md:text-7xl font-black tracking-tight ${expired ? "text-amber-400" : "text-emerald-400"}`} style={{ lineHeight: 1.1 }}>
             {expired ? "LISTO" : formatRemaining(remaining)}
           </span>
-        </div>
-        {cooldown.lastGym && (
-          <p className="fs-tiny text-neutral-500 mb-4 text-center">
-            Último reset desde: <span className="font-bold text-neutral-300">{cooldown.lastGym}</span>
+          <p className="fs-body text-neutral-400 mt-3">
+            {expired
+              ? "El tiempo de espera de 18h ya terminó. ¡Podés volver a hacer los gimnasios!"
+              : "Tiempo restante para que se reinicien los gimnasios"}
           </p>
-        )}
+        </div>
         <button
           autoFocus
           onClick={onDismiss}
-          className="w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black fs-body"
+          className="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black fs-body transition-colors"
         >
           Entendido
         </button>
@@ -301,6 +283,8 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const [loaded, setLoaded] = useState<boolean>(false);
   const [menuExiting, setMenuExiting] = useState<boolean>(false);
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
+  const currentStepIndexRef = useRef(currentStepIndex);
+  useEffect(() => { currentStepIndexRef.current = currentStepIndex; }, [currentStepIndex]);
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [showTeam, setShowTeam] = useState<boolean>(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState<boolean>(false);
@@ -579,6 +563,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName || "")) return;
+      if (currentStepIndexRef.current === -1) return;
       if (e.code === "Space" || e.code === "ArrowRight") {
         e.preventDefault();
         handleNextRef.current();
@@ -892,7 +877,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           )}
 
           <div className="reveal-4 w-full grid grid-cols-4 gap-1.5 md:gap-2">
-            <button onClick={selectedGuide ? () => { if (currentStepIndex >= 0) { setShowActiveSessionModal(true); } else { exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); }); } } : () => setSelectedGuide(true)} title={selectedGuide ? "Iniciar la ruta seleccionada" : "Seleccionar esta guía"} className={`rounded-xl py-1.5 px-1 md:py-2 md:px-2 text-center transition-all relative overflow-hidden ${selectedGuide ? 'bg-indigo-600 border-2 border-indigo-400' : 'bg-neutral-900 border border-indigo-500/40 hover:bg-neutral-800'}`}>
+            <button onClick={selectedGuide ? () => exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); }) : () => setSelectedGuide(true)} title={selectedGuide ? "Iniciar la ruta seleccionada" : "Seleccionar esta guía"} className={`rounded-xl py-1.5 px-1 md:py-2 md:px-2 text-center transition-all relative overflow-hidden ${selectedGuide ? 'bg-indigo-600 border-2 border-indigo-400' : 'bg-neutral-900 border border-indigo-500/40 hover:bg-neutral-800'}`}>
               <div className="flex flex-col items-center gap-0.5">
                 <div className="w-6 h-6 opacity-20">
                   <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/635.png" alt="" className="w-full h-full object-contain" />
@@ -1211,7 +1196,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
         </div>
       )}
-      <DailyTasks gymsCompleted={sessionGymCount} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} />
+      <DailyTasks gymsCompleted={sessionGymCount} timerElapsedMs={timerElapsed} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} />
       </>
     );
   }
@@ -1472,10 +1457,10 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           )}
           <button onClick={requestTimerReset} className="smooth-transition px-3 py-1.5 bg-neutral-700 active:scale-95 hover:bg-neutral-600 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0"><RotateCcw className="w-4 h-4"/></button>
           <span className="text-neutral-700 shrink-0">|</span>
-          <div className="flex items-center gap-1 shrink-0">
+          <button onClick={() => setShowCooldownNotice(true)} className="flex items-center gap-1 shrink-0 smooth-transition px-2.5 py-1.5 bg-neutral-800 active:scale-95 hover:bg-neutral-700 text-neutral-300 rounded-lg font-bold fs-tiny">
             <Clock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <CooldownDisplay endAt={cooldown.endAt} />
-          </div>
+            <span>Reset</span>
+          </button>
           <button onClick={() => requestGymCooldownStart()} className="smooth-transition px-2.5 py-1.5 bg-emerald-700 active:scale-95 hover:bg-emerald-600 text-white rounded-lg font-bold fs-tiny shrink-0">18h</button>
           <button onClick={openCooldownEditor} className="smooth-transition px-2.5 py-1.5 bg-neutral-700 active:scale-95 hover:bg-neutral-600 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0">Ajustar</button>
           <button onClick={requestFinishRun} className="smooth-transition px-3 py-1.5 bg-red-700 active:scale-95 hover:bg-red-600 text-white rounded-lg font-bold fs-tiny shrink-0">Terminar</button>
@@ -1511,11 +1496,10 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           <div className="h-5 w-px bg-neutral-700" />
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5">
+            <button onClick={() => setShowCooldownNotice(true)} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
               <Clock className="w-3.5 h-3.5 text-emerald-400" />
               <span className="fs-tiny text-neutral-500 font-semibold mr-0.5">Gyms</span>
-              <CooldownDisplay endAt={cooldown.endAt} />
-            </div>
+            </button>
             <div className="flex gap-1">
               <button onClick={() => requestGymCooldownStart()} className="px-2 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded font-bold fs-tiny">18h</button>
               <button onClick={openCooldownEditor} className="px-2 py-1 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded font-bold fs-tiny">Ajustar</button>
@@ -1899,7 +1883,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
         </div>
       </div>
     )}
-    <DailyTasks gymsCompleted={sessionGymCount} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} />
+    <DailyTasks gymsCompleted={sessionGymCount} timerElapsedMs={timerElapsed} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} />
     </>
   );
 }
