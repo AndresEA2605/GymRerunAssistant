@@ -54,6 +54,15 @@ type StoredTimerState = {
 
 type PendingResetAction = "timer" | "route" | "cooldown" | null;
 
+type TimerEventType = "start" | "pause" | "reset" | "finish" | "route_reset" | "cooldown_start" | "cooldown_edit";
+
+interface TimerEventLog {
+  type: TimerEventType;
+  timestamp: number;
+  elapsed: number;
+  stepIndex: number;
+}
+
 const formatTime = (ms: number): string => {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
   const hours = Math.floor(totalSeconds / 3600);
@@ -62,6 +71,15 @@ const formatTime = (ms: number): string => {
   return [hours, minutes, seconds]
     .map((unit) => String(unit).padStart(2, "0"))
     .join(":");
+};
+
+const formatRemaining = (ms: number): string => {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  if (minutes > 0) return `${minutes}m ${totalSeconds % 60}s`;
+  return `${totalSeconds}s`;
 };
 
 const TimerDisplay = memo(({ isRunning, startTime, elapsedBeforePause }: { isRunning: boolean, startTime: number | null, elapsedBeforePause: number }) => {
@@ -229,6 +247,46 @@ const PokeBackground = memo(() => (
 ));
 PokeBackground.displayName = "PokeBackground";
 
+const CooldownNoticeModal = memo(({ cooldown, onDismiss }: { cooldown: CooldownState; onDismiss: () => void }) => {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const intervalId = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(intervalId);
+  }, []);
+  const remaining = cooldown.endAt ? Math.max(0, cooldown.endAt - now) : 0;
+  const expired = remaining <= 0 && cooldown.endAt !== null;
+  return (
+    <div className="fixed inset-0 z-[80] bg-black/85 flex items-center justify-center p-3">
+      <div className="bg-neutral-900 rounded-2xl border border-emerald-700/50 w-full max-w-sm p-5 shadow-2xl shadow-emerald-950/30">
+        <h3 className="font-black fs-h2 text-white">{expired ? "⏰ Reset de Gyms Listo" : "⏳ Reset de Gyms Activo"}</h3>
+        <p className="fs-body text-neutral-400 mt-2">
+          {expired
+            ? "El tiempo de espera de 18h ya terminó. ¡Puedes volver a hacer los gimnasios!"
+            : "Tiempo restante para que se reinicien los gimnasios:"}
+        </p>
+        <div className="my-5 text-center">
+          <span className={`font-mono text-5xl font-black ${expired ? "text-amber-400" : "text-emerald-400"}`}>
+            {expired ? "LISTO" : formatRemaining(remaining)}
+          </span>
+        </div>
+        {cooldown.lastGym && (
+          <p className="fs-tiny text-neutral-500 mb-4 text-center">
+            Último reset desde: <span className="font-bold text-neutral-300">{cooldown.lastGym}</span>
+          </p>
+        )}
+        <button
+          autoFocus
+          onClick={onDismiss}
+          className="w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black fs-body"
+        >
+          Entendido
+        </button>
+      </div>
+    </div>
+  );
+});
+CooldownNoticeModal.displayName = "CooldownNoticeModal";
+
 export default function GymRerunAssistant({ steps, gymCoords, regionMap, config = {} }: GymRerunAssistantProps) {
   const {
     totalGyms = 33,
@@ -274,6 +332,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const [timerElapsed, setTimerElapsed] = useState<number>(0);
   const [sessionGymCount, setSessionGymCount] = useState<number>(0);
   const [showTasks, setShowTasks] = useState<boolean>(false);
+  const [showCooldownNotice, setShowCooldownNotice] = useState<boolean>(false);
   const [lastRunStats, setLastRunStats] = useState<LastRunStats | null>(null);
   const [cooldown, setCooldown] = useState<CooldownState>({ endAt: null, lastGym: null });
   const [cooldownHours, setCooldownHours] = useState<string>("18");
@@ -312,6 +371,19 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       return null;
     }
   };
+
+  const logTimerEvent = useCallback((type: TimerEventType) => {
+    try {
+      const now = Date.now();
+      const currentTotal = timerIsRunning && timerStartTime ? timerElapsed + (now - timerStartTime) : timerElapsed;
+      const event: TimerEventLog = { type, timestamp: now, elapsed: currentTotal, stepIndex: currentStepIndex };
+      const raw = localStorage.getItem(LS("gym_timer_events"));
+      const events: TimerEventLog[] = raw ? JSON.parse(raw) : [];
+      events.push(event);
+      if (events.length > 100) events.splice(0, events.length - 100);
+      localStorage.setItem(LS("gym_timer_events"), JSON.stringify(events));
+    } catch {}
+  }, [timerIsRunning, timerStartTime, timerElapsed, currentStepIndex, LS]);
 
   const currentStep = currentStepIndex >= 0 ? steps[currentStepIndex] || steps[0] : null;
 
@@ -354,6 +426,9 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       const endAt = typeof savedCooldown.endAt === "number" && Number.isFinite(savedCooldown.endAt) ? savedCooldown.endAt : null;
       const lastGym = typeof savedCooldown.lastGym === "string" ? savedCooldown.lastGym : null;
       setCooldown({ endAt, lastGym });
+      if (endAt && endAt > Date.now()) {
+        setShowCooldownNotice(true);
+      }
     }
 
     setLoaded(true);
@@ -402,6 +477,15 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     setLS("gym_cooldown", JSON.stringify(cooldown));
   }, [loaded, cooldown]);
 
+  useEffect(() => {
+    if (!loaded || !timerIsRunning) return;
+    const interval = window.setInterval(() => {
+      const currentTotal = timerElapsed + (Date.now() - (timerStartTime || Date.now()));
+      setLS("gym_timer", JSON.stringify({ elapsed: currentTotal, isRunning: true, startedAt: timerStartTime }));
+    }, 5000);
+    return () => window.clearInterval(interval);
+  }, [loaded, timerIsRunning, timerElapsed, timerStartTime]);
+
   const getLastCompletedGym = useCallback(() => {
     for (let i = currentStepIndex; i >= 0; i--) {
       const step = steps[i];
@@ -416,8 +500,9 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     setCooldown(nextCooldown);
     setCooldownHours(String(Math.floor(durationMs / 3600000)));
     setCooldownMinutes(String(Math.round((durationMs % 3600000) / 60000)));
+    logTimerEvent("cooldown_start");
     triggerToast(`Reset gyms activo: ${lastGym}`);
-  }, [getLastCompletedGym, gymResetMs, triggerToast]);
+  }, [getLastCompletedGym, gymResetMs, triggerToast, logTimerEvent]);
 
   const requestGymCooldownStart = useCallback((durationMs = gymResetMs) => {
     setPendingCooldownDurationMs(durationMs);
@@ -514,6 +599,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const startTimer = () => {
     setTimerIsRunning(true);
     setTimerStartTime(Date.now());
+    logTimerEvent("start");
     if (!cooldown.endAt || cooldown.endAt <= Date.now()) {
       const firstGym = steps.find(s => s.type === "gym");
       if (firstGym) startGymCooldown(firstGym.gym || firstGym.title);
@@ -523,6 +609,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     setTimerIsRunning(false);
     if (timerStartTime) setTimerElapsed(prev => prev + (Date.now() - timerStartTime));
     setTimerStartTime(null);
+    logTimerEvent("pause");
   };
   const resetTimer = () => { setTimerIsRunning(false); setTimerStartTime(null); setTimerElapsed(0); };
   const requestTimerReset = () => setPendingResetAction("timer");
@@ -531,12 +618,14 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const confirmPendingReset = () => {
     if (pendingResetAction === "timer") {
       resetTimer();
+      logTimerEvent("reset");
       triggerToast("Cronómetro reiniciado");
     }
 
     if (pendingResetAction === "route") {
       setCurrentStepIndex(-1);
       resetTimer();
+      logTimerEvent("route_reset");
       triggerToast("Ruta reiniciada");
     }
 
@@ -562,6 +651,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     setHistory(updatedHistory);
     setLS("gym_history", JSON.stringify(updatedHistory));
     setLastRunStats({ elapsed: finalElapsed, gymsCompleted: totalGymsDone, totalGyms, finishedAt: Date.now() });
+    logTimerEvent("finish");
     startGymCooldown(getLastCompletedGym());
     resetTimer();
     setSessionGymCount(0);
@@ -1075,6 +1165,9 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
       )}
       {resumePromptModal}
       {resetConfirmModal}
+      {showCooldownNotice && (
+        <CooldownNoticeModal cooldown={cooldown} onDismiss={() => setShowCooldownNotice(false)} />
+      )}
       <DailyTasks gymsCompleted={sessionGymCount} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} />
       </>
     );
@@ -1709,6 +1802,9 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     </div>
     {resetConfirmModal}
     {resumePromptModal}
+    {showCooldownNotice && (
+      <CooldownNoticeModal cooldown={cooldown} onDismiss={() => setShowCooldownNotice(false)} />
+    )}
     <DailyTasks gymsCompleted={sessionGymCount} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} />
     </>
   );
