@@ -956,20 +956,8 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           ))}
 
           {selectedGuide && (
-            <button onClick={() => setShowTeam(true)} title="Ver el equipo Pokémon recomendado para esta ruta" className="reveal-5 w-full bg-neutral-900/80 border border-violet-500/30 hover:border-violet-400/60 rounded-2xl p-2.5 md:p-3 flex items-center gap-3 group transition-all hover:bg-neutral-800/80">
-              <div className="flex items-center -space-x-2">
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/635.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-10" loading="lazy" />
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/110.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-9" loading="lazy" />
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/468.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-8" loading="lazy" />
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/157.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-7" loading="lazy" />
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/584.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-6" loading="lazy" />
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/9.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-5" loading="lazy" />
-              </div>
-              <div className="flex-1 text-left">
-                <div className="fs-small md:fs-body font-black text-white group-hover:text-violet-300 transition-colors">Equipo de la Run</div>
-                <div className="fs-tiny text-neutral-500">Hydreigon · Weezing · Togekiss · Typhlosion · Vanilluxe · Blastoise</div>
-              </div>
-              <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-violet-400/60 group-hover:text-violet-400 transition-colors shrink-0" />
+            <button onClick={() => setShowTeam(true)} title="Ver el equipo Pokémon recomendado para esta ruta" className="reveal-5 w-full py-2 md:py-2.5 bg-violet-600/80 hover:bg-violet-600 text-white fs-small md:fs-body font-black rounded-xl transition-all flex items-center justify-center gap-2">
+              <Users className="w-4 h-4 md:w-5 md:h-5" />VER EQUIPO
             </button>
           )}
 
@@ -1208,10 +1196,6 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
             <div className="fs-small text-neutral-500">{currentStepIndex === -1 ? "Portada" : <>Paso <span className="font-bold text-neutral-300">{currentStepIndex + 1}</span> / {steps.length}</>}</div>
             <button onClick={() => goToMenu()} title="Volver al menú principal" className="px-2 py-1 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700 fs-tiny font-bold uppercase tracking-wider">Menú</button>
           </div>
-          
-          <div className="flex items-center gap-2">
-            <button onClick={() => setShowTeam(true)} title="Ver equipo de la ruta actual" className="px-3 py-1.5 bg-violet-900/40 text-violet-300 border border-violet-700/40 rounded hover:bg-violet-800/50 fs-small font-bold uppercase tracking-wider">Equipo</button>
-          </div>
         </header>
 
         {currentStepIndex !== -1 && (
@@ -1393,6 +1377,23 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
 
           {currentStepIndex !== -1 && (<>
+          <div className="reveal w-full max-w-4xl mt-3">
+            <button onClick={() => setShowTeam(true)} title="Ver el equipo Pokémon recomendado para esta ruta" className="w-full bg-neutral-900/80 border border-violet-500/20 hover:border-violet-400/40 rounded-2xl p-2.5 md:p-3 flex items-center gap-3 group transition-all hover:bg-neutral-800/80">
+              <div className="flex items-center -space-x-2 shrink-0">
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/635.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-10" loading="lazy" />
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/110.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-9" loading="lazy" />
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/468.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-8" loading="lazy" />
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/157.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-7" loading="lazy" />
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/584.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-6" loading="lazy" />
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/9.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-5" loading="lazy" />
+              </div>
+              <div className="flex-1 text-left min-w-0">
+                <div className="fs-small md:fs-body font-black text-white group-hover:text-violet-300 transition-colors">Equipo de la Run</div>
+                <div className="fs-tiny text-neutral-500 truncate">Hydreigon · Weezing · Togekiss · Typhlosion · Vanilluxe · Blastoise</div>
+              </div>
+              <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-violet-400/60 group-hover:text-violet-400 transition-colors shrink-0" />
+            </button>
+          </div>
           <div className="w-full max-w-4xl mt-4 md:mt-6 space-y-2 md:space-y-3">
             <div className="flex gap-2 md:gap-4">
               <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="flex-1 py-3 md:py-4 bg-neutral-900 rounded-xl fs-tiny md:fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
