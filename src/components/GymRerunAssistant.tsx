@@ -551,10 +551,25 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
     });
   }, []);
 
+  const stepNavRef = useRef<HTMLDivElement | null>(null);
+  const stepButtonRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
   const handleNextRef = useRef(handleNext);
   const handlePrevRef = useRef(handlePrev);
   useEffect(() => { handleNextRef.current = handleNext; }, [handleNext]);
   useEffect(() => { handlePrevRef.current = handlePrev; }, [handlePrev]);
+
+  useEffect(() => {
+    if (currentStepIndex === -1) return;
+    const button = stepButtonRefs.current[currentStepIndex];
+    if (button?.scrollIntoView) {
+      button.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    } else if (stepNavRef.current) {
+      const nav = stepNavRef.current;
+      const target = stepNavRef.current.querySelectorAll("button")[currentStepIndex] as HTMLElement | undefined;
+      target?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
+  }, [currentStepIndex]);
 
   const beginRun = useCallback(() => {
     setShowStartCheck(false);
@@ -1222,32 +1237,41 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
         </header>
 
         {currentStepIndex !== -1 && (
-        <div
-          className="flex-none overflow-x-auto px-2 py-1.5 md:px-4 md:py-2 border-b border-neutral-800/50 bg-neutral-950/40 scrollbar-thin scroll-smooth"
-          style={{ WebkitOverflowScrolling: 'touch' }}
-          onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY * 1.5; }}
-        >
-          <div className="flex gap-1 min-w-max">
-            {steps.map((step, idx) => (
-              <button
-                key={step.id}
-                onClick={() => setCurrentStepIndex(idx)}
-                title={`Ir al paso ${idx + 1}: ${step.title || step.type}`}
-                className={`flex items-center gap-1 px-2 py-1 md:px-2.5 md:py-1.5 rounded-lg fs-tiny font-bold whitespace-nowrap transition-all ${
-                  idx === currentStepIndex
-                    ? "bg-indigo-600 text-white shadow-[0_0_12px_rgba(99,102,241,0.4)]"
-                    : idx < currentStepIndex
-                    ? "bg-neutral-800/60 text-neutral-300 hover:bg-neutral-700/80"
-                    : "bg-neutral-800/30 text-neutral-400 hover:bg-neutral-700/60"
-                }`}
-              >
-                <span className="tabular-nums w-3 md:w-4 text-center text-[10px] md:text-xs">{idx + 1}</span>
-                <span>{renderIcon(step.type)}</span>
-                <span className="max-w-[70px] md:max-w-[90px] truncate text-[10px] md:text-xs">{step.title}</span>
-              </button>
-            ))}
+          <div className="w-full px-2 md:px-4 py-2">
+            <div className="mb-2 flex items-center justify-between gap-3 text-[11px] md:text-sm font-bold uppercase tracking-[0.18em] text-neutral-400">
+              <span className="text-indigo-300">Paso {currentStepIndex + 1}</span>
+              <span className="truncate text-white">{currentStep?.title || steps[currentStepIndex]?.title || `Paso ${currentStepIndex + 1}`}</span>
+              <span className="text-neutral-500">{currentStepIndex + 1}/{steps.length}</span>
+            </div>
+            <div
+              ref={stepNavRef}
+              className="flex-none overflow-x-auto px-2 py-1.5 md:px-4 md:py-2 border-b border-neutral-800/50 bg-neutral-950/40 scrollbar-thin scroll-smooth"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+              onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY * 1.5; }}
+            >
+              <div className="flex gap-1 min-w-max">
+                {steps.map((step, idx) => (
+                  <button
+                    key={step.id}
+                    ref={(el) => { stepButtonRefs.current[idx] = el; }}
+                    onClick={() => setCurrentStepIndex(idx)}
+                    title={`Ir al paso ${idx + 1}: ${step.title || step.type}`}
+                    className={`flex items-center gap-1 px-2 py-1 md:px-2.5 md:py-1.5 rounded-lg fs-tiny font-bold whitespace-nowrap transition-all ${
+                      idx === currentStepIndex
+                        ? "bg-indigo-600 text-white shadow-[0_0_12px_rgba(99,102,241,0.4)]"
+                        : idx < currentStepIndex
+                        ? "bg-neutral-800/60 text-neutral-300 hover:bg-neutral-700/80"
+                        : "bg-neutral-800/30 text-neutral-400 hover:bg-neutral-700/60"
+                    }`}
+                  >
+                    <span className="tabular-nums w-3 md:w-4 text-center text-[10px] md:text-xs">{idx + 1}</span>
+                    <span>{renderIcon(step.type)}</span>
+                    <span className="max-w-[70px] md:max-w-[90px] truncate text-[10px] md:text-xs">{step.title}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
         )}
         <div className="flex-1 flex flex-col items-center justify-center p-1.5 md:p-8 lg:p-12 overflow-y-auto overflow-x-hidden">
           <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-2 md:p-8 lg:p-12 shadow-2xl relative text-center smooth-transition ${slideClass}`}>
