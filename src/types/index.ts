@@ -97,4 +97,8 @@ export interface GuideMeta {
   icon: string;
   color: string;
   credits: GuideCredits;
+  team: { name: string; spriteId: number }[];
+  difficulty: 'Baja' | 'Media' | 'Media-Alta' | 'Alta';
+  estimatedCost: string;
+  info: string[];
 }

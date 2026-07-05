@@ -1022,21 +1022,59 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       <div className="grid grid-cols-3 gap-1.5 md:gap-2">
                         {catGuides.map(g => {
                           const gc = GUIDE_COLORS[g.color] || GUIDE_COLORS.indigo;
+                          const diffColors: Record<string, string> = {
+                            'Baja': 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+                            'Media': 'text-amber-400 bg-amber-500/10 border-amber-500/30',
+                            'Media-Alta': 'text-orange-400 bg-orange-500/10 border-orange-500/30',
+                            'Alta': 'text-red-400 bg-red-500/10 border-red-500/30',
+                          };
                           return (
-                            <button
-                              key={g.id}
-                              onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')}
-                              title={`${g.title} — ${g.subtitle}`}
-                              className={`rounded-xl py-2 px-1 text-center transition-all bg-neutral-900 ${gc.border} hover:bg-neutral-800 ${gc.borderHover}`}
-                            >
-                              <div className="flex flex-col items-center gap-0.5">
-                                <div className="w-8 h-8 opacity-30">
-                                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
+                            <div key={g.id} className="relative group">
+                              <button
+                                onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')}
+                                title={`${g.title} — ${g.subtitle}`}
+                                className={`w-full rounded-xl py-2 px-1 text-center transition-all bg-neutral-900 ${gc.border} hover:bg-neutral-800 ${gc.borderHover}`}
+                              >
+                                <div className="flex flex-col items-center gap-0.5">
+                                  <div className="w-8 h-8 opacity-30">
+                                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
+                                  </div>
+                                  <span className={`fs-tiny font-bold leading-tight ${gc.text}`}>{g.title}</span>
+                                  <span className={`fs-tiny font-bold px-1.5 rounded-full leading-tight ${gc.text} ${gc.bg}`}>PLAY</span>
                                 </div>
-                                <span className={`fs-tiny font-bold leading-tight ${gc.text}`}>{g.title}</span>
-                                <span className={`fs-tiny font-bold px-1.5 rounded-full leading-tight ${gc.text} ${gc.bg}`}>PLAY</span>
+                              </button>
+
+                              <div className="hidden group-hover:block absolute z-50 left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 pointer-events-none">
+                                <div className="bg-neutral-900 border border-neutral-700 rounded-xl p-3 shadow-2xl shadow-black/50 space-y-2">
+                                  <div className="flex items-center justify-between">
+                                    <span className={`fs-tiny font-black ${gc.textLight}`}>{g.title}</span>
+                                    <span className={`fs-tiny font-bold px-1.5 py-0.5 rounded border ${diffColors[g.difficulty] || diffColors.Media}`}>{g.difficulty}</span>
+                                  </div>
+
+                                  <p className="fs-tiny text-neutral-400 leading-snug">{g.subtitle}</p>
+
+                                  <div className="flex items-center gap-1">
+                                    {g.team.map(p => (
+                                      <img key={p.spriteId} src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${p.spriteId}.gif`} alt={p.name} className="w-6 h-6 object-contain" loading="lazy" />
+                                    ))}
+                                  </div>
+
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="fs-tiny text-neutral-500">Costo:</span>
+                                    <span className="fs-tiny font-bold text-amber-400">{g.estimatedCost}</span>
+                                  </div>
+
+                                  <div className="space-y-0.5">
+                                    {g.info.map((line, i) => (
+                                      <div key={i} className="flex items-start gap-1.5">
+                                        <span className="fs-tiny text-neutral-600 mt-px">•</span>
+                                        <span className="fs-tiny text-neutral-400 leading-snug">{line}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
                               </div>
-                            </button>
+                            </div>
                           );
                         })}
                       </div>

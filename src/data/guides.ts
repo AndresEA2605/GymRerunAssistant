@@ -24,6 +24,22 @@ export const GUIDES: GuideMeta[] = [
         youtube: 'https://www.youtube.com/watch?v=himBCqDN2-I',
       },
     },
+    team: [
+      { name: 'Hydreigon', spriteId: 635 },
+      { name: 'Weezing', spriteId: 110 },
+      { name: 'Togekiss', spriteId: 468 },
+      { name: 'Typhlosion', spriteId: 157 },
+      { name: 'Vanilluxe', spriteId: 584 },
+      { name: 'Blastoise', spriteId: 9 },
+    ],
+    difficulty: 'Media',
+    estimatedCost: '~500k PokéYen',
+    info: [
+      '33 gimnasios secuenciales',
+      '~297k sin moneda amuleto',
+      '~446k con moneda amuleto',
+      '~45 min por run completa',
+    ],
   },
   {
     id: 'hooh',
@@ -41,6 +57,19 @@ export const GUIDES: GuideMeta[] = [
         youtube: 'https://www.youtube.com/watch?v=QEwUZKASfeI',
       },
     },
+    team: [
+      { name: 'Chandelure', spriteId: 609 },
+      { name: 'Rotom', spriteId: 479 },
+      { name: 'Lunatone', spriteId: 337 },
+    ],
+    difficulty: 'Media',
+    estimatedCost: '~150k PokéYen',
+    info: [
+      '10 turnos exactos',
+      '~8 min por run',
+      '~97k PokéYen por run',
+      'Señuelos Legendarios a 30k c/u',
+    ],
   },
   {
     id: 'guide2',
@@ -58,6 +87,22 @@ export const GUIDES: GuideMeta[] = [
         docs: 'https://docs.google.com/document/d/1GkgTlrZwm2jUO_aD_U9Gha8CaljwRQaMLMMJfpsr4Bc/edit?tab=t.kd1fquq7r0zb',
       },
     },
+    team: [
+      { name: 'Togekiss', spriteId: 468 },
+      { name: 'Excadrill', spriteId: 530 },
+      { name: 'Blastoise', spriteId: 9 },
+      { name: 'Vanilluxe', spriteId: 584 },
+      { name: 'Aerodactyl', spriteId: 142 },
+      { name: 'Typhlosion', spriteId: 157 },
+    ],
+    difficulty: 'Media-Alta',
+    estimatedCost: '~600k PokéYen',
+    info: [
+      '25 gimnasios alternativos',
+      '5 regiones con leads optimizados',
+      'Swaps tácticos por tipo',
+      'Cobertura completa de tipos',
+    ],
   },
 ];
 
