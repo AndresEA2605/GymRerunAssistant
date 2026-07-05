@@ -1310,9 +1310,22 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               <button onClick={() => setShowTeam(true)} className="w-full py-2 md:py-2.5 bg-violet-600/80 hover:bg-violet-600 text-white fs-small md:fs-body font-black rounded-xl transition-all flex items-center justify-center gap-2">
                 <Users className="w-4 h-4 md:w-5 md:h-5" />VER EQUIPO
               </button>
-              <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 bg-neutral-900 border border-neutral-700 rounded-xl text-neutral-300 fs-tiny text-center opacity-0 pointer-events-none group-hover/btn:opacity-100 transition-opacity whitespace-nowrap z-50 shadow-xl">
-                Muestra el equipo Pokémon recomendado, IVs, EVs, movimientos y objetos de la ruta seleccionada
-              </div>
+              {(() => {
+                const guide = getGuide(selectedGuideId);
+                if (!guide) return null;
+                return (
+                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-3 bg-neutral-900 border border-neutral-700 rounded-xl text-neutral-300 fs-tiny text-center opacity-0 pointer-events-none group-hover/btn:opacity-100 transition-opacity whitespace-nowrap z-50 shadow-xl w-max">
+                    <div className="flex items-center gap-2">
+                      {guide.team.slice(0, 6).map((t, i) => (
+                        <div key={i} className="w-10 h-10 rounded-lg bg-neutral-950 border border-neutral-800 flex items-center justify-center p-1">
+                          <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${t.spriteId}.gif`} alt={t.name} className="w-full h-full object-contain" loading="lazy" />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-2 text-neutral-400">{guide.team.map(t => t.name).join(' · ')}</div>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
