@@ -398,6 +398,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [showTasks, setShowTasks] = useState<boolean>(false);
   const [showCooldownNotice, setShowCooldownNotice] = useState<boolean>(false);
   const [showActiveSessionModal, setShowActiveSessionModal] = useState<boolean>(false);
+  const [focusStepMode, setFocusStepMode] = useState<boolean>(false);
   const [lastRunStats, setLastRunStats] = useState<LastRunStats | null>(null);
   const [cooldown, setCooldown] = useState<CooldownState>({ endAt: null, lastGym: null });
   const [allCooldowns, setAllCooldowns] = useState<AllCooldowns>({
@@ -1718,7 +1719,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     <div className={`app-enter ${appExiting ? "app-exit" : ""} flex bg-neutral-950 text-neutral-200 overflow-hidden font-sans relative`} style={{ height: '100dvh' }}>
       <PokeBackground />
       
-      <main className={`flex-1 flex flex-col h-full relative z-10 overflow-y-auto overflow-x-hidden ${currentStepIndex === -1 ? "pb-0" : selectedGuideId === "hooh" ? "pb-[calc(var(--footer-hooh-height)+1.5rem)]" : "pb-[calc(var(--footer-routes-height)+2rem)]"}`}>
+      <main className={`flex-1 flex flex-col h-full relative z-10 ${focusStepMode ? "overflow-hidden" : "overflow-y-auto"} overflow-x-hidden ${currentStepIndex === -1 ? "pb-0" : selectedGuideId === "hooh" ? "pb-[calc(var(--footer-hooh-height)+1.5rem)]" : "pb-[calc(var(--footer-routes-height)+2rem)]"}`}>
         {guideLoading && (
           <div className="absolute inset-0 z-50 bg-neutral-950/90 backdrop-blur-sm flex items-center justify-center">
             <LoadingSpinner size="lg" text="Cargando guía..." />
@@ -1740,6 +1741,16 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {currentStepIndex !== -1 && (
+              <Button
+                variant={focusStepMode ? "success" : "secondary"}
+                size="sm"
+                onClick={() => setFocusStepMode((prev) => !prev)}
+                className="px-3"
+              >
+                {focusStepMode ? "Cerrar foco" : "Modo foco"}
+              </Button>
+            )}
             {isRoutesGuide(selectedGuideId) && (
               <div className="hidden md:flex items-center gap-2">
                 <div className="flex items-center gap-2 bg-neutral-800/60 rounded-xl px-2 py-1">
@@ -1761,7 +1772,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
               </div>
             )}
-
             <button onClick={() => goToMenu()} title="Volver al menú principal" className="shrink-0 px-3 py-2 bg-neutral-800 text-neutral-400 rounded-lg hover:bg-neutral-700 fs-tiny font-bold uppercase tracking-wider">
               Menú
             </button>
@@ -1842,8 +1852,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             </div>
           </div>
         ))}
-          <div className="flex-1 flex flex-col items-center justify-center p-2 md:p-8 lg:p-12 overflow-y-auto overflow-x-hidden">
-          <div key={slideKey} className={`w-full max-w-6xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-2 md:p-5 lg:p-8 shadow-2xl relative text-center smooth-transition ${slideClass} scroll-mb-[var(--footer-routes-height)]`}>
+          <div className="flex-1 flex flex-col items-center justify-center p-2 md:p-8 lg:p-12 overflow-hidden">
+          <div key={slideKey} className={`w-full ${focusStepMode ? 'h-full max-w-full rounded-none' : 'max-w-6xl'} bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-2 md:p-5 lg:p-8 shadow-2xl relative text-center smooth-transition ${slideClass} scroll-mb-[var(--footer-routes-height)] ${focusStepMode ? 'fixed inset-0 z-40 overflow-y-auto' : 'max-h-[calc(100dvh-14rem)] overflow-hidden'}`}>
             
             <div className="absolute -top-6 -right-6 w-24 h-24 opacity-[0.04] pointer-events-none select-none">
               <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif" alt="" className="w-full h-full object-contain" />
@@ -1923,19 +1933,34 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
 
               {currentStep!.type === "gym" && currentStep!.gym && gymCoords[currentStep!.gym as keyof typeof gymCoords] && (
-                <div className="reveal-2 w-full max-w-[160px] h-20 md:max-w-[200px] md:h-28 relative rounded-lg border border-neutral-700/50 overflow-hidden shrink-0 bg-neutral-950 shadow-inner group">
-                  <img src={regionMap[gymCoords[currentStep!.gym as keyof typeof gymCoords].region as keyof typeof regionMap]} alt="Region Map" className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
-                  <div className="absolute inset-0 bg-indigo-900/10 mix-blend-color" />
-                  <div 
-                    className="absolute w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.8)] -translate-x-1/2 -translate-y-1/2 animate-bounce"
-                    style={{ 
-                      left: `${gymCoords[currentStep!.gym as keyof typeof gymCoords].x}%`, 
-                      top: `${gymCoords[currentStep!.gym as keyof typeof gymCoords].y}%` 
-                    }}
-                  />
-                  <div className="absolute bottom-0.5 right-1 fs-tiny font-black uppercase tracking-widest text-white/80 drop-shadow-md">MAPA</div>
-              </div>
-            )}
+                <div className="grid gap-4 lg:grid-cols-[1.25fr_0.75fr] items-start text-left">
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap items-center gap-3 justify-center lg:justify-start">
+                      <span className="p-3 bg-neutral-950 rounded-2xl border border-neutral-800 shrink-0">{renderIcon(currentStep!.type)}</span>
+                      <div>
+                        <h2 className="fs-h3 font-black tracking-tight text-white">{currentStep!.title}</h2>
+                        <div className="flex flex-wrap items-center gap-2 mt-2">
+                          {currentStep!.region && <span className="fs-small font-bold uppercase tracking-widest px-3 py-2 rounded border bg-neutral-950 text-neutral-400 border-neutral-800">{currentStep!.region}</span>}
+                          <span className="fs-tiny text-neutral-500">{currentStep!.gym}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="rounded-3xl border border-neutral-800 bg-neutral-950/70 p-4">
+                      <div className="fs-tiny uppercase font-black tracking-widest text-neutral-400 mb-2">Información</div>
+                      <p className="text-neutral-300 leading-relaxed">{currentStep!.description || currentStep!.title}</p>
+                    </div>
+                  </div>
+                  <div className="rounded-3xl border border-neutral-800 overflow-hidden bg-neutral-950 shadow-inner">
+                    <div className="p-3 border-b border-neutral-800 bg-neutral-900 text-neutral-300 uppercase fs-tiny font-black tracking-widest">Ciudad / Región</div>
+                    <div className="relative h-44 md:h-56">
+                      <img src={regionMap[gymCoords[currentStep!.gym as keyof typeof gymCoords].region as keyof typeof regionMap]} alt="Region Map" className="absolute inset-0 w-full h-full object-cover opacity-70" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/0" />
+                      <div className="absolute left-3 bottom-3 rounded-2xl bg-black/70 px-3 py-2 text-white fs-body font-bold">{currentStep!.region}</div>
+                      <div className="absolute right-3 top-3 rounded-2xl bg-white/10 px-2 py-1 text-white fs-tiny uppercase tracking-widest">MAPA</div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </>) : currentGymGroup && (
               <>
                 <div className="reveal-1 flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-3 w-full">
@@ -1944,11 +1969,32 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   <span className="fs-tiny md:fs-small font-bold uppercase tracking-widest px-2 md:px-2 py-1 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentGymGroup.region}</span>
                 </div>
                 {currentGymGroup.gymStep.gym && gymCoords[currentGymGroup.gymStep.gym as keyof typeof gymCoords] && (
-                  <div className="reveal-2 w-full max-w-[160px] h-20 md:max-w-[200px] md:h-28 relative rounded-lg border border-neutral-700/50 overflow-hidden shrink-0 bg-neutral-950 shadow-inner group">
-                    <img src={regionMap[gymCoords[currentGymGroup.gymStep.gym as keyof typeof gymCoords].region as keyof typeof regionMap]} alt="Region Map" className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
-                    <div className="absolute inset-0 bg-indigo-900/10 mix-blend-color" />
-                    <div className="absolute w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.8)] -translate-x-1/2 -translate-y-1/2 animate-bounce" style={{ left: `${gymCoords[currentGymGroup.gymStep.gym as keyof typeof gymCoords].x}%`, top: `${gymCoords[currentGymGroup.gymStep.gym as keyof typeof gymCoords].y}%` }} />
-                    <div className="absolute bottom-0.5 right-1 fs-tiny font-black uppercase tracking-widest text-white/80 drop-shadow-md">MAPA</div>
+                  <div className="grid gap-4 lg:grid-cols-[1.25fr_0.75fr] items-start text-left">
+                    <div className="space-y-4">
+                      <div className="flex flex-wrap items-center gap-3 justify-center lg:justify-start">
+                        <span className="p-3 bg-neutral-950 rounded-2xl border border-neutral-800 shrink-0">{renderIcon("gym")}</span>
+                        <div>
+                          <h2 className="fs-h3 font-black tracking-tight text-white">{currentGymGroup.gymStep.title}</h2>
+                          <div className="flex flex-wrap items-center gap-2 mt-2">
+                            <span className="fs-small font-bold uppercase tracking-widest px-3 py-2 rounded border bg-neutral-950 text-neutral-400 border-neutral-800">{currentGymGroup.region}</span>
+                            <span className="fs-tiny text-neutral-500">{currentGymGroup.gymStep.gym}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="rounded-3xl border border-neutral-800 bg-neutral-950/70 p-4">
+                        <div className="fs-tiny uppercase font-black tracking-widest text-neutral-400 mb-2">Información</div>
+                        <p className="text-neutral-300 leading-relaxed">{currentGymGroup.gymStep.description || currentGymGroup.gymStep.title}</p>
+                      </div>
+                    </div>
+                    <div className="rounded-3xl border border-neutral-800 overflow-hidden bg-neutral-950 shadow-inner">
+                      <div className="p-3 border-b border-neutral-800 bg-neutral-900 text-neutral-300 uppercase fs-tiny font-black tracking-widest">Ciudad / Región</div>
+                      <div className="relative h-44 md:h-56">
+                        <img src={regionMap[gymCoords[currentGymGroup.gymStep.gym as keyof typeof gymCoords].region as keyof typeof regionMap]} alt="Region Map" className="absolute inset-0 w-full h-full object-cover opacity-70" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/0" />
+                        <div className="absolute left-3 bottom-3 rounded-2xl bg-black/70 px-3 py-2 text-white fs-body font-bold">{currentGymGroup.region}</div>
+                        <div className="absolute right-3 top-3 rounded-2xl bg-white/10 px-2 py-1 text-white fs-tiny uppercase tracking-widest">MAPA</div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </>
