@@ -234,7 +234,6 @@ body {
     radial-gradient(circle at 0% 100%,  rgba(236, 72, 153,  0.08) 0%, transparent 40%),
     radial-gradient(circle at 100% 50%, rgba(59, 130, 246,  0.06) 0%, transparent 45%);
   background-attachment: fixed;
-  zoom: 0.8;
 }
 
 /* Glassmorphism */
