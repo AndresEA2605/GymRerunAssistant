@@ -1627,10 +1627,16 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           </div>
         ) : currentGymGroup && (
           <div className="w-full px-2 md:px-4 py-2">
-            <div className="mb-2 flex items-center justify-between gap-3 text-[11px] md:text-sm font-bold uppercase tracking-[0.18em] text-neutral-400">
-              <span className="text-indigo-300">Gimnasio {currentGymIndex + 1}</span>
+            <div className="mb-2 flex items-center gap-2 text-[11px] md:text-sm font-bold uppercase tracking-[0.18em] text-neutral-400">
+              <button onClick={handlePrev} disabled={currentGymIndex <= 0} title="Gimnasio anterior" className="p-1 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400 shrink-0">
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+              <span className="text-indigo-300 shrink-0">Gimnasio {currentGymIndex + 1}</span>
               <span className="truncate text-white">{currentGymGroup.gymStep.title}</span>
-              <span className="text-neutral-500">{currentGymIndex + 1}/{gymGroupCount}</span>
+              <span className="text-neutral-500 shrink-0">{currentGymIndex + 1}/{gymGroupCount}</span>
+              <button onClick={handleNext} disabled={currentGymIndex >= gymGroupCount - 1} title="Siguiente gimnasio" className="p-1 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shrink-0 shadow-sm shadow-indigo-500/20">
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
             </div>
             <div
               ref={stepNavRef}
@@ -2045,26 +2051,17 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-violet-400/60 group-hover:text-violet-400 transition-colors shrink-0" />
             </button>
           </div>
-           <div className="w-full max-w-4xl mt-4 md:mt-6 space-y-2 md:space-y-3">
-            <div className="flex gap-2 md:gap-4">
-              <button onClick={handlePrev} disabled={selectedGuideId === 'hooh' ? currentStepIndex <= 0 : currentGymIndex <= 0} title="Anterior" className="flex-1 py-3 md:py-4 bg-neutral-900 rounded-xl fs-tiny md:fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
-              {selectedGuideId !== 'hooh' && currentGymIndex >= 0 && currentGymIndex < gymGroupCount - 1 ? (
-                <>
-                  <button onClick={handleNext} className="flex-1 py-3 md:py-4 bg-neutral-800 rounded-xl font-bold text-neutral-400 hover:text-white hover:bg-neutral-700 transition-all fs-tiny md:fs-body">Saltar →</button>
-                  <button onClick={completeGym} className="flex-[2] py-3 md:py-4 bg-emerald-700 rounded-xl font-bold text-white hover:bg-emerald-600 shadow-lg shadow-emerald-900/20 transition-all fs-tiny md:fs-body">✓ Completar Gym</button>
-                </>
-              ) : selectedGuideId !== 'hooh' && currentGymIndex >= 0 && currentGymIndex === gymGroupCount - 1 ? (
-                <>
-                  <button onClick={handleNext} className="flex-1 py-3 md:py-4 bg-neutral-800 rounded-xl font-bold text-neutral-400 hover:text-white hover:bg-neutral-700 transition-all fs-tiny md:fs-body">Saltar →</button>
-                  <button onClick={completeGym} className="flex-[2] py-3 md:py-4 bg-emerald-700 rounded-xl font-bold text-white hover:bg-emerald-600 shadow-lg shadow-emerald-900/20 transition-all fs-tiny md:fs-body">✓ Completar Gym</button>
-                  <button onClick={requestFinishRun} className="flex-1 py-3 md:py-4 bg-red-700 rounded-xl font-bold text-white hover:bg-red-600 transition-all fs-tiny md:fs-body">Finalizar</button>
-                </>
-              ) : (
-                <button onClick={currentStepIndex === -1 ? handleNext : (currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext)} title={currentStepIndex === -1 ? "Comenzar la ruta" : currentStepIndex === steps.length - 1 ? "Finalizar la ruta" : selectedGuideId === 'hooh' ? "Siguiente paso" : "Siguiente gimnasio"} className="flex-[2] py-3 md:py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-tiny md:fs-body">
-                  {currentStepIndex === -1 ? "▶ COMENZAR" : currentStepIndex === steps.length - 1 ? "¡Finalizar!" : selectedGuideId === 'hooh' ? "Siguiente (Espacio) →" : "Siguiente Gym →"}
+           <div className="w-full max-w-6xl mt-4 md:mt-5 space-y-2">
+            {selectedGuideId === 'hooh' ? (
+              <div className="flex gap-2 md:gap-4">
+                <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="flex-1 py-3 md:py-4 bg-neutral-900 rounded-xl fs-tiny md:fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
+                <button onClick={currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext} title={currentStepIndex === steps.length - 1 ? "Finalizar la ruta" : "Siguiente paso"} className="flex-[2] py-3 md:py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-tiny md:fs-body">
+                  {currentStepIndex === steps.length - 1 ? "¡Finalizar!" : "Siguiente (Espacio) →"}
                 </button>
-              )}
-            </div>
+              </div>
+            ) : currentGymIndex >= 0 && currentGymIndex === gymGroupCount - 1 ? (
+              <button onClick={requestFinishRun} className="w-full py-3 md:py-4 bg-red-700 hover:bg-red-600 text-white rounded-xl font-bold fs-tiny md:fs-body shadow-lg shadow-red-900/20 transition-all">Finalizar Ruta</button>
+            ) : null}
             <div className="w-full bg-neutral-800 rounded-full h-1.5 md:h-2.5 overflow-hidden">
               <div
                 className="progress-shimmer h-full rounded-full transition-all duration-300"
@@ -2099,6 +2096,9 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           </button>
           <button onClick={() => requestGymCooldownStart()} className="smooth-transition px-2.5 py-1.5 bg-emerald-700 active:scale-95 hover:bg-emerald-600 text-white rounded-lg font-bold fs-tiny shrink-0">18h</button>
           <button onClick={openCooldownEditor} className="smooth-transition px-2.5 py-1.5 bg-neutral-700 active:scale-95 hover:bg-neutral-600 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0">Ajustar</button>
+          {selectedGuideId !== 'hooh' && currentGymIndex >= 0 && (
+            <button onClick={completeGym} className="smooth-transition px-3 py-1.5 bg-emerald-600 active:scale-95 hover:bg-emerald-500 text-white rounded-lg font-bold fs-tiny shrink-0 shadow-lg shadow-emerald-900/30">✓ Completar</button>
+          )}
           <button onClick={requestFinishRun} className="smooth-transition px-3 py-1.5 bg-red-700 active:scale-95 hover:bg-red-600 text-white rounded-lg font-bold fs-tiny shrink-0">Terminar</button>
           <button onClick={requestRouteReset} className="smooth-transition px-3 py-1.5 bg-neutral-800 active:scale-95 hover:bg-neutral-700 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0"><RotateCcw className="w-4 h-4 inline-block mr-1" />Reinic.</button>
         </div>
@@ -2140,6 +2140,9 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             <div className="flex gap-1">
               <button onClick={() => requestGymCooldownStart()} className="px-2 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded font-bold fs-tiny">18h</button>
               <button onClick={openCooldownEditor} className="px-2 py-1 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded font-bold fs-tiny">Ajustar</button>
+              {selectedGuideId !== 'hooh' && currentGymIndex >= 0 && (
+                <button onClick={completeGym} className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold fs-small shadow-lg shadow-emerald-900/30">✓ Completar Gym</button>
+              )}
               <button onClick={requestFinishRun} className="px-3 py-1.5 bg-red-700 hover:bg-red-600 text-white rounded font-bold fs-small">Terminar Ruta</button>
               <button onClick={requestRouteReset} className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded font-bold fs-small"><RotateCcw className="w-3.5 h-3.5 inline-block mr-1" />Reiniciar</button>
             </div>
