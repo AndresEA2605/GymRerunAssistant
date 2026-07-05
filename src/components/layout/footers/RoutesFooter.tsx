@@ -49,16 +49,16 @@ export default function RoutesFooter({ guideId, nav, gym }: RoutesFooterProps) {
       style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))", paddingTop: "12px" }}
       role="contentinfo"
     >
-      <div className="mx-auto w-full max-w-5xl px-4 py-4 sm:px-8">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+      <div className="mx-auto w-full max-w-5xl px-3 py-3 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             <Button
               variant="secondary"
               size="md"
               onClick={nav.onPrev}
               disabled={nav.prevDisabled}
               aria-label="Gimnasio anterior"
-              className="flex-1 min-w-[140px]"
+              className="flex-1 min-w-[118px] max-w-[180px]"
               icon={<ChevronLeft className="w-4 h-4" />}
             >
               Anterior
@@ -70,7 +70,7 @@ export default function RoutesFooter({ guideId, nav, gym }: RoutesFooterProps) {
               onClick={nav.isLastStep ? nav.onFinish : nav.onNext}
               disabled={!nav.isLastStep && nav.nextDisabled}
               aria-label={nav.isLastStep ? "Finalizar ruta" : "Siguiente gimnasio"}
-              className="flex-1 min-w-[160px]"
+              className="flex-1 min-w-[118px] max-w-[180px]"
               icon={<ChevronRight className="w-4 h-4" />}
             >
               {nav.isLastStep ? "Finalizar" : "Siguiente"}
@@ -82,51 +82,32 @@ export default function RoutesFooter({ guideId, nav, gym }: RoutesFooterProps) {
                 size="md"
                 onClick={nav.onCompleteGym}
                 aria-label="Completar gimnasio"
-                className="bg-emerald-800/90 hover:bg-emerald-700 border-emerald-600/40"
+                className="flex-1 min-w-[132px] max-w-[190px]"
               >
                 Completar Gym
               </Button>
             )}
-
-            <div className="hidden md:flex items-center gap-2 ml-1 pl-4 border-l border-neutral-800">
-              <Button
-                variant="danger"
-                size="sm"
-                onClick={nav.onFinish}
-                aria-label="Terminar ruta"
-                className="hover:bg-red-800 px-3"
-              >
-                Terminar
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={nav.onRouteReset}
-                aria-label="Reiniciar ruta"
-                className="hover:bg-neutral-800 px-3"
-              >
-                Reiniciar
-              </Button>
-            </div>
           </div>
 
-            <div className="flex md:hidden items-center justify-center gap-3">
-              <Button
-                variant="danger"
-                size="sm"
-                onClick={nav.onFinish}
-                className="hover:bg-red-800 px-3"
-              >
-                Terminar
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={nav.onRouteReset}
-                className="hover:bg-neutral-800 px-3"
-              >
-                Reiniciar
-              </Button>
+          <div className="flex items-center justify-center gap-2 sm:gap-3">
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={nav.onFinish}
+              aria-label="Terminar ruta"
+              className="px-3"
+            >
+              Terminar
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={nav.onRouteReset}
+              aria-label="Reiniciar ruta"
+              className="px-3"
+            >
+              Reiniciar
+            </Button>
           </div>
 
           <FooterProgress percent={nav.progressPercent} label={nav.progressLabel} />

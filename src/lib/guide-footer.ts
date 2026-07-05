@@ -25,9 +25,8 @@ export function showCompleteGym(guideId: string): boolean {
 export function showGymTimer(guideId: string): boolean {
   const guide = getGuide(guideId);
   if (!guide) return false;
-  // SOLO mostrar timer en rutas (category === "routes") 
-  // Nunca en Ho-Oh (id === "hooh") y no en guide2 (es una guía alternativa)
-  return guide.category === "routes" && guide.id !== "guide2";
+  // Mostrar el temporizador únicamente en la ruta principal de Gym Rerun.
+  return guide.category === "routes" && guide.id === "gym33";
 }
 
 export function getGuideCategoryLabel(category: GuideCategory): string {

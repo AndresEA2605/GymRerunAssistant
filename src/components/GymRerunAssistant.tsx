@@ -319,8 +319,23 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       setTimeout(() => {
         setSelectedGuideId(id);
         setLS("selected_guide", id);
-        if (id !== 'gym33') { setCurrentStepIndex(-1); resetTimer(); }
-        setTimeout(() => setGuideLoading(false), 150);
+        if (id !== 'gym33') {
+          setCurrentStepIndex(-1);
+          resetTimer();
+        }
+        setTimeout(() => {
+          setGuideLoading(false);
+          setShowStartCheck(false);
+          if (showMenu) {
+            exitMenu(() => {
+              setShowStartCheck(true);
+              setShowCountdown(false);
+              setCountdownValue(5);
+            });
+          } else {
+            setShowStartCheck(true);
+          }
+        }, 150);
       }, 300);
     } else {
       setSelectedGuideId(id);
@@ -982,7 +997,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         <PokeBackground />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none" />
 
-        <div className="relative z-10 w-full mx-auto px-3 md:px-6 py-3 md:py-4" style={{ maxWidth: "min(100%, 90rem)" }}>
+        <div className="relative z-10 w-full mx-auto px-3 sm:px-5 md:px-6 lg:px-8 py-3 sm:py-4 md:py-5" style={{ maxWidth: "min(100%, 90rem)" }}>
 
           {selectedGuideId !== 'none' && (() => {
             const guide = getGuide(selectedGuideId);
@@ -1028,7 +1043,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               <h2 className="fs-h2 font-bold text-indigo-400 tracking-widest">ASSISTANT</h2>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-5">
               <div className="bg-gradient-to-br from-amber-500/15 to-orange-500/5 border border-amber-500/30 rounded-2xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Timer className="w-4 h-4 text-amber-400" />
@@ -1118,7 +1133,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-5">
               {GUIDE_CATEGORIES.map(cat => {
                 const catGuides = getGuidesByCategory(cat.id);
                 return (
@@ -1132,12 +1147,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                         {catGuides.map(g => {
                           const gc = getGuideColorClasses(g.color);
                           return (
-                            <button key={g.id} onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')} className={`w-full flex items-center gap-3 rounded-xl py-3 px-4 text-left transition-all bg-neutral-950/60 ${gc.border} hover:bg-neutral-800 ${gc.borderHover} group`}>
-                              <div className={`w-10 h-10 shrink-0 poke-aura ${getGuidePokeGlow(g.color)}`}>
+                            <button key={g.id} onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')} className={`w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} hover:bg-neutral-800 ${gc.borderHover} group`}>
+                              <div className={`w-11 h-11 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-900/70 p-1.5 poke-aura ${getGuidePokeGlow(g.color)}`}>
                                 <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className={`fs-tiny font-bold ${gc.text} truncate`}>{g.title}</div>
+                                <div className={`fs-tiny font-black ${gc.text} truncate`}>{g.title}</div>
                                 <div className="fs-tiny text-neutral-500 truncate">{g.subtitle}</div>
                               </div>
                               <span className={`fs-tiny font-black ${gc.text} opacity-0 group-hover:opacity-100 transition-opacity`}>→</span>
@@ -1852,7 +1867,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       )}
                     </div>
                   )}
-                  <button onClick={() => { setStartChecks([false, false, false]); setShowStartCheck(true); }} className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-lg shadow-indigo-900/30">
+                  <button onClick={() => { setStartChecks([false, false, false]); setShowStartCheck(true); }} className="w-full max-w-md h-14 mx-auto bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-2xl transition-all shadow-lg shadow-indigo-900/30">
                     ▶ Comenzar ruta
                   </button>
                 </>
@@ -2133,8 +2148,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           </div>
 
           {currentStepIndex !== -1 && (<>
-          <div className="reveal w-full max-w-4xl mt-3">
-            <button onClick={() => setShowTeam(true)} title="Ver el equipo Pokémon recomendado para esta ruta" className="w-full bg-neutral-900/80 border border-violet-500/20 hover:border-violet-400/40 rounded-2xl p-2.5 md:p-3 flex items-center gap-3 group transition-all hover:bg-neutral-800/80">
+          <div className="reveal w-full max-w-4xl mt-4 md:mt-5">
+            <button onClick={() => setShowTeam(true)} title="Ver el equipo Pokémon recomendado para esta ruta" className="w-full bg-neutral-900/80 border border-violet-500/20 hover:border-violet-400/40 rounded-2xl p-3 md:p-4 flex items-center gap-3 group transition-all hover:bg-neutral-800/80">
               {selectedGuideId === "hooh" ? (
                 <div className="flex items-center -space-x-2 shrink-0">
                   <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Chandelure}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
