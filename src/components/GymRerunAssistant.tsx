@@ -1515,6 +1515,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 <div>
                   <p className="font-bold text-white fs-body">Verificación</p>
                   <p className="fs-tiny text-neutral-400 mt-0.5">Mostrar checklist al iniciar ruta</p>
+                  <p className={`fs-tiny mt-1 ${skipChecklist ? 'text-red-400/70' : 'text-emerald-400/70'}`}>{skipChecklist ? 'Se omitirá el checklist de 3 pasos al iniciar' : 'Se mostrarán 3 verificaciones obligatorias antes de empezar'}</p>
                 </div>
                 <button onClick={() => { const next = !skipChecklist; setLS("skip_checklist", String(next)); setSkipChecklist(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${skipChecklist ? 'bg-red-500' : 'bg-green-500'}`}>
                   <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${skipChecklist ? 'translate-x-0' : 'translate-x-5'}`} />
@@ -1524,6 +1525,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 <div>
                   <p className="font-bold text-white fs-body">Cuenta atrás</p>
                   <p className="fs-tiny text-neutral-400 mt-0.5">Mostrar 5-4-3-2-1 al empezar</p>
+                  <p className={`fs-tiny mt-1 ${skipCountdown ? 'text-red-400/70' : 'text-emerald-400/70'}`}>{skipCountdown ? 'La ruta comenzará inmediatamente al confirmar' : 'Verás una cuenta regresiva de 5 segundos antes de empezar'}</p>
                 </div>
                 <button onClick={() => { const next = !skipCountdown; setLS("skip_countdown", String(next)); setSkipCountdown(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${skipCountdown ? 'bg-red-500' : 'bg-green-500'}`}>
                   <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${skipCountdown ? 'translate-x-0' : 'translate-x-5'}`} />
@@ -1533,6 +1535,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 <div>
                   <p className="font-bold text-white fs-body">Timer</p>
                   <p className="fs-tiny text-neutral-400 mt-0.5">{manualTimer ? 'Manual: inicia al avanzar al paso 1' : 'Automático: inicia al comenzar'}</p>
+                  <p className={`fs-tiny mt-1 ${manualTimer ? 'text-amber-400/70' : 'text-emerald-400/70'}`}>{manualTimer ? 'El cronómetro esperará a que lo inicies manualmente al paso 1' : 'El cronómetro arrancará automáticamente al confirmar la ruta'}</p>
                 </div>
                 <button onClick={() => { const next = !manualTimer; setLS("manual_timer", String(next)); setManualTimer(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${manualTimer ? 'bg-red-500' : 'bg-green-500'}`}>
                   <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${manualTimer ? 'translate-x-0' : 'translate-x-5'}`} />
