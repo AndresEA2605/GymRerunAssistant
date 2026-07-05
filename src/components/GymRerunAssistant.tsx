@@ -1905,7 +1905,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   })()}
                   
                   {steps[0] && (
-                    <div className="w-full bg-neutral-950 rounded-xl border border-neutral-800 p-4 mt-4">
+                    <div className="w-full bg-neutral-950 rounded-xl border border-neutral-800 p-4 mt-4 max-h-[55vh] overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900">
                       <div className="fs-tiny md:fs-small text-neutral-500 uppercase font-bold tracking-widest mb-3">{selectedGuideId === "hooh" ? "Primer turno" : "Primer gimnasio"}</div>
                       <div className="flex items-center justify-center gap-3">
                         <span className="p-3 bg-neutral-900 rounded-lg">{renderIcon(steps[0].type)}</span>
