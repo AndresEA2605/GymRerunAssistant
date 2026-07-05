@@ -319,6 +319,10 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       setTimeout(() => {
         setSelectedGuideId(id);
         setLS("selected_guide", id);
+        // Clear any saved progress so the "Sesión activa" card doesn't appear
+        setLS("gym_step", "-1");
+        setShowResumePrompt(false);
+        setShowActiveSessionModal(false);
         setCurrentStepIndex(-1);
         resetTimer();
         setTimeout(() => {
