@@ -1137,7 +1137,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                         {catGuides.map(g => {
                           const gc = getGuideColorClasses(g.color);
                           return (
-                            <button key={g.id} onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')} className={`w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} hover:bg-neutral-800 ${gc.borderHover} group`}>
+                            <button key={g.id} onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')} className={`relative w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} hover:bg-neutral-800 ${gc.borderHover} group`}>
                               <div className={`w-11 h-11 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-900/70 p-1.5 poke-aura ${getGuidePokeGlow(g.color)}`}>
                                 <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
                               </div>
@@ -1146,6 +1146,17 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                                 <div className="fs-tiny text-neutral-500 truncate">{g.subtitle}</div>
                               </div>
                               <span className={`fs-tiny font-black ${gc.text} opacity-0 group-hover:opacity-100 transition-opacity`}>→</span>
+                              {/* Hover preview: show team sprites and names */}
+                              <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-3 px-3 py-3 bg-neutral-900 border border-neutral-700 rounded-xl text-neutral-300 fs-tiny text-center opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 shadow-xl w-max">
+                                <div className="flex items-center gap-2">
+                                  {(g.team || []).slice(0,6).map((t, i) => (
+                                    <div key={i} className="w-10 h-10 rounded-lg bg-neutral-950 border border-neutral-800 flex items-center justify-center p-1">
+                                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${t.spriteId}.gif`} alt={t.name} className="w-full h-full object-contain" loading="lazy" />
+                                    </div>
+                                  ))}
+                                </div>
+                                <div className="mt-2 text-neutral-400">{(g.team || []).map(t => t.name).join(' · ')}</div>
+                              </div>
                             </button>
                           );
                         })}
@@ -1310,22 +1321,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               <button onClick={() => setShowTeam(true)} className="w-full py-2 md:py-2.5 bg-violet-600/80 hover:bg-violet-600 text-white fs-small md:fs-body font-black rounded-xl transition-all flex items-center justify-center gap-2">
                 <Users className="w-4 h-4 md:w-5 md:h-5" />VER EQUIPO
               </button>
-              {(() => {
-                const guide = getGuide(selectedGuideId);
-                if (!guide) return null;
-                return (
-                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-3 bg-neutral-900 border border-neutral-700 rounded-xl text-neutral-300 fs-tiny text-center opacity-0 pointer-events-none group-hover/btn:opacity-100 transition-opacity whitespace-nowrap z-50 shadow-xl w-max">
-                    <div className="flex items-center gap-2">
-                      {guide.team.slice(0, 6).map((t, i) => (
-                        <div key={i} className="w-10 h-10 rounded-lg bg-neutral-950 border border-neutral-800 flex items-center justify-center p-1">
-                          <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${t.spriteId}.gif`} alt={t.name} className="w-full h-full object-contain" loading="lazy" />
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-2 text-neutral-400">{guide.team.map(t => t.name).join(' · ')}</div>
-                  </div>
-                );
-              })()}
             </div>
           )}
 
@@ -1371,102 +1366,104 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       {showTeam && (
         <div className={`fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-start justify-center p-3 overflow-y-auto ${teamExiting ? 'overlay-exit' : 'overlay-enter'}`} onClick={() => closeTeam()}>
           <div className={`relative w-full max-w-3xl my-3 ${teamExiting ? 'modal-exit' : 'modal-enter'}`} onClick={e => e.stopPropagation()}>
-            <div className="bg-neutral-900 rounded-2xl border border-neutral-800 overflow-hidden shadow-2xl">
-              <div className="flex items-center justify-between px-5 py-3 bg-neutral-950 border-b border-neutral-800">
-                <div>
-                  <h3 className="font-black fs-h3 text-white">Equipo de la Run</h3>
-                  <p className="fs-tiny text-neutral-500 mt-0.5">{selectedGuideId === "hooh" ? "Chandelure · Rotom (Horno) · Lunatone" : selectedGuideId === "guide2" ? "Togekiss · Excadrill · Blastoise · Vanilluxe · Aerodactyl · Typhlosion" : "Weezing con Cinta Elegida · Vanilluxe con Pañuelo Elegido · resto con Gafas Elegidas"}</p>
-                </div>
-                <button onClick={() => closeTeam()} className="text-neutral-500 hover:text-white"><X className="w-5 h-5" /></button>
-              </div>
-              <div className={`grid gap-2 p-3 ${selectedGuideId === "hooh" ? "grid-cols-1 sm:grid-cols-3" : selectedGuideId === "guide2" ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-2"}`}>
+                <div className="bg-neutral-900 rounded-2xl border border-neutral-800 overflow-hidden shadow-2xl">
+                  <div className="flex items-center justify-between px-6 py-4 bg-neutral-950 border-b border-neutral-800">
+                    <div>
+                      <h3 className="font-black fs-h3 text-white">Equipo de la Run</h3>
+                      <p className="fs-tiny text-neutral-500 mt-0.5">{selectedGuideId === "hooh" ? "Chandelure · Rotom (Horno) · Lunatone" : selectedGuideId === "guide2" ? "Togekiss · Excadrill · Blastoise · Vanilluxe · Aerodactyl · Typhlosion" : "Weezing con Cinta Elegida · Vanilluxe con Pañuelo Elegido · resto con Gafas Elegidas"}</p>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => closeTeam()} className="text-neutral-500 hover:text-white">
+                      <X className="w-5 h-5" />
+                    </Button>
+                  </div>
+                  <div className={`grid gap-4 p-4 ${selectedGuideId === "hooh" ? "grid-cols-1 sm:grid-cols-3" : selectedGuideId === "guide2" ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-2"}`}>
 
                 {selectedGuideId === "hooh" ? (
                   <>
-                    <div className="bg-neutral-950 border border-indigo-500/20 rounded-xl p-3">
-                      <div className="flex items-center gap-3 mb-2">
-                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Chandelure}.gif`} alt="Chandelure" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
+                    <div className="bg-neutral-950 border border-indigo-500/20 rounded-xl p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Chandelure}.gif`} alt="Chandelure" className="w-12 h-12 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                         <div>
                           <div className="font-black fs-small text-indigo-300">Chandelure</div>
                           <div className="fs-tiny text-neutral-500">Absor. Fuego · Modesta · Hechizo</div>
                         </div>
                       </div>
                       <div className="fs-tiny text-neutral-400 mb-2">EVs: 252 SpA / 58 SpD / 200 Spe</div>
-                      <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 25 PS / - Atk / 25 Def / 31 SpA / 25 SpD / 31 Spe</div>
-                      <div className="grid grid-cols-2 gap-1">
-                        {['Velo Sagrado','Protección','Más Psique','Bola Sombra'].map(m => <span key={m} className="fs-tiny bg-indigo-950/50 border border-indigo-800/30 px-1.5 py-0.5 rounded text-indigo-300">{m}</span>)}
+                      <div className="fs-tiny text-neutral-500 mb-2">IVs: 25 PS / - Atk / 25 Def / 31 SpA / 25 SpD / 31 Spe</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {['Velo Sagrado','Protección','Más Psique','Bola Sombra'].map(m => <span key={m} className="fs-tiny bg-indigo-950/50 border border-indigo-800/30 px-2 py-1 rounded text-indigo-300">{m}</span>)}
                       </div>
                     </div>
 
-                    <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-3">
-                      <div className="flex items-center gap-3 mb-2">
-                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Rotom}.gif`} alt="Rotom" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
+                    <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Rotom}.gif`} alt="Rotom" className="w-12 h-12 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                         <div>
                           <div className="font-black fs-small text-orange-300">Rotom (Horno)</div>
                           <div className="fs-tiny text-neutral-500">Levitación · Mansa · Arena Fina</div>
                         </div>
                       </div>
                       <div className="fs-tiny text-neutral-400 mb-2">EVs: 6 PS / 252 SpA / 252 SpD</div>
-                      <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 25 PS / - Atk / 25 Def / 31 SpA / 25 SpD / - Spe</div>
-                      <div className="grid grid-cols-2 gap-1">
+                      <div className="fs-tiny text-neutral-500 mb-2">IVs: 25 PS / - Atk / 25 Def / 31 SpA / 25 SpD / - Spe</div>
+                      <div className="grid grid-cols-2 gap-2">
                         {['Maquinación','Poder Oculto (Tierra)','Rayo','Pantalla de Luz'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-2 py-1 rounded text-orange-300">{m}</span>)}
                       </div>
                     </div>
 
-                    <div className="bg-neutral-950 border border-sky-500/20 rounded-xl p-3">
-                      <div className="flex items-center gap-3 mb-2">
-                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Lunatone}.gif`} alt="Lunatone" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
+                    <div className="bg-neutral-950 border border-sky-500/20 rounded-xl p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Lunatone}.gif`} alt="Lunatone" className="w-12 h-12 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                         <div>
                           <div className="font-black fs-small text-sky-300">Lunatone</div>
                           <div className="fs-tiny text-neutral-500">Levitación · Mansa · Piedra Dura</div>
                         </div>
                       </div>
                       <div className="fs-tiny text-neutral-400 mb-2">EVs: 96 PS / 252 SpA / 166 SpD</div>
-                      <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 25 PS / - Atk / 25 Def / 31 SpA / 25 SpD / 0 Spe</div>
-                      <div className="grid grid-cols-2 gap-1">
+                      <div className="fs-tiny text-neutral-500 mb-2">IVs: 25 PS / - Atk / 25 Def / 31 SpA / 25 SpD / 0 Spe</div>
+                      <div className="grid grid-cols-2 gap-2">
                         {['Espacio Raro','Protección','Más Psique','Joya de Luz'].map(m => <span key={m} className="fs-tiny bg-sky-950/50 border border-sky-800/30 px-2 py-1 rounded text-sky-300">{m}</span>)}
                       </div>
                     </div>
                   </>
                 ) : selectedGuideId === "guide2" ? (
                 <>
-                <div className="bg-neutral-950 border border-teal-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-3 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Togekiss}.gif`} alt="Togekiss" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
+                <div className="bg-neutral-950 border border-teal-500/20 rounded-xl p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Togekiss}.gif`} alt="Togekiss" className="w-12 h-12 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-teal-300">Togekiss</div>
                       <div className="fs-tiny text-neutral-500">Dicha · Modesta · Pañuelo Elegido</div>
                     </div>
                   </div>
-                  <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 4 Def / 252 SpA / 252 Spe</div>
-                  <div className="grid grid-cols-2 gap-1">
+                  <div className="fs-tiny text-neutral-400 mb-2">EVs: 4 Def / 252 SpA / 252 Spe</div>
+                  <div className="grid grid-cols-2 gap-2">
                     {['Hyper Voice','Vuelo','Aire Corte'].map(m => <span key={m} className="fs-tiny bg-teal-950/50 border border-teal-800/30 px-2 py-1 rounded text-teal-300">{m}</span>)}
                   </div>
                 </div>
-                <div className="bg-neutral-950 border border-amber-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-3 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Excadrill}.gif`} alt="Excadrill" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
+                <div className="bg-neutral-950 border border-amber-500/20 rounded-xl p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Excadrill}.gif`} alt="Excadrill" className="w-12 h-12 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-amber-300">Excadrill</div>
                       <div className="fs-tiny text-neutral-500">Rompemoldes · Firme · Cinta Elegida</div>
                     </div>
                   </div>
-                  <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 Atk / 4 Def / 252 Spe</div>
-                  <div className="grid grid-cols-2 gap-1">
+                  <div className="fs-tiny text-neutral-400 mb-2">EVs: 252 Atk / 4 Def / 252 Spe</div>
+                  <div className="grid grid-cols-2 gap-2">
                     {['Terremoto','Avalancha','Ayuda'].map(m => <span key={m} className="fs-tiny bg-amber-950/50 border border-amber-800/30 px-2 py-1 rounded text-amber-300">{m}</span>)}
                   </div>
                 </div>
-                <div className="bg-neutral-950 border border-blue-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-3 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Blastoise}.gif`} alt="Blastoise" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
+                <div className="bg-neutral-950 border border-blue-500/20 rounded-xl p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Blastoise}.gif`} alt="Blastoise" className="w-12 h-12 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-blue-300">Blastoise</div>
                       <div className="fs-tiny text-neutral-500">Torrente · Modesta · Pañuelo Elegido</div>
                     </div>
                   </div>
-                  <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 4 HP / 252 Spe</div>
-                  <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 0 Atk</div>
-                  <div className="grid grid-cols-2 gap-1">
+                  <div className="fs-tiny text-neutral-400 mb-2">EVs: 252 SpA / 4 HP / 252 Spe</div>
+                  <div className="fs-tiny text-neutral-500 mb-2">IVs: 0 Atk</div>
+                  <div className="grid grid-cols-2 gap-2">
                     {['Chorro de Agua','Surf','Ventisca','Pulso Oscuro'].map(m => <span key={m} className="fs-tiny bg-blue-950/50 border border-blue-800/30 px-2 py-1 rounded text-blue-300">{m}</span>)}
                   </div>
                 </div>
