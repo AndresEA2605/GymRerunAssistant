@@ -1300,9 +1300,18 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </div>
             </div>
           ) : (
-            <button onClick={() => exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); })} title="Comenzar la ruta seleccionada" className="reveal-4 w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-tiny font-black rounded-lg transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] btn-glow-active">
-              ▶ INICIAR RUTA
-            </button>
+            <div className="w-full">
+              <Button
+                variant="primary"
+                size="lg"
+                fullWidth
+                onClick={() => exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); })}
+                title="Comenzar la ruta seleccionada"
+                className="reveal-4 btn-glow-active"
+              >
+                ▶ INICIAR RUTA
+              </Button>
+            </div>
           ))}
 
           {selectedGuideId !== 'none' && (() => {
@@ -1311,16 +1320,23 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           })()}
 
           {selectedGuideId !== 'none' && currentStepIndex < 0 && (
-            <button onClick={() => selectGuide('none')} title="Volver a la selección de guías" className="w-full py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 fs-tiny font-bold rounded-lg transition-all flex items-center justify-center gap-1.5">
+            <Button variant="ghost" size="md" fullWidth onClick={() => selectGuide('none')} title="Volver a la selección de guías" className="justify-center gap-2">
               <ChevronLeft className="w-3.5 h-3.5" />Volver a guías
-            </button>
+            </Button>
           )}
 
           {selectedGuideId !== 'none' && (
             <div className="reveal-5 w-full group/btn relative">
-              <button onClick={() => setShowTeam(true)} className="w-full py-2 md:py-2.5 bg-violet-600/80 hover:bg-violet-600 text-white fs-small md:fs-body font-black rounded-xl transition-all flex items-center justify-center gap-2">
+              <Button
+                variant="primary"
+                size="md"
+                fullWidth
+                onClick={() => setShowTeam(true)}
+                className="bg-violet-600/80 hover:bg-violet-600 text-white"
+                title="Ver el equipo Pokémon recomendado para esta ruta"
+              >
                 <Users className="w-4 h-4 md:w-5 md:h-5" />VER EQUIPO
-              </button>
+              </Button>
             </div>
           )}
 
