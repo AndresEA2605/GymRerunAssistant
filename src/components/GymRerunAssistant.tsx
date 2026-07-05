@@ -1492,15 +1492,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             <div className="space-y-4">
               <div className="flex items-center justify-between p-3 rounded-xl bg-neutral-950 border border-neutral-800">
                 <div>
-                  <p className="font-bold text-white fs-body">Verificación</p>
-                  <p className="fs-tiny text-neutral-400 mt-0.5">Mostrar checklist al iniciar ruta</p>
-                </div>
-                <button onClick={() => { const next = !skipChecklist; setLS("skip_checklist", String(next)); setSkipChecklist(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${skipChecklist ? 'bg-red-500' : 'bg-green-500'}`}>
-                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${skipChecklist ? 'translate-x-0' : 'translate-x-5'}`} />
-                </button>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-neutral-950 border border-neutral-800">
-                <div>
                   <p className="font-bold text-white fs-body">Cuenta atrás</p>
                   <p className="fs-tiny text-neutral-400 mt-0.5">Mostrar 5-4-3-2-1 al empezar</p>
                 </div>
@@ -1744,7 +1735,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       )}
                     </div>
                   )}
-                  <button onClick={() => { if (skipChecklist) { beginRun(); } else { setStartChecks([false, false, false]); setShowStartCheck(true); } }} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white fs-h3 md:fs-hero2 font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)]">
+                  <button onClick={() => { setStartChecks([false, false, false]); setShowStartCheck(true); }} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white fs-h3 md:fs-hero2 font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)]">
                     ▶ COMENZAR RUTA
                   </button>
                 </>
@@ -2549,13 +2540,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 ✕ Desmarcar todas
               </button>
             </div>
-            <button onClick={() => setSkipChecklist(prev => { const next = !prev; setLS("skip_checklist", String(next)); return next; })} className="w-full flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-neutral-800/50 transition-colors">
-              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${skipChecklist ? 'bg-indigo-500 border-indigo-500' : 'border-neutral-600'}`}>
-                {skipChecklist && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
-              </div>
-              <span className={`fs-tiny font-semibold ${skipChecklist ? 'text-neutral-400' : 'text-neutral-600'}`}>No volver a mostrar esta verificación</span>
-            </button>
-            <p className="fs-small text-neutral-400 text-center">En el <button onClick={() => { setShowStartCheck(false); goToMenu(); }} className="text-indigo-400 font-bold underline hover:text-indigo-300 transition-colors inline">menú</button> puedes configurar todo esto</p>
+            <p className="fs-small text-neutral-400 text-center mt-2">En el <button onClick={() => { setShowStartCheck(false); goToMenu(); }} className="text-indigo-400 font-bold underline hover:text-indigo-300 transition-colors inline">menú</button> puedes ver la configuración</p>
             <button
               disabled={!startChecks.every(Boolean)}
               onClick={beginRun}
