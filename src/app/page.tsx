@@ -1,6 +1,7 @@
 import GymRerunAssistant from "@/components/GymRerunAssistant";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import rawSteps from "@/data/route.json";
+import { hoohSteps } from "@/data/hoohSteps";
 import { GYM_COORDS, REGION_MAP } from "@/data/gymCoords";
 import { RouteStep } from "@/types";
 
@@ -20,6 +21,7 @@ export default function Home() {
     <ErrorBoundary>
       <GymRerunAssistant
         steps={steps}
+        hoohSteps={hoohSteps}
         gymCoords={GYM_COORDS}
         regionMap={REGION_MAP}
         config={{

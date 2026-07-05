@@ -1,4 +1,19 @@
-export type StepType = 'travel' | 'gym' | 'heal' | 'item' | 'note' | 'prep';
+export type StepType = 'travel' | 'gym' | 'heal' | 'item' | 'note' | 'prep' | 'turn';
+
+export interface TurnConditional {
+  target: string;
+  move: string;
+  color: string;
+  icon: string;
+}
+
+export interface TurnStepAction {
+  pokemon: string;
+  icon: string;
+  action: string;
+  type: 'move' | 'switch' | 'none';
+  conditionals?: TurnConditional[];
+}
 
 export interface RouteStep {
   id: number;
@@ -15,6 +30,8 @@ export interface RouteStep {
   heal?: boolean;
   travel?: string | null;
   items?: { item: string; pokemon: string[] }[];
+  // Turn specific fields
+  turnData?: TurnStepAction[];
 }
 
 export interface AppState {
