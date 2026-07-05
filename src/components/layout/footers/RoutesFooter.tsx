@@ -42,6 +42,96 @@ interface RoutesFooterProps {
   gym: GymModuleActions;
 }
 
+export function RoutesFooterInner({ guideId, nav, gym }: RoutesFooterProps) {
+  return (
+    <div className="mx-auto w-full max-w-5xl px-3 py-3 sm:px-6 lg:px-8">
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+          <Button
+            variant="secondary"
+            size="md"
+            onClick={nav.onPrev}
+            disabled={nav.prevDisabled}
+            aria-label="Gimnasio anterior"
+            className="flex-1 min-w-[118px] max-w-[180px]"
+            icon={<ChevronLeft className="w-4 h-4" />}
+          >
+            Anterior
+          </Button>
+
+          <Button
+            variant="primary"
+            size="md"
+            onClick={nav.isLastStep ? nav.onFinish : nav.onNext}
+            disabled={!nav.isLastStep && nav.nextDisabled}
+            aria-label={nav.isLastStep ? "Finalizar ruta" : "Siguiente gimnasio"}
+            className="flex-1 min-w-[118px] max-w-[180px]"
+            icon={<ChevronRight className="w-4 h-4" />}
+          >
+            {nav.isLastStep ? "Finalizar" : "Siguiente"}
+          </Button>
+
+          {nav.showCompleteGym && (
+            <Button
+              variant="success"
+              size="md"
+              onClick={nav.onCompleteGym}
+              aria-label="Completar gimnasio"
+              className="flex-1 min-w-[132px] max-w-[190px]"
+            >
+              Completar Gym
+            </Button>
+          )}
+        </div>
+
+        <div className="flex items-center justify-center gap-2 sm:gap-3">
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={nav.onFinish}
+            aria-label="Terminar ruta"
+            className="px-3"
+          >
+            Terminar
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={nav.onRouteReset}
+            aria-label="Reiniciar ruta"
+            className="px-3"
+          >
+            Reiniciar
+          </Button>
+        </div>
+
+        <FooterProgress percent={nav.progressPercent} label={nav.progressLabel} />
+
+        {showGymTimer(guideId) && (
+          <div className="h-[var(--footer-routes-height)] overflow-hidden">
+            <div className="h-full overflow-y-auto px-3 py-2">
+              <GymFarmingBar
+                timerIsRunning={gym.timerIsRunning}
+                timerStartTime={gym.timerStartTime}
+                timerElapsed={gym.timerElapsed}
+                onStartTimer={gym.onStartTimer}
+                onPauseTimer={gym.onPauseTimer}
+                onResetTimer={gym.onResetTimer}
+                cooldownEndAt={gym.cooldownEndAt}
+                onShowCooldownNotice={gym.onShowCooldownNotice}
+                onStartCooldown={gym.onStartCooldown}
+                onOpenCooldownEditor={gym.onEditCooldown}
+                sessionGymCount={gym.sessionGymCount}
+                totalGyms={gym.totalGyms}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function RoutesFooter({ guideId, nav, gym }: RoutesFooterProps) {
   return (
     <footer
@@ -49,87 +139,7 @@ export default function RoutesFooter({ guideId, nav, gym }: RoutesFooterProps) {
       style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))", paddingTop: "12px" }}
       role="contentinfo"
     >
-      <div className="mx-auto w-full max-w-5xl px-3 py-3 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-            <Button
-              variant="secondary"
-              size="md"
-              onClick={nav.onPrev}
-              disabled={nav.prevDisabled}
-              aria-label="Gimnasio anterior"
-              className="flex-1 min-w-[118px] max-w-[180px]"
-              icon={<ChevronLeft className="w-4 h-4" />}
-            >
-              Anterior
-            </Button>
-
-            <Button
-              variant="primary"
-              size="md"
-              onClick={nav.isLastStep ? nav.onFinish : nav.onNext}
-              disabled={!nav.isLastStep && nav.nextDisabled}
-              aria-label={nav.isLastStep ? "Finalizar ruta" : "Siguiente gimnasio"}
-              className="flex-1 min-w-[118px] max-w-[180px]"
-              icon={<ChevronRight className="w-4 h-4" />}
-            >
-              {nav.isLastStep ? "Finalizar" : "Siguiente"}
-            </Button>
-
-            {nav.showCompleteGym && (
-              <Button
-                variant="success"
-                size="md"
-                onClick={nav.onCompleteGym}
-                aria-label="Completar gimnasio"
-                className="flex-1 min-w-[132px] max-w-[190px]"
-              >
-                Completar Gym
-              </Button>
-            )}
-          </div>
-
-          <div className="flex items-center justify-center gap-2 sm:gap-3">
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={nav.onFinish}
-              aria-label="Terminar ruta"
-              className="px-3"
-            >
-              Terminar
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={nav.onRouteReset}
-              aria-label="Reiniciar ruta"
-              className="px-3"
-            >
-              Reiniciar
-            </Button>
-          </div>
-
-          <FooterProgress percent={nav.progressPercent} label={nav.progressLabel} />
-
-          {showGymTimer(guideId) && (
-            <GymFarmingBar
-              timerIsRunning={gym.timerIsRunning}
-              timerStartTime={gym.timerStartTime}
-              timerElapsed={gym.timerElapsed}
-              onStartTimer={gym.onStartTimer}
-              onPauseTimer={gym.onPauseTimer}
-              onResetTimer={gym.onResetTimer}
-              cooldownEndAt={gym.cooldownEndAt}
-              onShowCooldownNotice={gym.onShowCooldownNotice}
-              onStartCooldown={gym.onStartCooldown}
-              onOpenCooldownEditor={gym.onEditCooldown}
-              sessionGymCount={gym.sessionGymCount}
-              totalGyms={gym.totalGyms}
-            />
-          )}
-        </div>
-      </div>
+      <RoutesFooterInner guideId={guideId} nav={nav} gym={gym} />
     </footer>
   );
 }
