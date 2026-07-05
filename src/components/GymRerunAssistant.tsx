@@ -1118,21 +1118,21 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 mb-3 md:mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
               {GUIDE_CATEGORIES.map(cat => {
                 const catGuides = getGuidesByCategory(cat.id);
                 return (
-                  <div key={cat.id} className="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-3 md:p-4">
-                    <div className="flex items-center gap-2 mb-2">
+                  <div key={cat.id} className="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-4">
+                    <div className="flex items-center gap-2 mb-3">
                       <span className="text-lg">{cat.icon}</span>
                       <span className="fs-small font-black text-neutral-300 uppercase tracking-wider">{cat.label}</span>
                     </div>
                     {catGuides.length > 0 ? (
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         {catGuides.map(g => {
                           const gc = getGuideColorClasses(g.color);
                           return (
-                            <button key={g.id} onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')} className={`w-full flex items-center gap-3 rounded-xl py-2.5 px-3 text-left transition-all bg-neutral-950/60 ${gc.border} hover:bg-neutral-800 ${gc.borderHover} group`}>
+                            <button key={g.id} onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')} className={`w-full flex items-center gap-3 rounded-xl py-3 px-4 text-left transition-all bg-neutral-950/60 ${gc.border} hover:bg-neutral-800 ${gc.borderHover} group`}>
                               <div className={`w-10 h-10 shrink-0 poke-aura ${getGuidePokeGlow(g.color)}`}>
                                 <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
                               </div>
@@ -1146,8 +1146,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                         })}
                       </div>
                     ) : cat.id === 'guides' ? (
-                      <div className="space-y-2">
-                        <a href="https://docs.google.com/document/d/1GkgTlrZwm2jUO_aD_U9Gha8CaljwRQaMLMMJfpsr4Bc/edit?tab=t.kd1fquq7r0zb" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-neutral-950/60 border border-neutral-800 hover:border-blue-500/40 rounded-xl py-2 px-3 transition-all group">
+                      <div className="space-y-3">
+                        <a href="https://docs.google.com/document/d/1GkgTlrZwm2jUO_aD_U9Gha8CaljwRQaMLMMJfpsr4Bc/edit?tab=t.kd1fquq7r0zb" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-neutral-950/60 border border-neutral-800 hover:border-blue-500/40 rounded-xl py-3 px-4 transition-all group">
                           <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
                             <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-blue-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z"/></svg>
                           </div>
@@ -1156,7 +1156,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                             <span className="fs-tiny text-neutral-500 block">Documentos</span>
                           </div>
                         </a>
-                        <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-neutral-950/60 border border-neutral-800 hover:border-red-500/40 rounded-xl py-2 px-3 transition-all group">
+                        <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-neutral-950/60 border border-neutral-800 hover:border-red-500/40 rounded-xl py-3 px-4 transition-all group">
                           <div className="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center shrink-0">
                             <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-red-400"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                           </div>
@@ -1165,7 +1165,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                             <span className="fs-tiny text-neutral-500 block">YouTube</span>
                           </div>
                         </a>
-                        <a href="https://www.youtube.com/watch?v=QEwUZKASfeI" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-neutral-950/60 border border-neutral-800 hover:border-amber-500/40 rounded-xl py-2 px-3 transition-all group">
+                        <a href="https://www.youtube.com/watch?v=QEwUZKASfeI" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-neutral-950/60 border border-neutral-800 hover:border-amber-500/40 rounded-xl py-3 px-4 transition-all group">
                           <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center shrink-0">
                             <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-amber-400"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                           </div>
@@ -1176,7 +1176,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                         </a>
                       </div>
                     ) : (
-                      <div className="bg-neutral-950/40 border border-dashed border-neutral-700/60 rounded-xl py-3 text-center opacity-50">
+                      <div className="bg-neutral-950/40 border border-dashed border-neutral-700/60 rounded-xl py-4 text-center opacity-50">
                         <Sparkles className="w-4 h-4 text-neutral-500 mx-auto mb-1" />
                         <span className="fs-tiny font-bold text-neutral-400">Próximamente</span>
                       </div>
@@ -1190,16 +1190,16 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           </>)}
 
           {selectedGuideId === 'none' && (
-          <div className="reveal-2 w-full grid grid-cols-3 gap-2 text-center mb-4">
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-2 px-2">
+          <div className="reveal-2 w-full grid grid-cols-3 gap-3 text-center mb-6">
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-3 px-3">
                   <div className="fs-small font-black text-white">{GUIDES.length}</div>
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Guías Disp.</div>
                 </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-2 px-2">
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-3 px-3">
                   <div className="fs-small font-black text-neutral-400">{totalGyms}</div>
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Gyms por Guía</div>
                 </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-2 px-2">
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-3 px-3">
                   <div className="fs-small font-black text-neutral-400">{steps.length}</div>
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Pasos por Guía</div>
                 </div>
@@ -1818,7 +1818,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </>
                   ) : (
                     <>
-                  <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" title="Ver video de muestra de la ruta" className="w-full max-w-sm mx-auto mb-2 block group">
+                  <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" title="Ver video de muestra de la ruta" className="w-full max-w-sm mx-auto mb-4 block group">
                     <div className="relative rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl">
                       <img src="https://img.youtube.com/vi/himBCqDN2-I/maxresdefault.jpg" alt="Video de muestra de la ruta" className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500" />
                       <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/10 transition-colors">
@@ -1836,15 +1836,15 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   })()}
                   
                   {steps[0] && (
-                    <div className="w-full bg-neutral-950 rounded-xl border border-neutral-800 p-2 md:p-3 mt-1">
-                      <div className="fs-tiny md:fs-small text-neutral-500 uppercase font-bold tracking-widest mb-1 md:mb-1">{selectedGuideId === "hooh" ? "Primer turno" : "Primer gimnasio"}</div>
-                      <div className="flex items-center justify-center gap-2 md:gap-2">
-                        <span className="p-2 md:p-2 bg-neutral-900 rounded-lg">{renderIcon(steps[0].type)}</span>
+                    <div className="w-full bg-neutral-950 rounded-xl border border-neutral-800 p-4 mt-4">
+                      <div className="fs-tiny md:fs-small text-neutral-500 uppercase font-bold tracking-widest mb-3">{selectedGuideId === "hooh" ? "Primer turno" : "Primer gimnasio"}</div>
+                      <div className="flex items-center justify-center gap-3">
+                        <span className="p-3 bg-neutral-900 rounded-lg">{renderIcon(steps[0].type)}</span>
                         <span className="fs-h3 font-black text-white">{steps[0].title}</span>
-                        {steps[0].region && <span className="fs-small font-bold uppercase tracking-widest px-2 py-1 rounded border bg-neutral-900 text-neutral-400 border-neutral-800">{steps[0].region}</span>}
+                        {steps[0].region && <span className="fs-small font-bold uppercase tracking-widest px-3 py-2 rounded border bg-neutral-900 text-neutral-400 border-neutral-800">{steps[0].region}</span>}
                       </div>
                       {steps[0].type === "gym" && steps[0].gym && gymCoords[steps[0].gym as keyof typeof gymCoords] && (
-                        <div className="w-full max-w-[160px] h-20 md:max-w-[180px] md:h-24 mx-auto mt-1 md:mt-2 relative rounded-lg border border-neutral-700/50 overflow-hidden bg-neutral-950 shadow-inner group">
+                        <div className="w-full max-w-[180px] h-24 md:max-w-[200px] md:h-28 mx-auto mt-4 relative rounded-lg border border-neutral-700/50 overflow-hidden bg-neutral-950 shadow-inner group">
                           <img src={regionMap[gymCoords[steps[0].gym as keyof typeof gymCoords].region as keyof typeof regionMap]} alt="Map" className="absolute inset-0 w-full h-full object-cover opacity-70" />
                           <div className="absolute inset-0 bg-indigo-900/10 mix-blend-color" />
                           <div className="absolute w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.8)] -translate-x-1/2 -translate-y-1/2 animate-bounce" style={{ left: `${gymCoords[steps[0].gym as keyof typeof gymCoords].x}%`, top: `${gymCoords[steps[0].gym as keyof typeof gymCoords].y}%` }} />
@@ -1852,7 +1852,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       )}
                     </div>
                   )}
-                  <button onClick={() => { setStartChecks([false, false, false]); setShowStartCheck(true); }} className="w-full h-12 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-lg shadow-indigo-900/30">
+                  <button onClick={() => { setStartChecks([false, false, false]); setShowStartCheck(true); }} className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-lg shadow-indigo-900/30">
                     ▶ Comenzar ruta
                   </button>
                 </>
