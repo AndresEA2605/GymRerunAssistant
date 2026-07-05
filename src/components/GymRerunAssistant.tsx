@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback, memo } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import {
   Play,
   Pause,
@@ -335,6 +335,52 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const steps = selectedGuideId === 'hooh' && hoohSteps ? hoohSteps
     : selectedGuideId === 'guide2' && guide2Steps ? guide2Steps
     : defaultSteps;
+  const isTurnGuide = selectedGuideId === 'hooh';
+  interface GymGroup {
+    gymStep: RouteStep;
+    subBattles: RouteStep[];
+    extras: RouteStep[];
+    gymIndex: number;
+    region: string;
+  }
+  const regionOfGym = (name: string): string => {
+    const hoennGyms = ['Lavaridge', 'Mauville', 'Fallarbor', 'Rustboro', 'Fortree', 'Sootopolis', 'Sootopolis City'];
+    return hoennGyms.some(g => name.toLowerCase().includes(g.toLowerCase())) ? 'Hoenn' : 'Sinnoh';
+  };
+  const groupStepsByGym = (steps: RouteStep[]): GymGroup[] => {
+    const groups: GymGroup[] = [];
+    let current: GymGroup | null = null;
+    for (const step of steps) {
+      if (step.type === 'gym') {
+        if (current && step.gym !== current.gymStep.gym) {
+          groups.push(current);
+          current = { gymStep: step, subBattles: [], extras: [], gymIndex: groups.length + 1, region: regionOfGym(step.gym || step.title) };
+        } else if (current && step.gym === current.gymStep.gym) {
+          current.subBattles.push(step);
+        } else {
+          current = { gymStep: step, subBattles: [], extras: [], gymIndex: 1, region: regionOfGym(step.gym || step.title) };
+        }
+      } else if (current) {
+        current.extras.push(step);
+      }
+    }
+    if (current) groups.push(current);
+    return groups;
+  };
+  const gymGroups = useMemo(() => isTurnGuide ? [] : groupStepsByGym(steps), [steps, isTurnGuide]);
+  const gymGroupCount = gymGroups.length;
+  const currentGymIndex = useMemo(() => {
+    if (isTurnGuide || currentStepIndex === -1) return -1;
+    const step = steps[currentStepIndex];
+    if (!step) return -1;
+    for (let i = 0; i < gymGroups.length; i++) {
+      const g = gymGroups[i];
+      if (g.gymStep.id === step.id || g.subBattles.some(s => s.id === step.id) || g.extras.some(e => e.id === step.id)) return i;
+    }
+    return -1;
+  }, [currentStepIndex, steps, gymGroups, isTurnGuide]);
+  const currentGymGroup = currentGymIndex >= 0 ? gymGroups[currentGymIndex] ?? null : null;
+
   const [showStartCheck, setShowStartCheck] = useState<boolean>(false);
   const [startChecks, setStartChecks] = useState<[boolean, boolean, boolean]>([false, false, false]);
   const [showCountdown, setShowCountdown] = useState<boolean>(false);
@@ -543,39 +589,66 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   }, [cooldown.endAt, getLastCompletedGym, gymResetMs, startGymCooldown]);
 
   const handleNext = useCallback(() => {
-    setCurrentStepIndex((prev) => {
-      const nextIdx = prev === -1 ? 0 : Math.min(prev + 1, steps.length - 1);
-      if (nextIdx !== prev) {
-        setSlideClass("slide-in-right");
-        setSlideKey(k => k + 1);
-      }
-      return nextIdx;
-    });
-  }, [currentStepIndex, steps]);
+    const isTurn = selectedGuideId === 'hooh';
+    if (isTurn) {
+      setCurrentStepIndex((prev) => {
+        const nextIdx = prev === -1 ? 0 : Math.min(prev + 1, steps.length - 1);
+        if (nextIdx !== prev) { setSlideClass("slide-in-right"); setSlideKey(k => k + 1); }
+        return nextIdx;
+      });
+    } else {
+      setCurrentStepIndex((prev) => {
+        if (prev === -1) return 0;
+        for (let i = prev + 1; i < steps.length; i++) {
+          if (steps[i].type === 'gym') return i;
+        }
+        return prev;
+      });
+      setSlideClass("slide-in-right"); setSlideKey(k => k + 1);
+    }
+  }, [steps, selectedGuideId]);
 
   const completeGym = useCallback(() => {
     setSessionGymCount(prev => prev + 1);
     triggerToast("Gym completado");
-    setCurrentStepIndex((prev) => {
-      const nextIdx = prev === -1 ? 0 : Math.min(prev + 1, steps.length - 1);
-      if (nextIdx !== prev) {
-        setSlideClass("slide-in-right");
-        setSlideKey(k => k + 1);
-      }
-      return nextIdx;
-    });
-  }, [currentStepIndex, steps, triggerToast]);
+    const isTurn = selectedGuideId === 'hooh';
+    if (isTurn) {
+      setCurrentStepIndex((prev) => {
+        const nextIdx = prev === -1 ? 0 : Math.min(prev + 1, steps.length - 1);
+        if (nextIdx !== prev) { setSlideClass("slide-in-right"); setSlideKey(k => k + 1); }
+        return nextIdx;
+      });
+    } else {
+      setCurrentStepIndex((prev) => {
+        if (prev === -1) return 0;
+        for (let i = prev + 1; i < steps.length; i++) {
+          if (steps[i].type === 'gym') return i;
+        }
+        return prev;
+      });
+      setSlideClass("slide-in-right"); setSlideKey(k => k + 1);
+    }
+  }, [steps, selectedGuideId, triggerToast]);
 
   const handlePrev = useCallback(() => {
-    setCurrentStepIndex((prev) => {
-      const nextIdx = Math.max(prev - 1, -1);
-      if (nextIdx !== prev) {
-        setSlideClass("slide-in-left");
-        setSlideKey(k => k + 1);
-      }
-      return nextIdx;
-    });
-  }, []);
+    const isTurn = selectedGuideId === 'hooh';
+    if (isTurn) {
+      setCurrentStepIndex((prev) => {
+        const nextIdx = Math.max(prev - 1, -1);
+        if (nextIdx !== prev) { setSlideClass("slide-in-left"); setSlideKey(k => k + 1); }
+        return nextIdx;
+      });
+    } else {
+      setCurrentStepIndex((prev) => {
+        if (prev <= 0) return -1;
+        for (let i = prev - 1; i >= 0; i--) {
+          if (steps[i].type === 'gym') return i;
+        }
+        return -1;
+      });
+      setSlideClass("slide-in-left"); setSlideKey(k => k + 1);
+    }
+  }, [steps, selectedGuideId]);
 
   const stepNavRef = useRef<HTMLDivElement | null>(null);
   const stepButtonRefs = useRef<Array<HTMLButtonElement | null>>([]);
@@ -1499,10 +1572,10 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       <main className={`flex-1 flex flex-col h-full relative z-10 overflow-y-auto overflow-x-hidden ${currentStepIndex === -1 ? 'pb-0' : 'pb-28 md:pb-20'}`}>
         
         {currentStepIndex !== -1 && (<>
-          <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="sm:hidden fixed left-1.5 top-1/2 -translate-y-1/2 z-40 p-2 bg-neutral-900/70 backdrop-blur-sm rounded-full border border-neutral-700/50 hover:bg-neutral-800 disabled:opacity-20 disabled:pointer-events-none text-neutral-400 transition-all shadow-lg">
+          <button onClick={handlePrev} disabled={selectedGuideId === 'hooh' ? currentStepIndex <= 0 : currentGymIndex <= 0} title="Anterior" className="sm:hidden fixed left-1.5 top-1/2 -translate-y-1/2 z-40 p-2 bg-neutral-900/70 backdrop-blur-sm rounded-full border border-neutral-700/50 hover:bg-neutral-800 disabled:opacity-20 disabled:pointer-events-none text-neutral-400 transition-all shadow-lg">
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <button onClick={handleNext} disabled={currentStepIndex === steps.length - 1} title="Siguiente paso" className="sm:hidden fixed right-1.5 top-1/2 -translate-y-1/2 z-40 p-2 bg-indigo-600/70 backdrop-blur-sm rounded-full border border-indigo-500/30 hover:bg-indigo-500 disabled:opacity-20 disabled:pointer-events-none text-white transition-all shadow-lg shadow-indigo-500/20">
+          <button onClick={handleNext} disabled={selectedGuideId === 'hooh' ? currentStepIndex === steps.length - 1 : currentGymIndex === gymGroupCount - 1} title="Siguiente" className="sm:hidden fixed right-1.5 top-1/2 -translate-y-1/2 z-40 p-2 bg-indigo-600/70 backdrop-blur-sm rounded-full border border-indigo-500/30 hover:bg-indigo-500 disabled:opacity-20 disabled:pointer-events-none text-white transition-all shadow-lg shadow-indigo-500/20">
             <ChevronRight className="w-5 h-5" />
           </button>
         </>)}
@@ -1511,12 +1584,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           <div className="flex items-center gap-3">
             <button onClick={() => goToMenu()} title="Volver al menú principal" className="fs-small font-bold tracking-widest text-neutral-400 uppercase hover:text-white transition-colors">Ruta Gym</button>
             <div className="w-px h-4 bg-neutral-700" />
-            <div className="fs-small text-neutral-500">{currentStepIndex === -1 ? "Portada" : <>Paso <span className="font-bold text-neutral-300">{currentStepIndex + 1}</span> / {steps.length}</>}</div>
+            <div className="fs-small text-neutral-500">{currentStepIndex === -1 ? "Portada" : selectedGuideId === 'hooh' ? <>Paso <span className="font-bold text-neutral-300">{currentStepIndex + 1}</span> / {steps.length}</> : <><span className="font-bold text-neutral-300">{currentGymIndex + 1}</span> / {gymGroupCount} gimnasios</>}</div>
             <button onClick={() => goToMenu()} title="Volver al menú principal" className="px-2 py-1 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700 fs-tiny font-bold uppercase tracking-wider">Menú</button>
           </div>
         </header>
 
-        {currentStepIndex !== -1 && (
+        {currentStepIndex !== -1 && (selectedGuideId === 'hooh' ? (
           <div className="w-full px-2 md:px-4 py-2">
             <div className="mb-2 flex items-center justify-between gap-3 text-[11px] md:text-sm font-bold uppercase tracking-[0.18em] text-neutral-400">
               <span className="text-indigo-300">Paso {currentStepIndex + 1}</span>
@@ -1552,7 +1625,44 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </div>
             </div>
           </div>
-        )}
+        ) : currentGymGroup && (
+          <div className="w-full px-2 md:px-4 py-2">
+            <div className="mb-2 flex items-center justify-between gap-3 text-[11px] md:text-sm font-bold uppercase tracking-[0.18em] text-neutral-400">
+              <span className="text-indigo-300">Gimnasio {currentGymIndex + 1}</span>
+              <span className="truncate text-white">{currentGymGroup.gymStep.title}</span>
+              <span className="text-neutral-500">{currentGymIndex + 1}/{gymGroupCount}</span>
+            </div>
+            <div
+              ref={stepNavRef}
+              className="flex-none overflow-x-auto px-2 py-1.5 md:px-4 md:py-2 border-b border-neutral-800/50 bg-neutral-950/40 scrollbar-thin scroll-smooth"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+              onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY * 1.5; }}
+            >
+              <div className="flex gap-1 min-w-max">
+                {gymGroups.map((group, idx) => (
+                  <button
+                    key={group.gymStep.id}
+                    ref={(el) => { stepButtonRefs.current[idx] = el; }}
+                    onClick={() => setCurrentStepIndex(steps.indexOf(group.gymStep))}
+                    title={`Ir al gimnasio ${idx + 1}: ${group.gymStep.title}`}
+                    className={`flex items-center gap-1 px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg fs-tiny font-bold whitespace-nowrap transition-all ${
+                      idx === currentGymIndex
+                        ? "bg-indigo-600 text-white shadow-[0_0_12px_rgba(99,102,241,0.4)]"
+                        : idx < currentGymIndex
+                        ? "bg-neutral-800/60 text-neutral-300 hover:bg-neutral-700/80"
+                        : "bg-neutral-800/30 text-neutral-400 hover:bg-neutral-700/60"
+                    }`}
+                  >
+                    <span className="tabular-nums w-4 md:w-5 text-center text-[10px] md:text-xs font-black">{idx + 1}</span>
+                    {group.region !== (idx > 0 ? gymGroups[idx - 1].region : '') && (
+                      <span className="ml-1 px-1.5 py-0.5 rounded fs-[9px] md:fs-tiny font-bold uppercase tracking-wider bg-neutral-950 text-neutral-500 border border-neutral-700/60">{group.region}</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
         <div className="flex-1 flex flex-col items-center justify-center p-1.5 md:p-8 lg:p-12 overflow-y-auto overflow-x-hidden">
           <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-2 md:p-8 lg:p-12 shadow-2xl relative text-center smooth-transition ${slideClass}`}>
             
@@ -1622,7 +1732,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     ▶ COMENZAR RUTA
                   </button>
                 </>
-              ) : (<> 
+              ) : selectedGuideId === 'hooh' ? (<>
                 <div className="reveal-1 flex flex-col sm:flex-row items-center justify-center gap-1.5 md:gap-3 w-full">
                   <span className="p-1.5 md:p-3 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon(currentStep!.type)}</span>
                   <h2 className="fs-h3 font-black tracking-tight text-white">{currentStep!.title}</h2>
@@ -1643,10 +1753,28 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   <div className="absolute bottom-0.5 right-1 fs-tiny font-black uppercase tracking-widest text-white/80 drop-shadow-md">MAPA</div>
               </div>
             )}
-            </>)}
+            </>) : currentGymGroup && (
+              <>
+                <div className="reveal-1 flex flex-col sm:flex-row items-center justify-center gap-1.5 md:gap-3 w-full">
+                  <span className="p-1.5 md:p-3 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon("gym")}</span>
+                  <h2 className="fs-h3 font-black tracking-tight text-white">{currentGymGroup.gymStep.title}</h2>
+                  {currentGymGroup.region !== currentGymGroup.gymStep.region && (
+                    <span className="fs-tiny md:fs-small font-bold uppercase tracking-widest px-1.5 md:px-2 py-0.5 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentGymGroup.region}</span>
+                  )}
+                </div>
+                {currentGymGroup.gymStep.gym && gymCoords[currentGymGroup.gymStep.gym as keyof typeof gymCoords] && (
+                  <div className="reveal-2 w-full max-w-[160px] h-20 md:max-w-[200px] md:h-28 relative rounded-lg border border-neutral-700/50 overflow-hidden shrink-0 bg-neutral-950 shadow-inner group">
+                    <img src={regionMap[gymCoords[currentGymGroup.gymStep.gym as keyof typeof gymCoords].region as keyof typeof regionMap]} alt="Region Map" className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 bg-indigo-900/10 mix-blend-color" />
+                    <div className="absolute w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.8)] -translate-x-1/2 -translate-y-1/2 animate-bounce" style={{ left: `${gymCoords[currentGymGroup.gymStep.gym as keyof typeof gymCoords].x}%`, top: `${gymCoords[currentGymGroup.gymStep.gym as keyof typeof gymCoords].y}%` }} />
+                    <div className="absolute bottom-0.5 right-1 fs-tiny font-black uppercase tracking-widest text-white/80 drop-shadow-md">MAPA</div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
-            {currentStep && (<>
+            {currentStep && selectedGuideId === 'hooh' && (<>
             
             {currentStep.type === "gym" && (
               <div className="space-y-2 md:space-y-5">
@@ -1766,6 +1894,119 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </div>
             )}
             </>)}
+
+            {currentGymGroup && selectedGuideId !== 'hooh' && (
+              <div className="space-y-3 md:space-y-5 max-w-4xl mx-auto">
+                {(currentGymGroup.gymStep.lead || currentGymGroup.gymStep.switchTo) && (
+                  <div className="flex flex-col sm:flex-row justify-center gap-1.5 md:gap-4">
+                    {currentGymGroup.gymStep.lead && (
+                      <div className="reveal-3 bg-neutral-950 p-2 md:p-4 rounded-xl border border-neutral-800 flex-1 min-w-[140px] md:min-w-[180px]">
+                        <div className="fs-tiny md:fs-small text-indigo-400 uppercase font-black tracking-widest mb-1.5 md:mb-2">Leads</div>
+                        <div className="flex justify-center">{renderWithSprites(currentGymGroup.gymStep.lead)}</div>
+                      </div>
+                    )}
+                    {currentGymGroup.gymStep.switchTo && (
+                      <div className="reveal-4 bg-neutral-950 p-2 md:p-4 rounded-xl border border-neutral-800 flex-1 min-w-[140px] md:min-w-[180px]">
+                        <div className="fs-tiny md:fs-small text-emerald-400 uppercase font-black tracking-widest mb-1.5 md:mb-2">Cambios Seguros</div>
+                        <div className="flex justify-center">{renderWithSprites(currentGymGroup.gymStep.switchTo)}</div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {currentGymGroup.gymStep.actions && (
+                  <div className="reveal-5 bg-neutral-950 p-2 md:p-4 rounded-xl border border-neutral-800">
+                    <div className="fs-tiny md:fs-small text-amber-400 uppercase font-black tracking-widest mb-1.5 md:mb-3 text-center">Estrategia vs Variantes</div>
+                    <ul className="space-y-1 md:space-y-2">
+                      {currentGymGroup.gymStep.actions.map((act, i) => {
+                        const parts = act.split("→");
+                        return (
+                          <li key={i} className="flex flex-col sm:flex-row items-center justify-center gap-1 md:gap-2 fs-tiny md:fs-body bg-neutral-900 p-1 md:p-2 rounded border border-neutral-800">
+                            {parts.length > 1 ? (
+                              <><span className="font-bold text-white">{parts[0].trim()}</span> <span className="text-neutral-500 hidden sm:inline">→</span> <span className="text-neutral-300">{parts[1].trim()}</span></>
+                            ) : <span className="text-center">{act}</span>}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
+                {currentGymGroup.subBattles.map((sub) => (
+                  <div key={sub.id} className="bg-neutral-950 p-2 md:p-4 rounded-xl border border-neutral-800/60">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <span className="p-1 bg-neutral-900 rounded-lg">{renderIcon("gym")}</span>
+                      <h3 className="fs-small md:fs-body font-black text-white">{sub.title}</h3>
+                    </div>
+                    {(sub.lead || sub.switchTo) && (
+                      <div className="flex flex-col sm:flex-row justify-center gap-2 mb-2">
+                        {sub.lead && (
+                          <div className="bg-neutral-900/60 p-1.5 md:p-2 rounded-lg border border-neutral-800/50 flex-1">
+                            <div className="fs-tiny text-indigo-400/80 uppercase font-black tracking-widest mb-1 text-center">Leads</div>
+                            <div className="flex justify-center">{renderWithSprites(sub.lead)}</div>
+                          </div>
+                        )}
+                        {sub.switchTo && (
+                          <div className="bg-neutral-900/60 p-1.5 md:p-2 rounded-lg border border-neutral-800/50 flex-1">
+                            <div className="fs-tiny text-emerald-400/80 uppercase font-black tracking-widest mb-1 text-center">Cambios</div>
+                            <div className="flex justify-center">{renderWithSprites(sub.switchTo)}</div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {sub.actions && (
+                      <ul className="space-y-1">
+                        {sub.actions.map((act, i) => {
+                          const parts = act.split("→");
+                          return (
+                            <li key={i} className="flex flex-col sm:flex-row items-center justify-center gap-1 fs-tiny bg-neutral-900/40 p-1 rounded border border-neutral-800/40">
+                              {parts.length > 1 ? (
+                                <><span className="font-bold text-white/90">{parts[0].trim()}</span> <span className="text-neutral-600 hidden sm:inline">→</span> <span className="text-neutral-400">{parts[1].trim()}</span></>
+                              ) : <span className="text-center text-neutral-400">{act}</span>}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+                {currentGymGroup.extras.map((extra) => (
+                  <div key={extra.id}>
+                    {extra.type === "prep" && extra.items && extra.items.length > 0 && (
+                      <div className="reveal bg-neutral-950 p-2 md:p-4 rounded-xl border border-neutral-800">
+                        <div className="fs-tiny md:fs-small text-blue-400 uppercase font-black tracking-widest mb-1.5 md:mb-3 flex items-center justify-center gap-1.5 md:gap-2"><Sparkles className="w-3 h-3 md:w-3.5 md:h-3.5"/> Equipar Objetos</div>
+                        <ul className="space-y-1 md:space-y-2">
+                          {extra.items.map((it, i) => {
+                            const isScarf = it.item.toLowerCase().includes("panuelo") || it.item.toLowerCase().includes("pañuelo");
+                            return (
+                              <li key={i} className={`flex flex-col sm:flex-row items-center justify-center gap-1 md:gap-2 p-1.5 md:p-3 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
+                                <span className={`fs-tiny md:fs-body ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{renderWithSprites(it.pokemon, " • ")}</span>
+                                <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-2 md:px-3 py-0.5 md:py-1 fs-tiny md:fs-small shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-1.5 md:px-2 py-0.5 fs-tiny'} font-bold rounded uppercase tracking-wider`}>
+                                  ➔ {it.item}
+                                </span>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    )}
+                    {extra.type === "prep" && extra.heal && (
+                      <div className="reveal flex items-center justify-center gap-2 bg-red-950/20 border border-red-900/30 p-2 md:p-4 rounded-xl text-red-400 fs-tiny md:fs-body font-bold">
+                        <Heart className="w-3.5 h-3.5 md:w-5 md:h-5 fill-current" /> Curar equipo en el Centro Pokémon
+                      </div>
+                    )}
+                    {extra.type === "prep" && extra.travel && (
+                      <div className="reveal flex items-center justify-center gap-2 bg-teal-950/20 border border-teal-900/30 p-2 md:p-4 rounded-xl text-teal-400 fs-tiny md:fs-body font-bold">
+                        <Compass className="w-3.5 h-3.5 md:w-5 md:h-5" /> Viajar hacia {extra.travel}
+                      </div>
+                    )}
+                    {extra.type === "note" && (
+                      <div className="reveal bg-amber-950/20 border border-amber-900/30 p-3 md:p-6 rounded-xl text-amber-400 fs-tiny md:fs-body font-bold text-center">
+                        {extra.description}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
             
           </div>
 
@@ -1804,34 +2045,34 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-violet-400/60 group-hover:text-violet-400 transition-colors shrink-0" />
             </button>
           </div>
-          <div className="w-full max-w-4xl mt-4 md:mt-6 space-y-2 md:space-y-3">
+           <div className="w-full max-w-4xl mt-4 md:mt-6 space-y-2 md:space-y-3">
             <div className="flex gap-2 md:gap-4">
-              <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="flex-1 py-3 md:py-4 bg-neutral-900 rounded-xl fs-tiny md:fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
-              {currentStepIndex >= 0 && steps[currentStepIndex]?.type === "gym" && currentStepIndex < steps.length - 1 ? (
+              <button onClick={handlePrev} disabled={selectedGuideId === 'hooh' ? currentStepIndex <= 0 : currentGymIndex <= 0} title="Anterior" className="flex-1 py-3 md:py-4 bg-neutral-900 rounded-xl fs-tiny md:fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
+              {selectedGuideId !== 'hooh' && currentGymIndex >= 0 && currentGymIndex < gymGroupCount - 1 ? (
                 <>
                   <button onClick={handleNext} className="flex-1 py-3 md:py-4 bg-neutral-800 rounded-xl font-bold text-neutral-400 hover:text-white hover:bg-neutral-700 transition-all fs-tiny md:fs-body">Saltar →</button>
                   <button onClick={completeGym} className="flex-[2] py-3 md:py-4 bg-emerald-700 rounded-xl font-bold text-white hover:bg-emerald-600 shadow-lg shadow-emerald-900/20 transition-all fs-tiny md:fs-body">✓ Completar Gym</button>
                 </>
-              ) : currentStepIndex >= 0 && steps[currentStepIndex]?.type === "gym" && currentStepIndex === steps.length - 1 ? (
+              ) : selectedGuideId !== 'hooh' && currentGymIndex >= 0 && currentGymIndex === gymGroupCount - 1 ? (
                 <>
                   <button onClick={handleNext} className="flex-1 py-3 md:py-4 bg-neutral-800 rounded-xl font-bold text-neutral-400 hover:text-white hover:bg-neutral-700 transition-all fs-tiny md:fs-body">Saltar →</button>
                   <button onClick={completeGym} className="flex-[2] py-3 md:py-4 bg-emerald-700 rounded-xl font-bold text-white hover:bg-emerald-600 shadow-lg shadow-emerald-900/20 transition-all fs-tiny md:fs-body">✓ Completar Gym</button>
                   <button onClick={requestFinishRun} className="flex-1 py-3 md:py-4 bg-red-700 rounded-xl font-bold text-white hover:bg-red-600 transition-all fs-tiny md:fs-body">Finalizar</button>
                 </>
               ) : (
-                <button onClick={currentStepIndex === -1 ? handleNext : (currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext)} title={currentStepIndex === -1 ? "Comenzar la ruta" : currentStepIndex === steps.length - 1 ? "Finalizar la ruta" : "Siguiente paso"} className="flex-[2] py-3 md:py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-tiny md:fs-body">
-                  {currentStepIndex === -1 ? "▶ COMENZAR" : currentStepIndex === steps.length - 1 ? "¡Finalizar!" : "Siguiente (Espacio) →"}
+                <button onClick={currentStepIndex === -1 ? handleNext : (currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext)} title={currentStepIndex === -1 ? "Comenzar la ruta" : currentStepIndex === steps.length - 1 ? "Finalizar la ruta" : selectedGuideId === 'hooh' ? "Siguiente paso" : "Siguiente gimnasio"} className="flex-[2] py-3 md:py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-tiny md:fs-body">
+                  {currentStepIndex === -1 ? "▶ COMENZAR" : currentStepIndex === steps.length - 1 ? "¡Finalizar!" : selectedGuideId === 'hooh' ? "Siguiente (Espacio) →" : "Siguiente Gym →"}
                 </button>
               )}
             </div>
             <div className="w-full bg-neutral-800 rounded-full h-1.5 md:h-2.5 overflow-hidden">
               <div
                 className="progress-shimmer h-full rounded-full transition-all duration-300"
-                style={{ width: `${Math.round(((currentStepIndex + 1) / steps.length) * 100)}%` }}
+                style={{ width: selectedGuideId === 'hooh' ? `${Math.round(((currentStepIndex + 1) / steps.length) * 100)}%` : `${Math.round(((currentGymIndex + 1) / gymGroupCount) * 100)}%` }}
               />
             </div>
             <div className="text-center fs-tiny md:fs-small text-neutral-500 font-mono">
-              {currentStepIndex === -1 ? "0% completado" : `${Math.round(((currentStepIndex + 1) / steps.length) * 100)}% completado`}
+              {currentStepIndex === -1 ? "0% completado" : selectedGuideId === 'hooh' ? `${Math.round(((currentStepIndex + 1) / steps.length) * 100)}% completado` : `Gimnasio ${currentGymIndex + 1} / ${gymGroupCount}`}
             </div>
           </div>
           </>)}
@@ -1871,10 +2112,10 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           </div>
 
           <div className="flex items-center gap-0.5">
-              <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
+              <button onClick={handlePrev} disabled={selectedGuideId === 'hooh' ? currentStepIndex <= 0 : currentGymIndex <= 0} title="Anterior" className="p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <button onClick={handleNext} disabled={currentStepIndex === steps.length - 1} title="Siguiente paso" className="p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
+              <button onClick={handleNext} disabled={selectedGuideId === 'hooh' ? currentStepIndex === steps.length - 1 : currentGymIndex === gymGroupCount - 1} title="Siguiente" className="p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
                 <ChevronRight className="w-5 h-5" />
               </button>
           </div>
