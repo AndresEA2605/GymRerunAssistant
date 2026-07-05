@@ -10,9 +10,9 @@ export const GUIDE_CATEGORIES: { id: GuideCategory; label: string; icon: string 
 export const GUIDES: GuideMeta[] = [
   {
     id: 'gym33',
-    title: '33 Gyms',
+    title: '33 GYMS 1H',
     subtitle: 'Guía secuencial para 33 Gym Reruns',
-    category: 'guides',
+    category: 'routes',
     icon: '635',
     color: 'indigo',
     credits: {
@@ -29,7 +29,7 @@ export const GUIDES: GuideMeta[] = [
     id: 'hooh',
     title: 'Ho-Oh',
     subtitle: 'Estrategia para derrotar a Ho-Oh en 10 turnos',
-    category: 'guides',
+    category: 'farming',
     icon: '250',
     color: 'amber',
     credits: {
@@ -44,9 +44,9 @@ export const GUIDES: GuideMeta[] = [
   },
   {
     id: 'guide2',
-    title: '33 Gyms II',
+    title: '25 GYMS 1H',
     subtitle: 'Ruta alternativa con leads optimizados',
-    category: 'guides',
+    category: 'routes',
     icon: '468',
     color: 'teal',
     credits: {

@@ -1640,7 +1640,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       <div className="w-24 h-24 md:w-32 md:h-32 opacity-50 mb-1">
                         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/250.gif" alt="Ho-Oh" className="w-full h-full object-contain" />
                       </div>
-                      <h2 className="fs-h2 font-black tracking-tight text-white">Ho-Oh Rerun</h2>
+                      <h2 className="fs-h2 font-black tracking-tight text-white">Ho-Oh Farming</h2>
                       <p className="fs-body text-neutral-400">Derrota a Ho-Oh (Revancha) en 10 turnos — ~8 min · ~97.000 PokéYen</p>
                     </>
                   ) : selectedGuideId === "guide2" ? (
@@ -1652,8 +1652,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                           </div>
                         ))}
                       </div>
-                      <h2 className="fs-h2 font-black tracking-tight text-white">33 Gym Rerun II</h2>
-                      <p className="fs-body text-neutral-400">Ruta alternativa — 28 gimnasios · 5 regiones · leads optimizados</p>
+                      <h2 className="fs-h2 font-black tracking-tight text-white">25 GYMS 1H</h2>
+                      <p className="fs-body text-neutral-400">Ruta alternativa — 25 gimnasios · 5 regiones · leads optimizados</p>
                     </>
                   ) : (
                     <>
