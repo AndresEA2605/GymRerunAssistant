@@ -989,31 +989,31 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             if (!guide) return null;
             const gc = getGuideColorClasses(guide.color);
             return (
-              <div className="reveal-1 w-full text-center space-y-2 mb-3">
-                <span className={`fs-tiny uppercase tracking-widest font-black border px-2 py-0.5 rounded-full inline-block ${gc.text} ${gc.border} ${gc.bg}`}>
+              <div className="reveal-1 w-full text-center space-y-1.5 mb-2">
+                <span className={`fs-tiny uppercase tracking-widest font-black border px-1.5 py-0.5 rounded-full inline-block ${gc.text} ${gc.border} ${gc.bg}`}>
                   {guide.credits.author}
                 </span>
-                <h2 className="fs-h2 font-black text-white leading-tight">{guide.title} Rerun</h2>
-                <p className="fs-body text-neutral-400 max-w-xl mx-auto leading-relaxed">{guide.subtitle}</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 max-w-2xl mx-auto">
-                  <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                    <div className="text-lg">🎯</div>
-                    <div className={`fs-small font-black ${gc.text}`}>{steps.filter(s => s.type === "gym").length || steps.length}</div>
+                <h2 className="fs-h3 font-black text-white leading-tight">{guide.title} Rerun</h2>
+                <p className="fs-small text-neutral-400 max-w-xl mx-auto leading-relaxed">{guide.subtitle}</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5 mt-2 max-w-2xl mx-auto">
+                  <div className="bg-neutral-900 border border-neutral-800 rounded-lg py-1 px-1.5">
+                    <div className="text-sm">🎯</div>
+                    <div className={`fs-tiny font-black ${gc.text}`}>{steps.filter(s => s.type === "gym").length || steps.length}</div>
                     <div className="fs-tiny text-neutral-500 uppercase tracking-wider">{selectedGuideId === 'hooh' ? 'Turnos' : 'Gimnasios'}</div>
                   </div>
-                  <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                    <div className="text-lg">🗺️</div>
-                    <div className={`fs-small font-black ${gc.text}`}>5</div>
+                  <div className="bg-neutral-900 border border-neutral-800 rounded-lg py-1 px-1.5">
+                    <div className="text-sm">🗺️</div>
+                    <div className={`fs-tiny font-black ${gc.text}`}>5</div>
                     <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Regiones</div>
                   </div>
-                  <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                    <div className="text-lg">🔄</div>
-                    <div className={`fs-small font-black ${gc.text}`}>{steps.filter(s => s.switchTo).length}</div>
+                  <div className="bg-neutral-900 border border-neutral-800 rounded-lg py-1 px-1.5">
+                    <div className="text-sm">🔄</div>
+                    <div className={`fs-tiny font-black ${gc.text}`}>{steps.filter(s => s.switchTo).length}</div>
                     <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Swaps</div>
                   </div>
-                  <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                    <div className="text-lg">⭐</div>
-                    <div className={`fs-small font-black ${gc.text}`}>{selectedGuideId === 'hooh' ? 'Media' : 'Media-Alta'}</div>
+                  <div className="bg-neutral-900 border border-neutral-800 rounded-lg py-1 px-1.5">
+                    <div className="text-sm">⭐</div>
+                    <div className={`fs-tiny font-black ${gc.text}`}>{selectedGuideId === 'hooh' ? 'Media' : 'Media-Alta'}</div>
                     <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Dificultad</div>
                   </div>
                 </div>
@@ -1207,22 +1207,22 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           )}
 
           {lastRunStats && selectedGuideId !== 'none' && (
-            <div className="reveal-3 w-full bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border border-indigo-500/30 rounded-2xl p-3 md:p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Clock className="w-4 h-4 text-indigo-400" />
-                <h3 className="font-black fs-body text-indigo-300 uppercase tracking-wider">Última Run</h3>
+            <div className="reveal-3 w-full bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border border-indigo-500/30 rounded-xl p-2">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Clock className="w-3.5 h-3.5 text-indigo-400" />
+                <h3 className="font-black fs-small text-indigo-300 uppercase tracking-wider">Última Run</h3>
               </div>
-              <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="grid grid-cols-3 gap-1.5 text-center">
                 <div>
-                  <div className="fs-h3 font-black text-white">{formatTime(lastRunStats.elapsed)}</div>
+                  <div className="fs-small font-black text-white">{formatTime(lastRunStats.elapsed)}</div>
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Tiempo</div>
                 </div>
                 <div>
-                  <div className="fs-h3 font-black text-emerald-400">{lastRunStats.gymsCompleted}/{lastRunStats.totalGyms}</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Gyms Completados</div>
+                  <div className="fs-small font-black text-emerald-400">{lastRunStats.gymsCompleted}/{lastRunStats.totalGyms}</div>
+                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Gyms</div>
                 </div>
                 <div>
-                  <div className="fs-h3 font-black text-amber-400">{new Date(lastRunStats.finishedAt).toLocaleDateString()}</div>
+                  <div className="fs-small font-black text-amber-400">{new Date(lastRunStats.finishedAt).toLocaleDateString()}</div>
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Fecha</div>
                 </div>
               </div>
@@ -1230,10 +1230,10 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           )}
 
           {selectedGuideId !== 'none' && (
-            <div className="reveal-3 w-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-2xl p-3 md:p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Timer className="w-4 h-4 text-amber-400" />
-                <h3 className="font-black fs-body text-amber-300 uppercase tracking-wider">
+            <div className="reveal-3 w-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl p-2">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Timer className="w-3.5 h-3.5 text-amber-400" />
+                <h3 className="font-black fs-small text-amber-300 uppercase tracking-wider">
                   {selectedGuideId === 'hooh' ? 'Cooldown Ho-Oh' : 'Cooldown Gyms'}
                 </h3>
                 <div className="ml-auto">
@@ -1241,8 +1241,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                   <span className="fs-tiny text-amber-200/70">
                     {selectedGuideId === 'hooh' ? (allCooldowns.hooh.lastGym || "Mt. Silver") : (cooldown.lastGym || "Sin gym registrado")}
                   </span>
@@ -1253,7 +1253,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </div>
               {((selectedGuideId === 'hooh' && allCooldowns.hooh.endAt && allCooldowns.hooh.endAt > Date.now()) || 
                 (selectedGuideId !== 'hooh' && cooldown.endAt && cooldown.endAt > Date.now())) && (
-                <div className="mt-2 w-full h-1.5 bg-black/30 rounded-full overflow-hidden">
+                <div className="mt-1.5 w-full h-1 bg-black/30 rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-gradient-to-r from-amber-500 to-orange-400 rounded-full transition-all"
                     style={{ width: `${Math.min(100, ((gymResetMs - ((selectedGuideId === 'hooh' ? allCooldowns.hooh.endAt : cooldown.endAt)! - Date.now())) / gymResetMs) * 100)}%` }}
@@ -1284,7 +1284,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </div>
             </div>
           ) : (
-            <button onClick={() => exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); })} title="Comenzar la ruta seleccionada" className="reveal-4 w-full py-2 md:py-3 bg-indigo-600 hover:bg-indigo-500 text-white fs-small md:fs-body font-black rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] btn-glow-active">
+            <button onClick={() => exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); })} title="Comenzar la ruta seleccionada" className="reveal-4 w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white fs-tiny font-black rounded-lg transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] btn-glow-active">
               ▶ INICIAR RUTA
             </button>
           ))}
@@ -1295,8 +1295,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           })()}
 
           {selectedGuideId !== 'none' && currentStepIndex < 0 && (
-            <button onClick={() => selectGuide('none')} title="Volver a la selección de guías" className="w-full py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 fs-small font-bold rounded-xl transition-all flex items-center justify-center gap-2">
-              <ChevronLeft className="w-4 h-4" />Volver a guías
+            <button onClick={() => selectGuide('none')} title="Volver a la selección de guías" className="w-full py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 fs-tiny font-bold rounded-lg transition-all flex items-center justify-center gap-1.5">
+              <ChevronLeft className="w-3.5 h-3.5" />Volver a guías
             </button>
           )}
 

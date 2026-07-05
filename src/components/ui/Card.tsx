@@ -21,9 +21,9 @@ export default function Card({ children, className = "", padding = "md", hover =
   return (
     <div
       className={[
-        "bg-neutral-900/80 backdrop-blur-sm rounded-xl border border-neutral-800 shadow-lg",
+        "bg-neutral-950 backdrop-blur-sm rounded-xl border border-neutral-800 shadow-lg",
+        "hover:border-neutral-700 hover:bg-neutral-950/90 transition-all",
         paddingClasses[padding],
-        hover ? "transition-all hover:border-neutral-700 hover:bg-neutral-900/90" : "",
         className,
       ]
         .filter(Boolean)
