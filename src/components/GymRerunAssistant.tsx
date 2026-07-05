@@ -36,7 +36,7 @@ import TimerDisplay from "./shared/TimerDisplay";
 import { formatTime } from "./shared/TimerDisplay";
 import { getGuideColorClasses, getGuidePokeGlow } from "@/lib/design-tokens";
 import { getGuide, getGuidesByCategory, GUIDE_CATEGORIES, GUIDES } from "../data/guides";
-import { showCompleteGym as shouldShowCompleteGym } from "@/lib/guide-footer";
+import { showCompleteGym as shouldShowCompleteGym, isRoutesGuide } from "@/lib/guide-footer";
 
 export type GymCoordMap = Record<string, { region: string; x: number; y: number }>;
 export type RegionMap = Record<string, string>;
@@ -1725,7 +1725,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           </div>
         )}
         
-        <header className="flex items-center justify-between gap-3 p-3 md:p-4 border-b border-neutral-800 bg-neutral-900/50">
+        <header className="flex items-center justify-between gap-3 p-3 md:p-3 border-b border-neutral-800 bg-neutral-900/50">
           <div className="flex min-w-0 items-center gap-3">
             <button onClick={() => goToMenu()} title="Volver al menú principal" className="fs-small font-bold tracking-wide text-neutral-400 uppercase hover:text-white transition-colors truncate">
               {getGuide(selectedGuideId)?.title ?? "Guía"}
@@ -1739,9 +1739,33 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 : <><span className="font-bold text-neutral-300">{currentGymIndex + 1}</span> / {gymGroupCount} gimnasios</>}
             </div>
           </div>
-          <button onClick={() => goToMenu()} title="Volver al menú principal" className="shrink-0 px-3 py-2 bg-neutral-800 text-neutral-400 rounded-lg hover:bg-neutral-700 fs-tiny font-bold uppercase tracking-wider">
-            Menú
-          </button>
+          <div className="flex items-center gap-2">
+            {isRoutesGuide(selectedGuideId) && (
+              <div className="hidden md:flex items-center gap-2">
+                <div className="flex items-center gap-2 bg-neutral-800/60 rounded-xl px-2 py-1">
+                  <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
+                </div>
+
+                <div className="flex items-center gap-1">
+                  {!timerIsRunning ? (
+                    <Button variant="primary" size="sm" onClick={startTimer} icon={<Play className="w-3.5 h-3.5 fill-current" />}>Iniciar</Button>
+                  ) : (
+                    <Button variant="neutral" size="sm" onClick={pauseTimer} className="bg-amber-700 hover:bg-amber-600 border-amber-600/40" icon={<Pause className="w-3.5 h-3.5 fill-current" />}>Pausar</Button>
+                  )}
+
+                  <Button variant="ghost" size="sm" iconOnly onClick={requestTimerReset} aria-label="Reiniciar cronómetro" icon={<RotateCcw className="w-3.5 h-3.5" />} />
+
+                  <button type="button" onClick={() => setShowCooldownNotice(true)} className="hidden sm:inline-flex items-center gap-2 px-2 py-1 rounded-lg bg-neutral-800/80 hover:bg-neutral-700 border border-neutral-700" aria-label="Ver cooldown de gyms">
+                    <Clock className="w-4 h-4 text-emerald-400" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <button onClick={() => goToMenu()} title="Volver al menú principal" className="shrink-0 px-3 py-2 bg-neutral-800 text-neutral-400 rounded-lg hover:bg-neutral-700 fs-tiny font-bold uppercase tracking-wider">
+              Menú
+            </button>
+          </div>
         </header>
 
         {currentStepIndex !== -1 && (selectedGuideId === 'hooh' ? (

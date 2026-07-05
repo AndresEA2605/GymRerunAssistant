@@ -3,9 +3,7 @@
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Button from "@/components/ui/Button";
-import GymFarmingBar from "./GymFarmingBar";
 import { FooterProgress } from "./FooterProgress";
-import { showGymTimer } from "@/lib/guide-footer";
 
 export interface RouteFooterActions {
   onPrev: () => void;
@@ -106,27 +104,6 @@ export function RoutesFooterInner({ guideId, nav, gym }: RoutesFooterProps) {
         </div>
 
         <FooterProgress percent={nav.progressPercent} label={nav.progressLabel} />
-
-        {showGymTimer(guideId) && (
-          <div className="h-[var(--footer-routes-height)] overflow-hidden">
-            <div className="h-full overflow-y-auto px-3 py-2">
-              <GymFarmingBar
-                timerIsRunning={gym.timerIsRunning}
-                timerStartTime={gym.timerStartTime}
-                timerElapsed={gym.timerElapsed}
-                onStartTimer={gym.onStartTimer}
-                onPauseTimer={gym.onPauseTimer}
-                onResetTimer={gym.onResetTimer}
-                cooldownEndAt={gym.cooldownEndAt}
-                onShowCooldownNotice={gym.onShowCooldownNotice}
-                onStartCooldown={gym.onStartCooldown}
-                onOpenCooldownEditor={gym.onEditCooldown}
-                sessionGymCount={gym.sessionGymCount}
-                totalGyms={gym.totalGyms}
-              />
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
