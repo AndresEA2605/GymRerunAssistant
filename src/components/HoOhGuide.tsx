@@ -4,7 +4,7 @@ import React, { useState, memo } from "react";
 import { X, Info } from "lucide-react";
 import { HOOH_TEAM, HOOH_TURNS, HOOH_GUIDE, HoOhPokemon, HoOhTurn, TurnConditional } from "@/data/hoohGuide";
 
-const SPRITE_BASE = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork";
+const SPRITE_BASE = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated";
 
 type AccentMap = Record<string, { border: string; bg: string; text: string }>;
 
@@ -103,7 +103,7 @@ const PokemonCard = ({ pokemon, index }: { pokemon: HoOhPokemon; index: number }
     <div className={`reveal-${index + 2} bg-neutral-950/80 backdrop-blur-sm border ${a.border} rounded-xl p-3 md:p-4 transition-all hover:border-opacity-40 hover:bg-neutral-950/90 shadow-lg shadow-black/20`}>
       <div className="flex items-center gap-2.5 mb-2.5">
         <SpriteImg
-          src={`${SPRITE_BASE}/${pokemon.spriteId}.png`}
+          src={`${SPRITE_BASE}/${pokemon.spriteId}.gif`}
           name={pokemon.name}
           className="w-10 h-10 md:w-12 md:h-12"
         />
@@ -245,7 +245,7 @@ export default function HoOhGuide({ onClose }: HoOhGuideProps) {
           {/* Hero / Title Section */}
           <div className="reveal-1 text-center space-y-3 relative">
             <div className="absolute -top-10 -left-10 w-32 h-32 opacity-[0.03] pointer-events-none select-none">
-              <img src={`${SPRITE_BASE}/250.png`} alt="" className="w-full h-full object-contain" />
+              <img src={`${SPRITE_BASE}/250.gif`} alt="" className="w-full h-full object-contain" />
             </div>
             <span className="fs-tiny uppercase tracking-widest font-black text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-0.5 rounded-full inline-block">
               PokeMMO Boss Strategy

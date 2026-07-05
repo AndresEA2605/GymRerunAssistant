@@ -73,3 +73,28 @@ export interface LastRunStats {
   totalGyms: number;
   finishedAt: number;
 }
+
+export interface GuideCredits {
+  author: string;
+  adaptedBy?: string;
+  status: 'Original' | 'Adaptada' | 'Actualizada';
+  lastUpdated?: string;
+  sources: {
+    youtube?: string;
+    docs?: string;
+    discord?: string;
+    website?: string;
+  };
+}
+
+export type GuideCategory = 'guides' | 'farming' | 'routes' | 'resources';
+
+export interface GuideMeta {
+  id: string;
+  title: string;
+  subtitle: string;
+  category: GuideCategory;
+  icon: string;
+  color: string;
+  credits: GuideCredits;
+}

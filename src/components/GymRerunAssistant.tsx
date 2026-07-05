@@ -19,8 +19,10 @@ import {
   Users,
   Target,
 } from "lucide-react";
-import { RouteStep, StepType, RunHistoryEntry, LastRunStats } from "../types";
+import { RouteStep, StepType, RunHistoryEntry, LastRunStats, GuideCategory } from "../types";
 import DailyTasks from "./DailyTasks";
+import GuideCredits from "./GuideCredits";
+import { GUIDES, GUIDE_CATEGORIES, getGuide, getGuidesByCategory } from "../data/guides";
 
 export type GymCoordMap = Record<string, { region: string; x: number; y: number }>;
 export type RegionMap = Record<string, string>;
@@ -134,7 +136,7 @@ const PokemonSprite = ({ name, id, size = 24 }: { name: string; id: number; size
     <span className="inline-block w-[${size}px] h-[${size}px] mr-1 rounded bg-neutral-800 align-middle" />
   ) : (
     <img
-      src={`${SPRITE_BASE}/${id}.png`}
+      src={`${SPRITE_BASE}/${id}.gif`}
       alt={name}
       className="inline-block object-contain -mt-0.5 mr-1"
       style={{ width: size, height: size }}
@@ -172,7 +174,13 @@ const PokeballSVG = ({ opacity = 0.18 }: { opacity?: number }) => (
   </svg>
 );
 
-const SPRITE_BASE = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork";
+const SPRITE_BASE = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated";
+
+const GUIDE_COLORS: Record<string, { text: string; textLight: string; border: string; borderHover: string; bg: string; badge: string }> = {
+  indigo: { text: 'text-indigo-400', textLight: 'text-indigo-300', border: 'border-indigo-500/40', borderHover: 'hover:border-indigo-400/60', bg: 'bg-indigo-500/10', badge: 'bg-indigo-500/30' },
+  amber: { text: 'text-amber-400', textLight: 'text-amber-300', border: 'border-amber-500/40', borderHover: 'hover:border-amber-400/60', bg: 'bg-amber-500/10', badge: 'bg-amber-500/30' },
+  teal: { text: 'text-teal-400', textLight: 'text-teal-300', border: 'border-teal-500/40', borderHover: 'hover:border-teal-400/60', bg: 'bg-teal-500/10', badge: 'bg-teal-500/30' },
+};
 
 const POKEMON_ARTWORK: Record<string, number> = {
   // Team members
@@ -952,111 +960,42 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
         <div className="relative z-10 w-full max-w-xl flex flex-col items-center gap-2 md:gap-2.5" style={{ maxWidth: "min(100%, 36rem)" }}>
 
-          {selectedGuideId === 'gym33' && (
-            <>
-              <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" title="Ver run de ejemplo en YouTube — de aquí se extrajo toda la información" className="reveal-1 w-full bg-red-950/20 border border-red-800/50 rounded-2xl p-2.5 md:p-3 flex items-center gap-2 md:gap-3 group hover:bg-red-950/30 transition-all cursor-pointer">
-                <div className="w-8 h-8 md:w-10 md:h-10 flex-shrink-0 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30">
-                  <svg viewBox="0 0 24 24" fill="white" className="w-4 h-4 md:w-5 md:h-5"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.386.507 9.386.507s7.518 0 9.387-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="fs-small md:fs-body font-black text-white group-hover:text-red-300 transition-colors">Ver Run de Ejemplo en YouTube</div>
-                  <div className="fs-tiny text-neutral-400">Guía visual — de aquí se extrajo toda la info</div>
-                </div>
-                <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-red-400/60 group-hover:text-red-400 transition-colors shrink-0" />
-              </a>
-
-              <div className="reveal-2 w-full flex items-stretch gap-1.5 md:gap-2">
-                <div className="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-2 md:px-2.5 py-1 md:py-1.5 text-center">
-                  <div className="fs-tiny md:fs-tiny uppercase tracking-widest text-neutral-500 leading-tight">Sin Moneda Amuleto</div>
-                  <div className="fs-small md:fs-body font-black text-white">~297,000</div>
-                  <div className="fs-tiny text-neutral-600">×1.0 — ~9,000 c/u</div>
-                </div>
-                <div className="flex-1 bg-neutral-900 border border-emerald-800/40 rounded-xl px-2 md:px-2.5 py-1 md:py-1.5 text-center bg-emerald-950/15">
-                  <div className="fs-tiny md:fs-tiny uppercase tracking-widest text-emerald-500 leading-tight">Con Moneda Amuleto</div>
-                  <div className="fs-small md:fs-body font-black text-emerald-400">~446,000</div>
-                  <div className="fs-tiny text-emerald-600">×1.5 — ~13,500 c/u</div>
-                </div>
-              </div>
-            </>
-          )}
-
-          {selectedGuideId === 'hooh' && (
-            <div className="reveal-1 w-full text-center space-y-2">
-              <span className="fs-tiny uppercase tracking-widest font-black text-amber-400 border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 rounded-full inline-block">
-                PokeMMO Boss Strategy
-              </span>
-              <h2 className="fs-h2 font-black text-white leading-tight">
-                🏆 {steps.length > 0 ? "Guía para derrotar a HO-OH (10 Turnos)" : "Guía Ho-Oh"}
-              </h2>
-              <p className="fs-small text-neutral-400">
-                por <span className="font-bold text-neutral-300">Finya Cabrazo</span>
-              </p>
-              <p className="fs-body text-neutral-400 max-w-xl mx-auto leading-relaxed">
-                Con esta estrategia podrás derrotar a Ho-Oh (Revancha) en únicamente 10 turnos, completando la run en aproximadamente 8 minutos.
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                  <div className="text-lg">⏱</div>
-                  <div className="fs-small font-black text-emerald-400">8 min</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Tiempo promedio</div>
-                </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                  <div className="text-lg">💰</div>
-                  <div className="fs-small font-black text-amber-400">97.000</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Ganancia estimada</div>
-                </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                  <div className="text-lg">🎯</div>
-                  <div className="fs-small font-black text-indigo-400">10</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Turnos</div>
-                </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                  <div className="text-lg">⭐</div>
-                  <div className="fs-small font-black text-violet-400">Media</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Dificultad</div>
+          {selectedGuideId !== 'none' && (() => {
+            const guide = getGuide(selectedGuideId);
+            if (!guide) return null;
+            const gc = GUIDE_COLORS[guide.color] || GUIDE_COLORS.indigo;
+            return (
+              <div className="reveal-1 w-full text-center space-y-2">
+                <span className={`fs-tiny uppercase tracking-widest font-black border px-2 py-0.5 rounded-full inline-block ${gc.text} border-${guide.color}-500/30 ${gc.bg}`}>
+                  {guide.credits.author}
+                </span>
+                <h2 className="fs-h2 font-black text-white leading-tight">{guide.title} Rerun</h2>
+                <p className="fs-body text-neutral-400 max-w-xl mx-auto leading-relaxed">{guide.subtitle}</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
+                  <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
+                    <div className="text-lg">🎯</div>
+                    <div className={`fs-small font-black ${gc.text}`}>{steps.filter(s => s.type === "gym").length || steps.length}</div>
+                    <div className="fs-tiny text-neutral-500 uppercase tracking-wider">{selectedGuideId === 'hooh' ? 'Turnos' : 'Gimnasios'}</div>
+                  </div>
+                  <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
+                    <div className="text-lg">🗺️</div>
+                    <div className={`fs-small font-black ${gc.text}`}>5</div>
+                    <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Regiones</div>
+                  </div>
+                  <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
+                    <div className="text-lg">🔄</div>
+                    <div className={`fs-small font-black ${gc.text}`}>{steps.filter(s => s.switchTo).length}</div>
+                    <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Swaps</div>
+                  </div>
+                  <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
+                    <div className="text-lg">⭐</div>
+                    <div className={`fs-small font-black ${gc.text}`}>{selectedGuideId === 'hooh' ? 'Media' : 'Media-Alta'}</div>
+                    <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Dificultad</div>
+                  </div>
                 </div>
               </div>
-              <p className="fs-tiny text-amber-200/60">
-                💰 Aproximadamente 97.000 PokéYen (vendiendo los Señuelos Legendarios a 30.000 c/u)
-              </p>
-            </div>
-          )}
-
-          {selectedGuideId === 'guide2' && (
-            <div className="reveal-1 w-full text-center space-y-2">
-              <span className="fs-tiny uppercase tracking-widest font-black text-teal-400 border border-teal-500/30 bg-teal-500/10 px-2 py-0.5 rounded-full inline-block">
-                33 Gyms — Variant 2
-              </span>
-              <h2 className="fs-h2 font-black text-white leading-tight">
-                🗺️ Ruta Alternativa: {steps.length} Pasos
-              </h2>
-              <p className="fs-body text-neutral-400 max-w-xl mx-auto leading-relaxed">
-                Estrategia alternativa para 33 Gym Rerun con Togekiss, Excadrill, Blastoise, Vanilluxe, Aerodactyl y Typhlosion. Cruzá 5 regiones con leads optimizados, swaps tácticos y cobertura completa de tipos.
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                  <div className="text-lg">🎯</div>
-                  <div className="fs-small font-black text-teal-400">{steps.filter(s => s.type === "gym").length}</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Gimnasios</div>
-                </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                  <div className="text-lg">🗺️</div>
-                  <div className="fs-small font-black text-indigo-400">5</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Regiones</div>
-                </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                  <div className="text-lg">🔄</div>
-                  <div className="fs-small font-black text-teal-400">{steps.filter(s => s.switchTo).length}</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Swaps Tácticos</div>
-                </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
-                  <div className="text-lg">⭐</div>
-                  <div className="fs-small font-black text-violet-400">Media-Alta</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Dificultad</div>
-                </div>
-              </div>
-            </div>
-          )}
+            );
+          })()}
 
           <div className="reveal-1 text-center">
             <span className="fs-tiny uppercase tracking-widest font-black text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-2 py-0.5 rounded-full">PokeMMO Speedrun Tool</span>
@@ -1065,37 +1004,85 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           </div>
 
           {selectedGuideId === 'none' && (
-            <div className="reveal-2 w-full bg-gradient-to-r from-indigo-500/5 via-indigo-500/10 to-indigo-500/5 border border-indigo-500/20 rounded-xl px-3 py-2 text-center animate-pulse">
-              <p className="fs-body font-bold text-indigo-300">👇 Selecciona una ruta para comenzar</p>
+            <div className="reveal-2 w-full space-y-3">
+              <div className="w-full bg-gradient-to-r from-indigo-500/5 via-indigo-500/10 to-indigo-500/5 border border-indigo-500/20 rounded-xl px-3 py-2 text-center animate-pulse">
+                <p className="fs-body font-bold text-indigo-300">👇 Selecciona una ruta para comenzar</p>
+              </div>
+
+              {GUIDE_CATEGORIES.map(cat => {
+                const catGuides = getGuidesByCategory(cat.id);
+                return (
+                  <div key={cat.id} className="w-full space-y-1.5">
+                    <div className="flex items-center gap-2 px-1">
+                      <span className="text-lg">{cat.icon}</span>
+                      <span className="fs-small font-black text-neutral-300 uppercase tracking-wider">{cat.label}</span>
+                      <div className="flex-1 h-px bg-neutral-800" />
+                    </div>
+                    {catGuides.length > 0 ? (
+                      <div className="grid grid-cols-3 gap-1.5 md:gap-2">
+                        {catGuides.map(g => {
+                          const gc = GUIDE_COLORS[g.color] || GUIDE_COLORS.indigo;
+                          return (
+                            <button
+                              key={g.id}
+                              onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')}
+                              title={`${g.title} — ${g.subtitle}`}
+                              className={`rounded-xl py-2 px-1 text-center transition-all bg-neutral-900 ${gc.border} hover:bg-neutral-800 ${gc.borderHover}`}
+                            >
+                              <div className="flex flex-col items-center gap-0.5">
+                                <div className="w-8 h-8 opacity-30">
+                                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
+                                </div>
+                                <span className={`fs-tiny font-bold leading-tight ${gc.text}`}>{g.title}</span>
+                                <span className={`fs-tiny font-bold px-1.5 rounded-full leading-tight ${gc.text} ${gc.bg}`}>PLAY</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-3 gap-1.5 md:gap-2">
+                        <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-xl py-2 px-1 text-center opacity-50 col-span-3">
+                          <div className="flex flex-col items-center gap-0.5">
+                            <Sparkles className="w-4 h-4 text-neutral-500" />
+                            <span className="fs-tiny font-bold text-neutral-400 leading-tight">Próximamente</span>
+                            <span className="fs-tiny text-neutral-600 leading-tight">Soon</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              <p className="fs-small text-neutral-500 text-center">{description}</p>
             </div>
           )}
 
-          {selectedGuideId === 'none' && (
-            <p className="reveal-3 fs-small text-neutral-500 text-center -mt-1.5">
-              {description}
-            </p>
-          )}
-
           <div className="reveal-2 w-full grid grid-cols-3 gap-1.5 md:gap-2 text-center">
-            {selectedGuideId !== 'none' ? (
+            {selectedGuideId !== 'none' ? (() => {
+              const guide = getGuide(selectedGuideId);
+              const gymCount = steps.filter(s => s.type === "gym").length;
+              return (
+                <>
+                  <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
+                    <div className="fs-tiny md:fs-body font-black text-white">{selectedGuideId === 'hooh' ? steps.length : gymCount || totalGyms}</div>
+                    <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">{selectedGuideId === 'hooh' ? 'Turnos' : 'Gimnasios'}</div>
+                  </div>
+                  <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
+                    <div className="fs-tiny md:fs-body font-black text-indigo-400">{steps.length}</div>
+                    <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Pasos</div>
+                  </div>
+                  <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
+                    <div className="fs-tiny md:fs-body font-black text-amber-400">{bestRun ? formatTime(bestRun.elapsed) : '--:--'}</div>
+                    <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Mejor Tiempo</div>
+                  </div>
+                </>
+              );
+            })() : (
               <>
                 <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
-                  <div className="fs-tiny md:fs-body font-black text-white">{selectedGuideId === 'gym33' ? totalGyms : steps.length}</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">{selectedGuideId === 'gym33' ? 'Gimnasios' : 'Turnos'}</div>
-                </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
-                  <div className="fs-tiny md:fs-body font-black text-indigo-400">{steps.length}</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Pasos</div>
-                </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
-                  <div className="fs-tiny md:fs-body font-black text-amber-400">{bestRun ? formatTime(bestRun.elapsed) : '--:--'}</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Mejor Tiempo</div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
-                  <div className="fs-tiny md:fs-body font-black text-white">3</div>
+                  <div className="fs-tiny md:fs-body font-black text-white">{GUIDES.length}</div>
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Guías Disp.</div>
                 </div>
                 <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
@@ -1110,7 +1097,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             )}
           </div>
 
-          {lastRunStats && selectedGuideId === 'gym33' && (
+          {lastRunStats && selectedGuideId !== 'none' && (
             <div className="reveal-3 w-full bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border border-indigo-500/30 rounded-2xl p-3 md:p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Clock className="w-4 h-4 text-indigo-400" />
@@ -1132,53 +1119,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </div>
             </div>
           )}
-
-          <div className="reveal-4 w-full grid grid-cols-4 gap-1.5 md:gap-2">
-            <button onClick={selectedGuideId === 'gym33' ? () => exitMenu(currentStepIndex >= 0 ? undefined : () => { setCurrentStepIndex(-1); resetTimer(); }) : () => selectGuide('gym33')} title={selectedGuideId === 'gym33' ? "Iniciar la ruta seleccionada" : "Seleccionar esta guía"} className={`rounded-xl py-1.5 px-1 md:py-2 md:px-2 text-center transition-all relative overflow-hidden ${selectedGuideId === 'gym33' ? 'bg-indigo-600 border-2 border-indigo-400' : 'bg-neutral-900 border border-indigo-500/40 hover:bg-neutral-800'}`}>
-              <div className="flex flex-col items-center gap-0.5">
-                <div className="w-6 h-6 opacity-20">
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/635.png" alt="" className="w-full h-full object-contain" />
-                </div>
-                <span className="fs-tiny font-bold text-white leading-tight">33 Gyms</span>
-                <span className={`fs-tiny font-bold px-1.5 rounded-full leading-tight ${selectedGuideId === 'gym33' ? 'text-white bg-indigo-500/30' : 'text-indigo-400 bg-indigo-500/10'}`}>{selectedGuideId === 'gym33' ? 'INICIAR' : 'PLAY'}</span>
-              </div>
-            </button>
-            {selectedGuideId !== 'none' ? (
-              <button onClick={() => selectGuide('none')} title="Volver a la selección de guías" className="bg-neutral-800 border border-neutral-700 rounded-xl py-2 px-1 text-center hover:bg-neutral-700 transition-all">
-                <div className="flex flex-col items-center gap-0.5">
-                  <ChevronLeft className="w-4 h-4 text-neutral-400" />
-                  <span className="fs-tiny font-bold text-neutral-400 leading-tight">Volver</span>
-                  <span className="fs-tiny text-neutral-600 leading-tight">al menú</span>
-                </div>
-              </button>
-            ) : (
-              <button onClick={() => selectGuide('hooh')} title="Seleccionar guía de Ho-Oh (10 Turnos)" className="rounded-xl py-1.5 px-1 md:py-2 md:px-2 text-center transition-all bg-neutral-900 border border-amber-500/40 hover:bg-neutral-800 hover:border-amber-400/60">
-                <div className="flex flex-col items-center gap-0.5">
-                  <div className="w-6 h-6 opacity-30">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/250.png" alt="" className="w-full h-full object-contain" />
-                  </div>
-                  <span className="fs-tiny font-bold text-amber-400 leading-tight">Ho-Oh</span>
-                  <span className="fs-tiny font-bold px-1.5 rounded-full leading-tight text-amber-400 bg-amber-500/10">PLAY</span>
-                </div>
-              </button>
-            )}
-            <button onClick={selectedGuideId === 'guide2' ? () => exitMenu(currentStepIndex >= 0 ? undefined : () => { setCurrentStepIndex(-1); resetTimer(); }) : () => selectGuide('guide2')} title={selectedGuideId === 'guide2' ? "Iniciar la ruta seleccionada" : "Seleccionar esta guía"} className={`rounded-xl py-1.5 px-1 md:py-2 md:px-2 text-center transition-all relative overflow-hidden ${selectedGuideId === 'guide2' ? 'bg-teal-600 border-2 border-teal-400' : 'bg-neutral-900 border border-teal-500/40 hover:bg-neutral-800'}`}>
-              <div className="flex flex-col items-center gap-0.5">
-                <div className="w-6 h-6 opacity-20">
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/468.png" alt="" className="w-full h-full object-contain" />
-                </div>
-                <span className="fs-tiny font-bold text-white leading-tight">33 Gyms II</span>
-                <span className={`fs-tiny font-bold px-1.5 rounded-full leading-tight ${selectedGuideId === 'guide2' ? 'text-white bg-teal-500/30' : 'text-teal-400 bg-teal-500/10'}`}>{selectedGuideId === 'guide2' ? 'INICIAR' : 'PLAY'}</span>
-              </div>
-            </button>
-            <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-xl py-2 px-1 text-center opacity-50">
-              <div className="flex flex-col items-center gap-0.5">
-                <Sparkles className="w-4 h-4 text-neutral-500" />
-                <span className="fs-tiny font-bold text-neutral-400 leading-tight">Próximamente</span>
-                <span className="fs-tiny text-neutral-600 leading-tight">Soon</span>
-              </div>
-            </div>
-          </div>
 
           {selectedGuideId !== 'none' && (currentStepIndex >= 0 ? (
             <div className="reveal-4 w-full space-y-2">
@@ -1205,6 +1145,11 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               ▶ INICIAR RUTA
             </button>
           ))}
+
+          {selectedGuideId !== 'none' && (() => {
+            const guide = getGuide(selectedGuideId);
+            return guide ? <GuideCredits guide={guide} mode="compact" /> : null;
+          })()}
 
           {selectedGuideId !== 'none' && (
             <button onClick={() => setShowTeam(true)} title="Ver el equipo Pokémon recomendado para esta ruta" className="reveal-5 w-full py-2 md:py-2.5 bg-violet-600/80 hover:bg-violet-600 text-white fs-small md:fs-body font-black rounded-xl transition-all flex items-center justify-center gap-2">
@@ -1258,7 +1203,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   <>
                     <div className="bg-neutral-950 border border-indigo-500/20 rounded-xl p-3">
                       <div className="flex items-center gap-2.5 mb-2">
-                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Chandelure}.png`} alt="Chandelure" className="w-10 h-10 object-contain" loading="lazy" />
+                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Chandelure}.gif`} alt="Chandelure" className="w-10 h-10 object-contain" loading="lazy" />
                         <div>
                           <div className="font-black fs-small text-indigo-300">Chandelure</div>
                           <div className="fs-tiny text-neutral-500">Absor. Fuego · Modesta · Hechizo</div>
@@ -1273,7 +1218,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
                     <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-3">
                       <div className="flex items-center gap-2.5 mb-2">
-                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Rotom}.png`} alt="Rotom" className="w-10 h-10 object-contain" loading="lazy" />
+                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Rotom}.gif`} alt="Rotom" className="w-10 h-10 object-contain" loading="lazy" />
                         <div>
                           <div className="font-black fs-small text-orange-300">Rotom (Horno)</div>
                           <div className="fs-tiny text-neutral-500">Levitación · Mansa · Arena Fina</div>
@@ -1288,7 +1233,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
                     <div className="bg-neutral-950 border border-sky-500/20 rounded-xl p-3">
                       <div className="flex items-center gap-2.5 mb-2">
-                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Lunatone}.png`} alt="Lunatone" className="w-10 h-10 object-contain" loading="lazy" />
+                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Lunatone}.gif`} alt="Lunatone" className="w-10 h-10 object-contain" loading="lazy" />
                         <div>
                           <div className="font-black fs-small text-sky-300">Lunatone</div>
                           <div className="fs-tiny text-neutral-500">Levitación · Mansa · Piedra Dura</div>
@@ -1305,7 +1250,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 <>
                 <div className="bg-neutral-950 border border-teal-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Togekiss}.png`} alt="Togekiss" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Togekiss}.gif`} alt="Togekiss" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-teal-300">Togekiss</div>
                       <div className="fs-tiny text-neutral-500">Dicha · Modesta · Pañuelo Elegido</div>
@@ -1318,7 +1263,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
                 <div className="bg-neutral-950 border border-amber-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Excadrill}.png`} alt="Excadrill" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Excadrill}.gif`} alt="Excadrill" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-amber-300">Excadrill</div>
                       <div className="fs-tiny text-neutral-500">Rompemoldes · Firme · Cinta Elegida</div>
@@ -1331,7 +1276,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
                 <div className="bg-neutral-950 border border-blue-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Blastoise}.png`} alt="Blastoise" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Blastoise}.gif`} alt="Blastoise" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-blue-300">Blastoise</div>
                       <div className="fs-tiny text-neutral-500">Torrente · Modesta · Pañuelo Elegido</div>
@@ -1345,7 +1290,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
                 <div className="bg-neutral-950 border border-cyan-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Vanilluxe}.png`} alt="Vanilluxe" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Vanilluxe}.gif`} alt="Vanilluxe" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-cyan-300">Vanilluxe</div>
                       <div className="fs-tiny text-neutral-500">Nevada · Modesta · Pañuelo Elegido</div>
@@ -1359,7 +1304,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
                 <div className="bg-neutral-950 border border-purple-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Aerodactyl}.png`} alt="Aerodactyl" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Aerodactyl}.gif`} alt="Aerodactyl" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-purple-300">Aerodactyl</div>
                       <div className="fs-tiny text-neutral-500">Cabeza Roca · Firme · Lupa</div>
@@ -1372,7 +1317,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
                 <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Typhlosion}.png`} alt="Typhlosion" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Typhlosion}.gif`} alt="Typhlosion" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-orange-300">Typhlosion</div>
                       <div className="fs-tiny text-neutral-500">Mar Llamas · Modesta · Gafas Elegidas</div>
@@ -1386,7 +1331,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </>) : (
                 <><div className="bg-neutral-950 border border-indigo-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Hydreigon}.png`} alt="Hydreigon" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Hydreigon}.gif`} alt="Hydreigon" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-indigo-300">HI — Hydreigon</div>
                       <div className="fs-tiny text-neutral-500">Levitación · Modesta</div>
@@ -1400,7 +1345,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
                 <div className="bg-neutral-950 border border-cyan-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Weezing}.png`} alt="Weezing" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Weezing}.gif`} alt="Weezing" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-cyan-300">WW — Weezing</div>
                       <div className="fs-tiny text-neutral-500">Gas Reactivo · Firme · Cinta Elegida</div>
@@ -1414,7 +1359,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
                 <div className="bg-neutral-950 border border-sky-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Togekiss}.png`} alt="Togekiss" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Togekiss}.gif`} alt="Togekiss" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-sky-300">TO — Togekiss</div>
                       <div className="fs-tiny text-neutral-500">Dicha · Modesta · Pañuelo Elegido</div>
@@ -1428,7 +1373,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
                 <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Typhlosion}.png`} alt="Typhlosion" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Typhlosion}.gif`} alt="Typhlosion" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-orange-300">TY — Typhlosion</div>
                       <div className="fs-tiny text-neutral-500">Mar Llamas · Gafas Elegidas</div>
@@ -1442,7 +1387,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
                 <div className="bg-neutral-950 border border-violet-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Vanilluxe}.png`} alt="Vanilluxe" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Vanilluxe}.gif`} alt="Vanilluxe" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-violet-300">Vanilluxe @ Pañuelo Elegido</div>
                       <div className="fs-tiny text-neutral-500">Nevada · Miedosa · Lv. 100</div>
@@ -1456,7 +1401,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
                 <div className="bg-neutral-950 border border-blue-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Blastoise}.png`} alt="Blastoise" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Blastoise}.gif`} alt="Blastoise" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-blue-300">BW — Blastoise</div>
                       <div className="fs-tiny text-neutral-500">Torrente · Modesta · Gafas Elegidas</div>
@@ -1675,7 +1620,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           <div key={slideKey} className={`w-full max-w-6xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-2 md:p-5 lg:p-8 shadow-2xl relative text-center smooth-transition ${slideClass}`}>
             
             <div className="absolute -top-6 -right-6 w-24 h-24 opacity-[0.04] pointer-events-none select-none">
-              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="" className="w-full h-full object-contain" />
+              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif" alt="" className="w-full h-full object-contain" />
             </div>
 
             <div className="flex flex-col items-center gap-2 mb-3 md:gap-4 md:mb-6">
@@ -1687,7 +1632,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   {selectedGuideId === "hooh" ? (
                     <>
                       <div className="w-24 h-24 md:w-32 md:h-32 opacity-50 mb-1">
-                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/250.png" alt="Ho-Oh" className="w-full h-full object-contain" />
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/250.gif" alt="Ho-Oh" className="w-full h-full object-contain" />
                       </div>
                       <h2 className="fs-h2 font-black tracking-tight text-white">Ho-Oh Rerun</h2>
                       <p className="fs-body text-neutral-400">Derrota a Ho-Oh (Revancha) en 10 turnos — ~8 min · ~97.000 PokéYen</p>
@@ -1697,7 +1642,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       <div className="flex items-center justify-center gap-1 mb-1">
                         {[468, 530, 9, 584, 142, 157].map(id => (
                           <div key={id} className="w-9 h-9 md:w-12 md:h-12 opacity-40">
-                            <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`} alt="" className="w-full h-full object-contain" />
+                            <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`} alt="" className="w-full h-full object-contain" />
                           </div>
                         ))}
                       </div>
@@ -1719,6 +1664,11 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   <h2 className="fs-h2 font-black tracking-tight text-white">33 Gym Rerun</h2>
                   <p className="fs-body text-neutral-400">{description}</p>
                   </>)}
+                  {(() => {
+                    const guide = getGuide(selectedGuideId);
+                    return guide ? <GuideCredits guide={guide} mode="full" /> : null;
+                  })()}
+                  
                   {steps[0] && (
                     <div className="w-full bg-neutral-950 rounded-xl border border-neutral-800 p-2 md:p-3 mt-1">
                       <div className="fs-tiny md:fs-small text-neutral-500 uppercase font-bold tracking-widest mb-0.5 md:mb-1">{selectedGuideId === "hooh" ? "Primer turno" : "Primer gimnasio"}</div>
@@ -2021,27 +1971,27 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             <button onClick={() => setShowTeam(true)} title="Ver el equipo Pokémon recomendado para esta ruta" className="w-full bg-neutral-900/80 border border-violet-500/20 hover:border-violet-400/40 rounded-2xl p-2.5 md:p-3 flex items-center gap-3 group transition-all hover:bg-neutral-800/80">
               {selectedGuideId === "hooh" ? (
                 <div className="flex items-center -space-x-2 shrink-0">
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Chandelure}.png`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-10" loading="lazy" />
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Rotom}.png`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-9" loading="lazy" />
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Lunatone}.png`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-8" loading="lazy" />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Chandelure}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-10" loading="lazy" />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Rotom}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-9" loading="lazy" />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Lunatone}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-8" loading="lazy" />
                 </div>
               ) : selectedGuideId === "guide2" ? (
                 <div className="flex items-center -space-x-2 shrink-0">
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Togekiss}.png`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-10" loading="lazy" />
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Excadrill}.png`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-9" loading="lazy" />
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Blastoise}.png`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-8" loading="lazy" />
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Vanilluxe}.png`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-7" loading="lazy" />
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Aerodactyl}.png`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-6" loading="lazy" />
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Typhlosion}.png`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-5" loading="lazy" />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Togekiss}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-10" loading="lazy" />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Excadrill}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-9" loading="lazy" />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Blastoise}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-8" loading="lazy" />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Vanilluxe}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-7" loading="lazy" />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Aerodactyl}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-6" loading="lazy" />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Typhlosion}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-5" loading="lazy" />
                 </div>
               ) : (
                 <div className="flex items-center -space-x-2 shrink-0">
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/635.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-10" loading="lazy" />
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/110.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-9" loading="lazy" />
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/468.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-8" loading="lazy" />
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/157.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-7" loading="lazy" />
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/584.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-6" loading="lazy" />
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/9.png" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-5" loading="lazy" />
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/635.gif" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-10" loading="lazy" />
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/110.gif" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-9" loading="lazy" />
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/468.gif" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-8" loading="lazy" />
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/157.gif" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-7" loading="lazy" />
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/584.gif" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-6" loading="lazy" />
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/9.gif" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z-5" loading="lazy" />
                 </div>
               )}
               <div className="flex-1 text-left min-w-0">
@@ -2264,7 +2214,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   <>
                     <div className="bg-neutral-950 border border-indigo-500/20 rounded-xl p-3">
                       <div className="flex items-center gap-2.5 mb-2">
-                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Chandelure}.png`} alt="Chandelure" className="w-10 h-10 object-contain" loading="lazy" />
+                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Chandelure}.gif`} alt="Chandelure" className="w-10 h-10 object-contain" loading="lazy" />
                         <div>
                           <div className="font-black fs-small text-indigo-300">Chandelure</div>
                           <div className="fs-tiny text-neutral-500">Absor. Fuego · Modesta · Hechizo</div>
@@ -2279,7 +2229,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
                     <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-3">
                       <div className="flex items-center gap-2.5 mb-2">
-                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Rotom}.png`} alt="Rotom" className="w-10 h-10 object-contain" loading="lazy" />
+                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Rotom}.gif`} alt="Rotom" className="w-10 h-10 object-contain" loading="lazy" />
                         <div>
                           <div className="font-black fs-small text-orange-300">Rotom (Horno)</div>
                           <div className="fs-tiny text-neutral-500">Levitación · Mansa · Arena Fina</div>
@@ -2294,7 +2244,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
                     <div className="bg-neutral-950 border border-sky-500/20 rounded-xl p-3">
                       <div className="flex items-center gap-2.5 mb-2">
-                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Lunatone}.png`} alt="Lunatone" className="w-10 h-10 object-contain" loading="lazy" />
+                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Lunatone}.gif`} alt="Lunatone" className="w-10 h-10 object-contain" loading="lazy" />
                         <div>
                           <div className="font-black fs-small text-sky-300">Lunatone</div>
                           <div className="fs-tiny text-neutral-500">Levitación · Mansa · Piedra Dura</div>
@@ -2311,7 +2261,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 <>
                 <div className="bg-neutral-950 border border-teal-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Togekiss}.png`} alt="Togekiss" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Togekiss}.gif`} alt="Togekiss" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-teal-300">Togekiss</div>
                       <div className="fs-tiny text-neutral-500">Dicha · Modesta · Pañuelo Elegido</div>
@@ -2324,7 +2274,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
                 <div className="bg-neutral-950 border border-amber-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Excadrill}.png`} alt="Excadrill" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Excadrill}.gif`} alt="Excadrill" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-amber-300">Excadrill</div>
                       <div className="fs-tiny text-neutral-500">Rompemoldes · Firme · Cinta Elegida</div>
@@ -2337,7 +2287,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
                 <div className="bg-neutral-950 border border-blue-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Blastoise}.png`} alt="Blastoise" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Blastoise}.gif`} alt="Blastoise" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-blue-300">Blastoise</div>
                       <div className="fs-tiny text-neutral-500">Torrente · Modesta · Pañuelo Elegido</div>
@@ -2351,7 +2301,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
                 <div className="bg-neutral-950 border border-cyan-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Vanilluxe}.png`} alt="Vanilluxe" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Vanilluxe}.gif`} alt="Vanilluxe" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-cyan-300">Vanilluxe</div>
                       <div className="fs-tiny text-neutral-500">Nevada · Modesta · Pañuelo Elegido</div>
@@ -2365,7 +2315,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
                 <div className="bg-neutral-950 border border-purple-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Aerodactyl}.png`} alt="Aerodactyl" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Aerodactyl}.gif`} alt="Aerodactyl" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-purple-300">Aerodactyl</div>
                       <div className="fs-tiny text-neutral-500">Cabeza Roca · Firme · Lupa</div>
@@ -2378,7 +2328,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
                 <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Typhlosion}.png`} alt="Typhlosion" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Typhlosion}.gif`} alt="Typhlosion" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-orange-300">Typhlosion</div>
                       <div className="fs-tiny text-neutral-500">Mar Llamas · Modesta · Gafas Elegidas</div>
@@ -2393,7 +2343,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 <>
                 <div className="bg-neutral-950 border border-indigo-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Hydreigon}.png`} alt="Hydreigon" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Hydreigon}.gif`} alt="Hydreigon" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-indigo-300">H1 — Hydreigon</div>
                       <div className="fs-tiny text-neutral-500">Levitación · Modesta · Gafas Elegidas</div>
@@ -2408,7 +2358,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
                 <div className="bg-neutral-950 border border-purple-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Weezing}.png`} alt="Weezing" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Weezing}.gif`} alt="Weezing" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-purple-300">W1 — Weezing</div>
                       <div className="fs-tiny text-neutral-500">Gas Reactivo · Firme · Cinta Elegida</div>
@@ -2423,7 +2373,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
                 <div className="bg-neutral-950 border border-sky-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Togekiss}.png`} alt="Togekiss" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Togekiss}.gif`} alt="Togekiss" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-sky-300">TO — Togekiss</div>
                       <div className="fs-tiny text-neutral-500">Dicha · Modesta · Pañuelo Elegido</div>
@@ -2438,7 +2388,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
                 <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Typhlosion}.png`} alt="Typhlosion" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Typhlosion}.gif`} alt="Typhlosion" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-orange-300">TY — Typhlosion</div>
                       <div className="fs-tiny text-neutral-500">Mar Llamas · Modesta · Gafas Elegidas</div>
@@ -2453,7 +2403,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
                 <div className="bg-neutral-950 border border-cyan-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Vanilluxe}.png`} alt="Vanilluxe" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Vanilluxe}.gif`} alt="Vanilluxe" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-cyan-300">Vanilluxe @ Pañuelo Elegido</div>
                       <div className="fs-tiny text-neutral-500">Nevada · Miedosa · Lv. 100</div>
@@ -2468,7 +2418,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
                 <div className="bg-neutral-950 border border-blue-500/20 rounded-xl p-3">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${POKEMON_ARTWORK.Blastoise}.png`} alt="Blastoise" className="w-10 h-10 object-contain" loading="lazy" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Blastoise}.gif`} alt="Blastoise" className="w-10 h-10 object-contain" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-blue-300">BW — Blastoise</div>
                       <div className="fs-tiny text-neutral-500">Torrente · Modesta · Gafas Elegidas</div>
