@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { X, CheckCircle, Clock, MessageCircle, Zap, Timer, Medal, Flame } from "lucide-react";
+import { X, CheckCircle, Clock, MessageCircle, Zap, Timer, Medal, Flame, AlertTriangle, Shield } from "lucide-react";
 import { DailyTask, DailyTasksState } from "../types";
 
 interface PoolTask {
@@ -332,6 +332,31 @@ export default function DailyTasks({ gymsCompleted, timerElapsedMs = 0, isOpen, 
                     <p className="fs-tiny text-neutral-400">
                       Tareas renovadas cada <span className="font-bold text-neutral-200">18h</span>. ¡Siempre hay nuevos desafíos!
                     </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0 mt-0.5 shadow-sm shadow-amber-500/20">
+                    <AlertTriangle className="w-3.5 h-3.5 text-white" />
+                  </div>
+                  <div className="bg-amber-900/20 border border-amber-700/30 rounded-2xl px-3 py-2 max-w-[260px]"
+                    style={{ borderRadius: "4px 16px 16px 16px" }}
+                  >
+                    <p className="fs-tiny text-amber-200 font-bold mb-1">Tiempos de Cooldown</p>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="fs-tiny text-amber-400/80">🔴</span>
+                        <span className="fs-tiny text-amber-200/70"><span className="font-bold text-amber-300">Ho-Oh (Red):</span> 7 días por personaje</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="fs-tiny text-amber-400/80">🏟️</span>
+                        <span className="fs-tiny text-amber-200/70"><span className="font-bold text-amber-300">Gym Rematches:</span> 18h + 5 combates previos</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="fs-tiny text-amber-400/80">👥</span>
+                        <span className="fs-tiny text-amber-200/70"><span className="font-bold text-amber-300">NPCs (Match Call):</span> 6h + 5 combates previos</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

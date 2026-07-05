@@ -18,6 +18,7 @@ import {
   Clock,
   Users,
   Target,
+  Timer,
 } from "lucide-react";
 import { RouteStep, StepType, RunHistoryEntry, LastRunStats, GuideCategory } from "../types";
 import DailyTasks from "./DailyTasks";
@@ -804,7 +805,9 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     setHistory(updatedHistory);
     setLastRunStats({ elapsed: finalElapsed, gymsCompleted: totalGymsDone, totalGyms, finishedAt: Date.now() });
     logTimerEvent("finish");
-    startGymCooldown(getLastCompletedGym());
+    const hoohCooldownMs = 7 * 24 * 60 * 60 * 1000;
+    const cooldownDuration = selectedGuideId === 'hooh' ? hoohCooldownMs : gymResetMs;
+    startGymCooldown(getLastCompletedGym(), cooldownDuration);
     resetTimer();
     setSessionGymCount(0);
     setCurrentStepIndex(-1);
@@ -1176,6 +1179,37 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Fecha</div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {selectedGuideId !== 'none' && (
+            <div className="reveal-3 w-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-2xl p-3 md:p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Timer className="w-4 h-4 text-amber-400" />
+                <h3 className="font-black fs-body text-amber-300 uppercase tracking-wider">Cooldown Gyms</h3>
+                <div className="ml-auto">
+                  <CooldownBadge endAt={cooldown.endAt} />
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                  <span className="fs-tiny text-amber-200/70">
+                    {cooldown.lastGym || "Sin gym registrado"}
+                  </span>
+                </div>
+                <button onClick={() => setShowCooldownEditor(true)} className="fs-tiny text-amber-400 hover:text-amber-300 font-bold transition-colors">
+                  Ajustar
+                </button>
+              </div>
+              {cooldown.endAt && cooldown.endAt > Date.now() && (
+                <div className="mt-2 w-full h-1.5 bg-black/30 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-amber-500 to-orange-400 rounded-full transition-all"
+                    style={{ width: `${Math.min(100, ((gymResetMs - (cooldown.endAt - Date.now())) / gymResetMs) * 100)}%` }}
+                  />
+                </div>
+              )}
             </div>
           )}
 
