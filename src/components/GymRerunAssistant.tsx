@@ -319,18 +319,17 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       setTimeout(() => {
         setSelectedGuideId(id);
         setLS("selected_guide", id);
-        if (id !== 'gym33') {
-          setCurrentStepIndex(-1);
-          resetTimer();
-        }
+        setCurrentStepIndex(-1);
+        resetTimer();
         setTimeout(() => {
           setGuideLoading(false);
           setShowStartCheck(false);
+          setShowCountdown(false);
+          setCountdownValue(5);
+          setStartChecks([false, false, false]);
           if (showMenu) {
             exitMenu(() => {
               setShowStartCheck(true);
-              setShowCountdown(false);
-              setCountdownValue(5);
             });
           } else {
             setShowStartCheck(true);
