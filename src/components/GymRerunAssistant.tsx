@@ -1664,7 +1664,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           </div>
         ))}
         <div className="flex-1 flex flex-col items-center justify-center p-1.5 md:p-8 lg:p-12 overflow-y-auto overflow-x-hidden">
-          <div key={slideKey} className={`w-full max-w-4xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-2 md:p-8 lg:p-12 shadow-2xl relative text-center smooth-transition ${slideClass}`}>
+          <div key={slideKey} className={`w-full max-w-6xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-2 md:p-5 lg:p-8 shadow-2xl relative text-center smooth-transition ${slideClass}`}>
             
             <div className="absolute -top-6 -right-6 w-24 h-24 opacity-[0.04] pointer-events-none select-none">
               <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="" className="w-full h-full object-contain" />
@@ -1896,31 +1896,31 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             </>)}
 
             {currentGymGroup && selectedGuideId !== 'hooh' && (
-              <div className="space-y-3 md:space-y-5 max-w-4xl mx-auto">
+              <div className="space-y-3 md:space-y-5 w-full">
                 {(currentGymGroup.gymStep.lead || currentGymGroup.gymStep.switchTo) && (
-                  <div className="flex flex-col sm:flex-row justify-center gap-1.5 md:gap-4">
+                  <div className="flex flex-col sm:flex-row justify-center gap-1.5 md:gap-3">
                     {currentGymGroup.gymStep.lead && (
-                      <div className="reveal-3 bg-neutral-950 p-2 md:p-4 rounded-xl border border-neutral-800 flex-1 min-w-[140px] md:min-w-[180px]">
-                        <div className="fs-tiny md:fs-small text-indigo-400 uppercase font-black tracking-widest mb-1.5 md:mb-2">Leads</div>
+                      <div className="reveal-3 bg-neutral-950 p-2 md:p-3 rounded-xl border border-neutral-800 flex-1 min-w-[140px]">
+                        <div className="fs-tiny md:fs-small text-indigo-400 uppercase font-black tracking-widest mb-1 md:mb-1.5">Leads</div>
                         <div className="flex justify-center">{renderWithSprites(currentGymGroup.gymStep.lead)}</div>
                       </div>
                     )}
                     {currentGymGroup.gymStep.switchTo && (
-                      <div className="reveal-4 bg-neutral-950 p-2 md:p-4 rounded-xl border border-neutral-800 flex-1 min-w-[140px] md:min-w-[180px]">
-                        <div className="fs-tiny md:fs-small text-emerald-400 uppercase font-black tracking-widest mb-1.5 md:mb-2">Cambios Seguros</div>
+                      <div className="reveal-4 bg-neutral-950 p-2 md:p-3 rounded-xl border border-neutral-800 flex-1 min-w-[140px]">
+                        <div className="fs-tiny md:fs-small text-emerald-400 uppercase font-black tracking-widest mb-1 md:mb-1.5">Cambios Seguros</div>
                         <div className="flex justify-center">{renderWithSprites(currentGymGroup.gymStep.switchTo)}</div>
                       </div>
                     )}
                   </div>
                 )}
                 {currentGymGroup.gymStep.actions && (
-                  <div className="reveal-5 bg-neutral-950 p-2 md:p-4 rounded-xl border border-neutral-800">
-                    <div className="fs-tiny md:fs-small text-amber-400 uppercase font-black tracking-widest mb-1.5 md:mb-3 text-center">Estrategia vs Variantes</div>
-                    <ul className="space-y-1 md:space-y-2">
+                  <div className="reveal-5 bg-neutral-950 p-2 md:p-3 rounded-xl border border-neutral-800">
+                    <div className="fs-tiny md:fs-small text-amber-400 uppercase font-black tracking-widest mb-1 md:mb-2 text-center">Estrategia vs Variantes</div>
+                    <ul className="space-y-1">
                       {currentGymGroup.gymStep.actions.map((act, i) => {
                         const parts = act.split("→");
                         return (
-                          <li key={i} className="flex flex-col sm:flex-row items-center justify-center gap-1 md:gap-2 fs-tiny md:fs-body bg-neutral-900 p-1 md:p-2 rounded border border-neutral-800">
+                          <li key={i} className="flex flex-col sm:flex-row items-center justify-center gap-1 fs-tiny md:fs-small bg-neutral-900 p-1 md:p-1.5 rounded border border-neutral-800">
                             {parts.length > 1 ? (
                               <><span className="font-bold text-white">{parts[0].trim()}</span> <span className="text-neutral-500 hidden sm:inline">→</span> <span className="text-neutral-300">{parts[1].trim()}</span></>
                             ) : <span className="text-center">{act}</span>}
@@ -1931,29 +1931,29 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   </div>
                 )}
                 {currentGymGroup.subBattles.map((sub) => (
-                  <div key={sub.id} className="bg-neutral-950 p-2 md:p-4 rounded-xl border border-neutral-800/60">
-                    <div className="flex items-center justify-center gap-2 mb-2">
+                  <div key={sub.id} className="bg-neutral-950 p-2 md:p-3 rounded-xl border border-neutral-800/60">
+                    <div className="flex items-center justify-center gap-2 mb-1.5">
                       <span className="p-1 bg-neutral-900 rounded-lg">{renderIcon("gym")}</span>
-                      <h3 className="fs-small md:fs-body font-black text-white">{sub.title}</h3>
+                      <h3 className="fs-small font-black text-white">{sub.title}</h3>
                     </div>
                     {(sub.lead || sub.switchTo) && (
-                      <div className="flex flex-col sm:flex-row justify-center gap-2 mb-2">
+                      <div className="flex flex-col sm:flex-row justify-center gap-1.5 mb-1.5">
                         {sub.lead && (
-                          <div className="bg-neutral-900/60 p-1.5 md:p-2 rounded-lg border border-neutral-800/50 flex-1">
-                            <div className="fs-tiny text-indigo-400/80 uppercase font-black tracking-widest mb-1 text-center">Leads</div>
+                          <div className="bg-neutral-900/60 p-1.5 rounded-lg border border-neutral-800/50 flex-1">
+                            <div className="fs-tiny text-indigo-400/80 uppercase font-black tracking-widest mb-0.5 text-center">Leads</div>
                             <div className="flex justify-center">{renderWithSprites(sub.lead)}</div>
                           </div>
                         )}
                         {sub.switchTo && (
-                          <div className="bg-neutral-900/60 p-1.5 md:p-2 rounded-lg border border-neutral-800/50 flex-1">
-                            <div className="fs-tiny text-emerald-400/80 uppercase font-black tracking-widest mb-1 text-center">Cambios</div>
+                          <div className="bg-neutral-900/60 p-1.5 rounded-lg border border-neutral-800/50 flex-1">
+                            <div className="fs-tiny text-emerald-400/80 uppercase font-black tracking-widest mb-0.5 text-center">Cambios</div>
                             <div className="flex justify-center">{renderWithSprites(sub.switchTo)}</div>
                           </div>
                         )}
                       </div>
                     )}
                     {sub.actions && (
-                      <ul className="space-y-1">
+                      <ul className="space-y-0.5">
                         {sub.actions.map((act, i) => {
                           const parts = act.split("→");
                           return (
@@ -1971,15 +1971,15 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 {currentGymGroup.extras.map((extra) => (
                   <div key={extra.id}>
                     {extra.type === "prep" && extra.items && extra.items.length > 0 && (
-                      <div className="reveal bg-neutral-950 p-2 md:p-4 rounded-xl border border-neutral-800">
-                        <div className="fs-tiny md:fs-small text-blue-400 uppercase font-black tracking-widest mb-1.5 md:mb-3 flex items-center justify-center gap-1.5 md:gap-2"><Sparkles className="w-3 h-3 md:w-3.5 md:h-3.5"/> Equipar Objetos</div>
-                        <ul className="space-y-1 md:space-y-2">
+                      <div className="reveal bg-neutral-950 p-2 md:p-3 rounded-xl border border-neutral-800">
+                        <div className="fs-tiny md:fs-small text-blue-400 uppercase font-black tracking-widest mb-1 md:mb-2 flex items-center justify-center gap-1.5 md:gap-2"><Sparkles className="w-3 h-3 md:w-3.5 md:h-3.5"/> Equipar Objetos</div>
+                        <ul className="space-y-1">
                           {extra.items.map((it, i) => {
                             const isScarf = it.item.toLowerCase().includes("panuelo") || it.item.toLowerCase().includes("pañuelo");
                             return (
-                              <li key={i} className={`flex flex-col sm:flex-row items-center justify-center gap-1 md:gap-2 p-1.5 md:p-3 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
-                                <span className={`fs-tiny md:fs-body ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{renderWithSprites(it.pokemon, " • ")}</span>
-                                <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-2 md:px-3 py-0.5 md:py-1 fs-tiny md:fs-small shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-1.5 md:px-2 py-0.5 fs-tiny'} font-bold rounded uppercase tracking-wider`}>
+                              <li key={i} className={`flex flex-col sm:flex-row items-center justify-center gap-1 p-1.5 md:p-2 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
+                                <span className={`fs-tiny md:fs-small ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{renderWithSprites(it.pokemon, " • ")}</span>
+                                <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-2 py-0.5 fs-tiny shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-1.5 py-0.5 fs-tiny'} font-bold rounded uppercase tracking-wider`}>
                                   ➔ {it.item}
                                 </span>
                               </li>
@@ -1989,17 +1989,17 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       </div>
                     )}
                     {extra.type === "prep" && extra.heal && (
-                      <div className="reveal flex items-center justify-center gap-2 bg-red-950/20 border border-red-900/30 p-2 md:p-4 rounded-xl text-red-400 fs-tiny md:fs-body font-bold">
+                      <div className="reveal flex items-center justify-center gap-2 bg-red-950/20 border border-red-900/30 p-2 md:p-3 rounded-xl text-red-400 fs-tiny md:fs-body font-bold">
                         <Heart className="w-3.5 h-3.5 md:w-5 md:h-5 fill-current" /> Curar equipo en el Centro Pokémon
                       </div>
                     )}
                     {extra.type === "prep" && extra.travel && (
-                      <div className="reveal flex items-center justify-center gap-2 bg-teal-950/20 border border-teal-900/30 p-2 md:p-4 rounded-xl text-teal-400 fs-tiny md:fs-body font-bold">
+                      <div className="reveal flex items-center justify-center gap-2 bg-teal-950/20 border border-teal-900/30 p-2 md:p-3 rounded-xl text-teal-400 fs-tiny md:fs-body font-bold">
                         <Compass className="w-3.5 h-3.5 md:w-5 md:h-5" /> Viajar hacia {extra.travel}
                       </div>
                     )}
                     {extra.type === "note" && (
-                      <div className="reveal bg-amber-950/20 border border-amber-900/30 p-3 md:p-6 rounded-xl text-amber-400 fs-tiny md:fs-body font-bold text-center">
+                      <div className="reveal bg-amber-950/20 border border-amber-900/30 p-2 md:p-4 rounded-xl text-amber-400 fs-tiny md:fs-body font-bold text-center">
                         {extra.description}
                       </div>
                     )}
