@@ -28,6 +28,7 @@ const ArrowRight = ({ className }: { className?: string }) => (
 
 import { RouteStep, StepType, RunHistoryEntry, LastRunStats, GuideCategory } from "../types";
 import DailyTasks from "./DailyTasks";
+import Button from "@/components/ui/Button";
 import GuideCredits from "./GuideCredits";
 import CategoryFooter from "./layout/footers/CategoryFooter";
 import CooldownBadge from "./shared/CooldownBadge";
@@ -319,26 +320,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       setTimeout(() => {
         setSelectedGuideId(id);
         setLS("selected_guide", id);
-        // Clear any saved progress so the "Sesión activa" card doesn't appear
-        setLS("gym_step", "-1");
-        setShowResumePrompt(false);
-        setShowActiveSessionModal(false);
-        setCurrentStepIndex(-1);
-        resetTimer();
-        setTimeout(() => {
-          setGuideLoading(false);
-          setShowStartCheck(false);
-          setShowCountdown(false);
-          setCountdownValue(5);
-          setStartChecks([false, false, false]);
-          if (showMenu) {
-            exitMenu(() => {
-              setShowStartCheck(true);
-            });
-          } else {
-            setShowStartCheck(true);
-          }
-        }, 150);
+        if (id !== 'gym33') { setCurrentStepIndex(-1); resetTimer(); }
+        setTimeout(() => setGuideLoading(false), 150);
       }, 300);
     } else {
       setSelectedGuideId(id);
@@ -934,25 +917,29 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             {storageWarning}
           </p>
         )}
-        <div className="mt-4 grid grid-cols-2 gap-2.5">
-          <button
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Button
+            variant="secondary"
+            size="md"
             onClick={() => {
               setShowResumePrompt(false);
               setPendingResetAction("route");
             }}
-            className="py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-black fs-body"
+            className="w-full"
           >
             Empezar cero
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
+            size="md"
             onClick={() => {
               setShowResumePrompt(false);
               exitMenu();
             }}
-            className="py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black fs-body"
+            className="w-full"
           >
             Continuar
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -1290,13 +1277,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 <div className="flex-1 min-w-0">
                   <p className="font-black fs-small text-amber-300">Sesión activa</p>
                   <p className="fs-tiny text-amber-200/70 mt-0.5">Hay una ruta en progreso en el paso {currentStepIndex + 1}/{steps.length}.</p>
-                  <div className="flex gap-2 mt-2">
-                    <button onClick={() => exitMenu()} className="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white fs-tiny font-bold rounded-lg transition-colors">
+                  <div className="flex flex-wrap gap-3 mt-3">
+                    <Button variant="primary" size="md" onClick={() => exitMenu()} className="min-w-[140px]">
                       Continuar
-                    </button>
-                    <button onClick={() => setPendingResetAction("route")} className="px-3 py-1 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 fs-tiny font-bold rounded-lg transition-colors">
+                    </Button>
+                    <Button variant="secondary" size="md" onClick={() => setPendingResetAction("route")} className="min-w-[140px]">
                       Empezar de cero
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -1671,23 +1658,27 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             <p className="fs-tiny text-neutral-500 mb-4">
               ¿Qué deseas hacer?
             </p>
-            <div className="grid grid-cols-2 gap-2.5">
-              <button
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Button
+                variant="primary"
+                size="md"
                 onClick={() => { setShowActiveSessionModal(false); exitMenu(); }}
-                className="py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black fs-body"
+                className="w-full"
               >
                 Continuar
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="secondary"
+                size="md"
                 onClick={() => { setShowActiveSessionModal(false); setPendingResetAction("route"); }}
-                className="py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-black fs-body"
+                className="w-full"
               >
-                Empezar cero
-              </button>
+                Empezar de cero
+              </Button>
             </div>
-            <button onClick={() => setShowActiveSessionModal(false)} className="w-full mt-2 py-2 text-neutral-500 hover:text-white fs-tiny font-bold transition-colors">
+            <Button onClick={() => setShowActiveSessionModal(false)} variant="ghost" size="sm" className="w-full mt-3">
               Cancelar
-            </button>
+            </Button>
           </div>
         </div>
       )}
