@@ -305,6 +305,17 @@ const CooldownNoticeModal = memo(({ cooldown, onDismiss }: { cooldown: CooldownS
 });
 CooldownNoticeModal.displayName = "CooldownNoticeModal";
 
+const LoadingSpinner = memo(({ size = "md", text }: { size?: "sm" | "md" | "lg"; text?: string }) => {
+  const sizeClasses = size === "sm" ? "w-5 h-5" : size === "lg" ? "w-10 h-10" : "w-7 h-7";
+  return (
+    <div className="flex flex-col items-center justify-center gap-2">
+      <div className={`${sizeClasses} border-2 border-neutral-600 border-t-indigo-500 rounded-full animate-spin`} />
+      {text && <p className="fs-tiny text-neutral-500 animate-pulse">{text}</p>}
+    </div>
+  );
+});
+LoadingSpinner.displayName = "LoadingSpinner";
+
 export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guide2Steps, gymCoords, regionMap, config = {} }: GymRerunAssistantProps) {
   const {
     totalGyms = 33,
@@ -318,6 +329,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [showMenu, setShowMenu] = useState<boolean>(true);
   const [loaded, setLoaded] = useState<boolean>(false);
   const [menuExiting, setMenuExiting] = useState<boolean>(false);
+  const [guideLoading, setGuideLoading] = useState<boolean>(false);
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
   const currentStepIndexRef = useRef(currentStepIndex);
   useEffect(() => { currentStepIndexRef.current = currentStepIndex; }, [currentStepIndex]);
@@ -336,9 +348,18 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [slideKey, setSlideKey] = useState<number>(0);
   const [selectedGuideId, setSelectedGuideId] = useState<'none' | 'gym33' | 'hooh' | 'guide2'>('none');
   const selectGuide = (id: 'none' | 'gym33' | 'hooh' | 'guide2') => {
-    setSelectedGuideId(id);
-    setLS("selected_guide", id);
-    if (id !== 'none' && id !== 'gym33') { setCurrentStepIndex(-1); resetTimer(); }
+    if (id !== 'none') {
+      setGuideLoading(true);
+      setTimeout(() => {
+        setSelectedGuideId(id);
+        setLS("selected_guide", id);
+        if (id !== 'gym33') { setCurrentStepIndex(-1); resetTimer(); }
+        setTimeout(() => setGuideLoading(false), 150);
+      }, 300);
+    } else {
+      setSelectedGuideId(id);
+      setLS("selected_guide", id);
+    }
   };
   const steps = selectedGuideId === 'hooh' && hoohSteps ? hoohSteps
     : selectedGuideId === 'guide2' && guide2Steps ? guide2Steps
@@ -1492,6 +1513,15 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             <div className="space-y-4">
               <div className="flex items-center justify-between p-3 rounded-xl bg-neutral-950 border border-neutral-800">
                 <div>
+                  <p className="font-bold text-white fs-body">Verificación</p>
+                  <p className="fs-tiny text-neutral-400 mt-0.5">Mostrar checklist al iniciar ruta</p>
+                </div>
+                <button onClick={() => { const next = !skipChecklist; setLS("skip_checklist", String(next)); setSkipChecklist(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${skipChecklist ? 'bg-red-500' : 'bg-green-500'}`}>
+                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${skipChecklist ? 'translate-x-0' : 'translate-x-5'}`} />
+                </button>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-xl bg-neutral-950 border border-neutral-800">
+                <div>
                   <p className="font-bold text-white fs-body">Cuenta atrás</p>
                   <p className="fs-tiny text-neutral-400 mt-0.5">Mostrar 5-4-3-2-1 al empezar</p>
                 </div>
@@ -1567,6 +1597,11 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       <PokeBackground />
       
       <main className={`flex-1 flex flex-col h-full relative z-10 overflow-y-auto overflow-x-hidden ${currentStepIndex === -1 ? 'pb-0' : 'pb-28 md:pb-20'}`}>
+        {guideLoading && (
+          <div className="absolute inset-0 z-50 bg-neutral-950/90 backdrop-blur-sm flex items-center justify-center">
+            <LoadingSpinner size="lg" text="Cargando guía..." />
+          </div>
+        )}
         
         {currentStepIndex !== -1 && (<>
           <button onClick={handlePrev} disabled={selectedGuideId === 'hooh' ? currentStepIndex <= 0 : currentGymIndex <= 0} title="Anterior" className="sm:hidden fixed left-1.5 top-1/2 -translate-y-1/2 z-40 p-2 bg-neutral-900/70 backdrop-blur-sm rounded-full border border-neutral-700/50 hover:bg-neutral-800 disabled:opacity-20 disabled:pointer-events-none text-neutral-400 transition-all shadow-lg">
@@ -2540,7 +2575,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 ✕ Desmarcar todas
               </button>
             </div>
-            <p className="fs-small text-neutral-400 text-center mt-2">En el <button onClick={() => { setShowStartCheck(false); goToMenu(); }} className="text-indigo-400 font-bold underline hover:text-indigo-300 transition-colors inline">menú</button> puedes ver la configuración</p>
+            <button onClick={() => setSkipChecklist(prev => { const next = !prev; setLS("skip_checklist", String(next)); return next; })} className="w-full flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-neutral-800/50 transition-colors">
+              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${skipChecklist ? 'bg-indigo-500 border-indigo-500' : 'border-neutral-600'}`}>
+                {skipChecklist && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+              </div>
+              <span className={`fs-tiny font-semibold ${skipChecklist ? 'text-neutral-400' : 'text-neutral-600'}`}>No volver a mostrar esta verificación</span>
+            </button>
+            <p className="fs-small text-neutral-400 text-center">En el <button onClick={() => { setShowStartCheck(false); goToMenu(); }} className="text-indigo-400 font-bold underline hover:text-indigo-300 transition-colors inline">menú</button> puedes configurar todo esto</p>
             <button
               disabled={!startChecks.every(Boolean)}
               onClick={beginRun}
