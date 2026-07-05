@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { RouteStep, StepType, RunHistoryEntry, LastRunStats } from "../types";
 import DailyTasks from "./DailyTasks";
+import HoOhGuide from "./HoOhGuide";
 
 export type GymCoordMap = Record<string, { region: string; x: number; y: number }>;
 export type RegionMap = Record<string, string>;
@@ -186,6 +187,9 @@ const POKEMON_ARTWORK: Record<string, number> = {
   Ludicolo: 272, Mantine: 226, Poliwrath: 62, Moltres: 146,
   Arcanine: 59, Flareon: 136, Charizard: 6, Carracosta: 565,
   Tentacruel: 73, Nidoqueen: 31, Sandslash: 28, Unfezant: 521,
+  // Ho-Oh guide
+  Chandelure: 609, Rotom: 479, Lunatone: 337,
+  Suicune: 245, Entei: 244, Raikou: 243,
 };
 
 const POKEBALLS = [
@@ -317,6 +321,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
   const [slideClass, setSlideClass] = useState<string>("");
   const [slideKey, setSlideKey] = useState<number>(0);
   const [selectedGuide, setSelectedGuide] = useState<boolean>(false);
+  const [showHoOhGuide, setShowHoOhGuide] = useState<boolean>(false);
   const [showStartCheck, setShowStartCheck] = useState<boolean>(false);
   const [startChecks, setStartChecks] = useState<[boolean, boolean, boolean]>([false, false, false]);
   const [showCountdown, setShowCountdown] = useState<boolean>(false);
@@ -968,7 +973,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                 <span className={`fs-tiny font-bold px-1.5 rounded-full leading-tight ${selectedGuide ? 'text-white bg-indigo-500/30' : 'text-indigo-400 bg-indigo-500/10'}`}>{selectedGuide ? 'INICIAR' : 'PLAY'}</span>
               </div>
             </button>
-            {selectedGuide ? (
+              {selectedGuide ? (
               <button onClick={() => setSelectedGuide(false)} title="Volver a la selección de guías" className="bg-neutral-800 border border-neutral-700 rounded-xl py-2 px-1 text-center hover:bg-neutral-700 transition-all">
                 <div className="flex flex-col items-center gap-0.5">
                   <ChevronLeft className="w-4 h-4 text-neutral-400" />
@@ -977,13 +982,15 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
                 </div>
               </button>
             ) : (
-              <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-xl py-2 px-1 text-center opacity-50">
+              <button onClick={() => setShowHoOhGuide(true)} title="Abrir guía de Ho-Oh (10 Turnos)" className="bg-neutral-900 border border-amber-500/40 hover:bg-neutral-800 hover:border-amber-400/60 rounded-xl py-2 px-1 text-center transition-all">
                 <div className="flex flex-col items-center gap-0.5">
-                  <Compass className="w-4 h-4 text-neutral-500" />
-                  <span className="fs-tiny font-bold text-neutral-400 leading-tight">Nueva</span>
-                  <span className="fs-tiny text-neutral-600 leading-tight">Soon</span>
+                  <div className="w-6 h-6 opacity-30">
+                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/250.png" alt="" className="w-full h-full object-contain" />
+                  </div>
+                  <span className="fs-tiny font-bold text-amber-400 leading-tight">Ho-Oh</span>
+                  <span className="fs-tiny text-amber-500 leading-tight">Guía Boss</span>
                 </div>
-              </div>
+              </button>
             )}
             <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-xl py-2 px-1 text-center opacity-50">
               <div className="flex flex-col items-center gap-0.5">
@@ -1251,6 +1258,7 @@ export default function GymRerunAssistant({ steps, gymCoords, regionMap, config 
           </div>
         </div>
       )}
+      {showHoOhGuide && <HoOhGuide onClose={() => setShowHoOhGuide(false)} />}
       <DailyTasks gymsCompleted={sessionGymCount} timerElapsedMs={timerElapsed} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} />
       </>
     );
