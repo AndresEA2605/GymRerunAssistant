@@ -342,3 +342,32 @@ button {
   transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   -webkit-tap-highlight-color: transparent;
 }
+
+/* ── Pokémon aura/power effects ─────────────────────────────────────── */
+@keyframes poke-aura {
+  0%, 100% { filter: drop-shadow(0 0 4px var(--aura-color, rgba(99,102,241,0.4))) drop-shadow(0 0 8px var(--aura-color, rgba(99,102,241,0.2))); }
+  50%      { filter: drop-shadow(0 0 8px var(--aura-color, rgba(99,102,241,0.6))) drop-shadow(0 0 16px var(--aura-color, rgba(99,102,241,0.3))) drop-shadow(0 0 24px var(--aura-color, rgba(99,102,241,0.15))); }
+}
+@keyframes poke-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+@keyframes poke-idle {
+  0%, 100% { transform: scale(1) translateY(0); filter: drop-shadow(0 0 4px var(--aura-color, rgba(99,102,241,0.4))); }
+  25%      { transform: scale(1.03) translateY(-2px); filter: drop-shadow(0 0 10px var(--aura-color, rgba(99,102,241,0.6))); }
+  50%      { transform: scale(1.05) translateY(-3px); filter: drop-shadow(0 0 14px var(--aura-color, rgba(99,102,241,0.7))) drop-shadow(0 0 20px var(--aura-color, rgba(99,102,241,0.3))); }
+  75%      { transform: scale(1.02) translateY(-1px); filter: drop-shadow(0 0 8px var(--aura-color, rgba(99,102,241,0.5))); }
+}
+.poke-aura {
+  animation: poke-idle 3s ease-in-out infinite;
+  image-rendering: auto;
+}
+.poke-aura-sm {
+  animation: poke-idle 2.5s ease-in-out infinite;
+  image-rendering: auto;
+}
+.poke-glow-indigo { --aura-color: rgba(99,102,241,0.5); }
+.poke-glow-amber  { --aura-color: rgba(245,158,11,0.5); }
+.poke-glow-teal   { --aura-color: rgba(20,184,166,0.5); }
+.poke-glow-red    { --aura-color: rgba(239,68,68,0.5); }
+.poke-glow-white  { --aura-color: rgba(255,255,255,0.35); }

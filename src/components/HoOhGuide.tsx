@@ -90,7 +90,7 @@ const SpriteImg = ({ src, name, className = "" }: { src: string; name: string; c
     <img
       src={src}
       alt={name}
-      className={`object-contain ${className}`}
+      className={`object-contain poke-aura-sm poke-glow-amber ${className}`}
       loading="lazy"
       onError={() => setErrored(true)}
     />
