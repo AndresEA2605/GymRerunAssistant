@@ -1151,6 +1151,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             return guide ? <GuideCredits guide={guide} mode="compact" /> : null;
           })()}
 
+          {selectedGuideId !== 'none' && currentStepIndex < 0 && (
+            <button onClick={() => selectGuide('none')} title="Volver a la selección de guías" className="w-full py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 fs-small font-bold rounded-xl transition-all flex items-center justify-center gap-2">
+              <ChevronLeft className="w-4 h-4" />Volver a guías
+            </button>
+          )}
+
           {selectedGuideId !== 'none' && (
             <button onClick={() => setShowTeam(true)} title="Ver el equipo Pokémon recomendado para esta ruta" className="reveal-5 w-full py-2 md:py-2.5 bg-violet-600/80 hover:bg-violet-600 text-white fs-small md:fs-body font-black rounded-xl transition-all flex items-center justify-center gap-2">
               <Users className="w-4 h-4 md:w-5 md:h-5" />VER EQUIPO
@@ -1651,9 +1657,9 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </>
                   ) : (
                     <>
-                  <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" title="Ver run de ejemplo en YouTube" className="w-full max-w-sm mx-auto mb-2 block group">
+                  <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" title="Ver video de muestra de la ruta" className="w-full max-w-sm mx-auto mb-2 block group">
                     <div className="relative rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl">
-                      <img src="https://img.youtube.com/vi/himBCqDN2-I/maxresdefault.jpg" alt="Run de ejemplo" className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src="https://img.youtube.com/vi/himBCqDN2-I/maxresdefault.jpg" alt="Video de muestra de la ruta" className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500" />
                       <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/10 transition-colors">
                         <div className="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-red-600/40 group-hover:scale-110 transition-transform">
                           <svg viewBox="0 0 24 24" fill="white" className="w-8 h-8 ml-1"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.386.507 9.386.507s7.518 0 9.387-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
@@ -1661,7 +1667,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       </div>
                     </div>
                   </a>
-                  <h2 className="fs-h2 font-black tracking-tight text-white">33 Gym Rerun</h2>
                   <p className="fs-body text-neutral-400">{description}</p>
                   </>)}
                   {(() => {
