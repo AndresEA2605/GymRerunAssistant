@@ -1069,12 +1069,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           </div>
 
           {selectedGuideId === 'none' && (
-            <div className="reveal-2 w-full space-y-3">
-              <div className="w-full bg-gradient-to-r from-indigo-500/5 via-indigo-500/10 to-indigo-500/5 border border-indigo-500/20 rounded-xl px-3 py-2 text-center animate-pulse">
-                <p className="fs-body font-bold text-indigo-300">👇 Selecciona una ruta para comenzar</p>
-              </div>
+            <div className="reveal-2 w-full flex flex-col md:flex-row gap-3">
+              <div className="flex-1 space-y-3">
+                <div className="w-full bg-gradient-to-r from-indigo-500/5 via-indigo-500/10 to-indigo-500/5 border border-indigo-500/20 rounded-xl px-3 py-2 text-center animate-pulse">
+                  <p className="fs-body font-bold text-indigo-300">👇 Selecciona una ruta para comenzar</p>
+                </div>
 
-              {GUIDE_CATEGORIES.map(cat => {
+                {GUIDE_CATEGORIES.map(cat => {
                 const catGuides = getGuidesByCategory(cat.id);
                 return (
                   <div key={cat.id} className="w-full space-y-1.5">
@@ -1192,6 +1193,72 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               })}
 
               <p className="fs-small text-neutral-500 text-center">{description}</p>
+              </div>
+
+              <div className="w-full md:w-72 space-y-2 shrink-0">
+                <div className="flex items-center gap-2 px-1">
+                  <Timer className="w-4 h-4 text-amber-400" />
+                  <span className="fs-small font-black text-neutral-300 uppercase tracking-wider">Cooldowns</span>
+                  <div className="flex-1 h-px bg-neutral-800" />
+                </div>
+                
+                <div className="w-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-2xl p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                      <span className="fs-tiny font-black text-amber-300 uppercase">Gyms</span>
+                    </div>
+                    <CooldownBadge endAt={allCooldowns.gym.endAt} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="fs-tiny text-amber-200/60">{allCooldowns.gym.lastGym || "Sin registro"}</span>
+                    <span className="fs-tiny text-amber-400/70">18h</span>
+                  </div>
+                  {allCooldowns.gym.endAt && allCooldowns.gym.endAt > Date.now() && (
+                    <div className="mt-2 w-full h-1.5 bg-black/30 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-amber-500 to-orange-400 rounded-full transition-all" style={{ width: `${Math.min(100, ((gymResetMs - (allCooldowns.gym.endAt - Date.now())) / gymResetMs) * 100)}%` }} />
+                    </div>
+                  )}
+                </div>
+
+                <div className="w-full bg-gradient-to-r from-red-500/10 to-pink-500/10 border border-red-500/30 rounded-2xl p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                      <span className="fs-tiny font-black text-red-300 uppercase">Ho-Oh</span>
+                    </div>
+                    <CooldownBadge endAt={allCooldowns.hooh.endAt} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="fs-tiny text-red-200/60">{allCooldowns.hooh.lastGym || "Mt. Silver"}</span>
+                    <span className="fs-tiny text-red-400/70">7 días</span>
+                  </div>
+                  {allCooldowns.hooh.endAt && allCooldowns.hooh.endAt > Date.now() && (
+                    <div className="mt-2 w-full h-1.5 bg-black/30 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-red-500 to-pink-400 rounded-full transition-all" style={{ width: `${Math.min(100, ((7 * 24 * 60 * 60 * 1000 - (allCooldowns.hooh.endAt - Date.now())) / (7 * 24 * 60 * 60 * 1000)) * 100)}%` }} />
+                    </div>
+                  )}
+                </div>
+
+                <div className="w-full bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-2xl p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="fs-tiny font-black text-emerald-300 uppercase">NPCs</span>
+                    </div>
+                    <CooldownBadge endAt={allCooldowns.npc.endAt} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="fs-tiny text-emerald-200/60">{allCooldowns.npc.lastGym || "Sin registro"}</span>
+                    <span className="fs-tiny text-emerald-400/70">6h</span>
+                  </div>
+                  {allCooldowns.npc.endAt && allCooldowns.npc.endAt > Date.now() && (
+                    <div className="mt-2 w-full h-1.5 bg-black/30 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all" style={{ width: `${Math.min(100, ((6 * 60 * 60 * 1000 - (allCooldowns.npc.endAt - Date.now())) / (6 * 60 * 60 * 1000)) * 100)}%` }} />
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
@@ -1252,73 +1319,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   <div className="fs-h3 font-black text-amber-400">{new Date(lastRunStats.finishedAt).toLocaleDateString()}</div>
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Fecha</div>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {selectedGuideId === 'none' && (
-            <div className="reveal-3 w-full space-y-2">
-              <div className="flex items-center gap-2 px-1">
-                <Timer className="w-4 h-4 text-amber-400" />
-                <span className="fs-small font-black text-neutral-300 uppercase tracking-wider">Cooldowns</span>
-                <div className="flex-1 h-px bg-neutral-800" />
-              </div>
-              
-              <div className="w-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-2xl p-3">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                    <span className="fs-tiny font-black text-amber-300 uppercase">Gym Rematches</span>
-                  </div>
-                  <CooldownBadge endAt={allCooldowns.gym.endAt} />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="fs-tiny text-amber-200/60">{allCooldowns.gym.lastGym || "Sin gym registrado"}</span>
-                  <span className="fs-tiny text-amber-400/70">18h + 5 combates</span>
-                </div>
-                {allCooldowns.gym.endAt && allCooldowns.gym.endAt > Date.now() && (
-                  <div className="mt-2 w-full h-1.5 bg-black/30 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-amber-500 to-orange-400 rounded-full transition-all" style={{ width: `${Math.min(100, ((gymResetMs - (allCooldowns.gym.endAt - Date.now())) / gymResetMs) * 100)}%` }} />
-                  </div>
-                )}
-              </div>
-
-              <div className="w-full bg-gradient-to-r from-red-500/10 to-pink-500/10 border border-red-500/30 rounded-2xl p-3">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                    <span className="fs-tiny font-black text-red-300 uppercase">Ho-Oh (Red)</span>
-                  </div>
-                  <CooldownBadge endAt={allCooldowns.hooh.endAt} />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="fs-tiny text-red-200/60">{allCooldowns.hooh.lastGym || "Mt. Silver"}</span>
-                  <span className="fs-tiny text-red-400/70">7 días por personaje</span>
-                </div>
-                {allCooldowns.hooh.endAt && allCooldowns.hooh.endAt > Date.now() && (
-                  <div className="mt-2 w-full h-1.5 bg-black/30 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-red-500 to-pink-400 rounded-full transition-all" style={{ width: `${Math.min(100, ((7 * 24 * 60 * 60 * 1000 - (allCooldowns.hooh.endAt - Date.now())) / (7 * 24 * 60 * 60 * 1000)) * 100)}%` }} />
-                  </div>
-                )}
-              </div>
-
-              <div className="w-full bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-2xl p-3">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="fs-tiny font-black text-emerald-300 uppercase">NPCs (Match Call)</span>
-                  </div>
-                  <CooldownBadge endAt={allCooldowns.npc.endAt} />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="fs-tiny text-emerald-200/60">{allCooldowns.npc.lastGym || "Sin NPC registrado"}</span>
-                  <span className="fs-tiny text-emerald-400/70">6h + 5 combates</span>
-                </div>
-                {allCooldowns.npc.endAt && allCooldowns.npc.endAt > Date.now() && (
-                  <div className="mt-2 w-full h-1.5 bg-black/30 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all" style={{ width: `${Math.min(100, ((6 * 60 * 60 * 1000 - (allCooldowns.npc.endAt - Date.now())) / (6 * 60 * 60 * 1000)) * 100)}%` }} />
-                  </div>
-                )}
               </div>
             </div>
           )}
