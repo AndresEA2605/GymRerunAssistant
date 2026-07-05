@@ -343,9 +343,10 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     gymIndex: number;
     region: string;
   }
-  const regionOfGym = (name: string): string => {
-    const hoennGyms = ['Lavaridge', 'Mauville', 'Fallarbor', 'Rustboro', 'Fortree', 'Sootopolis', 'Sootopolis City'];
-    return hoennGyms.some(g => name.toLowerCase().includes(g.toLowerCase())) ? 'Hoenn' : 'Sinnoh';
+  const getGroupRegion = (step: RouteStep): string => {
+    if (step.region) return step.region;
+    const hoennGyms = ['Lavaridge', 'Mauville', 'Fallarbor', 'Rustboro', 'Fortree', 'Sootopolis'];
+    return hoennGyms.some(g => (step.gym || step.title).toLowerCase().includes(g.toLowerCase())) ? 'Hoenn' : 'Sinnoh';
   };
   const groupStepsByGym = (steps: RouteStep[]): GymGroup[] => {
     const groups: GymGroup[] = [];
@@ -354,11 +355,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       if (step.type === 'gym') {
         if (current && step.gym !== current.gymStep.gym) {
           groups.push(current);
-          current = { gymStep: step, subBattles: [], extras: [], gymIndex: groups.length + 1, region: regionOfGym(step.gym || step.title) };
-        } else if (current && step.gym === current.gymStep.gym) {
+          current = { gymStep: step, subBattles: [], extras: [], gymIndex: groups.length + 1, region: getGroupRegion(step) };
+        } else if (current && step.gym === current.gymStep.gym && current.extras.length === 0) {
           current.subBattles.push(step);
         } else {
-          current = { gymStep: step, subBattles: [], extras: [], gymIndex: 1, region: regionOfGym(step.gym || step.title) };
+          if (current) groups.push(current);
+          current = { gymStep: step, subBattles: [], extras: [], gymIndex: (current ? groups.length + 1 : 1), region: getGroupRegion(step) };
         }
       } else if (current) {
         current.extras.push(step);
@@ -1764,9 +1766,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 <div className="reveal-1 flex flex-col sm:flex-row items-center justify-center gap-1.5 md:gap-3 w-full">
                   <span className="p-1.5 md:p-3 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon("gym")}</span>
                   <h2 className="fs-h3 font-black tracking-tight text-white">{currentGymGroup.gymStep.title}</h2>
-                  {currentGymGroup.region !== currentGymGroup.gymStep.region && (
-                    <span className="fs-tiny md:fs-small font-bold uppercase tracking-widest px-1.5 md:px-2 py-0.5 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentGymGroup.region}</span>
-                  )}
+                  <span className="fs-tiny md:fs-small font-bold uppercase tracking-widest px-1.5 md:px-2 py-0.5 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentGymGroup.region}</span>
                 </div>
                 {currentGymGroup.gymStep.gym && gymCoords[currentGymGroup.gymStep.gym as keyof typeof gymCoords] && (
                   <div className="reveal-2 w-full max-w-[160px] h-20 md:max-w-[200px] md:h-28 relative rounded-lg border border-neutral-700/50 overflow-hidden shrink-0 bg-neutral-950 shadow-inner group">
