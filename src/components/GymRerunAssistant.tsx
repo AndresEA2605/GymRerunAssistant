@@ -19,6 +19,7 @@ import {
   Users,
   Target,
   Timer,
+  Flame,
 } from "lucide-react";
 import { RouteStep, StepType, RunHistoryEntry, LastRunStats, GuideCategory } from "../types";
 import DailyTasks from "./DailyTasks";
@@ -1019,24 +1020,24 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     const bestRun = history.length > 0 ? history.reduce((a, b) => a.elapsed < b.elapsed ? a : b) : null;
     return (
       <>
-      <div className={`${menuVisible ? 'menu-enter' : 'fade-in-screen'} bg-neutral-950 text-neutral-200 font-sans flex flex-col items-center justify-center p-3 md:p-6 relative overflow-hidden ${menuExiting ? 'menu-exit' : ''}`} style={{ minHeight: '100dvh' }}>
+      <div className={`${menuVisible ? 'menu-enter' : 'fade-in-screen'} bg-neutral-950 text-neutral-200 font-sans relative overflow-hidden ${menuExiting ? 'menu-exit' : ''}`} style={{ minHeight: '100dvh' }}>
         <PokeBackground />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none" />
 
-        <div className="relative z-10 w-full max-w-xl flex flex-col items-center gap-2 md:gap-2.5" style={{ maxWidth: "min(100%, 36rem)" }}>
+        <div className="relative z-10 w-full mx-auto px-3 md:px-6 py-3 md:py-4" style={{ maxWidth: "min(100%, 90rem)" }}>
 
           {selectedGuideId !== 'none' && (() => {
             const guide = getGuide(selectedGuideId);
             if (!guide) return null;
             const gc = GUIDE_COLORS[guide.color] || GUIDE_COLORS.indigo;
             return (
-              <div className="reveal-1 w-full text-center space-y-2">
+              <div className="reveal-1 w-full text-center space-y-2 mb-3">
                 <span className={`fs-tiny uppercase tracking-widest font-black border px-2 py-0.5 rounded-full inline-block ${gc.text} border-${guide.color}-500/30 ${gc.bg}`}>
                   {guide.credits.author}
                 </span>
                 <h2 className="fs-h2 font-black text-white leading-tight">{guide.title} Rerun</h2>
                 <p className="fs-body text-neutral-400 max-w-xl mx-auto leading-relaxed">{guide.subtitle}</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 max-w-2xl mx-auto">
                   <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1.5 px-2">
                     <div className="text-lg">🎯</div>
                     <div className={`fs-small font-black ${gc.text}`}>{steps.filter(s => s.type === "gym").length || steps.length}</div>
@@ -1062,205 +1063,194 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             );
           })()}
 
-          <div className="reveal-1 text-center">
-            <span className="fs-tiny uppercase tracking-widest font-black text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-2 py-0.5 rounded-full">PokeMMO Speedrun Tool</span>
-            <h1 className="fs-hero font-black tracking-tight text-white leading-none mt-1" style={{ textShadow: '0 0 60px rgba(99,102,241,0.5)' }}>GYM RERUN</h1>
-            <h2 className="fs-h2 font-bold text-indigo-400 tracking-widest">ASSISTANT</h2>
-          </div>
+          {selectedGuideId === 'none' && (<>
+            <div className="reveal-1 text-center mb-3 md:mb-4">
+              <span className="fs-tiny uppercase tracking-widest font-black text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-2 py-0.5 rounded-full">PokeMMO Speedrun Tool</span>
+              <h1 className="fs-hero font-black tracking-tight text-white leading-none mt-1" style={{ textShadow: '0 0 60px rgba(99,102,241,0.5)' }}>GYM RERUN</h1>
+              <h2 className="fs-h2 font-bold text-indigo-400 tracking-widest">ASSISTANT</h2>
+            </div>
 
-          {selectedGuideId === 'none' && (
-            <div className="reveal-2 w-full flex flex-col md:flex-row gap-3">
-              <div className="flex-1 space-y-3">
-                <div className="w-full bg-gradient-to-r from-indigo-500/5 via-indigo-500/10 to-indigo-500/5 border border-indigo-500/20 rounded-xl px-3 py-2 text-center animate-pulse">
-                  <p className="fs-body font-bold text-indigo-300">👇 Selecciona una ruta para comenzar</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 mb-3 md:mb-4">
+              <div className="bg-gradient-to-br from-indigo-500/15 to-indigo-500/5 border border-indigo-500/30 rounded-2xl p-3 md:p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Target className="w-4 h-4 text-indigo-400" />
+                  <span className="fs-tiny font-black text-indigo-300 uppercase tracking-wider">Seleccionar Ruta</span>
                 </div>
+                <p className="fs-tiny text-indigo-200/60 mb-2">Elige una guía para comenzar</p>
+                <div className="flex gap-1.5">
+                  {GUIDES.map(g => {
+                    const gc = GUIDE_COLORS[g.color] || GUIDE_COLORS.indigo;
+                    return (
+                      <button key={g.id} onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')} className={`flex-1 rounded-lg py-1.5 px-1 text-center transition-all bg-neutral-900 ${gc.border} hover:bg-neutral-800 ${gc.borderHover}`}>
+                        <div className="w-8 h-8 mx-auto poke-aura poke-glow-${g.color}">
+                          <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
+                        </div>
+                        <span className={`fs-tiny font-bold ${gc.text}`}>{g.title}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-                {GUIDE_CATEGORIES.map(cat => {
+              <div className="bg-gradient-to-br from-amber-500/15 to-orange-500/5 border border-amber-500/30 rounded-2xl p-3 md:p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Timer className="w-4 h-4 text-amber-400" />
+                  <span className="fs-tiny font-black text-amber-300 uppercase tracking-wider">Cooldowns</span>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                      <span className="fs-tiny font-bold text-amber-300">Gyms</span>
+                    </div>
+                    <CooldownBadge endAt={allCooldowns.gym.endAt} />
+                  </div>
+                  <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                      <span className="fs-tiny font-bold text-red-300">Ho-Oh</span>
+                    </div>
+                    <CooldownBadge endAt={allCooldowns.hooh.endAt} />
+                  </div>
+                  <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="fs-tiny font-bold text-emerald-300">NPCs</span>
+                    </div>
+                    <CooldownBadge endAt={allCooldowns.npc.endAt} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-emerald-500/15 to-teal-500/5 border border-emerald-500/30 rounded-2xl p-3 md:p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Flame className="w-4 h-4 text-emerald-400" />
+                  <span className="fs-tiny font-black text-emerald-300 uppercase tracking-wider">Estadísticas</span>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <div className="bg-neutral-900/60 rounded-lg px-2 py-1.5 text-center">
+                    <div className="fs-small font-black text-white">{totalGyms}</div>
+                    <div className="fs-tiny text-neutral-500">Gyms</div>
+                  </div>
+                  <div className="bg-neutral-900/60 rounded-lg px-2 py-1.5 text-center">
+                    <div className="fs-small font-black text-white">3</div>
+                    <div className="fs-tiny text-neutral-500">Guías</div>
+                  </div>
+                  <div className="bg-neutral-900/60 rounded-lg px-2 py-1.5 text-center">
+                    <div className="fs-small font-black text-white">5</div>
+                    <div className="fs-tiny text-neutral-500">Regiones</div>
+                  </div>
+                  <div className="bg-neutral-900/60 rounded-lg px-2 py-1.5 text-center">
+                    <div className="fs-small font-black text-white">{history.length}</div>
+                    <div className="fs-tiny text-neutral-500">Runs</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-violet-500/15 to-purple-500/5 border border-violet-500/30 rounded-2xl p-3 md:p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="w-4 h-4 text-violet-400" />
+                  <span className="fs-tiny font-black text-violet-300 uppercase tracking-wider">Actividad</span>
+                </div>
+                {lastRunStats ? (
+                  <div className="space-y-1.5">
+                    <div className="bg-neutral-900/60 rounded-lg px-2 py-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="fs-tiny text-neutral-400">Última run</span>
+                        <span className="fs-tiny font-bold text-violet-300">{formatTime(lastRunStats.elapsed)}</span>
+                      </div>
+                    </div>
+                    <div className="bg-neutral-900/60 rounded-lg px-2 py-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="fs-tiny text-neutral-400">Gyms</span>
+                        <span className="fs-tiny font-bold text-emerald-300">{lastRunStats.gymsCompleted}/{lastRunStats.totalGyms}</span>
+                      </div>
+                    </div>
+                    <div className="bg-neutral-900/60 rounded-lg px-2 py-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="fs-tiny text-neutral-400">Fecha</span>
+                        <span className="fs-tiny font-bold text-neutral-300">{new Date(lastRunStats.finishedAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-neutral-900/60 rounded-lg px-2 py-3 text-center">
+                    <span className="fs-tiny text-neutral-500">Sin runs aún</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 mb-3 md:mb-4">
+              {GUIDE_CATEGORIES.map(cat => {
                 const catGuides = getGuidesByCategory(cat.id);
                 return (
-                  <div key={cat.id} className="w-full space-y-1.5">
-                    <div className="flex items-center gap-2 px-1">
+                  <div key={cat.id} className="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-3 md:p-4">
+                    <div className="flex items-center gap-2 mb-2">
                       <span className="text-lg">{cat.icon}</span>
                       <span className="fs-small font-black text-neutral-300 uppercase tracking-wider">{cat.label}</span>
-                      <div className="flex-1 h-px bg-neutral-800" />
                     </div>
                     {catGuides.length > 0 ? (
-                      <div className="grid grid-cols-3 gap-1.5 md:gap-2">
+                      <div className="space-y-1.5">
                         {catGuides.map(g => {
                           const gc = GUIDE_COLORS[g.color] || GUIDE_COLORS.indigo;
-                          const diffColors: Record<string, string> = {
-                            'Baja': 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
-                            'Media': 'text-amber-400 bg-amber-500/10 border-amber-500/30',
-                            'Media-Alta': 'text-orange-400 bg-orange-500/10 border-orange-500/30',
-                            'Alta': 'text-red-400 bg-red-500/10 border-red-500/30',
-                          };
                           return (
-                            <div key={g.id} className="relative group">
-                              <button
-                                onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')}
-                                title={`${g.title} — ${g.subtitle}`}
-                                className={`w-full rounded-xl py-2 px-1 text-center transition-all bg-neutral-900 ${gc.border} hover:bg-neutral-800 ${gc.borderHover}`}
-                              >
-                                <div className="flex flex-col items-center gap-0.5">
-                                  <div className={`w-12 h-12 poke-aura poke-glow-${g.color}`}>
-                                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
-                                  </div>
-                                  <span className={`fs-tiny font-bold leading-tight ${gc.text}`}>{g.title}</span>
-                                  <span className={`fs-tiny font-bold px-1.5 rounded-full leading-tight ${gc.text} ${gc.bg}`}>PLAY</span>
-                                </div>
-                              </button>
-
-                              <div className="hidden group-hover:block absolute z-50 left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 pointer-events-none">
-                                <div className="bg-neutral-900 border border-neutral-700 rounded-xl p-3 shadow-2xl shadow-black/50 space-y-2">
-                                  <div className="flex items-center justify-between">
-                                    <span className={`fs-tiny font-black ${gc.textLight}`}>{g.title}</span>
-                                    <span className={`fs-tiny font-bold px-1.5 py-0.5 rounded border ${diffColors[g.difficulty] || diffColors.Media}`}>{g.difficulty}</span>
-                                  </div>
-
-                                  <p className="fs-tiny text-neutral-400 leading-snug">{g.subtitle}</p>
-
-                                  <div className="flex items-center gap-1.5 justify-center">
-                                    {g.team.map(p => (
-                                      <img key={p.spriteId} src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${p.spriteId}.gif`} alt={p.name} className={`w-8 h-8 object-contain poke-aura-sm poke-glow-${g.color}`} loading="lazy" />
-                                    ))}
-                                  </div>
-
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="fs-tiny text-neutral-500">Costo:</span>
-                                    <span className="fs-tiny font-bold text-amber-400">{g.estimatedCost}</span>
-                                  </div>
-
-                                  <div className="space-y-0.5">
-                                    {g.info.map((line, i) => (
-                                      <div key={i} className="flex items-start gap-1.5">
-                                        <span className="fs-tiny text-neutral-600 mt-px">•</span>
-                                        <span className="fs-tiny text-neutral-400 leading-snug">{line}</span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
+                            <button key={g.id} onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')} className={`w-full flex items-center gap-2.5 rounded-xl py-2 px-2.5 text-left transition-all bg-neutral-950/60 ${gc.border} hover:bg-neutral-800 ${gc.borderHover} group`}>
+                              <div className={`w-10 h-10 shrink-0 poke-aura poke-glow-${g.color}`}>
+                                <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
                               </div>
-                            </div>
+                              <div className="flex-1 min-w-0">
+                                <div className={`fs-tiny font-bold ${gc.text} truncate`}>{g.title}</div>
+                                <div className="fs-tiny text-neutral-500 truncate">{g.subtitle}</div>
+                              </div>
+                              <span className={`fs-tiny font-black ${gc.text} opacity-0 group-hover:opacity-100 transition-opacity`}>→</span>
+                            </button>
                           );
                         })}
                       </div>
                     ) : cat.id === 'guides' ? (
-                      <div className="grid grid-cols-1 gap-1.5">
-                        <a href="https://docs.google.com/document/d/1GkgTlrZwm2jUO_aD_U9Gha8CaljwRQaMLMMJfpsr4Bc/edit?tab=t.kd1fquq7r0zb" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-neutral-900 border border-neutral-800 hover:border-blue-500/40 rounded-xl py-2 px-3 transition-all group">
+                      <div className="space-y-1.5">
+                        <a href="https://docs.google.com/document/d/1GkgTlrZwm2jUO_aD_U9Gha8CaljwRQaMLMMJfpsr4Bc/edit?tab=t.kd1fquq7r0zb" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 bg-neutral-950/60 border border-neutral-800 hover:border-blue-500/40 rounded-xl py-2 px-2.5 transition-all group">
                           <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
                             <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-blue-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z"/></svg>
                           </div>
-                          <div className="flex-1 text-left">
-                            <span className="fs-tiny font-bold text-neutral-300 group-hover:text-white transition-colors">Guía 25 Gyms (MYRROR)</span>
-                            <span className="fs-tiny text-neutral-500 block">Documentos · Ruta alternativa</span>
+                          <div className="flex-1 min-w-0">
+                            <span className="fs-tiny font-bold text-neutral-300 group-hover:text-white transition-colors block truncate">Guía 25 Gyms (MYRROR)</span>
+                            <span className="fs-tiny text-neutral-500 block">Documentos</span>
                           </div>
-                          <span className="fs-tiny text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
                         </a>
-                        <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-neutral-900 border border-neutral-800 hover:border-red-500/40 rounded-xl py-2 px-3 transition-all group">
+                        <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 bg-neutral-950/60 border border-neutral-800 hover:border-red-500/40 rounded-xl py-2 px-2.5 transition-all group">
                           <div className="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center shrink-0">
                             <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-red-400"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                           </div>
-                          <div className="flex-1 text-left">
-                            <span className="fs-tiny font-bold text-neutral-300 group-hover:text-white transition-colors">Video: 33 Gyms Guide</span>
-                            <span className="fs-tiny text-neutral-500 block">YouTube · Referencia visual</span>
+                          <div className="flex-1 min-w-0">
+                            <span className="fs-tiny font-bold text-neutral-300 group-hover:text-white transition-colors block truncate">33 Gyms Guide</span>
+                            <span className="fs-tiny text-neutral-500 block">YouTube</span>
                           </div>
-                          <span className="fs-tiny text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
                         </a>
-                        <a href="https://www.youtube.com/watch?v=QEwUZKASfeI" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-neutral-900 border border-neutral-800 hover:border-amber-500/40 rounded-xl py-2 px-3 transition-all group">
+                        <a href="https://www.youtube.com/watch?v=QEwUZKASfeI" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 bg-neutral-950/60 border border-neutral-800 hover:border-amber-500/40 rounded-xl py-2 px-2.5 transition-all group">
                           <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center shrink-0">
                             <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-amber-400"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                           </div>
-                          <div className="flex-1 text-left">
-                            <span className="fs-tiny font-bold text-neutral-300 group-hover:text-white transition-colors">Video: Ho-Oh Farming</span>
+                          <div className="flex-1 min-w-0">
+                            <span className="fs-tiny font-bold text-neutral-300 group-hover:text-white transition-colors block truncate">Ho-Oh Farming</span>
                             <span className="fs-tiny text-neutral-500 block">YouTube · Finya Cabrazo</span>
                           </div>
-                          <span className="fs-tiny text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
                         </a>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-3 gap-1.5 md:gap-2">
-                        <div className="bg-neutral-900/50 border border-dashed border-neutral-700/60 rounded-xl py-2 px-1 text-center opacity-50 col-span-3">
-                          <div className="flex flex-col items-center gap-0.5">
-                            <Sparkles className="w-4 h-4 text-neutral-500" />
-                            <span className="fs-tiny font-bold text-neutral-400 leading-tight">Próximamente</span>
-                            <span className="fs-tiny text-neutral-600 leading-tight">Soon</span>
-                          </div>
-                        </div>
+                      <div className="bg-neutral-950/40 border border-dashed border-neutral-700/60 rounded-xl py-3 text-center opacity-50">
+                        <Sparkles className="w-4 h-4 text-neutral-500 mx-auto mb-1" />
+                        <span className="fs-tiny font-bold text-neutral-400">Próximamente</span>
                       </div>
                     )}
                   </div>
                 );
               })}
-
-              <p className="fs-small text-neutral-500 text-center">{description}</p>
-              </div>
-
-              <div className="w-full md:w-72 space-y-2 shrink-0">
-                <div className="flex items-center gap-2 px-1">
-                  <Timer className="w-4 h-4 text-amber-400" />
-                  <span className="fs-small font-black text-neutral-300 uppercase tracking-wider">Cooldowns</span>
-                  <div className="flex-1 h-px bg-neutral-800" />
-                </div>
-                
-                <div className="w-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-2xl p-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                      <span className="fs-tiny font-black text-amber-300 uppercase">Gyms</span>
-                    </div>
-                    <CooldownBadge endAt={allCooldowns.gym.endAt} />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="fs-tiny text-amber-200/60">{allCooldowns.gym.lastGym || "Sin registro"}</span>
-                    <span className="fs-tiny text-amber-400/70">18h</span>
-                  </div>
-                  {allCooldowns.gym.endAt && allCooldowns.gym.endAt > Date.now() && (
-                    <div className="mt-2 w-full h-1.5 bg-black/30 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-amber-500 to-orange-400 rounded-full transition-all" style={{ width: `${Math.min(100, ((gymResetMs - (allCooldowns.gym.endAt - Date.now())) / gymResetMs) * 100)}%` }} />
-                    </div>
-                  )}
-                </div>
-
-                <div className="w-full bg-gradient-to-r from-red-500/10 to-pink-500/10 border border-red-500/30 rounded-2xl p-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                      <span className="fs-tiny font-black text-red-300 uppercase">Ho-Oh</span>
-                    </div>
-                    <CooldownBadge endAt={allCooldowns.hooh.endAt} />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="fs-tiny text-red-200/60">{allCooldowns.hooh.lastGym || "Mt. Silver"}</span>
-                    <span className="fs-tiny text-red-400/70">7 días</span>
-                  </div>
-                  {allCooldowns.hooh.endAt && allCooldowns.hooh.endAt > Date.now() && (
-                    <div className="mt-2 w-full h-1.5 bg-black/30 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-red-500 to-pink-400 rounded-full transition-all" style={{ width: `${Math.min(100, ((7 * 24 * 60 * 60 * 1000 - (allCooldowns.hooh.endAt - Date.now())) / (7 * 24 * 60 * 60 * 1000)) * 100)}%` }} />
-                    </div>
-                  )}
-                </div>
-
-                <div className="w-full bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-2xl p-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="fs-tiny font-black text-emerald-300 uppercase">NPCs</span>
-                    </div>
-                    <CooldownBadge endAt={allCooldowns.npc.endAt} />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="fs-tiny text-emerald-200/60">{allCooldowns.npc.lastGym || "Sin registro"}</span>
-                    <span className="fs-tiny text-emerald-400/70">6h</span>
-                  </div>
-                  {allCooldowns.npc.endAt && allCooldowns.npc.endAt > Date.now() && (
-                    <div className="mt-2 w-full h-1.5 bg-black/30 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all" style={{ width: `${Math.min(100, ((6 * 60 * 60 * 1000 - (allCooldowns.npc.endAt - Date.now())) / (6 * 60 * 60 * 1000)) * 100)}%` }} />
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
-          )}
+
+            <p className="fs-small text-neutral-500 text-center">{description}</p>
+          </>)}
 
           <div className="reveal-2 w-full grid grid-cols-3 gap-1.5 md:gap-2 text-center">
             {selectedGuideId !== 'none' ? (() => {
