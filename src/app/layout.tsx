@@ -32,7 +32,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://raw.githubusercontent.com" />
         <link rel="dns-prefetch" href="https://raw.githubusercontent.com" />
       </head>
-      <body className="min-h-full flex flex-col font-sans select-none">
+      <body className="min-h-full flex flex-col font-sans">
         {children}
         <Analytics />
       </body>

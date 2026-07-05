@@ -166,7 +166,7 @@ export default function DailyTasks({ gymsCompleted, timerElapsedMs = 0, isOpen, 
     <>
       <div
         className="fixed right-3 z-50"
-        style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 80px)" }}
+        style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + var(--footer-routes-height, 9rem))" }}
       >
         {!isOpen && completedCount < totalCount && (
           <div className="absolute right-14 bottom-1 pointer-events-none select-none animate-bounce-slow">
@@ -208,7 +208,7 @@ export default function DailyTasks({ gymsCompleted, timerElapsedMs = 0, isOpen, 
             className={`fixed z-50 right-3 transition-all duration-300 ease-out ${
               panelVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
             }`}
-            style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 148px)", maxHeight: "calc(100dvh - 180px)" }}
+            style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + var(--footer-routes-height, 9rem) + 4rem)", maxHeight: "calc(100dvh - var(--footer-routes-height, 9rem) - 8rem)" }}
           >
             <div
               className="w-[340px] max-w-[calc(100vw-24px)] bg-neutral-900/95 backdrop-blur-xl rounded-2xl border border-neutral-800 shadow-2xl overflow-hidden flex flex-col"

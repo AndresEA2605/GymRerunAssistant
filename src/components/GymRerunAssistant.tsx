@@ -29,7 +29,13 @@ const ArrowRight = ({ className }: { className?: string }) => (
 import { RouteStep, StepType, RunHistoryEntry, LastRunStats, GuideCategory } from "../types";
 import DailyTasks from "./DailyTasks";
 import GuideCredits from "./GuideCredits";
-import { GUIDES, GUIDE_CATEGORIES, getGuide, getGuidesByCategory } from "../data/guides";
+import CategoryFooter from "./layout/footers/CategoryFooter";
+import CooldownBadge from "./shared/CooldownBadge";
+import TimerDisplay from "./shared/TimerDisplay";
+import { formatTime } from "./shared/TimerDisplay";
+import { getGuideColorClasses, getGuidePokeGlow } from "@/lib/design-tokens";
+import { getGuide, getGuidesByCategory, GUIDE_CATEGORIES, GUIDES } from "../data/guides";
+import { showCompleteGym as shouldShowCompleteGym } from "@/lib/guide-footer";
 
 export type GymCoordMap = Record<string, { region: string; x: number; y: number }>;
 export type RegionMap = Record<string, string>;
@@ -80,16 +86,6 @@ interface TimerEventLog {
   stepIndex: number;
 }
 
-const formatTime = (ms: number): string => {
-  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return [hours, minutes, seconds]
-    .map((unit) => String(unit).padStart(2, "0"))
-    .join(":");
-};
-
 const formatRemaining = (ms: number): string => {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
   const hours = Math.floor(totalSeconds / 3600);
@@ -97,43 +93,6 @@ const formatRemaining = (ms: number): string => {
   if (hours > 0) return `${hours}h ${minutes}m`;
   if (minutes > 0) return `${minutes}m ${totalSeconds % 60}s`;
   return `${totalSeconds}s`;
-};
-
-const TimerDisplay = memo(({ isRunning, startTime, elapsedBeforePause }: { isRunning: boolean, startTime: number | null, elapsedBeforePause: number }) => {
-  const [elapsed, setElapsed] = useState(elapsedBeforePause);
-  
-  useEffect(() => {
-    let frameId: number;
-    const update = () => {
-      if (isRunning && startTime) {
-        setElapsed(elapsedBeforePause + (Date.now() - startTime));
-        frameId = requestAnimationFrame(update);
-      }
-    };
-    if (isRunning) {
-      frameId = requestAnimationFrame(update);
-    }
-    return () => { if (frameId) cancelAnimationFrame(frameId); };
-  }, [isRunning, startTime, elapsedBeforePause]);
-
-  return <span className={`font-mono fs-mono font-bold tracking-wider ${isRunning ? 'timer-running text-indigo-300' : ''}`}>{formatTime(isRunning ? elapsed : elapsedBeforePause)}</span>;
-});
-TimerDisplay.displayName = "TimerDisplay";
-
-
-const CooldownBadge = ({ endAt }: { endAt: number | null }) => {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(id);
-  }, []);
-  if (!endAt) return <span className="text-neutral-600 fs-tiny">--:--:--</span>;
-  const remaining = Math.max(0, endAt - now);
-  return (
-    <span className={`fs-tiny font-bold ${remaining > 0 ? "text-emerald-400" : "text-amber-400"}`}>
-      {remaining > 0 ? formatTime(remaining) : "LISTO"}
-    </span>
-  );
 };
 
 const matchPokemon = (text: string): { name: string; id: number } | null => {
@@ -188,12 +147,6 @@ const PokeballSVG = ({ opacity = 0.18 }: { opacity?: number }) => (
 );
 
 const SPRITE_BASE = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated";
-
-const GUIDE_COLORS: Record<string, { text: string; textLight: string; border: string; borderHover: string; bg: string; badge: string }> = {
-  indigo: { text: 'text-indigo-400', textLight: 'text-indigo-300', border: 'border-indigo-500/40', borderHover: 'hover:border-indigo-400/60', bg: 'bg-indigo-500/10', badge: 'bg-indigo-500/30' },
-  amber: { text: 'text-amber-400', textLight: 'text-amber-300', border: 'border-amber-500/40', borderHover: 'hover:border-amber-400/60', bg: 'bg-amber-500/10', badge: 'bg-amber-500/30' },
-  teal: { text: 'text-teal-400', textLight: 'text-teal-300', border: 'border-teal-500/40', borderHover: 'hover:border-teal-400/60', bg: 'bg-teal-500/10', badge: 'bg-teal-500/30' },
-};
 
 const POKEMON_ARTWORK: Record<string, number> = {
   // Team members
@@ -1034,10 +987,10 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           {selectedGuideId !== 'none' && (() => {
             const guide = getGuide(selectedGuideId);
             if (!guide) return null;
-            const gc = GUIDE_COLORS[guide.color] || GUIDE_COLORS.indigo;
+            const gc = getGuideColorClasses(guide.color);
             return (
               <div className="reveal-1 w-full text-center space-y-2 mb-3">
-                <span className={`fs-tiny uppercase tracking-widest font-black border px-2 py-0.5 rounded-full inline-block ${gc.text} border-${guide.color}-500/30 ${gc.bg}`}>
+                <span className={`fs-tiny uppercase tracking-widest font-black border px-2 py-0.5 rounded-full inline-block ${gc.text} ${gc.border} ${gc.bg}`}>
                   {guide.credits.author}
                 </span>
                 <h2 className="fs-h2 font-black text-white leading-tight">{guide.title} Rerun</h2>
@@ -1075,51 +1028,30 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               <h2 className="fs-h2 font-bold text-indigo-400 tracking-widest">ASSISTANT</h2>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 mb-3 md:mb-4">
-              <div className="bg-gradient-to-br from-indigo-500/15 to-indigo-500/5 border border-indigo-500/30 rounded-2xl p-3 md:p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Target className="w-4 h-4 text-indigo-400" />
-                  <span className="fs-tiny font-black text-indigo-300 uppercase tracking-wider">Seleccionar Ruta</span>
-                </div>
-                <p className="fs-tiny text-indigo-200/60 mb-2">Elige una guía para comenzar</p>
-                <div className="flex gap-1.5">
-                  {GUIDES.map(g => {
-                    const gc = GUIDE_COLORS[g.color] || GUIDE_COLORS.indigo;
-                    return (
-                      <button key={g.id} onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')} className={`flex-1 rounded-lg py-1.5 px-1 text-center transition-all bg-neutral-900 ${gc.border} hover:bg-neutral-800 ${gc.borderHover}`}>
-                        <div className="w-8 h-8 mx-auto poke-aura poke-glow-${g.color}">
-                          <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
-                        </div>
-                        <span className={`fs-tiny font-bold ${gc.text}`}>{g.title}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-amber-500/15 to-orange-500/5 border border-amber-500/30 rounded-2xl p-3 md:p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+              <div className="bg-gradient-to-br from-amber-500/15 to-orange-500/5 border border-amber-500/30 rounded-2xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Timer className="w-4 h-4 text-amber-400" />
                   <span className="fs-tiny font-black text-amber-300 uppercase tracking-wider">Cooldowns</span>
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
                       <span className="fs-tiny font-bold text-amber-300">Gyms</span>
                     </div>
                     <CooldownBadge endAt={allCooldowns.gym.endAt} />
                   </div>
                   <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                       <span className="fs-tiny font-bold text-red-300">Ho-Oh</span>
                     </div>
                     <CooldownBadge endAt={allCooldowns.hooh.endAt} />
                   </div>
                   <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                       <span className="fs-tiny font-bold text-emerald-300">NPCs</span>
                     </div>
                     <CooldownBadge endAt={allCooldowns.npc.endAt} />
@@ -1132,20 +1064,20 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   <Flame className="w-4 h-4 text-emerald-400" />
                   <span className="fs-tiny font-black text-emerald-300 uppercase tracking-wider">Estadísticas</span>
                 </div>
-                <div className="grid grid-cols-2 gap-1.5">
-                  <div className="bg-neutral-900/60 rounded-lg px-2 py-1.5 text-center">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-neutral-900/60 rounded-lg px-2 py-2 text-center">
                     <div className="fs-small font-black text-white">{totalGyms}</div>
                     <div className="fs-tiny text-neutral-500">Gyms</div>
                   </div>
-                  <div className="bg-neutral-900/60 rounded-lg px-2 py-1.5 text-center">
+                  <div className="bg-neutral-900/60 rounded-lg px-2 py-2 text-center">
                     <div className="fs-small font-black text-white">3</div>
                     <div className="fs-tiny text-neutral-500">Guías</div>
                   </div>
-                  <div className="bg-neutral-900/60 rounded-lg px-2 py-1.5 text-center">
+                  <div className="bg-neutral-900/60 rounded-lg px-2 py-2 text-center">
                     <div className="fs-small font-black text-white">5</div>
                     <div className="fs-tiny text-neutral-500">Regiones</div>
                   </div>
-                  <div className="bg-neutral-900/60 rounded-lg px-2 py-1.5 text-center">
+                  <div className="bg-neutral-900/60 rounded-lg px-2 py-2 text-center">
                     <div className="fs-small font-black text-white">{history.length}</div>
                     <div className="fs-tiny text-neutral-500">Runs</div>
                   </div>
@@ -1158,7 +1090,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   <span className="fs-tiny font-black text-violet-300 uppercase tracking-wider">Actividad</span>
                 </div>
                 {lastRunStats ? (
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <div className="bg-neutral-900/60 rounded-lg px-2 py-1.5">
                       <div className="flex items-center justify-between">
                         <span className="fs-tiny text-neutral-400">Última run</span>
@@ -1196,12 +1128,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       <span className="fs-small font-black text-neutral-300 uppercase tracking-wider">{cat.label}</span>
                     </div>
                     {catGuides.length > 0 ? (
-                      <div className="space-y-1.5">
+                      <div className="space-y-2">
                         {catGuides.map(g => {
-                          const gc = GUIDE_COLORS[g.color] || GUIDE_COLORS.indigo;
+                          const gc = getGuideColorClasses(g.color);
                           return (
-                            <button key={g.id} onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')} className={`w-full flex items-center gap-2.5 rounded-xl py-2 px-2.5 text-left transition-all bg-neutral-950/60 ${gc.border} hover:bg-neutral-800 ${gc.borderHover} group`}>
-                              <div className={`w-10 h-10 shrink-0 poke-aura poke-glow-${g.color}`}>
+                            <button key={g.id} onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')} className={`w-full flex items-center gap-3 rounded-xl py-2.5 px-3 text-left transition-all bg-neutral-950/60 ${gc.border} hover:bg-neutral-800 ${gc.borderHover} group`}>
+                              <div className={`w-10 h-10 shrink-0 poke-aura ${getGuidePokeGlow(g.color)}`}>
                                 <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
                               </div>
                               <div className="flex-1 min-w-0">
@@ -1214,8 +1146,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                         })}
                       </div>
                     ) : cat.id === 'guides' ? (
-                      <div className="space-y-1.5">
-                        <a href="https://docs.google.com/document/d/1GkgTlrZwm2jUO_aD_U9Gha8CaljwRQaMLMMJfpsr4Bc/edit?tab=t.kd1fquq7r0zb" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 bg-neutral-950/60 border border-neutral-800 hover:border-blue-500/40 rounded-xl py-2 px-2.5 transition-all group">
+                      <div className="space-y-2">
+                        <a href="https://docs.google.com/document/d/1GkgTlrZwm2jUO_aD_U9Gha8CaljwRQaMLMMJfpsr4Bc/edit?tab=t.kd1fquq7r0zb" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-neutral-950/60 border border-neutral-800 hover:border-blue-500/40 rounded-xl py-2 px-3 transition-all group">
                           <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
                             <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-blue-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z"/></svg>
                           </div>
@@ -1224,7 +1156,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                             <span className="fs-tiny text-neutral-500 block">Documentos</span>
                           </div>
                         </a>
-                        <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 bg-neutral-950/60 border border-neutral-800 hover:border-red-500/40 rounded-xl py-2 px-2.5 transition-all group">
+                        <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-neutral-950/60 border border-neutral-800 hover:border-red-500/40 rounded-xl py-2 px-3 transition-all group">
                           <div className="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center shrink-0">
                             <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-red-400"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                           </div>
@@ -1233,7 +1165,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                             <span className="fs-tiny text-neutral-500 block">YouTube</span>
                           </div>
                         </a>
-                        <a href="https://www.youtube.com/watch?v=QEwUZKASfeI" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 bg-neutral-950/60 border border-neutral-800 hover:border-amber-500/40 rounded-xl py-2 px-2.5 transition-all group">
+                        <a href="https://www.youtube.com/watch?v=QEwUZKASfeI" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-neutral-950/60 border border-neutral-800 hover:border-amber-500/40 rounded-xl py-2 px-3 transition-all group">
                           <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center shrink-0">
                             <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-amber-400"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                           </div>
@@ -1257,43 +1189,22 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             <p className="fs-small text-neutral-500 text-center">{description}</p>
           </>)}
 
-          <div className="reveal-2 w-full grid grid-cols-3 gap-1.5 md:gap-2 text-center">
-            {selectedGuideId !== 'none' ? (() => {
-              const guide = getGuide(selectedGuideId);
-              const gymCount = steps.filter(s => s.type === "gym").length;
-              return (
-                <>
-                  <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
-                    <div className="fs-tiny md:fs-body font-black text-white">{selectedGuideId === 'hooh' ? steps.length : gymCount || totalGyms}</div>
-                    <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">{selectedGuideId === 'hooh' ? 'Turnos' : 'Gimnasios'}</div>
-                  </div>
-                  <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
-                    <div className="fs-tiny md:fs-body font-black text-indigo-400">{steps.length}</div>
-                    <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Pasos</div>
-                  </div>
-                  <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
-                    <div className="fs-tiny md:fs-body font-black text-amber-400">{bestRun ? formatTime(bestRun.elapsed) : '--:--'}</div>
-                    <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Mejor Tiempo</div>
-                  </div>
-                </>
-              );
-            })() : (
-              <>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
-                  <div className="fs-tiny md:fs-body font-black text-white">{GUIDES.length}</div>
+          {selectedGuideId === 'none' && (
+          <div className="reveal-2 w-full grid grid-cols-3 gap-2 text-center mb-4">
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-2 px-2">
+                  <div className="fs-small font-black text-white">{GUIDES.length}</div>
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Guías Disp.</div>
                 </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
-                  <div className="fs-tiny md:fs-body font-black text-neutral-400">{totalGyms}</div>
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-2 px-2">
+                  <div className="fs-small font-black text-neutral-400">{totalGyms}</div>
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Gyms por Guía</div>
                 </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-1 px-1.5 md:py-1.5 md:px-2">
-                  <div className="fs-tiny md:fs-body font-black text-neutral-400">{steps.length}</div>
+                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-2 px-2">
+                  <div className="fs-small font-black text-neutral-400">{steps.length}</div>
                   <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Pasos por Guía</div>
                 </div>
-              </>
-            )}
           </div>
+          )}
 
           {lastRunStats && selectedGuideId !== 'none' && (
             <div className="reveal-3 w-full bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border border-indigo-500/30 rounded-2xl p-3 md:p-4">
@@ -1354,7 +1265,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
           {selectedGuideId !== 'none' && (currentStepIndex >= 0 ? (
             <div className="reveal-4 w-full space-y-2">
-              <div className="w-full bg-amber-950/20 border border-amber-700/40 rounded-xl p-3 flex items-start gap-2.5">
+              <div className="w-full bg-amber-950/20 border border-amber-700/40 rounded-xl p-3 flex items-start gap-3">
                 <div className="w-8 h-8 rounded-lg bg-amber-900/40 border border-amber-700/30 flex items-center justify-center shrink-0 mt-0.5">
                   <Info className="w-4 h-4 text-amber-400" />
                 </div>
@@ -1402,7 +1313,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
           <div className="reveal-6 w-full border-t border-neutral-800/40 pt-2 flex items-center justify-center gap-4 text-neutral-500">
             <div className="relative group/btn">
-              <button onClick={() => setShowHistory(true)} className="flex items-center gap-1.5 hover:text-white transition-colors">
+              <button onClick={() => setShowHistory(true)} className="flex items-center gap-2 hover:text-white transition-colors">
                 <History className="w-3.5 h-3.5 text-neutral-500" />
                 <span className="fs-tiny font-semibold">Historial</span>
               </button>
@@ -1411,15 +1322,15 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </div>
             </div>
             <span className="text-neutral-700">·</span>
-            <a href="https://www.instagram.com/dreasy__/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-white transition-colors">
+            <a href="https://www.instagram.com/dreasy__/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white transition-colors">
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-pink-400"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
               <span className="fs-tiny font-semibold">Dreasy__</span>
             </a>
-            <a href="https://github.com/AndresEA2605" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-white transition-colors">
+            <a href="https://github.com/AndresEA2605" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white transition-colors">
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-neutral-300"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.305-5.466-1.335-5.466-5.942 0-1.312.468-2.383 1.236-3.223-.124-.303-.536-1.523.117-3.176 0 0 1.008-.322 3.301 1.23a11.52 11.52 0 0 1 3.005-.404c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.655 1.653.243 2.873.12 3.176.77.84 1.235 1.911 1.235 3.223 0 4.61-2.804 5.634-5.475 5.93.43.372.823 1.102.823 2.222 0 1.606-.015 2.898-.015 3.293 0 .322.216.694.825.576C20.565 22.092 24 17.596 24 12.297c0-6.627-5.373-12-12-12"/></svg>
               <span className="fs-tiny font-semibold">Dreasy</span>
             </a>
-            <a href="https://open.spotify.com/intl-es/artist/728Rey8DKDMb40oWhQkzQz?si=L-P1GPu0Ti2AX3LR3xCPWQ" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-white transition-colors">
+            <a href="https://open.spotify.com/intl-es/artist/728Rey8DKDMb40oWhQkzQz?si=L-P1GPu0Ti2AX3LR3xCPWQ" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white transition-colors">
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-emerald-400"><path d="M12 0a12 12 0 1 0 12 12A12 12 0 0 0 12 0Zm5.33 17.1a.76.76 0 0 1-1.03.25c-2.82-1.73-6.37-2.12-10.54-1.16a.76.76 0 0 1-.95-.47.76.76 0 0 1 .47-.95c4.46-1.03 8.38-.62 11.56 1.34a.76.76 0 0 1 .25 1.03Zm1.47-3.28a.95.95 0 0 1-1.3.31c-3.22-1.98-8.14-2.56-11.95-1.39a.95.95 0 0 1-1.15-.72.95.95 0 0 1 .72-1.15c4.25-1.25 9.69-.64 13.48 1.58a.95.95 0 0 1 .31 1.3Zm.13-3.41c-3.86-2.29-10.24-2.5-13.93-1.39a1.14 1.14 0 0 1-1.46-.83 1.14 1.14 0 0 1 .83-1.46c4.09-1.24 11.55-.99 16.1 1.58a1.14 1.14 0 0 1-.54 2.12Z"/></svg>
               <span className="fs-tiny font-semibold">Spotify</span>
             </a>
@@ -1455,54 +1366,54 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 {selectedGuideId === "hooh" ? (
                   <>
                     <div className="bg-neutral-950 border border-indigo-500/20 rounded-xl p-3">
-                      <div className="flex items-center gap-2.5 mb-2">
+                      <div className="flex items-center gap-3 mb-2">
                         <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Chandelure}.gif`} alt="Chandelure" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                         <div>
                           <div className="font-black fs-small text-indigo-300">Chandelure</div>
                           <div className="fs-tiny text-neutral-500">Absor. Fuego · Modesta · Hechizo</div>
                         </div>
                       </div>
-                      <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 58 SpD / 200 Spe</div>
+                      <div className="fs-tiny text-neutral-400 mb-2">EVs: 252 SpA / 58 SpD / 200 Spe</div>
                       <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 25 PS / - Atk / 25 Def / 31 SpA / 25 SpD / 31 Spe</div>
-                      <div className="grid grid-cols-2 gap-0.5">
+                      <div className="grid grid-cols-2 gap-1">
                         {['Velo Sagrado','Protección','Más Psique','Bola Sombra'].map(m => <span key={m} className="fs-tiny bg-indigo-950/50 border border-indigo-800/30 px-1.5 py-0.5 rounded text-indigo-300">{m}</span>)}
                       </div>
                     </div>
 
                     <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-3">
-                      <div className="flex items-center gap-2.5 mb-2">
+                      <div className="flex items-center gap-3 mb-2">
                         <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Rotom}.gif`} alt="Rotom" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                         <div>
                           <div className="font-black fs-small text-orange-300">Rotom (Horno)</div>
                           <div className="fs-tiny text-neutral-500">Levitación · Mansa · Arena Fina</div>
                         </div>
                       </div>
-                      <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 6 PS / 252 SpA / 252 SpD</div>
+                      <div className="fs-tiny text-neutral-400 mb-2">EVs: 6 PS / 252 SpA / 252 SpD</div>
                       <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 25 PS / - Atk / 25 Def / 31 SpA / 25 SpD / - Spe</div>
-                      <div className="grid grid-cols-2 gap-0.5">
-                        {['Maquinación','Poder Oculto (Tierra)','Rayo','Pantalla de Luz'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-1.5 py-0.5 rounded text-orange-300">{m}</span>)}
+                      <div className="grid grid-cols-2 gap-1">
+                        {['Maquinación','Poder Oculto (Tierra)','Rayo','Pantalla de Luz'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-2 py-1 rounded text-orange-300">{m}</span>)}
                       </div>
                     </div>
 
                     <div className="bg-neutral-950 border border-sky-500/20 rounded-xl p-3">
-                      <div className="flex items-center gap-2.5 mb-2">
+                      <div className="flex items-center gap-3 mb-2">
                         <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Lunatone}.gif`} alt="Lunatone" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                         <div>
                           <div className="font-black fs-small text-sky-300">Lunatone</div>
                           <div className="fs-tiny text-neutral-500">Levitación · Mansa · Piedra Dura</div>
                         </div>
                       </div>
-                      <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 96 PS / 252 SpA / 166 SpD</div>
+                      <div className="fs-tiny text-neutral-400 mb-2">EVs: 96 PS / 252 SpA / 166 SpD</div>
                       <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 25 PS / - Atk / 25 Def / 31 SpA / 25 SpD / 0 Spe</div>
-                      <div className="grid grid-cols-2 gap-0.5">
-                        {['Espacio Raro','Protección','Más Psique','Joya de Luz'].map(m => <span key={m} className="fs-tiny bg-sky-950/50 border border-sky-800/30 px-1.5 py-0.5 rounded text-sky-300">{m}</span>)}
+                      <div className="grid grid-cols-2 gap-1">
+                        {['Espacio Raro','Protección','Más Psique','Joya de Luz'].map(m => <span key={m} className="fs-tiny bg-sky-950/50 border border-sky-800/30 px-2 py-1 rounded text-sky-300">{m}</span>)}
                       </div>
                     </div>
                   </>
                 ) : selectedGuideId === "guide2" ? (
                 <>
                 <div className="bg-neutral-950 border border-teal-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Togekiss}.gif`} alt="Togekiss" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-teal-300">Togekiss</div>
@@ -1510,12 +1421,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 4 Def / 252 SpA / 252 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Hyper Voice','Vuelo','Aire Corte'].map(m => <span key={m} className="fs-tiny bg-teal-950/50 border border-teal-800/30 px-1.5 py-0.5 rounded text-teal-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Hyper Voice','Vuelo','Aire Corte'].map(m => <span key={m} className="fs-tiny bg-teal-950/50 border border-teal-800/30 px-2 py-1 rounded text-teal-300">{m}</span>)}
                   </div>
                 </div>
                 <div className="bg-neutral-950 border border-amber-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Excadrill}.gif`} alt="Excadrill" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-amber-300">Excadrill</div>
@@ -1523,12 +1434,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 Atk / 4 Def / 252 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Terremoto','Avalancha','Ayuda'].map(m => <span key={m} className="fs-tiny bg-amber-950/50 border border-amber-800/30 px-1.5 py-0.5 rounded text-amber-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Terremoto','Avalancha','Ayuda'].map(m => <span key={m} className="fs-tiny bg-amber-950/50 border border-amber-800/30 px-2 py-1 rounded text-amber-300">{m}</span>)}
                   </div>
                 </div>
                 <div className="bg-neutral-950 border border-blue-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Blastoise}.gif`} alt="Blastoise" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-blue-300">Blastoise</div>
@@ -1537,12 +1448,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 4 HP / 252 Spe</div>
                   <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 0 Atk</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Chorro de Agua','Surf','Ventisca','Pulso Oscuro'].map(m => <span key={m} className="fs-tiny bg-blue-950/50 border border-blue-800/30 px-1.5 py-0.5 rounded text-blue-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Chorro de Agua','Surf','Ventisca','Pulso Oscuro'].map(m => <span key={m} className="fs-tiny bg-blue-950/50 border border-blue-800/30 px-2 py-1 rounded text-blue-300">{m}</span>)}
                   </div>
                 </div>
                 <div className="bg-neutral-950 border border-cyan-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Vanilluxe}.gif`} alt="Vanilluxe" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-cyan-300">Vanilluxe</div>
@@ -1551,12 +1462,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 4 Def / 252 Spe</div>
                   <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 0 Atk</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Ventisca','Viento Hielo','Rayo Hielo'].map(m => <span key={m} className="fs-tiny bg-cyan-950/50 border border-cyan-800/30 px-1.5 py-0.5 rounded text-cyan-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Ventisca','Viento Hielo','Rayo Hielo'].map(m => <span key={m} className="fs-tiny bg-cyan-950/50 border border-cyan-800/30 px-2 py-1 rounded text-cyan-300">{m}</span>)}
                   </div>
                 </div>
                 <div className="bg-neutral-950 border border-purple-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Aerodactyl}.gif`} alt="Aerodactyl" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-purple-300">Aerodactyl</div>
@@ -1564,12 +1475,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 Atk / 4 Def / 252 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Avalancha','Día Soleado','Protección'].map(m => <span key={m} className="fs-tiny bg-purple-950/50 border border-purple-800/30 px-1.5 py-0.5 rounded text-purple-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Avalancha','Día Soleado','Protección'].map(m => <span key={m} className="fs-tiny bg-purple-950/50 border border-purple-800/30 px-2 py-1 rounded text-purple-300">{m}</span>)}
                   </div>
                 </div>
                 <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Typhlosion}.gif`} alt="Typhlosion" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-orange-300">Typhlosion</div>
@@ -1577,13 +1488,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 4 HP / 252 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Estallido','Ayuda','Corte'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-1.5 py-0.5 rounded text-orange-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Estallido','Ayuda','Corte'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-2 py-1 rounded text-orange-300">{m}</span>)}
                   </div>
                 </div>
                 </>) : (
                 <><div className="bg-neutral-950 border border-indigo-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Hydreigon}.gif`} alt="Hydreigon" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-indigo-300">HI — Hydreigon</div>
@@ -1591,13 +1502,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 6 HP / 252 SpA / 40 SpD / 252 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Surf','Día Soleado','Danza Lluvia','Viento Afín'].map(m => <span key={m} className="fs-tiny bg-indigo-950/50 border border-indigo-800/30 px-1.5 py-0.5 rounded text-indigo-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Surf','Día Soleado','Danza Lluvia','Viento Afín'].map(m => <span key={m} className="fs-tiny bg-indigo-950/50 border border-indigo-800/30 px-2 py-1 rounded text-indigo-300">{m}</span>)}
                   </div>
                 </div>
 
                 <div className="bg-neutral-950 border border-cyan-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Weezing}.gif`} alt="Weezing" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-cyan-300">WW — Weezing</div>
@@ -1605,13 +1516,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 Atk / 6 SpD / 252 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Explosión','Buena Baza','Incinerar','Día Soleado'].map(m => <span key={m} className="fs-tiny bg-cyan-950/50 border border-cyan-800/30 px-1.5 py-0.5 rounded text-cyan-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Explosión','Buena Baza','Incinerar','Día Soleado'].map(m => <span key={m} className="fs-tiny bg-cyan-950/50 border border-cyan-800/30 px-2 py-1 rounded text-cyan-300">{m}</span>)}
                   </div>
                 </div>
 
                 <div className="bg-neutral-950 border border-sky-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Togekiss}.gif`} alt="Togekiss" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-sky-300">TO — Togekiss</div>
@@ -1619,13 +1530,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 6 SpD / 252 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Vozarrón','Psicocarga','Señal Luminosa','Psíquico'].map(m => <span key={m} className="fs-tiny bg-sky-950/50 border border-sky-800/30 px-1.5 py-0.5 rounded text-sky-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Vozarrón','Psicocarga','Señal Luminosa','Psíquico'].map(m => <span key={m} className="fs-tiny bg-sky-950/50 border border-sky-800/30 px-2 py-1 rounded text-sky-300">{m}</span>)}
                   </div>
                 </div>
 
                 <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Typhlosion}.gif`} alt="Typhlosion" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-orange-300">TY — Typhlosion</div>
@@ -1633,13 +1544,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 6 SpD / 252 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Estallido','Rapidez','Corte','Refuerzo'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-1.5 py-0.5 rounded text-orange-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Estallido','Rapidez','Corte','Refuerzo'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-2 py-1 rounded text-orange-300">{m}</span>)}
                   </div>
                 </div>
 
                 <div className="bg-neutral-950 border border-violet-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Vanilluxe}.gif`} alt="Vanilluxe" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-violet-300">Vanilluxe @ Pañuelo Elegido</div>
@@ -1647,13 +1558,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 10 HP / 252 SpA / 248 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Ventisca','Vozarrón','Hidropulso','Foco Resplandor'].map(m => <span key={m} className="fs-tiny bg-violet-950/50 border border-violet-800/30 px-1.5 py-0.5 rounded text-violet-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Ventisca','Vozarrón','Hidropulso','Foco Resplandor'].map(m => <span key={m} className="fs-tiny bg-violet-950/50 border border-violet-800/30 px-2 py-1 rounded text-violet-300">{m}</span>)}
                   </div>
                 </div>
 
                 <div className="bg-neutral-950 border border-blue-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Blastoise}.gif`} alt="Blastoise" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-blue-300">BW — Blastoise</div>
@@ -1661,8 +1572,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 6 SpD / 252 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Salpicar','Refuerzo','Ventisca'].map(m => <span key={m} className="fs-tiny bg-blue-950/50 border border-blue-800/30 px-1.5 py-0.5 rounded text-blue-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Salpicar','Refuerzo','Ventisca'].map(m => <span key={m} className="fs-tiny bg-blue-950/50 border border-blue-800/30 px-2 py-1 rounded text-blue-300">{m}</span>)}
                   </div>
                 </div>
                 </>)}
@@ -1756,7 +1667,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 Empezar cero
               </button>
             </div>
-            <button onClick={() => setShowActiveSessionModal(false)} className="w-full mt-2 py-1.5 text-neutral-500 hover:text-white fs-tiny font-bold transition-colors">
+            <button onClick={() => setShowActiveSessionModal(false)} className="w-full mt-2 py-2 text-neutral-500 hover:text-white fs-tiny font-bold transition-colors">
               Cancelar
             </button>
           </div>
@@ -1772,41 +1683,42 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     <div className={`app-enter ${appExiting ? "app-exit" : ""} flex bg-neutral-950 text-neutral-200 overflow-hidden font-sans relative`} style={{ height: '100dvh' }}>
       <PokeBackground />
       
-      <main className={`flex-1 flex flex-col h-full relative z-10 overflow-y-auto overflow-x-hidden ${currentStepIndex === -1 ? 'pb-0' : 'pb-28 md:pb-20'}`}>
+      <main className={`flex-1 flex flex-col h-full relative z-10 overflow-y-auto overflow-x-hidden ${currentStepIndex === -1 ? "pb-0" : selectedGuideId === "hooh" ? "pb-[var(--footer-hooh-height)]" : "pb-[var(--footer-routes-height)]"}`}>
         {guideLoading && (
           <div className="absolute inset-0 z-50 bg-neutral-950/90 backdrop-blur-sm flex items-center justify-center">
             <LoadingSpinner size="lg" text="Cargando guía..." />
           </div>
         )}
         
-        {currentStepIndex !== -1 && (<>
-          <button onClick={handlePrev} disabled={selectedGuideId === 'hooh' ? currentStepIndex <= 0 : currentGymIndex <= 0} title="Anterior" className="sm:hidden fixed left-1.5 top-1/2 -translate-y-1/2 z-40 p-2 bg-neutral-900/70 backdrop-blur-sm rounded-full border border-neutral-700/50 hover:bg-neutral-800 disabled:opacity-20 disabled:pointer-events-none text-neutral-400 transition-all shadow-lg">
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button onClick={handleNext} disabled={selectedGuideId === 'hooh' ? currentStepIndex === steps.length - 1 : currentGymIndex === gymGroupCount - 1} title="Siguiente" className="sm:hidden fixed right-1.5 top-1/2 -translate-y-1/2 z-40 p-2 bg-indigo-600/70 backdrop-blur-sm rounded-full border border-indigo-500/30 hover:bg-indigo-500 disabled:opacity-20 disabled:pointer-events-none text-white transition-all shadow-lg shadow-indigo-500/20">
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </>)}
-        
-        <header className="flex items-center justify-between p-2.5 md:p-4 border-b border-neutral-800 bg-neutral-900/50">
-          <div className="flex items-center gap-3">
-            <button onClick={() => goToMenu()} title="Volver al menú principal" className="fs-small font-bold tracking-widest text-neutral-400 uppercase hover:text-white transition-colors">Ruta Gym</button>
-            <div className="w-px h-4 bg-neutral-700" />
-            <div className="fs-small text-neutral-500">{currentStepIndex === -1 ? "Portada" : selectedGuideId === 'hooh' ? <>Paso <span className="font-bold text-neutral-300">{currentStepIndex + 1}</span> / {steps.length}</> : <><span className="font-bold text-neutral-300">{currentGymIndex + 1}</span> / {gymGroupCount} gimnasios</>}</div>
-            <button onClick={() => goToMenu()} title="Volver al menú principal" className="px-2 py-1 bg-neutral-800 text-neutral-400 rounded hover:bg-neutral-700 fs-tiny font-bold uppercase tracking-wider">Menú</button>
+        <header className="flex items-center justify-between gap-3 p-3 md:p-4 border-b border-neutral-800 bg-neutral-900/50">
+          <div className="flex min-w-0 items-center gap-3">
+            <button onClick={() => goToMenu()} title="Volver al menú principal" className="fs-small font-bold tracking-wide text-neutral-400 uppercase hover:text-white transition-colors truncate">
+              {getGuide(selectedGuideId)?.title ?? "Guía"}
+            </button>
+            <div className="w-px h-4 bg-neutral-700 shrink-0" />
+            <div className="fs-small text-neutral-500 truncate">
+              {currentStepIndex === -1
+                ? "Portada"
+                : selectedGuideId === "hooh"
+                ? <>Paso <span className="font-bold text-neutral-300">{currentStepIndex + 1}</span> / {steps.length}</>
+                : <><span className="font-bold text-neutral-300">{currentGymIndex + 1}</span> / {gymGroupCount} gimnasios</>}
+            </div>
           </div>
+          <button onClick={() => goToMenu()} title="Volver al menú principal" className="shrink-0 px-3 py-2 bg-neutral-800 text-neutral-400 rounded-lg hover:bg-neutral-700 fs-tiny font-bold uppercase tracking-wider">
+            Menú
+          </button>
         </header>
 
         {currentStepIndex !== -1 && (selectedGuideId === 'hooh' ? (
           <div className="w-full px-2 md:px-4 py-2">
-            <div className="mb-2 flex items-center justify-between gap-3 text-[11px] md:text-sm font-bold uppercase tracking-[0.18em] text-neutral-400">
+            <div className="mb-2 flex items-center justify-between gap-3 fs-tiny md:fs-small font-bold uppercase tracking-wider text-neutral-400">
               <span className="text-indigo-300">Paso {currentStepIndex + 1}</span>
               <span className="truncate text-white">{currentStep?.title || steps[currentStepIndex]?.title || `Paso ${currentStepIndex + 1}`}</span>
               <span className="text-neutral-500">{currentStepIndex + 1}/{steps.length}</span>
             </div>
             <div
               ref={stepNavRef}
-              className="flex-none overflow-x-auto px-2 py-1.5 md:px-4 md:py-2 border-b border-neutral-800/50 bg-neutral-950/40 scrollbar-thin scroll-smooth"
+              className="flex-none overflow-x-auto px-2 py-2 md:px-4 md:py-2 border-b border-neutral-800/50 bg-neutral-950/40 scrollbar-thin scroll-smooth"
               style={{ WebkitOverflowScrolling: 'touch' }}
               onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY * 1.5; }}
             >
@@ -1817,7 +1729,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     ref={(el) => { stepButtonRefs.current[idx] = el; }}
                     onClick={() => setCurrentStepIndex(idx)}
                     title={`Ir al paso ${idx + 1}: ${step.title || step.type}`}
-                    className={`flex items-center gap-1 px-2 py-1 md:px-2.5 md:py-1.5 rounded-lg fs-tiny font-bold whitespace-nowrap transition-all ${
+                    className={`flex items-center gap-2 px-2 py-2 md:px-3 md:py-2 rounded-lg fs-tiny font-bold whitespace-nowrap transition-all ${
                       idx === currentStepIndex
                         ? "bg-indigo-600 text-white shadow-[0_0_12px_rgba(99,102,241,0.4)]"
                         : idx < currentStepIndex
@@ -1835,20 +1747,14 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           </div>
         ) : currentGymGroup && (
           <div className="w-full px-2 md:px-4 py-2">
-            <div className="mb-2 flex items-center gap-2 text-[11px] md:text-sm font-bold uppercase tracking-[0.18em] text-neutral-400">
-              <button onClick={handlePrev} disabled={currentGymIndex <= 0} title="Gimnasio anterior" className="p-1 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400 shrink-0">
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
+            <div className="mb-2 flex items-center gap-2 fs-tiny md:fs-small font-bold uppercase tracking-wider text-neutral-400">
               <span className="text-indigo-300 shrink-0">Gimnasio {currentGymIndex + 1}</span>
               <span className="truncate text-white">{currentGymGroup.gymStep.title}</span>
-              <span className="text-neutral-500 shrink-0">{currentGymIndex + 1}/{gymGroupCount}</span>
-              <button onClick={handleNext} disabled={currentGymIndex >= gymGroupCount - 1} title="Siguiente gimnasio" className="p-1 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shrink-0 shadow-sm shadow-indigo-500/20">
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
+              <span className="text-neutral-500 shrink-0 ml-auto">{currentGymIndex + 1}/{gymGroupCount}</span>
             </div>
             <div
               ref={stepNavRef}
-              className="flex-none overflow-x-auto px-2 py-1.5 md:px-4 md:py-2 border-b border-neutral-800/50 bg-neutral-950/40 scrollbar-thin scroll-smooth"
+              className="flex-none overflow-x-auto px-2 py-2 md:px-4 md:py-2 border-b border-neutral-800/50 bg-neutral-950/40 scrollbar-thin scroll-smooth"
               style={{ WebkitOverflowScrolling: 'touch' }}
               onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY * 1.5; }}
             >
@@ -1859,7 +1765,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     ref={(el) => { stepButtonRefs.current[idx] = el; }}
                     onClick={() => setCurrentStepIndex(steps.indexOf(group.gymStep))}
                     title={`Ir al gimnasio ${idx + 1}: ${group.gymStep.title}`}
-                    className={`flex items-center gap-1 px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg fs-tiny font-bold whitespace-nowrap transition-all ${
+                    className={`flex items-center gap-2 px-3 py-2 md:px-3 md:py-2 rounded-lg fs-tiny font-bold whitespace-nowrap transition-all ${
                       idx === currentGymIndex
                         ? "bg-indigo-600 text-white shadow-[0_0_12px_rgba(99,102,241,0.4)]"
                         : idx < currentGymIndex
@@ -1869,7 +1775,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   >
                     <span className="tabular-nums w-4 md:w-5 text-center text-[10px] md:text-xs font-black">{idx + 1}</span>
                     {group.region !== (idx > 0 ? gymGroups[idx - 1].region : '') && (
-                      <span className="ml-1 px-1.5 py-0.5 rounded fs-[9px] md:fs-tiny font-bold uppercase tracking-wider bg-neutral-950 text-neutral-500 border border-neutral-700/60">{group.region}</span>
+                      <span className="ml-1 px-2 py-1 rounded fs-[9px] md:fs-tiny font-bold uppercase tracking-wider bg-neutral-950 text-neutral-500 border border-neutral-700/60">{group.region}</span>
                     )}
                   </button>
                 ))}
@@ -1877,7 +1783,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             </div>
           </div>
         ))}
-        <div className="flex-1 flex flex-col items-center justify-center p-1.5 md:p-8 lg:p-12 overflow-y-auto overflow-x-hidden">
+        <div className="flex-1 flex flex-col items-center justify-center p-2 md:p-8 lg:p-12 overflow-y-auto overflow-x-hidden">
           <div key={slideKey} className={`w-full max-w-6xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-2 md:p-5 lg:p-8 shadow-2xl relative text-center smooth-transition ${slideClass}`}>
             
             <div className="absolute -top-6 -right-6 w-24 h-24 opacity-[0.04] pointer-events-none select-none">
@@ -1931,11 +1837,11 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   
                   {steps[0] && (
                     <div className="w-full bg-neutral-950 rounded-xl border border-neutral-800 p-2 md:p-3 mt-1">
-                      <div className="fs-tiny md:fs-small text-neutral-500 uppercase font-bold tracking-widest mb-0.5 md:mb-1">{selectedGuideId === "hooh" ? "Primer turno" : "Primer gimnasio"}</div>
-                      <div className="flex items-center justify-center gap-1.5 md:gap-2">
-                        <span className="p-1 md:p-1.5 bg-neutral-900 rounded-lg">{renderIcon(steps[0].type)}</span>
+                      <div className="fs-tiny md:fs-small text-neutral-500 uppercase font-bold tracking-widest mb-1 md:mb-1">{selectedGuideId === "hooh" ? "Primer turno" : "Primer gimnasio"}</div>
+                      <div className="flex items-center justify-center gap-2 md:gap-2">
+                        <span className="p-2 md:p-2 bg-neutral-900 rounded-lg">{renderIcon(steps[0].type)}</span>
                         <span className="fs-h3 font-black text-white">{steps[0].title}</span>
-                        {steps[0].region && <span className="fs-small font-bold uppercase tracking-widest px-2 py-0.5 rounded border bg-neutral-900 text-neutral-400 border-neutral-800">{steps[0].region}</span>}
+                        {steps[0].region && <span className="fs-small font-bold uppercase tracking-widest px-2 py-1 rounded border bg-neutral-900 text-neutral-400 border-neutral-800">{steps[0].region}</span>}
                       </div>
                       {steps[0].type === "gym" && steps[0].gym && gymCoords[steps[0].gym as keyof typeof gymCoords] && (
                         <div className="w-full max-w-[160px] h-20 md:max-w-[180px] md:h-24 mx-auto mt-1 md:mt-2 relative rounded-lg border border-neutral-700/50 overflow-hidden bg-neutral-950 shadow-inner group">
@@ -1946,15 +1852,15 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       )}
                     </div>
                   )}
-                  <button onClick={() => { setStartChecks([false, false, false]); setShowStartCheck(true); }} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white fs-h3 md:fs-hero2 font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)]">
-                    ▶ COMENZAR RUTA
+                  <button onClick={() => { setStartChecks([false, false, false]); setShowStartCheck(true); }} className="w-full h-12 bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-xl transition-all shadow-lg shadow-indigo-900/30">
+                    ▶ Comenzar ruta
                   </button>
                 </>
               ) : selectedGuideId === 'hooh' ? (<>
-                <div className="reveal-1 flex flex-col sm:flex-row items-center justify-center gap-1.5 md:gap-3 w-full">
-                  <span className="p-1.5 md:p-3 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon(currentStep!.type)}</span>
+                <div className="reveal-1 flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-3 w-full">
+                  <span className="p-2 md:p-3 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon(currentStep!.type)}</span>
                   <h2 className="fs-h3 font-black tracking-tight text-white">{currentStep!.title}</h2>
-                  {currentStep!.region && <span className="fs-tiny md:fs-small font-bold uppercase tracking-widest px-1.5 md:px-2 py-0.5 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentStep!.region}</span>}
+                  {currentStep!.region && <span className="fs-tiny md:fs-small font-bold uppercase tracking-widest px-2 md:px-2 py-1 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentStep!.region}</span>}
                 </div>
 
               {currentStep!.type === "gym" && currentStep!.gym && gymCoords[currentStep!.gym as keyof typeof gymCoords] && (
@@ -1973,10 +1879,10 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             )}
             </>) : currentGymGroup && (
               <>
-                <div className="reveal-1 flex flex-col sm:flex-row items-center justify-center gap-1.5 md:gap-3 w-full">
-                  <span className="p-1.5 md:p-3 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon("gym")}</span>
+                <div className="reveal-1 flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-3 w-full">
+                  <span className="p-2 md:p-3 bg-neutral-950 rounded-xl border border-neutral-800 shrink-0">{renderIcon("gym")}</span>
                   <h2 className="fs-h3 font-black tracking-tight text-white">{currentGymGroup.gymStep.title}</h2>
-                  <span className="fs-tiny md:fs-small font-bold uppercase tracking-widest px-1.5 md:px-2 py-0.5 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentGymGroup.region}</span>
+                  <span className="fs-tiny md:fs-small font-bold uppercase tracking-widest px-2 md:px-2 py-1 rounded shrink-0 border bg-neutral-950 text-neutral-400 border-neutral-800">{currentGymGroup.region}</span>
                 </div>
                 {currentGymGroup.gymStep.gym && gymCoords[currentGymGroup.gymStep.gym as keyof typeof gymCoords] && (
                   <div className="reveal-2 w-full max-w-[160px] h-20 md:max-w-[200px] md:h-28 relative rounded-lg border border-neutral-700/50 overflow-hidden shrink-0 bg-neutral-950 shadow-inner group">
@@ -2261,106 +2167,53 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-violet-400/60 group-hover:text-violet-400 transition-colors shrink-0" />
             </button>
           </div>
-           <div className="w-full max-w-6xl mt-4 md:mt-5 space-y-2">
-            {selectedGuideId === 'hooh' ? (
-              <div className="flex gap-2 md:gap-4">
-                <button onClick={handlePrev} disabled={currentStepIndex <= 0} title="Paso anterior" className="flex-1 py-3 md:py-4 bg-neutral-900 rounded-xl fs-tiny md:fs-body font-bold text-neutral-400 hover:text-white hover:bg-neutral-800 disabled:opacity-20 transition-colors">← Anterior</button>
-                <button onClick={currentStepIndex === steps.length - 1 ? requestFinishRun : handleNext} title={currentStepIndex === steps.length - 1 ? "Finalizar la ruta" : "Siguiente paso"} className="flex-[2] py-3 md:py-4 bg-indigo-600 rounded-xl font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all fs-tiny md:fs-body">
-                  {currentStepIndex === steps.length - 1 ? "¡Finalizar!" : "Siguiente (Espacio) →"}
-                </button>
-              </div>
-            ) : currentGymIndex >= 0 && currentGymIndex === gymGroupCount - 1 ? (
-              <button onClick={requestFinishRun} className="w-full py-3 md:py-4 bg-red-700 hover:bg-red-600 text-white rounded-xl font-bold fs-tiny md:fs-body shadow-lg shadow-red-900/20 transition-all">Finalizar Ruta</button>
-            ) : null}
-            <div className="w-full bg-neutral-800 rounded-full h-1.5 md:h-2.5 overflow-hidden">
-              <div
-                className="progress-shimmer h-full rounded-full transition-all duration-300"
-                style={{ width: selectedGuideId === 'hooh' ? `${Math.round(((currentStepIndex + 1) / steps.length) * 100)}%` : `${Math.round(((currentGymIndex + 1) / gymGroupCount) * 100)}%` }}
-              />
-            </div>
-            <div className="text-center fs-tiny md:fs-small text-neutral-500 font-mono">
-              {currentStepIndex === -1 ? "0% completado" : selectedGuideId === 'hooh' ? `${Math.round(((currentStepIndex + 1) / steps.length) * 100)}% completado` : `Gimnasio ${currentGymIndex + 1} / ${gymGroupCount}`}
-            </div>
-          </div>
           </>)}
         </div>
       </main>
 
-      {currentStepIndex !== -1 && (
-      <div className="fixed bottom-0 left-0 right-0 z-30 bg-neutral-900/95 border-t-2 border-indigo-500/40 backdrop-blur-sm md:px-6 md:py-3" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
-        
-        {/* Mobile: scrollable single row */}
-        <div className="flex sm:hidden items-center gap-2 overflow-x-auto px-2 py-1.5 scrollbar-thin whitespace-nowrap scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
-          <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
-          <span className="text-neutral-700 shrink-0">|</span>
-          {!timerIsRunning ? (
-            <button onClick={startTimer} className="smooth-transition px-3 py-1.5 bg-indigo-600 active:scale-95 hover:bg-indigo-500 text-white rounded-lg font-bold fs-tiny flex items-center gap-1 shrink-0"><Play className="w-4 h-4 fill-current"/> Iniciar</button>
-          ) : (
-            <button onClick={pauseTimer} className="smooth-transition px-3 py-1.5 bg-amber-600 active:scale-95 hover:bg-amber-500 text-white rounded-lg font-bold fs-tiny flex items-center gap-1 shrink-0"><Pause className="w-4 h-4 fill-current"/> Pausar</button>
-          )}
-          <button onClick={requestTimerReset} className="smooth-transition px-3 py-1.5 bg-neutral-700 active:scale-95 hover:bg-neutral-600 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0"><RotateCcw className="w-4 h-4"/></button>
-          <span className="text-neutral-700 shrink-0">|</span>
-          <button onClick={() => setShowCooldownNotice(true)} className="flex items-center gap-1 shrink-0 smooth-transition px-2.5 py-1.5 bg-neutral-800 active:scale-95 hover:bg-neutral-700 text-neutral-300 rounded-lg font-bold fs-tiny">
-            <Clock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <CooldownBadge endAt={cooldown.endAt} />
-          </button>
-          <button onClick={() => requestGymCooldownStart()} className="smooth-transition px-2.5 py-1.5 bg-emerald-700 active:scale-95 hover:bg-emerald-600 text-white rounded-lg font-bold fs-tiny shrink-0">18h</button>
-          <button onClick={openCooldownEditor} className="smooth-transition px-2.5 py-1.5 bg-neutral-700 active:scale-95 hover:bg-neutral-600 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0">Ajustar</button>
-          {selectedGuideId !== 'hooh' && currentGymIndex >= 0 && (
-            <button onClick={completeGym} className="smooth-transition px-3 py-1.5 bg-emerald-600 active:scale-95 hover:bg-emerald-500 text-white rounded-lg font-bold fs-tiny shrink-0 shadow-lg shadow-emerald-900/30">✓ Completar</button>
-          )}
-          <button onClick={requestFinishRun} className="smooth-transition px-3 py-1.5 bg-red-700 active:scale-95 hover:bg-red-600 text-white rounded-lg font-bold fs-tiny shrink-0">Terminar</button>
-          <button onClick={requestRouteReset} className="smooth-transition px-3 py-1.5 bg-neutral-800 active:scale-95 hover:bg-neutral-700 text-neutral-200 rounded-lg font-bold fs-tiny shrink-0"><RotateCcw className="w-4 h-4 inline-block mr-1" />Reinic.</button>
-        </div>
-
-        {/* Desktop: normal row layout */}
-        <div className="hidden sm:flex items-center justify-center gap-4 px-6 py-3">
-          
-          <div className="flex items-center gap-1">
-            <span className="fs-tiny text-neutral-500 font-semibold">Ruta</span>
-            <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
-          </div>
-
-          <div className="flex items-center gap-0.5">
-              <button onClick={handlePrev} disabled={selectedGuideId === 'hooh' ? currentStepIndex <= 0 : currentGymIndex <= 0} title="Anterior" className="p-1.5 bg-neutral-800/80 rounded hover:bg-neutral-700 disabled:opacity-30 disabled:pointer-events-none text-neutral-400">
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button onClick={handleNext} disabled={selectedGuideId === 'hooh' ? currentStepIndex === steps.length - 1 : currentGymIndex === gymGroupCount - 1} title="Siguiente" className="p-1.5 bg-indigo-600/80 rounded hover:bg-indigo-500 disabled:opacity-30 disabled:pointer-events-none text-white shadow-md shadow-indigo-500/20">
-                <ChevronRight className="w-5 h-5" />
-              </button>
-          </div>
-
-          <div className="flex gap-1 shrink-0">
-            {!timerIsRunning ? (
-              <button onClick={startTimer} className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold fs-small flex items-center gap-1"><Play className="w-3.5 h-3.5 fill-current"/><span>Iniciar</span></button>
-            ) : (
-              <button onClick={pauseTimer} className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold fs-small flex items-center gap-1"><Pause className="w-3.5 h-3.5 fill-current"/><span>Pausar</span></button>
-            )}
-            <button onClick={requestTimerReset} className="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 rounded font-bold fs-small"><RotateCcw className="w-3.5 h-3.5"/></button>
-          </div>
-
-          <div className="h-5 w-px bg-neutral-700" />
-
-          <div className="flex items-center gap-2">
-            <button onClick={() => setShowCooldownNotice(true)} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
-              <Clock className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="fs-tiny text-neutral-500 font-semibold mr-0.5">Gyms</span>
-              <CooldownBadge endAt={cooldown.endAt} />
-            </button>
-            <div className="flex gap-1">
-              <button onClick={() => requestGymCooldownStart()} className="px-2 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded font-bold fs-tiny">18h</button>
-              <button onClick={openCooldownEditor} className="px-2 py-1 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded font-bold fs-tiny">Ajustar</button>
-              {selectedGuideId !== 'hooh' && currentGymIndex >= 0 && (
-                <button onClick={completeGym} className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold fs-small shadow-lg shadow-emerald-900/30">✓ Completar Gym</button>
-              )}
-              <button onClick={requestFinishRun} className="px-3 py-1.5 bg-red-700 hover:bg-red-600 text-white rounded font-bold fs-small">Terminar Ruta</button>
-              <button onClick={requestRouteReset} className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded font-bold fs-small"><RotateCcw className="w-3.5 h-3.5 inline-block mr-1" />Reiniciar</button>
-            </div>
-          </div>
-
-          <span className="fs-tiny text-neutral-500 font-mono">F4 · Esp</span>
-        </div>
-      </div>
+      {currentStepIndex !== -1 && selectedGuideId !== "none" && (
+        <CategoryFooter
+          guideId={selectedGuideId}
+          nav={{
+            onPrev: handlePrev,
+            onNext: handleNext,
+            onCompleteGym: completeGym,
+            onFinish: requestFinishRun,
+            onRouteReset: requestRouteReset,
+            prevDisabled: selectedGuideId === "hooh" ? currentStepIndex <= 0 : currentGymIndex <= 0,
+            nextDisabled:
+              selectedGuideId === "hooh"
+                ? currentStepIndex === steps.length - 1
+                : currentGymIndex === gymGroupCount - 1,
+            isLastStep:
+              selectedGuideId === "hooh"
+                ? currentStepIndex === steps.length - 1
+                : currentGymIndex === gymGroupCount - 1,
+            showCompleteGym: shouldShowCompleteGym(selectedGuideId) && currentGymIndex >= 0,
+            progressPercent:
+              selectedGuideId === "hooh"
+                ? Math.round(((currentStepIndex + 1) / steps.length) * 100)
+                : Math.round(((currentGymIndex + 1) / gymGroupCount) * 100),
+            progressLabel:
+              selectedGuideId === "hooh"
+                ? `${Math.round(((currentStepIndex + 1) / steps.length) * 100)}% completado · Turno ${currentStepIndex + 1}/${steps.length}`
+                : `Gimnasio ${currentGymIndex + 1} / ${gymGroupCount} · ${Math.round(((currentGymIndex + 1) / gymGroupCount) * 100)}%`,
+          }}
+          gym={{
+            timerIsRunning,
+            timerStartTime,
+            timerElapsed,
+            onStartTimer: startTimer,
+            onPauseTimer: pauseTimer,
+            onResetTimer: requestTimerReset,
+            cooldownEndAt: cooldown.endAt,
+            onShowCooldownNotice: () => setShowCooldownNotice(true),
+            onStartCooldown: () => requestGymCooldownStart(),
+            onEditCooldown: openCooldownEditor,
+            sessionGymCount,
+            totalGyms: gymGroupCount,
+          }}
+        />
       )}
 
       {toastMessage && (
@@ -2473,54 +2326,54 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 {selectedGuideId === "hooh" ? (
                   <>
                     <div className="bg-neutral-950 border border-indigo-500/20 rounded-xl p-3">
-                      <div className="flex items-center gap-2.5 mb-2">
+                      <div className="flex items-center gap-3 mb-2">
                         <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Chandelure}.gif`} alt="Chandelure" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                         <div>
                           <div className="font-black fs-small text-indigo-300">Chandelure</div>
                           <div className="fs-tiny text-neutral-500">Absor. Fuego · Modesta · Hechizo</div>
                         </div>
                       </div>
-                      <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 58 SpD / 200 Spe</div>
+                      <div className="fs-tiny text-neutral-400 mb-2">EVs: 252 SpA / 58 SpD / 200 Spe</div>
                       <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 25 PS / - Atk / 25 Def / 31 SpA / 25 SpD / 31 Spe</div>
-                      <div className="grid grid-cols-2 gap-0.5">
+                      <div className="grid grid-cols-2 gap-1">
                         {['Velo Sagrado','Protección','Más Psique','Bola Sombra'].map(m => <span key={m} className="fs-tiny bg-indigo-950/50 border border-indigo-800/30 px-1.5 py-0.5 rounded text-indigo-300">{m}</span>)}
                       </div>
                     </div>
 
                     <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-3">
-                      <div className="flex items-center gap-2.5 mb-2">
+                      <div className="flex items-center gap-3 mb-2">
                         <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Rotom}.gif`} alt="Rotom" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                         <div>
                           <div className="font-black fs-small text-orange-300">Rotom (Horno)</div>
                           <div className="fs-tiny text-neutral-500">Levitación · Mansa · Arena Fina</div>
                         </div>
                       </div>
-                      <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 6 PS / 252 SpA / 252 SpD</div>
+                      <div className="fs-tiny text-neutral-400 mb-2">EVs: 6 PS / 252 SpA / 252 SpD</div>
                       <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 25 PS / - Atk / 25 Def / 31 SpA / 25 SpD / - Spe</div>
-                      <div className="grid grid-cols-2 gap-0.5">
-                        {['Maquinación','Poder Oculto (Tierra)','Rayo','Pantalla de Luz'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-1.5 py-0.5 rounded text-orange-300">{m}</span>)}
+                      <div className="grid grid-cols-2 gap-1">
+                        {['Maquinación','Poder Oculto (Tierra)','Rayo','Pantalla de Luz'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-2 py-1 rounded text-orange-300">{m}</span>)}
                       </div>
                     </div>
 
                     <div className="bg-neutral-950 border border-sky-500/20 rounded-xl p-3">
-                      <div className="flex items-center gap-2.5 mb-2">
+                      <div className="flex items-center gap-3 mb-2">
                         <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Lunatone}.gif`} alt="Lunatone" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                         <div>
                           <div className="font-black fs-small text-sky-300">Lunatone</div>
                           <div className="fs-tiny text-neutral-500">Levitación · Mansa · Piedra Dura</div>
                         </div>
                       </div>
-                      <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 96 PS / 252 SpA / 166 SpD</div>
+                      <div className="fs-tiny text-neutral-400 mb-2">EVs: 96 PS / 252 SpA / 166 SpD</div>
                       <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 25 PS / - Atk / 25 Def / 31 SpA / 25 SpD / 0 Spe</div>
-                      <div className="grid grid-cols-2 gap-0.5">
-                        {['Espacio Raro','Protección','Más Psique','Joya de Luz'].map(m => <span key={m} className="fs-tiny bg-sky-950/50 border border-sky-800/30 px-1.5 py-0.5 rounded text-sky-300">{m}</span>)}
+                      <div className="grid grid-cols-2 gap-1">
+                        {['Espacio Raro','Protección','Más Psique','Joya de Luz'].map(m => <span key={m} className="fs-tiny bg-sky-950/50 border border-sky-800/30 px-2 py-1 rounded text-sky-300">{m}</span>)}
                       </div>
                     </div>
                   </>
                 ) : selectedGuideId === "guide2" ? (
                 <>
                 <div className="bg-neutral-950 border border-teal-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Togekiss}.gif`} alt="Togekiss" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-teal-300">Togekiss</div>
@@ -2528,12 +2381,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 4 Def / 252 SpA / 252 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Hyper Voice','Vuelo','Aire Corte'].map(m => <span key={m} className="fs-tiny bg-teal-950/50 border border-teal-800/30 px-1.5 py-0.5 rounded text-teal-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Hyper Voice','Vuelo','Aire Corte'].map(m => <span key={m} className="fs-tiny bg-teal-950/50 border border-teal-800/30 px-2 py-1 rounded text-teal-300">{m}</span>)}
                   </div>
                 </div>
                 <div className="bg-neutral-950 border border-amber-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Excadrill}.gif`} alt="Excadrill" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-amber-300">Excadrill</div>
@@ -2541,12 +2394,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 Atk / 4 Def / 252 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Terremoto','Avalancha','Ayuda'].map(m => <span key={m} className="fs-tiny bg-amber-950/50 border border-amber-800/30 px-1.5 py-0.5 rounded text-amber-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Terremoto','Avalancha','Ayuda'].map(m => <span key={m} className="fs-tiny bg-amber-950/50 border border-amber-800/30 px-2 py-1 rounded text-amber-300">{m}</span>)}
                   </div>
                 </div>
                 <div className="bg-neutral-950 border border-blue-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Blastoise}.gif`} alt="Blastoise" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-blue-300">Blastoise</div>
@@ -2555,12 +2408,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 4 HP / 252 Spe</div>
                   <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 0 Atk</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Chorro de Agua','Surf','Ventisca','Pulso Oscuro'].map(m => <span key={m} className="fs-tiny bg-blue-950/50 border border-blue-800/30 px-1.5 py-0.5 rounded text-blue-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Chorro de Agua','Surf','Ventisca','Pulso Oscuro'].map(m => <span key={m} className="fs-tiny bg-blue-950/50 border border-blue-800/30 px-2 py-1 rounded text-blue-300">{m}</span>)}
                   </div>
                 </div>
                 <div className="bg-neutral-950 border border-cyan-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Vanilluxe}.gif`} alt="Vanilluxe" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-cyan-300">Vanilluxe</div>
@@ -2569,12 +2422,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 4 Def / 252 Spe</div>
                   <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 0 Atk</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Ventisca','Viento Hielo','Rayo Hielo'].map(m => <span key={m} className="fs-tiny bg-cyan-950/50 border border-cyan-800/30 px-1.5 py-0.5 rounded text-cyan-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Ventisca','Viento Hielo','Rayo Hielo'].map(m => <span key={m} className="fs-tiny bg-cyan-950/50 border border-cyan-800/30 px-2 py-1 rounded text-cyan-300">{m}</span>)}
                   </div>
                 </div>
                 <div className="bg-neutral-950 border border-purple-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Aerodactyl}.gif`} alt="Aerodactyl" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-purple-300">Aerodactyl</div>
@@ -2582,12 +2435,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 Atk / 4 Def / 252 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Avalancha','Día Soleado','Protección'].map(m => <span key={m} className="fs-tiny bg-purple-950/50 border border-purple-800/30 px-1.5 py-0.5 rounded text-purple-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Avalancha','Día Soleado','Protección'].map(m => <span key={m} className="fs-tiny bg-purple-950/50 border border-purple-800/30 px-2 py-1 rounded text-purple-300">{m}</span>)}
                   </div>
                 </div>
                 <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Typhlosion}.gif`} alt="Typhlosion" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-orange-300">Typhlosion</div>
@@ -2595,14 +2448,14 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 4 HP / 252 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Estallido','Ayuda','Corte'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-1.5 py-0.5 rounded text-orange-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Estallido','Ayuda','Corte'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-2 py-1 rounded text-orange-300">{m}</span>)}
                   </div>
                 </div>
                 </>) : (
                 <>
                 <div className="bg-neutral-950 border border-indigo-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Hydreigon}.gif`} alt="Hydreigon" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-indigo-300">H1 — Hydreigon</div>
@@ -2611,13 +2464,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 6 HP / 212 SpA / 40 SpD / 252 Spe</div>
                   <div className="fs-tiny text-neutral-500 mb-1.5">IVs: Max 14 HP / X Atk / Max 14 Def / 31 Spa / Low Spd / 31 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Surf','Día Soleado','Danza Lluvia','Viento Afín'].map(m => <span key={m} className="fs-tiny bg-indigo-950/50 border border-indigo-800/30 px-1.5 py-0.5 rounded text-indigo-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Surf','Día Soleado','Danza Lluvia','Viento Afín'].map(m => <span key={m} className="fs-tiny bg-indigo-950/50 border border-indigo-800/30 px-2 py-1 rounded text-indigo-300">{m}</span>)}
                   </div>
                 </div>
 
                 <div className="bg-neutral-950 border border-purple-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Weezing}.gif`} alt="Weezing" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-purple-300">W1 — Weezing</div>
@@ -2626,13 +2479,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 Atk / 6 SpD / 252 Spe</div>
                   <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 31 HP / 31 Atk / High Def / X Spa / 31 Spd / 31 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Explosión','Buena Baza','Incinerar','Día Soleado'].map(m => <span key={m} className="fs-tiny bg-purple-950/50 border border-purple-800/30 px-1.5 py-0.5 rounded text-purple-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Explosión','Buena Baza','Incinerar','Día Soleado'].map(m => <span key={m} className="fs-tiny bg-purple-950/50 border border-purple-800/30 px-2 py-1 rounded text-purple-300">{m}</span>)}
                   </div>
                 </div>
 
                 <div className="bg-neutral-950 border border-sky-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Togekiss}.gif`} alt="Togekiss" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-sky-300">TO — Togekiss</div>
@@ -2641,13 +2494,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 6 SpD / 252 Spe</div>
                   <div className="fs-tiny text-neutral-500 mb-1.5">IVs: X HP / X Atk / X Def / 31 Spa / X Spd / 31 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Vozarrón','Psicocarga','Señal Luminosa','Psíquico'].map(m => <span key={m} className="fs-tiny bg-sky-950/50 border border-sky-800/30 px-1.5 py-0.5 rounded text-sky-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Vozarrón','Psicocarga','Señal Luminosa','Psíquico'].map(m => <span key={m} className="fs-tiny bg-sky-950/50 border border-sky-800/30 px-2 py-1 rounded text-sky-300">{m}</span>)}
                   </div>
                 </div>
 
                 <div className="bg-neutral-950 border border-orange-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Typhlosion}.gif`} alt="Typhlosion" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-orange-300">TY — Typhlosion</div>
@@ -2656,13 +2509,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 6 SpD / 252 Spe</div>
                   <div className="fs-tiny text-neutral-500 mb-1.5">IVs: X HP / X Atk / X Def / 31 Spa / X Spd / 31 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Estallido','Rapidez','Corte','Refuerzo'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-1.5 py-0.5 rounded text-orange-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Estallido','Rapidez','Corte','Refuerzo'].map(m => <span key={m} className="fs-tiny bg-orange-950/50 border border-orange-800/30 px-2 py-1 rounded text-orange-300">{m}</span>)}
                   </div>
                 </div>
 
                 <div className="bg-neutral-950 border border-cyan-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Vanilluxe}.gif`} alt="Vanilluxe" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-cyan-300">Vanilluxe @ Pañuelo Elegido</div>
@@ -2671,13 +2524,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 10 HP / 252 SpA / 248 Spe</div>
                   <div className="fs-tiny text-neutral-500 mb-1.5">IVs: X HP / X Atk / X Def / 31 Spa / X Spd / 31 Spe</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Ventisca','Vozarrón','Hidropulso','Foco Resplandor'].map(m => <span key={m} className="fs-tiny bg-cyan-950/50 border border-cyan-800/30 px-1.5 py-0.5 rounded text-cyan-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Ventisca','Vozarrón','Hidropulso','Foco Resplandor'].map(m => <span key={m} className="fs-tiny bg-cyan-950/50 border border-cyan-800/30 px-2 py-1 rounded text-cyan-300">{m}</span>)}
                   </div>
                 </div>
 
                 <div className="bg-neutral-950 border border-blue-500/20 rounded-xl p-3">
-                  <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center gap-3 mb-2">
                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Blastoise}.gif`} alt="Blastoise" className="w-10 h-10 object-contain poke-aura-sm poke-glow-white" loading="lazy" />
                     <div>
                       <div className="font-black fs-small text-blue-300">BW — Blastoise</div>
@@ -2686,14 +2539,14 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   </div>
                   <div className="fs-tiny text-neutral-400 mb-1.5">EVs: 252 SpA / 10 SpD / 248 Spe</div>
                   <div className="fs-tiny text-neutral-500 mb-1.5">IVs: 31 HP / 31 Spe · High Spd / 31 Spa</div>
-                  <div className="grid grid-cols-2 gap-0.5">
-                    {['Salpicar','Refuerzo','Ventisca'].map(m => <span key={m} className="fs-tiny bg-blue-950/50 border border-blue-800/30 px-1.5 py-0.5 rounded text-blue-300">{m}</span>)}
+                  <div className="grid grid-cols-2 gap-1">
+                    {['Salpicar','Refuerzo','Ventisca'].map(m => <span key={m} className="fs-tiny bg-blue-950/50 border border-blue-800/30 px-2 py-1 rounded text-blue-300">{m}</span>)}
                   </div>
                 </div>
                 </>)}
 
               </div>
-              <div className="px-5 py-2.5 bg-neutral-950 border-t border-neutral-800 fs-tiny text-neutral-600 text-center">
+              <div className="px-5 py-3 bg-neutral-950 border-t border-neutral-800 fs-tiny text-neutral-600 text-center">
                 Click fuera del modal para cerrar · Creado por Dreasy
               </div>
             </div>

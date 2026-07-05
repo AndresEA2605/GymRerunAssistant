@@ -140,7 +140,7 @@ const PokemonCard = ({ pokemon, index }: { pokemon: HoOhPokemon; index: number }
         {pokemon.moves.map((m) => (
           <span
             key={m}
-            className={`fs-tiny ${a.bg} border ${a.border} px-1.5 py-0.5 rounded ${a.text}`}
+            className={`fs-tiny ${a.bg} border ${a.border} px-2 py-1 rounded ${a.text}`}
           >
             {m}
           </span>
@@ -151,7 +151,7 @@ const PokemonCard = ({ pokemon, index }: { pokemon: HoOhPokemon; index: number }
 };
 
 const ConditionalBadges = ({ conditionals }: { conditionals: TurnConditional[] }) => (
-  <div className="flex flex-wrap gap-1.5 mt-1.5">
+  <div className="flex flex-wrap gap-2 mt-2">
     {conditionals.map((c, i) => (
       <span
         key={i}
@@ -187,7 +187,7 @@ const TurnCard = ({ turnData, index }: { turnData: HoOhTurn; index: number }) =>
           <div key={i} className="flex items-start gap-2.5">
             <span className="text-lg shrink-0 mt-0.5 w-6 text-center">{action.icon}</span>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-bold fs-small text-white">{action.pokemon}</span>
                 {action.type !== "none" && (
                   <span className="fs-tiny text-emerald-400 font-bold shrink-0">
