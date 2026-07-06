@@ -2235,8 +2235,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                                 {extra.items.map((it, i) => {
                                   const isScarf = it.item.toLowerCase().includes("panuelo") || it.item.toLowerCase().includes("pañuelo");
                                   return (
-                                    <div key={i} className={`flex flex-col items-center justify-center gap-0.5 p-1.5 rounded border text-center ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
-                                      <span className={`fs-[10px] ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{renderWithSprites(it.pokemon, " • ")}</span>
+                                    <div key={i} className={`flex flex-col items-center gap-1 p-1.5 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
+                                      <div className={`flex items-center justify-center fs-[10px] ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{renderWithSprites(it.pokemon, " • ")}</div>
                                       <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-1 py-0.5 fs-[10px] shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-1 py-0.5 fs-[10px]'} font-bold rounded uppercase tracking-wider`}>
                                         {it.item}
                                       </span>
@@ -2306,8 +2306,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       {currentStep.items.map((it, i) => {
                         const isScarf = it.item.toLowerCase().includes("panuelo") || it.item.toLowerCase().includes("pañuelo");
                         return (
-                          <div key={i} className={`flex flex-col items-center justify-center gap-0.5 p-1.5 rounded border text-center ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
-                            <span className={`fs-[10px] ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{renderWithSprites(it.pokemon, " • ")}</span>
+                          <div key={i} className={`flex flex-col items-center gap-1 p-1.5 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
+                            <div className={`flex items-center justify-center fs-[10px] ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{renderWithSprites(it.pokemon, " • ")}</div>
                             <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-1 py-0.5 fs-[10px] shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-1 py-0.5 fs-[10px]'} font-bold rounded uppercase tracking-wider`}>
                               {it.item}
                             </span>
