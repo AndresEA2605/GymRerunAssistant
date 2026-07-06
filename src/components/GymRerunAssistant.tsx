@@ -283,6 +283,8 @@ const LoadingSpinner = memo(({ size = "md", text }: { size?: "sm" | "md" | "lg";
 });
 LoadingSpinner.displayName = "LoadingSpinner";
 
+const OVERLAY_CLASSES = "fixed inset-0 z-[75] bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 md:p-4 overlay-enter";
+
 export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guide2Steps, gymCoords, regionMap, config = {} }: GymRerunAssistantProps) {
   const {
     totalGyms = 33,
@@ -884,7 +886,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   } as const;
 
   const resetConfirmModal = pendingResetAction ? (
-    <div className="fixed inset-0 z-[70] bg-black/85 flex items-center justify-center p-3">
+    <div className={OVERLAY_CLASSES}>
       <div className="bg-neutral-900 rounded-2xl border border-red-800/50 w-full max-w-sm p-5 shadow-2xl shadow-red-950/30">
         <h3 className="font-black fs-h2 text-white">{pendingResetCopy[pendingResetAction].title}</h3>
         <p className="fs-body text-neutral-400 mt-2">{pendingResetCopy[pendingResetAction].body}</p>
@@ -908,7 +910,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   ) : null;
 
   const resumePromptModal = showResumePrompt ? (
-    <div className="fixed inset-0 z-[65] bg-black/85 flex items-center justify-center p-3">
+    <div className={OVERLAY_CLASSES}>
       <div className="bg-neutral-900 rounded-2xl border border-indigo-700/50 w-full max-w-sm p-5 shadow-2xl shadow-indigo-950/30">
         <h3 className="font-black fs-h2 text-white">Sesión anterior encontrada</h3>
         <p className="fs-body text-neutral-400 mt-2">
@@ -1618,7 +1620,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       )}
 
       {showSettings && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-3" onClick={() => setShowSettings(false)}>
+        <div className={OVERLAY_CLASSES} onClick={() => setShowSettings(false)}>
           <div className="bg-neutral-900 rounded-2xl border border-neutral-800 w-full max-w-sm p-5" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-5">
               <h3 className="font-bold fs-h2 flex items-center gap-2">
@@ -1669,7 +1671,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         <CooldownNoticeModal cooldown={cooldown} onDismiss={() => setShowCooldownNotice(false)} />
       )}
       {showActiveSessionModal && (
-        <div className="fixed inset-0 z-[75] bg-black/85 flex items-center justify-center p-3">
+        <div className={OVERLAY_CLASSES}>
           <div className="bg-neutral-900 rounded-2xl border border-amber-700/50 w-full max-w-sm p-5 shadow-2xl shadow-amber-950/30">
             <div className="flex items-start gap-3 mb-4 pb-3 border-b border-amber-800/30">
               <div className="w-10 h-10 rounded-xl bg-amber-900/40 border border-amber-700/40 flex items-center justify-center shrink-0">
@@ -1778,7 +1780,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         </div>
       </aside>
 
-      <main className={`flex-1 flex flex-col h-full relative z-10 ${focusStepMode ? "overflow-hidden" : "overflow-y-auto"} overflow-x-hidden ${currentStepIndex === -1 ? "pb-0" : selectedGuideId === "hooh" ? "pb-[calc(var(--footer-hooh-height)+1.5rem)]" : "pb-[calc(var(--footer-routes-height)+2rem)]"} lg:pl-[280px] lg:pr-[340px]`}>
+      <main className={`flex-1 flex flex-col h-full relative z-10 ${focusStepMode ? "overflow-hidden" : "overflow-y-auto"} overflow-x-hidden ${currentStepIndex === -1 ? "pb-0" : selectedGuideId === "hooh" ? "pb-[calc(var(--footer-hooh-height)+1.5rem)]" : "pb-[calc(var(--footer-routes-height)+2rem)]"} lg:pl-[280px] `}>
         {guideLoading && (
           <div className="absolute inset-0 z-50 bg-neutral-950/90 backdrop-blur-sm flex items-center justify-center">
             <LoadingSpinner size="lg" text="Cargando guía..." />
@@ -2371,7 +2373,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       )}
 
       {showCooldownEditor && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-3">
+        <div className={OVERLAY_CLASSES}>
           <div className="bg-neutral-900 rounded-2xl border border-neutral-800 w-full max-w-sm p-5">
             <div className="flex justify-between items-center mb-4">
               <div>
@@ -2424,7 +2426,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       )}
 
       {showFinishConfirm && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-3">
+        <div className={OVERLAY_CLASSES}>
           <div className="bg-neutral-900 rounded-2xl border border-neutral-800 w-full max-w-sm p-5">
             <h3 className="font-black fs-h2 text-white">¿Terminar ruta?</h3>
             <p className="fs-body text-neutral-400 mt-2">
@@ -2693,7 +2695,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       )}
 
       {showStartCheck && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-3">
+        <div className={OVERLAY_CLASSES}>
           <div className="bg-neutral-900 rounded-2xl border border-amber-700/50 w-full max-w-sm p-5 shadow-2xl shadow-amber-900/20">
             <div className="flex items-center gap-3 mb-4 pb-3 border-b border-amber-800/30">
               <div className="w-10 h-10 rounded-xl bg-amber-900/40 border border-amber-700/40 flex items-center justify-center shrink-0">
@@ -2761,7 +2763,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       )}
 
       {showCountdown && (
-        <div className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center">
+        <div className={OVERLAY_CLASSES}>
           <div className="text-center">
             <div key={countdownValue} className="countdown-pop text-[12rem] sm:text-[16rem] font-black text-indigo-400 leading-none mb-4 select-none"
               style={{ textShadow: "0 0 80px rgba(99,102,241,0.5), 0 0 150px rgba(99,102,241,0.3)" }}>
@@ -2780,7 +2782,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     </div>
 
     {mapPreview && (
-      <div className="fixed inset-0 z-[90] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setMapPreview(null)}>
+      <div className={OVERLAY_CLASSES} onClick={() => setMapPreview(null)}>
         <div className="relative w-full max-w-3xl rounded-[28px] overflow-hidden border border-neutral-800 bg-neutral-950 shadow-2xl" onClick={e => e.stopPropagation()}>
           <button type="button" onClick={() => setMapPreview(null)} className="absolute right-4 top-4 z-20 rounded-full border border-neutral-700 bg-black/60 p-2 text-neutral-200 hover:text-white hover:bg-black/80 transition">
             <X className="w-5 h-5" />
@@ -2803,7 +2805,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       <CooldownNoticeModal cooldown={cooldown} onDismiss={() => setShowCooldownNotice(false)} />
     )}
     {showActiveSessionModal && (
-      <div className="fixed inset-0 z-[75] bg-black/85 flex items-center justify-center p-3">
+      <div className={OVERLAY_CLASSES}>
         <div className="bg-neutral-900 rounded-2xl border border-amber-700/50 w-full max-w-sm p-5 shadow-2xl shadow-amber-950/30">
           <div className="flex items-start gap-3 mb-4 pb-3 border-b border-amber-800/30">
             <div className="w-10 h-10 rounded-xl bg-amber-900/40 border border-amber-700/40 flex items-center justify-center shrink-0">
