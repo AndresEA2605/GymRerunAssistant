@@ -9,11 +9,13 @@ interface CooldownBadgeProps {
 
 export default function CooldownBadge({ endAt }: CooldownBadgeProps) {
   const [now, setNow] = useState(() => Date.now());
+  const isActive = !!endAt && endAt > now;
 
   useEffect(() => {
+    if (!isActive) return;
     const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(id);
-  }, []);
+  }, [isActive]);
 
   if (!endAt) return <span className="text-neutral-600 fs-tiny tabular-nums">--:--:--</span>;
 

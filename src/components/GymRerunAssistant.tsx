@@ -1505,29 +1505,22 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             </div>
 
             {/* Login + Session Status */}
-            <div className="flex flex-col sm:flex-row items-stretch gap-3 mb-4">
-              <div className="flex-1">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="flex-1 min-w-0">
                 <AuthButton />
               </div>
-              <div className="flex-1 bg-neutral-900/60 border border-neutral-800/60 rounded-2xl p-3">
-                <div className="flex items-center gap-2 mb-1.5">
-                  {hasActiveSession ? (
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  ) : (
-                    <div className="w-2 h-2 rounded-full bg-neutral-600" />
-                  )}
-                  <span className="fs-[10px] uppercase tracking-[0.3em] text-neutral-500 font-black">Estado</span>
-                </div>
+              <div className="shrink-0 flex items-center gap-2 bg-neutral-900/60 border border-neutral-800/60 rounded-xl px-3 py-2">
                 {hasActiveSession ? (
-                  <div className="flex items-center gap-2">
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${getGuide(activeSessionGuide)?.icon || '94'}.gif`} alt="" className="w-8 h-8 object-contain shrink-0" />
-                    <div className="min-w-0">
-                      <div className="text-emerald-400 font-black fs-tiny truncate">Run activa</div>
-                      <div className="text-neutral-500 text-[10px] truncate">{getGuide(activeSessionGuide)?.title || "Guía"}</div>
-                    </div>
-                  </div>
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${getGuide(activeSessionGuide)?.icon || '94'}.gif`} alt="" className="w-6 h-6 object-contain" />
+                    <span className="text-emerald-400 fs-tiny font-bold whitespace-nowrap">Run activa</span>
+                  </>
                 ) : (
-                  <div className="text-neutral-600 fs-tiny">Sin actividad</div>
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-neutral-600" />
+                    <span className="text-neutral-500 fs-tiny whitespace-nowrap">Sin actividad</span>
+                  </>
                 )}
               </div>
             </div>
