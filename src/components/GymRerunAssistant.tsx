@@ -915,6 +915,20 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
   const requestFinishRun = () => setShowFinishConfirm(true);
 
+  const abandonRun = () => {
+    resetTimer();
+    setSessionGymCount(0);
+    setCurrentStepIndex(-1);
+    if (selectedGuideId) {
+      setLS(`run_step_${selectedGuideId}`, "");
+      setLS(`run_active_${selectedGuideId}`, "");
+    }
+    setSelectedGuideId('none');
+    setLS("selected_guide", "none");
+    setAppExiting(true); setTimeout(() => { setMenuVisible(true); setShowMenu(true); setAppExiting(false); }, 310);
+    triggerToast("Run abandonada");
+  };
+
   const saveCooldownAdjustment = () => {
     const hours = Math.max(0, Number(cooldownHours) || 0);
     const minutes = Math.max(0, Number(cooldownMinutes) || 0);
@@ -1106,7 +1120,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 {/* Back / Finish button */}
                 <div className="flex justify-start mb-4">
                   {runIsActive ? (
-                    <button onClick={requestFinishRun} className="flex items-center gap-1.5 fs-tiny font-bold uppercase tracking-wider transition-colors border px-4 py-2.5 rounded-xl shadow-md text-red-400 hover:text-white bg-red-950/50 hover:bg-red-900/60 border-red-500/30 hover:border-red-500/50">
+                    <button onClick={abandonRun} className="flex items-center gap-1.5 fs-tiny font-bold uppercase tracking-wider transition-colors border px-4 py-2.5 rounded-xl shadow-md text-red-400 hover:text-white bg-red-950/50 hover:bg-red-900/60 border-red-500/30 hover:border-red-500/50">
                       <Power className="w-4 h-4" /> Terminar ruta
                     </button>
                   ) : (
