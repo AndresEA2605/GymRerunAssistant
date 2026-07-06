@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       let data: Record<string, unknown>;
       try { data = JSON.parse(text); } catch { return { error: `Respuesta no válida (${res.status}): ${text.substring(0, 200)}` }; }
 
-      if (data.error) return { error: data.error as string };
+      if (data.error) return { error: `${data.error}${data.detail ? ` [${data.detail}]` : ''}` };
 
       localStorage.setItem("pkmmo_auth_token", data.token as string);
       setUser(data.user as User);
@@ -111,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       let data: Record<string, unknown>;
       try { data = JSON.parse(text); } catch { return { error: `Respuesta no válida (${res.status}): ${text.substring(0, 200)}` }; }
 
-      if (data.error) return { error: data.error as string };
+      if (data.error) return { error: `${data.error}${data.detail ? ` [${data.detail}]` : ''}` };
 
       localStorage.setItem("pkmmo_auth_token", data.token as string);
       setUser(data.user as User);
