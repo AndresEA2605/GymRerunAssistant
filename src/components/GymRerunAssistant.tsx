@@ -1050,14 +1050,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           })()}
 
           {selectedGuideId === 'none' && (<>
-            <div className="reveal-1 text-center mb-3 md:mb-4 flex flex-col items-center">
-              <div className="relative mb-3 w-28 h-28 flex flex-col items-center justify-end group cursor-pointer">
-                <div className="absolute inset-0 bg-indigo-500/20 blur-2xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/94.gif" alt="Gengar" className="relative z-10 w-20 h-20 object-contain translate-y-4 group-hover:-translate-y-2 transition-transform duration-500" style={{ filter: 'drop-shadow(0 0 10px rgba(139,92,246,0.5))' }} />
-                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png" alt="Master Ball" className="relative z-20 w-16 h-16 object-contain" />
+            <div className="reveal-1 flex flex-col items-center mb-3 md:mb-4">
+              <span className="fs-tiny uppercase tracking-widest font-black text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-2 py-0.5 rounded-full mb-2">PokeMMO Speedrun Tool</span>
+              <div className="flex items-center justify-center gap-3 sm:gap-6 w-full">
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png" alt="Master Ball" className="w-10 h-10 sm:w-14 sm:h-14 object-contain" />
+                <h1 className="fs-hero font-black tracking-tight text-white leading-none text-center" style={{ textShadow: '0 0 60px rgba(99,102,241,0.5)' }}>POKE ASSISTANT</h1>
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/94.gif" alt="Gengar" className="w-16 h-16 sm:w-24 sm:h-24 object-contain" style={{ filter: 'drop-shadow(0 0 10px rgba(139,92,246,0.5))' }} />
               </div>
-              <span className="fs-tiny uppercase tracking-widest font-black text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-2 py-0.5 rounded-full">PokeMMO Speedrun Tool</span>
-              <h1 className="fs-hero font-black tracking-tight text-white leading-none mt-2" style={{ textShadow: '0 0 60px rgba(99,102,241,0.5)' }}>POKE ASSISTANT</h1>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-5">
