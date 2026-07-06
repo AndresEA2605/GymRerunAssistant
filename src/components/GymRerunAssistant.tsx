@@ -41,6 +41,7 @@ import { getGuideColorClasses, getGuidePokeGlow } from "@/lib/design-tokens";
 import { getGuide, getGuidesByCategory, GUIDE_CATEGORIES, GUIDES } from "../data/guides";
 import { showCompleteGym as shouldShowCompleteGym, isRoutesGuide } from "@/lib/guide-footer";
 import { storageSet, storageMGet } from "@/lib/storage";
+import AuthButton from "@/components/auth/AuthButton";
 
 export type GymCoordMap = Record<string, { region: string; x: number; y: number }>;
 export type RegionMap = Record<string, string>;
@@ -1944,6 +1945,9 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </button>
             </div>
           </div>
+
+          {/* Auth */}
+          <AuthButton />
 
         </div>
 

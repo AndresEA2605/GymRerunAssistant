@@ -1,0 +1,305 @@
+import { Redis } from '@upstash/redis';
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+});
+
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  avatar: string;
+  createdAt: number;
+  lastLogin: number;
+  level: number;
+  xp: number;
+  coins: number;
+}
+
+export interface UserStats {
+  totalGyms: number;
+  totalHoohRuns: number;
+  totalTimeMs: number;
+  streaks: { current: number; best: number };
+  achievements: string[];
+}
+
+export interface UserSettings {
+  preferences: Record<string, unknown>;
+  cooldowns: Record<string, unknown>;
+}
+
+export interface UserHistory {
+  gymHistory: unknown[];
+  hoohHistory: unknown[];
+  runHistory: unknown[];
+}
+
+export interface UserDaily {
+  tasksState: unknown;
+}
+
+export interface SessionData {
+  userId: string;
+  expiresAt: number;
+}
+
+const SESSION_TTL = 30 * 24 * 60 * 60; // 30 days in seconds
+const XP_PER_LEVEL = 100;
+
+function kuser(id: string) { return `auth:user:${id}`; }
+function ksession(token: string) { return `auth:session:${token}`; }
+function kemail(email: string) { return `auth:email:${email.toLowerCase()}`; }
+function kusername(username: string) { return `auth:username:${username.toLowerCase()}`; }
+
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const salted = new Uint8Array([...salt, ...data]);
+
+  const hashBuffer = await crypto.subtle.digest('SHA-256', salted);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  const saltHex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
+
+  return `${saltHex}:${hashHex}`;
+}
+
+async function verifyPassword(password: string, stored: string): Promise<boolean> {
+  const [saltHex, hashHex] = stored.split(':');
+  const salt = new Uint8Array(saltHex.match(/.{2}/g)!.map(h => parseInt(h, 16)));
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const salted = new Uint8Array([...salt, ...data]);
+
+  const hashBuffer = await crypto.subtle.digest('SHA-256', salted);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex2 = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+  return hashHex === hashHex2;
+}
+
+export function generateToken(): string {
+  return crypto.randomUUID();
+}
+
+export function calculateLevel(xp: number): number {
+  return Math.floor(xp / XP_PER_LEVEL) + 1;
+}
+
+export function xpForNextLevel(level: number): number {
+  return level * XP_PER_LEVEL;
+}
+
+export async function registerUser(
+  email: string,
+  username: string,
+  password: string
+): Promise<{ user: User; token: string } | { error: string }> {
+  const cleanEmail = email.toLowerCase().trim();
+  const cleanUsername = username.trim();
+
+  if (cleanEmail.length < 5 || !cleanEmail.includes('@')) {
+    return { error: 'Email inválido' };
+  }
+  if (cleanUsername.length < 3 || cleanUsername.length > 20) {
+    return { error: 'El username debe tener entre 3 y 20 caracteres' };
+  }
+  if (password.length < 6) {
+    return { error: 'La contraseña debe tener al menos 6 caracteres' };
+  }
+
+  const existingEmail = await redis.get<string>(kemail(cleanEmail));
+  if (existingEmail) {
+    return { error: 'Este email ya está registrado' };
+  }
+
+  const existingUsername = await redis.get<string>(kusername(cleanUsername));
+  if (existingUsername) {
+    return { error: 'Este username ya está en uso' };
+  }
+
+  const id = crypto.randomUUID();
+  const passwordHash = await hashPassword(password);
+  const now = Date.now();
+
+  const user: User = {
+    id,
+    username: cleanUsername,
+    email: cleanEmail,
+    avatar: '',
+    createdAt: now,
+    lastLogin: now,
+    level: 1,
+    xp: 0,
+    coins: 0,
+  };
+
+  const userWithHash = { ...user, passwordHash };
+
+  const pipe = redis.pipeline();
+  pipe.set(kuser(id), JSON.stringify(userWithHash));
+  pipe.set(kemail(cleanEmail), id);
+  pipe.set(kusername(cleanUsername), id);
+
+  const stats: UserStats = {
+    totalGyms: 0,
+    totalHoohRuns: 0,
+    totalTimeMs: 0,
+    streaks: { current: 0, best: 0 },
+    achievements: [],
+  };
+  pipe.set(`${kuser(id)}:stats`, JSON.stringify(stats));
+  pipe.set(`${kuser(id)}:settings`, JSON.stringify({ preferences: {}, cooldowns: {} }));
+  pipe.set(`${kuser(id)}:history`, JSON.stringify({ gymHistory: [], hoohHistory: [], runHistory: [] }));
+  pipe.set(`${kuser(id)}:daily`, JSON.stringify({ tasksState: null }));
+
+  await pipe.exec();
+
+  const token = generateToken();
+  const session: SessionData = { userId: id, expiresAt: now + SESSION_TTL * 1000 };
+  await redis.set(ksession(token), JSON.stringify(session), { ex: SESSION_TTL });
+
+  return { user, token };
+}
+
+export async function loginUser(
+  email: string,
+  password: string
+): Promise<{ user: User; token: string } | { error: string }> {
+  const cleanEmail = email.toLowerCase().trim();
+
+  const userId = await redis.get<string>(kemail(cleanEmail));
+  if (!userId) {
+    return { error: 'Email o contraseña incorrectos' };
+  }
+
+  const raw = await redis.get<string>(kuser(userId));
+  if (!raw) {
+    return { error: 'Usuario no encontrado' };
+  }
+
+  const userData = JSON.parse(raw) as User & { passwordHash: string };
+  const valid = await verifyPassword(password, userData.passwordHash);
+  if (!valid) {
+    return { error: 'Email o contraseña incorrectos' };
+  }
+
+  const now = Date.now();
+  const user: User = {
+    id: userData.id,
+    username: userData.username,
+    email: userData.email,
+    avatar: userData.avatar,
+    createdAt: userData.createdAt,
+    lastLogin: now,
+    level: userData.level,
+    xp: userData.xp,
+    coins: userData.coins,
+  };
+
+  await redis.set(kuser(userId), JSON.stringify({ ...userData, lastLogin: now }));
+
+  const token = generateToken();
+  const session: SessionData = { userId, expiresAt: now + SESSION_TTL * 1000 };
+  await redis.set(ksession(token), JSON.stringify(session), { ex: SESSION_TTL });
+
+  return { user, token };
+}
+
+export async function getUserByToken(token: string): Promise<User | null> {
+  const raw = await redis.get<string>(ksession(token));
+  if (!raw) return null;
+
+  const session = JSON.parse(raw) as SessionData;
+  if (session.expiresAt < Date.now()) {
+    await redis.del(ksession(token));
+    return null;
+  }
+
+  const userRaw = await redis.get<string>(kuser(session.userId));
+  if (!userRaw) return null;
+
+  const data = JSON.parse(userRaw) as User & { passwordHash: string };
+  const { passwordHash: _, ...user } = data;
+  return user;
+}
+
+export async function getUserStats(userId: string): Promise<UserStats> {
+  const raw = await redis.get<string>(`${kuser(userId)}:stats`);
+  if (!raw) {
+    return { totalGyms: 0, totalHoohRuns: 0, totalTimeMs: 0, streaks: { current: 0, best: 0 }, achievements: [] };
+  }
+  return JSON.parse(raw) as UserStats;
+}
+
+export async function updateUserStats(userId: string, stats: UserStats): Promise<void> {
+  await redis.set(`${kuser(userId)}:stats`, JSON.stringify(stats));
+}
+
+export async function getUserHistory(userId: string): Promise<UserHistory> {
+  const raw = await redis.get<string>(`${kuser(userId)}:history`);
+  if (!raw) {
+    return { gymHistory: [], hoohHistory: [], runHistory: [] };
+  }
+  return JSON.parse(raw) as UserHistory;
+}
+
+export async function updateUserHistory(userId: string, history: UserHistory): Promise<void> {
+  await redis.set(`${kuser(userId)}:history`, JSON.stringify(history));
+}
+
+export async function getUserSettings(userId: string): Promise<UserSettings> {
+  const raw = await redis.get<string>(`${kuser(userId)}:settings`);
+  if (!raw) {
+    return { preferences: {}, cooldowns: {} };
+  }
+  return JSON.parse(raw) as UserSettings;
+}
+
+export async function updateUserSettings(userId: string, settings: UserSettings): Promise<void> {
+  await redis.set(`${kuser(userId)}:settings`, JSON.stringify(settings));
+}
+
+export async function getUserDaily(userId: string): Promise<UserDaily> {
+  const raw = await redis.get<string>(`${kuser(userId)}:daily`);
+  if (!raw) {
+    return { tasksState: null };
+  }
+  return JSON.parse(raw) as UserDaily;
+}
+
+export async function updateUserDaily(userId: string, daily: UserDaily): Promise<void> {
+  await redis.set(`${kuser(userId)}:daily`, JSON.stringify(daily));
+}
+
+export async function logoutUser(token: string): Promise<void> {
+  await redis.del(ksession(token));
+}
+
+export async function addXp(userId: string, amount: number): Promise<User> {
+  const raw = await redis.get<string>(kuser(userId));
+  if (!raw) throw new Error('User not found');
+
+  const data = JSON.parse(raw) as User & { passwordHash: string };
+  data.xp += amount;
+  data.level = calculateLevel(data.xp);
+
+  await redis.set(kuser(userId), JSON.stringify(data));
+
+  const { passwordHash: _, ...user } = data;
+  return user;
+}
+
+export async function hasLocalData(localData: Record<string, string>): Promise<boolean> {
+  return !!(
+    localData['gym_step'] && localData['gym_step'] !== '0' && localData['gym_step'] !== '-1' ||
+    localData['gym_timer'] && localData['gym_timer'] !== '{"elapsed":0,"isRunning":false,"startedAt":null}' ||
+    localData['gym_history'] && localData['gym_history'] !== '[]' ||
+    localData['run_active_gym33'] === 'true' ||
+    localData['run_active_hooh'] === 'true' ||
+    localData['run_active_guide2'] === 'true'
+  );
+}

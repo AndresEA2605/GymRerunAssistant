@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { AuthProvider } from "@/providers/AuthProvider";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -36,7 +37,9 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://raw.githubusercontent.com" />
       </head>
       <body className="min-h-full flex flex-col font-sans overflow-hidden">
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         <Analytics />
       </body>
     </html>
