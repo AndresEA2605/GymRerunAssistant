@@ -1121,7 +1121,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 <div className="flex justify-start mb-4">
                   {runIsActive ? (
                     <button onClick={abandonRun} className="flex items-center gap-1.5 fs-tiny font-bold uppercase tracking-wider transition-colors border px-4 py-2.5 rounded-xl shadow-md text-red-400 hover:text-white bg-red-950/50 hover:bg-red-900/60 border-red-500/30 hover:border-red-500/50">
-                      <Power className="w-4 h-4" /> Terminar ruta
+                      <Power className="w-4 h-4" /> Abandonar ruta
                     </button>
                   ) : (
                     <button onClick={() => selectGuide('none')} className="flex items-center gap-1.5 fs-tiny font-bold uppercase tracking-wider transition-colors border px-4 py-2.5 rounded-xl shadow-md text-neutral-400 hover:text-white bg-neutral-900/80 hover:bg-neutral-800 border-neutral-800/80">
