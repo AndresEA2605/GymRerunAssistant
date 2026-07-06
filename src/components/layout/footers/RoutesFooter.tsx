@@ -42,7 +42,7 @@ interface RoutesFooterProps {
 
 export function RoutesFooterInner({ guideId, nav, gym }: RoutesFooterProps) {
   return (
-    <div className="mx-auto w-full max-w-5xl px-3 py-3 sm:px-6 lg:px-8">
+    <div className="mx-auto w-full max-w-6xl px-3 py-3 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
           <Button
@@ -82,28 +82,31 @@ export function RoutesFooterInner({ guideId, nav, gym }: RoutesFooterProps) {
           )}
         </div>
 
-        <div className="flex items-center justify-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-3 mt-1">
           <Button
             variant="danger"
             size="sm"
             onClick={nav.onFinish}
             aria-label="Terminar ruta"
-            className="px-3"
+            className="px-3 shrink-0"
           >
             Terminar
           </Button>
+          
+          <div className="flex-1">
+            <FooterProgress percent={nav.progressPercent} label={nav.progressLabel} />
+          </div>
+
           <Button
             variant="ghost"
             size="sm"
             onClick={nav.onRouteReset}
             aria-label="Reiniciar ruta"
-            className="px-3"
+            className="px-3 shrink-0"
           >
             Reiniciar
           </Button>
         </div>
-
-        <FooterProgress percent={nav.progressPercent} label={nav.progressLabel} />
       </div>
     </div>
   );

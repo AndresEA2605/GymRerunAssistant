@@ -12,7 +12,7 @@ interface HoOhFooterProps {
 
 export function HoOhFooterInner({ nav }: HoOhFooterProps) {
   return (
-    <div className="mx-auto w-full max-w-5xl px-3 py-2 sm:px-6">
+    <div className="mx-auto w-full max-w-6xl px-3 py-2 sm:px-6">
       <div className="flex flex-col gap-2.5">
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
           <Button
@@ -40,18 +40,20 @@ export function HoOhFooterInner({ nav }: HoOhFooterProps) {
           </Button>
         </div>
 
-        <div className="flex items-center justify-center">
+        <div className="flex items-center gap-3 mt-1">
+          <div className="flex-1">
+            <FooterProgress percent={nav.progressPercent} label={nav.progressLabel} />
+          </div>
+
           <Button
             variant="ghost"
             size="sm"
             onClick={nav.onRouteReset}
-            className="px-3"
+            className="px-3 shrink-0"
           >
             Reiniciar
           </Button>
         </div>
-
-        <FooterProgress percent={nav.progressPercent} label={nav.progressLabel} />
       </div>
     </div>
   );

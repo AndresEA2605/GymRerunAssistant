@@ -18,7 +18,7 @@ export default function CategoryFooter({ guideId, nav, gym }: CategoryFooterProp
 
   return (
     <footer
-      className="fixed bottom-0 left-0 right-0 z-25 bg-neutral-950/95 border-t backdrop-blur-md"
+      className="fixed bottom-0 left-0 right-0 z-25 bg-neutral-950/95 border-t backdrop-blur-md lg:pl-[280px]"
       style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom))", paddingTop: "8px" }}
       role="contentinfo"
     >
