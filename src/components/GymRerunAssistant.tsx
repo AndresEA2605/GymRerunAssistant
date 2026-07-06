@@ -364,6 +364,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           }
           resetTimer();
         }
+        setShowMenu(false);
         setTimeout(() => setGuideLoading(false), 150);
       }, 300);
     } else {
@@ -2141,6 +2142,20 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 <History className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
                 <span className="fs-tiny font-bold">Historial de runs</span>
               </button>
+              {runIsActive && (
+                showAbandonConfirm ? (
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-red-950/50 border border-red-500/30 rounded-lg">
+                    <span className="fs-tiny font-bold text-red-300">¿Abandonar?</span>
+                    <button onClick={() => setShowAbandonConfirm(false)} className="px-2 py-0.5 rounded-md bg-neutral-800 hover:bg-neutral-700 text-neutral-300 fs-tiny font-bold transition-colors">No</button>
+                    <button onClick={() => { setShowAbandonConfirm(false); abandonRun(); }} className="px-2 py-0.5 rounded-md bg-red-700 hover:bg-red-600 text-white fs-tiny font-bold transition-colors">Sí</button>
+                  </div>
+                ) : (
+                  <button onClick={() => setShowAbandonConfirm(true)} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-red-400 hover:text-white hover:bg-red-950/50 border border-red-500/20 hover:border-red-500/40 transition-colors text-left">
+                    <Power className="w-3.5 h-3.5 shrink-0" />
+                    <span className="fs-tiny font-bold">Abandonar ruta</span>
+                  </button>
+                )
+              )}
             </div>
           </div>
 
@@ -2252,6 +2267,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     <History className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
                     <span className="fs-tiny font-bold">Historial de runs</span>
                   </button>
+                  {runIsActive && (
+                    <button onClick={() => { setShowMobileSidebar(false); setShowAbandonConfirm(true); }} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-red-400 hover:text-white hover:bg-red-950/50 border border-red-500/20 hover:border-red-500/40 transition-colors text-left">
+                      <Power className="w-3.5 h-3.5 shrink-0" />
+                      <span className="fs-tiny font-bold">Abandonar ruta</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -3261,6 +3282,18 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
     {resetConfirmModal}
     {resumePromptModal}
+    {showAbandonConfirm && (
+      <div className={OVERLAY_CLASSES} onClick={() => setShowAbandonConfirm(false)}>
+        <div className="bg-neutral-900 rounded-2xl border border-red-700/50 w-full max-w-sm p-5 shadow-2xl shadow-red-950/30" onClick={e => e.stopPropagation()}>
+          <h3 className="font-black fs-h3 text-red-300">¿Abandonar ruta?</h3>
+          <p className="fs-tiny text-neutral-400 mt-2">Se perderá el progreso actual. No se guardará en el historial.</p>
+          <div className="mt-4 grid grid-cols-2 gap-2.5">
+            <button onClick={() => setShowAbandonConfirm(false)} className="py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-black fs-body">Cancelar</button>
+            <button onClick={() => { setShowAbandonConfirm(false); abandonRun(); }} className="py-2.5 rounded-xl bg-red-700 hover:bg-red-600 text-white font-black fs-body">Sí, abandonar</button>
+          </div>
+        </div>
+      </div>
+    )}
     {showCooldownNotice && (
       <CooldownNoticeModal cooldown={cooldown} onDismiss={() => setShowCooldownNotice(false)} />
     )}
