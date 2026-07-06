@@ -84,20 +84,6 @@ export function RoutesFooterInner({ nav }: Pick<RoutesFooterProps, "nav">) {
 
         <div className="flex items-center gap-3 mt-1">
           <Button
-            variant="danger"
-            size="sm"
-            onClick={nav.onFinish}
-            aria-label="Terminar ruta"
-            className="px-3 shrink-0"
-          >
-            Terminar
-          </Button>
-          
-          <div className="flex-1">
-            <FooterProgress percent={nav.progressPercent} label={nav.progressLabel} />
-          </div>
-
-          <Button
             variant="ghost"
             size="sm"
             onClick={nav.onRouteReset}
@@ -105,6 +91,20 @@ export function RoutesFooterInner({ nav }: Pick<RoutesFooterProps, "nav">) {
             className="px-3 shrink-0"
           >
             Reiniciar
+          </Button>
+          
+          <div className="flex-1">
+            <FooterProgress percent={nav.progressPercent} label={nav.progressLabel} />
+          </div>
+
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={nav.onFinish}
+            aria-label="Terminar ruta"
+            className="px-3 shrink-0"
+          >
+            Terminar
           </Button>
         </div>
       </div>

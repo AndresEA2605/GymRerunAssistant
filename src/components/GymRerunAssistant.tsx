@@ -1793,10 +1793,10 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       <PokeBackground />
       <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 w-[230px] border-r border-neutral-800/70 bg-neutral-950/98 backdrop-blur-xl">
         {/* Sidebar Header */}
-        <div className="flex items-center gap-2.5 px-3 py-3 border-b border-neutral-800/60">
+        <button onClick={() => goToMenu()} className="flex items-center gap-2.5 px-3 py-3 border-b border-neutral-800/60 hover:bg-neutral-800/40 transition-colors w-full text-left">
           <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png" alt="" className="w-5 h-5" />
           <span className="fs-tiny font-black text-white uppercase tracking-widest">Poke Assistant</span>
-        </div>
+        </button>
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto px-2.5 py-2.5 space-y-2">
@@ -1844,7 +1844,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           {/* Cooldown */}
           {isRoutesGuide(selectedGuideId) && (
             <div className="bg-neutral-900/60 border border-neutral-800/60 rounded-xl p-2.5">
-              <div className="fs-[10px] uppercase tracking-[0.3em] text-neutral-500 font-black mb-1.5">Cooldown Gyms</div>
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="fs-[10px] uppercase tracking-[0.3em] text-neutral-500 font-black">Cooldown Gyms</div>
+                <button type="button" onClick={() => { startGymCooldown(cooldown.lastGym || getLastCompletedGym(), gymResetMs); triggerToast("Cooldown reiniciado"); }} className="w-5 h-5 rounded-md bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition-colors" title="Reiniciar cooldown">
+                  <RotateCcw className="w-3 h-3" />
+                </button>
+              </div>
               <button type="button" onClick={() => setShowCooldownNotice(true)} className="w-full flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1.5 hover:bg-neutral-900 transition-colors">
                 <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -2133,7 +2138,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               <>
                 {currentGymGroup.gymStep.gym && (
                   <div className="grid w-full grid-cols-1 md:grid-cols-[minmax(200px,280px)_1fr] gap-3 items-start">
-                    <div className="rounded-2xl border border-neutral-800 overflow-hidden bg-neutral-950 shadow-inner">
+                    <div className="rounded-2xl border border-neutral-800 overflow-hidden bg-neutral-950 shadow-inner md:sticky md:top-4">
                       <div className="relative aspect-[4/3] w-full">
                         <img src={regionMap[gymCoords[currentGymGroup.gymStep.gym as keyof typeof gymCoords].region as keyof typeof regionMap]} alt="Region Map" className="absolute inset-0 w-full h-full object-contain opacity-90" />
                         <div className="absolute inset-0 bg-black/20" />
@@ -2183,6 +2188,81 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                           </ul>
                         </div>
                       )}
+                      {currentGymGroup.subBattles.map((sub) => (
+                        <div key={sub.id} className="bg-neutral-950 p-2 rounded-xl border border-neutral-800/60">
+                          <div className="flex items-center justify-center gap-1.5 mb-1">
+                            <span className="p-0.5 bg-neutral-900 rounded">{renderIcon("gym")}</span>
+                            <h3 className="fs-tiny font-black text-white">{sub.title}</h3>
+                          </div>
+                          {(sub.lead || sub.switchTo) && (
+                            <div className="flex gap-1.5 mb-1">
+                              {sub.lead && (
+                                <div className="bg-neutral-900/60 p-1 rounded-lg border border-neutral-800/50 flex-1">
+                                  <div className="fs-[10px] text-indigo-400/80 uppercase font-black tracking-widest mb-0.5 text-center">Leads</div>
+                                  <div className="flex justify-center">{renderWithSprites(sub.lead)}</div>
+                                </div>
+                              )}
+                              {sub.switchTo && (
+                                <div className="bg-neutral-900/60 p-1 rounded-lg border border-neutral-800/50 flex-1">
+                                  <div className="fs-[10px] text-emerald-400/80 uppercase font-black tracking-widest mb-0.5 text-center">Cambios</div>
+                                  <div className="flex justify-center">{renderWithSprites(sub.switchTo)}</div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          {sub.actions && (
+                            <ul className="space-y-0.5">
+                              {sub.actions.map((act, i) => {
+                                const parts = act.split("→");
+                                return (
+                                  <li key={i} className="flex items-center justify-center gap-1 fs-tiny bg-neutral-900/40 p-0.5 rounded border border-neutral-800/40">
+                                    {parts.length > 1 ? (
+                                      <><span className="font-bold text-white/90">{parts[0].trim()}</span> <span className="text-neutral-600">→</span> <span className="text-neutral-400">{parts[1].trim()}</span></>
+                                    ) : <span className="text-center text-neutral-400">{act}</span>}
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          )}
+                        </div>
+                      ))}
+                      {currentGymGroup.extras.map((extra) => (
+                        <div key={extra.id}>
+                          {extra.type === "prep" && extra.items && extra.items.length > 0 && (
+                            <div className="reveal bg-neutral-950 p-2 rounded-xl border border-neutral-800">
+                              <div className="fs-tiny text-blue-400 uppercase font-black tracking-widest mb-1 flex items-center justify-center gap-1"><Sparkles className="w-3 h-3"/> Equipar Objetos</div>
+                              <div className="grid grid-cols-2 gap-1">
+                                {extra.items.map((it, i) => {
+                                  const isScarf = it.item.toLowerCase().includes("panuelo") || it.item.toLowerCase().includes("pañuelo");
+                                  return (
+                                    <div key={i} className={`flex items-center justify-center gap-1 p-1 rounded border text-center ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
+                                      <span className={`fs-[10px] ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{renderWithSprites(it.pokemon, " • ")}</span>
+                                      <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-1 py-0.5 fs-[10px] shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-1 py-0.5 fs-[10px]'} font-bold rounded uppercase tracking-wider`}>
+                                        {it.item}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                          {extra.type === "prep" && extra.heal && (
+                            <div className="reveal flex items-center justify-center gap-1.5 bg-red-950/20 border border-red-900/30 p-1.5 rounded-xl text-red-400 fs-tiny font-bold">
+                              <Heart className="w-3.5 h-3.5 fill-current" /> Curar equipo en el Centro Pokémon
+                            </div>
+                          )}
+                          {extra.type === "prep" && extra.travel && (
+                            <div className="reveal flex items-center justify-center gap-1.5 bg-teal-950/20 border border-teal-900/30 p-1.5 rounded-xl text-teal-400 fs-tiny font-bold">
+                              <Compass className="w-3.5 h-3.5" /> Viajar hacia {extra.travel}
+                            </div>
+                          )}
+                          {extra.type === "note" && (
+                            <div className="reveal bg-amber-950/20 border border-amber-900/30 p-2 rounded-xl text-amber-400 fs-tiny font-bold text-center">
+                              {extra.description}
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -2222,19 +2302,19 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 {currentStep.items && currentStep.items.length > 0 && (
                   <div className="reveal-3 bg-neutral-950 p-2 rounded-xl border border-neutral-800">
                     <div className="fs-tiny text-blue-400 uppercase font-black tracking-widest mb-1 flex items-center justify-center gap-1"><Sparkles className="w-3 h-3"/> Equipar Objetos</div>
-                    <ul className="space-y-0.5">
+                    <div className="grid grid-cols-2 gap-1">
                       {currentStep.items.map((it, i) => {
                         const isScarf = it.item.toLowerCase().includes("panuelo") || it.item.toLowerCase().includes("pañuelo");
                         return (
-                          <li key={i} className={`flex items-center justify-center gap-1 p-1 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
-                            <span className={`fs-tiny ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{renderWithSprites(it.pokemon, " • ")}</span>
-                            <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-1.5 py-0.5 fs-tiny shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-1 py-0.5 fs-tiny'} font-bold rounded uppercase tracking-wider`}>
-                              ➔ {it.item}
+                          <div key={i} className={`flex items-center justify-center gap-1 p-1 rounded border text-center ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
+                            <span className={`fs-[10px] ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{renderWithSprites(it.pokemon, " • ")}</span>
+                            <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-1 py-0.5 fs-[10px] shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-1 py-0.5 fs-[10px]'} font-bold rounded uppercase tracking-wider`}>
+                              {it.item}
                             </span>
-                          </li>
+                          </div>
                         );
                       })}
-                    </ul>
+                    </div>
                   </div>
                 )}
                 {currentStep.travel && (
@@ -2295,86 +2375,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             )}
             </>)}
 
-            {currentGymGroup && selectedGuideId !== 'hooh' && (
-              <div className="space-y-2 w-full">
-                {currentGymGroup.subBattles.map((sub) => (
-                  <div key={sub.id} className="bg-neutral-950 p-2 rounded-xl border border-neutral-800/60">
-                    <div className="flex items-center justify-center gap-1.5 mb-1">
-                      <span className="p-0.5 bg-neutral-900 rounded">{renderIcon("gym")}</span>
-                      <h3 className="fs-tiny font-black text-white">{sub.title}</h3>
-                    </div>
-                    {(sub.lead || sub.switchTo) && (
-                      <div className="flex gap-1.5 mb-1">
-                        {sub.lead && (
-                          <div className="bg-neutral-900/60 p-1 rounded-lg border border-neutral-800/50 flex-1">
-                            <div className="fs-[10px] text-indigo-400/80 uppercase font-black tracking-widest mb-0.5 text-center">Leads</div>
-                            <div className="flex justify-center">{renderWithSprites(sub.lead)}</div>
-                          </div>
-                        )}
-                        {sub.switchTo && (
-                          <div className="bg-neutral-900/60 p-1 rounded-lg border border-neutral-800/50 flex-1">
-                            <div className="fs-[10px] text-emerald-400/80 uppercase font-black tracking-widest mb-0.5 text-center">Cambios</div>
-                            <div className="flex justify-center">{renderWithSprites(sub.switchTo)}</div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {sub.actions && (
-                      <ul className="space-y-0.5">
-                        {sub.actions.map((act, i) => {
-                          const parts = act.split("→");
-                          return (
-                            <li key={i} className="flex items-center justify-center gap-1 fs-tiny bg-neutral-900/40 p-0.5 rounded border border-neutral-800/40">
-                              {parts.length > 1 ? (
-                                <><span className="font-bold text-white/90">{parts[0].trim()}</span> <span className="text-neutral-600">→</span> <span className="text-neutral-400">{parts[1].trim()}</span></>
-                              ) : <span className="text-center text-neutral-400">{act}</span>}
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    )}
-                  </div>
-                ))}
-                {currentGymGroup.extras.map((extra) => (
-                  <div key={extra.id}>
-                    {extra.type === "prep" && extra.items && extra.items.length > 0 && (
-                      <div className="reveal bg-neutral-950 p-2 rounded-xl border border-neutral-800">
-                        <div className="fs-tiny text-blue-400 uppercase font-black tracking-widest mb-1 flex items-center justify-center gap-1"><Sparkles className="w-3 h-3"/> Equipar Objetos</div>
-                        <ul className="space-y-0.5">
-                          {extra.items.map((it, i) => {
-                            const isScarf = it.item.toLowerCase().includes("panuelo") || it.item.toLowerCase().includes("pañuelo");
-                            return (
-                              <li key={i} className={`flex items-center justify-center gap-1 p-1 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-neutral-900 border-neutral-800 opacity-60'}`}>
-                                <span className={`fs-tiny ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{renderWithSprites(it.pokemon, " • ")}</span>
-                                <span className={`${isScarf ? 'text-indigo-400 bg-indigo-950 px-1.5 py-0.5 fs-tiny shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'text-neutral-500 bg-neutral-950 px-1 py-0.5 fs-tiny'} font-bold rounded uppercase tracking-wider`}>
-                                  ➔ {it.item}
-                                </span>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </div>
-                    )}
-                    {extra.type === "prep" && extra.heal && (
-                      <div className="reveal flex items-center justify-center gap-1.5 bg-red-950/20 border border-red-900/30 p-1.5 rounded-xl text-red-400 fs-tiny font-bold">
-                        <Heart className="w-3.5 h-3.5 fill-current" /> Curar equipo en el Centro Pokémon
-                      </div>
-                    )}
-                    {extra.type === "prep" && extra.travel && (
-                      <div className="reveal flex items-center justify-center gap-1.5 bg-teal-950/20 border border-teal-900/30 p-1.5 rounded-xl text-teal-400 fs-tiny font-bold">
-                        <Compass className="w-3.5 h-3.5" /> Viajar hacia {extra.travel}
-                      </div>
-                    )}
-                    {extra.type === "note" && (
-                      <div className="reveal bg-amber-950/20 border border-amber-900/30 p-2 rounded-xl text-amber-400 fs-tiny font-bold text-center">
-                        {extra.description}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-            
           </div>
 
           {currentStepIndex !== -1 && (<>
@@ -2945,6 +2945,52 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       </div>
     )}
     <DailyTasks gymsCompleted={sessionGymCount} timerElapsedMs={timerElapsed} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} />
+
+    {showSettings && (
+      <div className={OVERLAY_CLASSES} onClick={() => setShowSettings(false)}>
+        <div className="bg-neutral-900 rounded-2xl border border-neutral-800 w-full max-w-sm p-5" onClick={e => e.stopPropagation()}>
+          <div className="flex justify-between items-center mb-5">
+            <h3 className="font-bold fs-h2 flex items-center gap-2">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Configuración
+            </h3>
+            <button onClick={() => setShowSettings(false)} className="text-neutral-500 hover:text-white"><X className="w-5 h-5" /></button>
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-neutral-950 border border-neutral-800">
+              <div>
+                <p className="font-bold text-white fs-body">Verificación previa</p>
+                <p className="fs-tiny text-neutral-400 mt-0.5">Checklist antes de iniciar la ruta</p>
+                <p className={`fs-tiny mt-1 ${!skipChecklist ? 'text-emerald-400/70' : 'text-neutral-500/70'}`}>{!skipChecklist ? 'Activo — se muestran 3 checks antes de empezar' : 'Desactivado — la ruta inicia directamente'}</p>
+              </div>
+              <button onClick={() => { const next = !skipChecklist; setLS("skip_checklist", String(next)); setSkipChecklist(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${!skipChecklist ? 'bg-indigo-500' : 'bg-neutral-700'}`}>
+                <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${!skipChecklist ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
+            <div className="flex items-center justify-between p-3 rounded-xl bg-neutral-950 border border-neutral-800">
+              <div>
+                <p className="font-bold text-white fs-body">Cuenta atrás</p>
+                <p className="fs-tiny text-neutral-400 mt-0.5">Countdown 5-4-3-2-1 antes de empezar</p>
+                <p className={`fs-tiny mt-1 ${!skipCountdown ? 'text-emerald-400/70' : 'text-neutral-500/70'}`}>{!skipCountdown ? 'Activo — 5 segundos de cuenta regresiva al iniciar' : 'Desactivado — la ruta comienza inmediatamente'}</p>
+              </div>
+              <button onClick={() => { const next = !skipCountdown; setLS("skip_countdown", String(next)); setSkipCountdown(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${!skipCountdown ? 'bg-indigo-500' : 'bg-neutral-700'}`}>
+                <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${!skipCountdown ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
+            <div className="flex items-center justify-between p-3 rounded-xl bg-neutral-950 border border-neutral-800">
+              <div>
+                <p className="font-bold text-white fs-body">Timer automático</p>
+                <p className="fs-tiny text-neutral-400 mt-0.5">Iniciar cronómetro al comenzar la ruta</p>
+                <p className={`fs-tiny mt-1 ${!manualTimer ? 'text-emerald-400/70' : 'text-neutral-500/70'}`}>{!manualTimer ? 'Activo — el timer arranca solo al confirmar inicio' : 'Manual — tenés que iniciar el timer vos mismo'}</p>
+              </div>
+              <button onClick={() => { const next = !manualTimer; setLS("manual_timer", String(next)); setManualTimer(next); }} className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${!manualTimer ? 'bg-indigo-500' : 'bg-neutral-700'}`}>
+                <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${!manualTimer ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
     </>
   );
 }
