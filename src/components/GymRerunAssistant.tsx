@@ -341,7 +341,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [showCooldownEditor, setShowCooldownEditor] = useState<boolean>(false);
   const [showMobileSidebar, setShowMobileSidebar] = useState<boolean>(false);
   const [showSettings, setShowSettings] = useState<boolean>(false);
-  const [hasActiveSession, setHasActiveSession] = useState<boolean>(false);
+  const [hasActiveSession, setHasActiveSession] = useState<boolean>(true);
   const [activeSessionGuide, setActiveSessionGuide] = useState<string>('');
   const [appExiting, setAppExiting] = useState<boolean>(false);
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
@@ -547,7 +547,9 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         }
         setShowMenu(true);
       } else {
-        // No active session — check for legacy gym_step
+        // No active session — allow menu
+        setHasActiveSession(false);
+        // check for legacy gym_step
         const savedStep = d["gym_step"];
         if (savedStep) {
           const idx = Number(savedStep);
