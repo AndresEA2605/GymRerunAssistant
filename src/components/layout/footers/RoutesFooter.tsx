@@ -40,7 +40,7 @@ interface RoutesFooterProps {
   gym: GymModuleActions;
 }
 
-export function RoutesFooterInner({ guideId, nav, gym }: RoutesFooterProps) {
+export function RoutesFooterInner({ nav }: Pick<RoutesFooterProps, "nav">) {
   return (
     <div className="mx-auto w-full max-w-6xl px-3 py-3 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-3">
@@ -120,7 +120,7 @@ export default function RoutesFooter({ guideId, nav, gym }: RoutesFooterProps) {
       role="contentinfo"
     >
       <div className="h-full lg:h-full">
-        <RoutesFooterInner guideId={guideId} nav={nav} gym={gym} />
+        <RoutesFooterInner nav={nav} />
       </div>
     </footer>
   );

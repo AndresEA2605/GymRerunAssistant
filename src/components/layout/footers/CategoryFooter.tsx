@@ -2,8 +2,8 @@
 
 import React from "react";
 import { getFooterVariant } from "@/lib/guide-footer";
-import RoutesFooter, { RoutesFooterInner, type GymModuleActions, type RouteFooterActions } from "./RoutesFooter";
-import HoOhFooter, { HoOhFooterInner } from "./HoOhFooter";
+import { RoutesFooterInner, type GymModuleActions, type RouteFooterActions } from "./RoutesFooter";
+import { HoOhFooterInner } from "./HoOhFooter";
 
 interface CategoryFooterProps {
   guideId: string;
@@ -11,7 +11,7 @@ interface CategoryFooterProps {
   gym: GymModuleActions;
 }
 
-export default function CategoryFooter({ guideId, nav, gym }: CategoryFooterProps) {
+export default function CategoryFooter({ guideId, nav, gym: _gym }: CategoryFooterProps) {
   const variant = getFooterVariant(guideId);
 
   if (variant === "minimal") return null;
@@ -22,7 +22,7 @@ export default function CategoryFooter({ guideId, nav, gym }: CategoryFooterProp
       style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom))", paddingTop: "8px" }}
       role="contentinfo"
     >
-      {variant === "routes" && <RoutesFooterInner guideId={guideId} nav={nav} gym={gym} />}
+      {variant === "routes" && <RoutesFooterInner nav={nav} />}
       {variant === "hooh" && <HoOhFooterInner nav={nav} />}
     </footer>
   );

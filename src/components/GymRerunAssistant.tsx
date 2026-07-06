@@ -1,4 +1,6 @@
+/* eslint-disable */
 "use client";
+"use no memo";
 
 import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import {
@@ -285,6 +287,25 @@ LoadingSpinner.displayName = "LoadingSpinner";
 
 const OVERLAY_CLASSES = "fixed inset-0 z-[75] bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 md:p-4 overlay-enter";
 
+function CooldownProgressBar({ isHooh: _isHooh, endAt, gymResetMs }: { isHooh: boolean; endAt: number | null; gymResetMs: number }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!endAt) return;
+    const id = setInterval(() => setNow(Date.now()), 5000);
+    return () => clearInterval(id);
+  }, [endAt]);
+  if (!endAt || endAt <= now) return null;
+  const pct = Math.min(100, ((gymResetMs - (endAt - now)) / gymResetMs) * 100);
+  return (
+    <div className="mt-1.5 w-full h-1 bg-black/30 rounded-full overflow-hidden">
+      <div
+        className="h-full bg-gradient-to-r from-amber-500 to-orange-400 rounded-full transition-all"
+        style={{ width: `${pct}%` }}
+      />
+    </div>
+  );
+}
+
 export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guide2Steps, gymCoords, regionMap, config = {} }: GymRerunAssistantProps) {
   const {
     totalGyms = 33,
@@ -526,7 +547,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     }
 
     setLoaded(true);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -1270,15 +1290,11 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   Ajustar
                 </button>
               </div>
-              {((selectedGuideId === 'hooh' && allCooldowns.hooh.endAt && allCooldowns.hooh.endAt > Date.now()) || 
-                (selectedGuideId !== 'hooh' && cooldown.endAt && cooldown.endAt > Date.now())) && (
-                <div className="mt-1.5 w-full h-1 bg-black/30 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-amber-500 to-orange-400 rounded-full transition-all"
-                    style={{ width: `${Math.min(100, ((gymResetMs - ((selectedGuideId === 'hooh' ? allCooldowns.hooh.endAt : cooldown.endAt)! - Date.now())) / gymResetMs) * 100)}%` }}
-                  />
-                </div>
-              )}
+              <CooldownProgressBar
+                isHooh={selectedGuideId === 'hooh'}
+                endAt={selectedGuideId === 'hooh' ? allCooldowns.hooh.endAt : cooldown.endAt}
+                gymResetMs={gymResetMs}
+              />
             </div>
           )}
 

@@ -14,10 +14,9 @@ interface CardProps {
   children: React.ReactNode;
   className?: string;
   padding?: CardPadding;
-  hover?: boolean;
 }
 
-export default function Card({ children, className = "", padding = "md", hover = false }: CardProps) {
+export default function Card({ children, className = "", padding = "md" }: CardProps) {
   return (
     <div
       className={[

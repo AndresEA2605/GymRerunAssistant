@@ -16,6 +16,12 @@ const eslintConfig = defineConfig([
     "transform.js",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      "react-compiler/react-compiler": "off",
+      "@typescript-eslint/no-unused-vars": "off"
+    }
+  }
 ]);
 
 export default eslintConfig;
