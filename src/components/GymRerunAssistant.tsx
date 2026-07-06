@@ -9,6 +9,7 @@ import {
   RotateCcw,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Compass,
   Heart,
   Swords,
@@ -1975,6 +1976,17 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     const guide = getGuide(selectedGuideId);
                     return guide ? <GuideCredits guide={guide} mode="full" /> : null;
                   })()}
+
+                  <div className="flex flex-col items-center gap-1 mt-6 text-indigo-400 animate-bounce cursor-pointer hover:text-indigo-300 shrink-0" onClick={(e) => {
+                    const container = e.currentTarget.closest(".overflow-y-auto");
+                    if (container) {
+                      const btn = container.querySelector("#comenzar-ruta-btn");
+                      if (btn) btn.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
+                  }}>
+                    <span className="fs-tiny font-black uppercase tracking-wider">Desliza o haz clic para comenzar</span>
+                    <ChevronDown className="w-5 h-5" />
+                  </div>
                   
                   {steps[0] && (
                     <div className="w-full bg-neutral-950 rounded-xl border border-neutral-800 p-4 mt-4 max-h-[55vh] overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900">
@@ -1993,7 +2005,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       )}
                     </div>
                   )}
-                  <button onClick={() => { setStartChecks([false, false, false]); setShowStartCheck(true); }} className="w-full max-w-md h-14 mx-auto bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-2xl transition-all shadow-lg shadow-indigo-900/30">
+                  <button id="comenzar-ruta-btn" onClick={() => { setStartChecks([false, false, false]); setShowStartCheck(true); }} className="w-full max-w-md h-14 mx-auto bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-2xl transition-all shadow-lg shadow-indigo-900/30">
                     ▶ Comenzar ruta
                   </button>
                 </>
