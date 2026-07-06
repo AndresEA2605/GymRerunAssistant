@@ -23,6 +23,8 @@ import {
   Target,
   Timer,
   Flame,
+  CheckCircle,
+  Zap,
 } from "lucide-react";
 
 const ArrowRight = ({ className }: { className?: string }) => (
@@ -332,6 +334,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [showTeam, setShowTeam] = useState<boolean>(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState<boolean>(false);
+  const [finishSummary, setFinishSummary] = useState<{ elapsed: number; gyms: number; xpEarned: number; guideTitle: string } | null>(null);
   const [showAbandonConfirm, setShowAbandonConfirm] = useState<boolean>(false);
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
   const [showResumePrompt, setShowResumePrompt] = useState<boolean>(false);
@@ -938,6 +941,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const finishRun = () => {
     const finalElapsed = timerIsRunning && timerStartTime ? timerElapsed + (Date.now() - timerStartTime) : timerElapsed;
     const totalGymsDone = sessionGymCount;
+    const runXP = 100 + totalGymsDone * 50;
+    const guideTitle = getGuide(selectedGuideId)?.title || "Guía";
     const newEntry: RunHistoryEntry = {
       id: Math.random().toString(36).substr(2, 9),
       finishedAt: Date.now(),
@@ -957,9 +962,9 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       setLS(`run_step_${selectedGuideId}`, "");
       setLS(`run_active_${selectedGuideId}`, "");
     }
+    setFinishSummary({ elapsed: finalElapsed, gyms: totalGymsDone, xpEarned: runXP, guideTitle });
     goToMenu();
-    triggerToast("¡Run completada!");
-    grantXP(100 + sessionGymCount * 50, "Run completada");
+    grantXP(runXP, "Run completada");
     incrementStat("guidesFinished");
     incrementStat("totalTimeMs", finalElapsed);
   };
@@ -1498,6 +1503,33 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/94.gif" alt="Gengar" className="w-16 h-16 sm:w-24 sm:h-24 object-contain" style={{ filter: 'drop-shadow(0 0 10px rgba(139,92,246,0.5))' }} />
               </div>
             </div>
+
+            {finishSummary && (
+              <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-emerald-950/60 to-indigo-950/60 border border-emerald-500/30 relative animate-in fade-in slide-in-from-top-4 duration-300">
+                <button onClick={() => setFinishSummary(null)} className="absolute top-2 right-2 p-1 rounded-lg text-neutral-500 hover:text-white hover:bg-neutral-800 transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+                <div className="flex items-center gap-2 mb-2">
+                  <CheckCircle className="w-5 h-5 text-emerald-400" />
+                  <span className="fs-small font-black text-emerald-300">¡Run completada!</span>
+                </div>
+                <div className="text-white font-black text-sm mb-1">{finishSummary.guideTitle} Rerun</div>
+                <div className="flex flex-wrap gap-3 mt-2">
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <Timer className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="text-neutral-300">{formatTime(finishSummary.elapsed)}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <Target className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-neutral-300">{finishSummary.gyms} gym{finishSummary.gyms !== 1 ? 's' : ''}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <Zap className="w-3.5 h-3.5 text-indigo-400" />
+                    <span className="text-indigo-300 font-bold">+{finishSummary.xpEarned} XP</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-5">
               <div className="bg-gradient-to-br from-amber-500/15 to-orange-500/5 border border-amber-500/30 rounded-2xl p-4">
