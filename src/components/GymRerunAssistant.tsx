@@ -341,6 +341,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [showCooldownEditor, setShowCooldownEditor] = useState<boolean>(false);
   const [showMobileSidebar, setShowMobileSidebar] = useState<boolean>(false);
   const [showSettings, setShowSettings] = useState<boolean>(false);
+  const [hasActiveSession, setHasActiveSession] = useState<boolean>(false);
+  const [activeSessionGuide, setActiveSessionGuide] = useState<string>('');
   const [appExiting, setAppExiting] = useState<boolean>(false);
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
   const [slideClass, setSlideClass] = useState<string>("");
@@ -531,17 +533,19 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       ];
       const activeGuide = activeGuides.find(g => d[g.key] === "true");
       if (activeGuide) {
+        // Show session prompt — block main menu
+        setHasActiveSession(true);
+        setActiveSessionGuide(activeGuide.id);
         const savedStep = d[`run_step_${activeGuide.id}`];
         const idx = savedStep ? parseInt(savedStep, 10) : -1;
         setSelectedGuideId(activeGuide.id);
         setLS("selected_guide", activeGuide.id);
         if (!isNaN(idx) && idx >= 0) {
           setCurrentStepIndex(idx);
-          setShowMenu(false);
         } else {
           setCurrentStepIndex(-1);
-          setShowMenu(true);
         }
+        setShowMenu(true);
       } else {
         // No active session — check for legacy gym_step
         const savedStep = d["gym_step"];
@@ -1017,7 +1021,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         setLS(`run_active_${selectedGuideId}`, "true");
       }
       setCurrentStepIndex(-1);
-      setAppExiting(true); setTimeout(() => { setMenuVisible(true); setShowMenu(true); setAppExiting(false); }, 310);
+      setAppExiting(true); setTimeout(() => {
+        setHasActiveSession(true);
+        setMenuVisible(true);
+        setShowMenu(true);
+        setAppExiting(false);
+      }, 310);
       return;
     }
     setAppExiting(true); setTimeout(() => { setMenuVisible(true); setShowMenu(true); setAppExiting(false); }, 310);
@@ -1172,6 +1181,54 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   }
 
   if (showMenu) {
+    // Active session prompt — block main menu
+    if (hasActiveSession) {
+      const guide = getGuide(activeSessionGuide);
+      return (
+        <div className="min-h-[100dvh] bg-neutral-950 flex flex-col items-center justify-center p-4">
+          <div className="w-full max-w-sm space-y-6 page-enter-scale">
+            {/* Pokemon */}
+            <div className="flex justify-center">
+              <div className="w-24 h-24 poke-aura poke-glow-indigo">
+                <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${guide?.icon || '94'}.gif`} alt="" className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(99,102,241,0.3)]" />
+              </div>
+            </div>
+            {/* Message */}
+            <div className="text-center space-y-2">
+              <h2 className="text-xl font-black text-white">Tienes una sesión activa</h2>
+              <p className="text-sm text-neutral-400">
+                Estabas jugando <span className="font-bold text-white">{guide?.title || "una guía"}</span>. ¿Qué deseas hacer?
+              </p>
+            </div>
+            {/* Buttons */}
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  setHasActiveSession(false);
+                  const idx = currentStepIndex >= 0 ? currentStepIndex : -1;
+                  if (idx >= 0) {
+                    setShowMenu(false);
+                  }
+                }}
+                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-500 hover:from-indigo-500 hover:to-violet-400 text-white font-black text-base transition-all shadow-lg shadow-indigo-600/20 active:scale-[0.98]"
+              >
+                Continuar con la ruta
+              </button>
+              <button
+                onClick={() => {
+                  setHasActiveSession(false);
+                  abandonRun();
+                }}
+                className="w-full py-3.5 rounded-2xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-black text-base transition-all border border-neutral-700 active:scale-[0.98]"
+              >
+                Empezar desde el menú
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     const bestRun = history.length > 0 ? history.reduce((a, b) => a.elapsed < b.elapsed ? a : b) : null;
     return (
       <>
