@@ -950,10 +950,15 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const closeHistory = () => { setHistoryExiting(true); setTimeout(() => { setShowHistory(false); setHistoryExiting(false); }, 185); };
   const runIsActive = currentStepIndex >= 0 || timerIsRunning || sessionGymCount > 0;
   const goToMenu = () => {
-    if (runIsActive && selectedGuideId !== 'none') {
-      setLS(`run_step_${selectedGuideId}`, String(currentStepIndex));
-      setLS(`run_active_${selectedGuideId}`, "true");
-      setCurrentStepIndex(-1);
+    if (selectedGuideId !== 'none') {
+      if (runIsActive) {
+        setLS(`run_step_${selectedGuideId}`, String(currentStepIndex));
+        setLS(`run_active_${selectedGuideId}`, "true");
+        setCurrentStepIndex(-1);
+      } else {
+        setSelectedGuideId('none');
+        setLS("selected_guide", "none");
+      }
       return;
     }
     setAppExiting(true); setTimeout(() => { setMenuVisible(true); setShowMenu(true); setAppExiting(false); }, 310);
@@ -1100,11 +1105,17 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             const gc = getGuideColorClasses(guide.color);
             return (
               <div className="reveal-1 max-w-5xl mx-auto mt-2 pb-6">
-                {/* Back button */}
+                {/* Back / Finish button */}
                 <div className="flex justify-start mb-4">
-                  <button onClick={() => { if (!runIsActive) selectGuide('none'); }} disabled={runIsActive} className={`flex items-center gap-1.5 fs-tiny font-bold uppercase tracking-wider transition-colors border px-4 py-2.5 rounded-xl shadow-md ${runIsActive ? 'text-neutral-600 border-neutral-800/40 bg-neutral-900/40 cursor-not-allowed' : 'text-neutral-400 hover:text-white bg-neutral-900/80 hover:bg-neutral-800 border-neutral-800/80'}`}>
-                    <ChevronLeft className={`w-4 h-4 ${runIsActive ? 'text-neutral-700' : 'text-indigo-400'}`} /> Volver a guías
-                  </button>
+                  {runIsActive ? (
+                    <button onClick={requestFinishRun} className="flex items-center gap-1.5 fs-tiny font-bold uppercase tracking-wider transition-colors border px-4 py-2.5 rounded-xl shadow-md text-red-400 hover:text-white bg-red-950/50 hover:bg-red-900/60 border-red-500/30 hover:border-red-500/50">
+                      <Power className="w-4 h-4" /> Terminar ruta
+                    </button>
+                  ) : (
+                    <button onClick={() => selectGuide('none')} className="flex items-center gap-1.5 fs-tiny font-bold uppercase tracking-wider transition-colors border px-4 py-2.5 rounded-xl shadow-md text-neutral-400 hover:text-white bg-neutral-900/80 hover:bg-neutral-800 border-neutral-800/80">
+                      <ChevronLeft className="w-4 h-4 text-indigo-400" /> Volver a guías
+                    </button>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
@@ -1226,13 +1237,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
                     {/* Action Block */}
                     <div className="bg-neutral-900/60 border border-neutral-800/80 rounded-2xl p-5 shadow-xl">
-                      {currentStepIndex >= 0 ? (
+                      {runIsActive ? (
                         <div className="flex flex-col gap-3">
                           <div className="flex items-center gap-2.5 pb-2.5 border-b border-neutral-800">
                             <Info className="w-4 h-4 text-amber-400" />
                             <div>
                               <h4 className="fs-small font-black text-amber-300 uppercase">Sesión activa</h4>
-                              <p className="fs-tiny text-neutral-400">Paso {currentStepIndex + 1} de {steps.length}</p>
+                              <p className="fs-tiny text-neutral-400">Paso {currentStepIndex >= 0 ? `${currentStepIndex + 1} de ${steps.length}` : "en pausa"}</p>
                             </div>
                           </div>
                           <Button variant="primary" size="lg" onClick={() => exitMenu()} className="w-full bg-amber-600 hover:bg-amber-500 border-amber-500/50 justify-center gap-2 font-black py-3.5">
