@@ -8,7 +8,7 @@ interface AuthContextType {
   stats: UserStats | null;
   token: string | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<{ error?: string }>;
+  login: (identifier: string, password: string) => Promise<{ error?: string }>;
   register: (email: string, username: string, password: string) => Promise<{ error?: string }>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
@@ -69,12 +69,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [refreshSession]);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (identifier: string, password: string) => {
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ identifier, password }),
       });
       const text = await res.text();
       let data: Record<string, unknown>;

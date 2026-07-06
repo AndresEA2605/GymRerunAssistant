@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Mail, Lock, User, UserPlus, Loader2, Check } from "lucide-react";
+import { Mail, Lock, User, UserPlus, Loader2, Check, Eye, EyeOff } from "lucide-react";
 
 interface RegisterModalProps {
   isOpen: boolean;
@@ -16,6 +16,8 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onRegi
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const usernameRef = useRef<HTMLInputElement>(null);
@@ -23,6 +25,12 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onRegi
   useEffect(() => {
     if (isOpen) {
       setError("");
+      setEmail("");
+      setUsername("");
+      setPassword("");
+      setConfirmPassword("");
+      setShowPassword(false);
+      setShowConfirm(false);
       setTimeout(() => usernameRef.current?.focus(), 200);
     }
   }, [isOpen]);
@@ -35,21 +43,23 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onRegi
   if (!isOpen) return null;
 
   const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword;
+  const usernameValid = username.length >= 3 && username.length <= 20;
+  const passwordValid = password.length >= 6;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden");
+    if (!usernameValid) {
+      setError("El username debe tener entre 3 y 20 caracteres");
       return;
     }
-    if (password.length < 6) {
+    if (!passwordValid) {
       setError("La contraseña debe tener al menos 6 caracteres");
       return;
     }
-    if (username.length < 3 || username.length > 20) {
-      setError("El username debe tener entre 3 y 20 caracteres");
+    if (password !== confirmPassword) {
+      setError("Las contraseñas no coinciden");
       return;
     }
 
@@ -59,10 +69,6 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onRegi
     if (result.error) {
       setError(result.error);
     } else {
-      setEmail("");
-      setUsername("");
-      setPassword("");
-      setConfirmPassword("");
       onClose();
     }
   };
@@ -73,11 +79,11 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onRegi
 
       <div className="relative z-10 w-full max-w-md mx-4 max-h-[95vh] overflow-y-auto">
         <div
-          className="bg-gradient-to-b from-neutral-900 via-neutral-900 to-neutral-950 rounded-3xl border border-neutral-700/50 shadow-[0_0_80px_rgba(16,185,129,0.08)] p-8 md:p-10 animate-in zoom-in-95 fade-in slide-in-from-bottom-4 duration-500"
+          className="bg-gradient-to-b from-neutral-900 via-neutral-900 to-neutral-950 rounded-3xl border border-neutral-700/50 shadow-[0_0_80px_rgba(16,185,129,0.08)] p-8 md:p-10 animate-in zoom-in-95 fade-in slide-in-from-bottom-4 duration-500 my-4"
           onClick={(e) => e.stopPropagation()}
         >
           <button onClick={onClose} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-neutral-800/60 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition-all z-10">
-            <span className="text-lg">×</span>
+            <span className="text-lg leading-none">&times;</span>
           </button>
 
           <div className="text-center mb-8">
@@ -88,9 +94,9 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onRegi
             <p className="text-sm text-neutral-400 mt-2 leading-relaxed">Registrate para guardar tu progreso<br />y sincronizar entre dispositivos</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="on">
             {error && (
-              <div className="bg-red-950/50 border border-red-800/50 rounded-2xl p-4 text-red-300 text-sm text-center font-medium">
+              <div className="bg-red-950/50 border border-red-800/50 rounded-2xl p-4 text-red-300 text-sm text-center font-medium animate-in fade-in slide-in-from-bottom-2 duration-300">
                 {error}
               </div>
             )}
@@ -104,12 +110,26 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onRegi
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-neutral-800/80 border border-neutral-700 rounded-2xl pl-12 pr-4 py-3.5 text-white text-base focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 transition-all placeholder:text-neutral-600"
+                  className={`w-full bg-neutral-800/80 border rounded-2xl pl-12 pr-4 py-3.5 text-white text-base focus:outline-none transition-all placeholder:text-neutral-600 ${
+                    username.length > 0
+                      ? usernameValid
+                        ? "border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/30"
+                        : "border-red-500/50 focus:ring-2 focus:ring-red-500/30"
+                      : "border-neutral-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30"
+                  }`}
                   placeholder="TuNombre"
+                  autoComplete="username"
                   required
                 />
+                {username.length > 0 && (
+                  <div className={`absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center ${usernameValid ? "bg-emerald-500/20" : "bg-red-500/20"}`}>
+                    <Check className={`w-3.5 h-3.5 ${usernameValid ? "text-emerald-400" : "text-red-400"}`} />
+                  </div>
+                )}
               </div>
-              <p className="text-xs text-neutral-500 mt-1.5 ml-1">Entre 3 y 20 caracteres</p>
+              <p className={`text-xs mt-1.5 ml-1 ${username.length > 0 && !usernameValid ? "text-red-400" : "text-neutral-500"}`}>
+                {username.length}/20 caracteres {username.length > 0 && !usernameValid && "— mínimo 3"}
+              </p>
             </div>
 
             <div>
@@ -122,6 +142,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onRegi
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-neutral-800/80 border border-neutral-700 rounded-2xl pl-12 pr-4 py-3.5 text-white text-base focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 transition-all placeholder:text-neutral-600"
                   placeholder="tu@email.com"
+                  autoComplete="email"
                   required
                 />
               </div>
@@ -132,15 +153,32 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onRegi
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-neutral-800/80 border border-neutral-700 rounded-2xl pl-12 pr-4 py-3.5 text-white text-base focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 transition-all placeholder:text-neutral-600"
+                  className={`w-full bg-neutral-800/80 border rounded-2xl pl-12 pr-12 py-3.5 text-white text-base focus:outline-none transition-all placeholder:text-neutral-600 ${
+                    password.length > 0
+                      ? passwordValid
+                        ? "border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/30"
+                        : "border-red-500/50 focus:ring-2 focus:ring-red-500/30"
+                      : "border-neutral-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30"
+                  }`}
                   placeholder="••••••••"
+                  autoComplete="new-password"
                   required
                 />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl flex items-center justify-center text-neutral-500 hover:text-neutral-300 hover:bg-neutral-700/50 transition-all"
+                >
+                  {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                </button>
               </div>
-              <p className="text-xs text-neutral-500 mt-1.5 ml-1">Mínimo 6 caracteres</p>
+              <p className={`text-xs mt-1.5 ml-1 ${password.length > 0 && !passwordValid ? "text-red-400" : "text-neutral-500"}`}>
+                Mínimo 6 caracteres
+              </p>
             </div>
 
             <div>
@@ -148,7 +186,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onRegi
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
                 <input
-                  type="password"
+                  type={showConfirm ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className={`w-full bg-neutral-800/80 border rounded-2xl pl-12 pr-12 py-3.5 text-white text-base focus:outline-none transition-all placeholder:text-neutral-600 ${
@@ -159,10 +197,19 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onRegi
                       : "border-neutral-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30"
                   }`}
                   placeholder="••••••••"
+                  autoComplete="new-password"
                   required
                 />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => setShowConfirm(!showConfirm)}
+                  className="absolute right-12 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl flex items-center justify-center text-neutral-500 hover:text-neutral-300 hover:bg-neutral-700/50 transition-all"
+                >
+                  {showConfirm ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                </button>
                 {confirmPassword && (
-                  <div className={`absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center ${passwordsMatch ? "bg-emerald-500/20" : "bg-red-500/20"}`}>
+                  <div className={`absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center ${passwordsMatch ? "bg-emerald-500/20" : "bg-red-500/20"}`}>
                     <Check className={`w-3.5 h-3.5 ${passwordsMatch ? "text-emerald-400" : "text-red-400"}`} />
                   </div>
                 )}
@@ -172,7 +219,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onRegi
             <button
               type="submit"
               disabled={loading || !email || !username || !password || !confirmPassword}
-              className="w-full h-13 bg-emerald-600 hover:bg-emerald-500 disabled:bg-neutral-800 disabled:text-neutral-500 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2.5 text-base mt-1"
+              className="w-full h-13 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] disabled:bg-neutral-800 disabled:text-neutral-500 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2.5 text-base mt-1"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <UserPlus className="w-5 h-5" />}
               {loading ? "Creando cuenta..." : "Crear Cuenta"}

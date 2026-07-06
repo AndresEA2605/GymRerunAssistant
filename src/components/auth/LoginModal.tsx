@@ -2,26 +2,30 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Mail, Lock, LogIn, Loader2, Sparkles } from "lucide-react";
+import { Mail, Lock, User, LogIn, Loader2, Eye, EyeOff } from "lucide-react";
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToRegister: () => void;
-  onLogin: (email: string, password: string) => Promise<{ error?: string }>;
+  onLogin: (identifier: string, password: string) => Promise<{ error?: string }>;
 }
 
 export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLogin }: LoginModalProps) {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const emailRef = useRef<HTMLInputElement>(null);
+  const identifierRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       setError("");
-      setTimeout(() => emailRef.current?.focus(), 200);
+      setIdentifier("");
+      setPassword("");
+      setShowPassword(false);
+      setTimeout(() => identifierRef.current?.focus(), 200);
     }
   }, [isOpen]);
 
@@ -34,18 +38,19 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLogi
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!identifier.trim() || !password) return;
     setError("");
     setLoading(true);
-    const result = await onLogin(email, password);
+    const result = await onLogin(identifier.trim(), password);
     setLoading(false);
     if (result.error) {
       setError(result.error);
     } else {
-      setEmail("");
-      setPassword("");
       onClose();
     }
   };
+
+  const isEmail = identifier.includes("@");
 
   return createPortal(
     <div className="fixed inset-0 z-[200] flex items-center justify-center animate-in fade-in duration-300">
@@ -57,7 +62,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLogi
           onClick={(e) => e.stopPropagation()}
         >
           <button onClick={onClose} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-neutral-800/60 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition-all">
-            <span className="text-lg">×</span>
+            <span className="text-lg leading-none">&times;</span>
           </button>
 
           <div className="text-center mb-8">
@@ -68,24 +73,29 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLogi
             <p className="text-sm text-neutral-400 mt-2 leading-relaxed">Accedé a tu cuenta para sincronizar<br />tu progreso entre dispositivos</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="on">
             {error && (
-              <div className="bg-red-950/50 border border-red-800/50 rounded-2xl p-4 text-red-300 text-sm text-center font-medium">
+              <div className="bg-red-950/50 border border-red-800/50 rounded-2xl p-4 text-red-300 text-sm text-center font-medium animate-in fade-in slide-in-from-bottom-2 duration-300">
                 {error}
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-bold text-neutral-300 uppercase tracking-wider mb-2">Email</label>
+              <label className="block text-xs font-bold text-neutral-300 uppercase tracking-wider mb-2">Usuario o Email</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+                {isEmail ? (
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+                ) : (
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+                )}
                 <input
-                  ref={emailRef}
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  ref={identifierRef}
+                  type="text"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   className="w-full bg-neutral-800/80 border border-neutral-700 rounded-2xl pl-12 pr-4 py-3.5 text-white text-base focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all placeholder:text-neutral-600"
-                  placeholder="tu@email.com"
+                  placeholder="Tu usuario o tu@email.com"
+                  autoComplete="username"
                   required
                 />
               </div>
@@ -96,20 +106,29 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLogi
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-neutral-800/80 border border-neutral-700 rounded-2xl pl-12 pr-4 py-3.5 text-white text-base focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all placeholder:text-neutral-600"
+                  className="w-full bg-neutral-800/80 border border-neutral-700 rounded-2xl pl-12 pr-12 py-3.5 text-white text-base focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all placeholder:text-neutral-600"
                   placeholder="••••••••"
+                  autoComplete="current-password"
                   required
                 />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl flex items-center justify-center text-neutral-500 hover:text-neutral-300 hover:bg-neutral-700/50 transition-all"
+                >
+                  {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                </button>
               </div>
             </div>
 
             <button
               type="submit"
-              disabled={loading || !email || !password}
-              className="w-full h-13 bg-indigo-600 hover:bg-indigo-500 disabled:bg-neutral-800 disabled:text-neutral-500 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2.5 text-base mt-1"
+              disabled={loading || !identifier.trim() || !password}
+              className="w-full h-13 bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] disabled:bg-neutral-800 disabled:text-neutral-500 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2.5 text-base mt-1"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogIn className="w-5 h-5" />}
               {loading ? "Ingresando..." : "Iniciar Sesión"}

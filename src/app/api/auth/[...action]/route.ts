@@ -51,11 +51,12 @@ async function handler(
       }
 
       case 'login': {
-        const { email, password } = body;
-        if (!email || !password) {
+        const { email, identifier, password } = body;
+        const loginId = identifier || email;
+        if (!loginId || !password) {
           return NextResponse.json({ error: 'Faltan campos' }, { status: 400 });
         }
-        const result = await loginUser(email, password);
+        const result = await loginUser(loginId, password);
         if ('error' in result) {
           return NextResponse.json({ error: result.error }, { status: 400 });
         }

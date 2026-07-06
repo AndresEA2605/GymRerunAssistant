@@ -176,15 +176,22 @@ export async function registerUser(
 }
 
 export async function loginUser(
-  email: string,
+  identifier: string,
   password: string
 ): Promise<{ user: User; token: string } | { error: string }> {
   try {
-    const cleanEmail = email.toLowerCase().trim();
+    const clean = identifier.toLowerCase().trim();
 
-    const userId = await getRedis().get<string>(kemail(cleanEmail));
+    let userId: string | null = null;
+
+    if (clean.includes('@')) {
+      userId = await getRedis().get<string>(kemail(clean));
+    } else {
+      userId = await getRedis().get<string>(kusername(clean));
+    }
+
     if (!userId || typeof userId !== 'string') {
-      return { error: 'Email o contraseña incorrectos' };
+      return { error: 'Usuario o contraseña incorrectos' };
     }
 
     const userData = await getRedis().get<UserWithHash>(kuser(userId));
@@ -194,7 +201,7 @@ export async function loginUser(
 
     const valid = await verifyPassword(password, userData.passwordHash);
     if (!valid) {
-      return { error: 'Email o contraseña incorrectos' };
+      return { error: 'Usuario o contraseña incorrectos' };
     }
 
     const now = Date.now();
