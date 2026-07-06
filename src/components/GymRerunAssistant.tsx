@@ -1186,45 +1186,75 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     // Active session prompt — block main menu
     if (hasActiveSession) {
       const guide = getGuide(activeSessionGuide);
+      const savedStep = currentStepIndex >= 0 ? currentStepIndex : -1;
+      const savedTimer = timerElapsed > 0 || timerIsRunning;
       return (
         <div className="min-h-[100dvh] bg-neutral-950 flex flex-col items-center justify-center p-4">
-          <div className="w-full max-w-sm space-y-6 page-enter-scale">
+          <div className="w-full max-w-sm space-y-5 page-enter-scale">
             {/* Pokemon */}
             <div className="flex justify-center">
-              <div className="w-24 h-24 poke-aura poke-glow-indigo">
+              <div className="w-20 h-20 poke-aura poke-glow-indigo">
                 <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${guide?.icon || '94'}.gif`} alt="" className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(99,102,241,0.3)]" />
               </div>
             </div>
             {/* Message */}
-            <div className="text-center space-y-2">
-              <h2 className="text-xl font-black text-white">Tienes una sesión activa</h2>
-              <p className="text-sm text-neutral-400">
-                Estabas jugando <span className="font-bold text-white">{guide?.title || "una guía"}</span>. ¿Qué deseas hacer?
-              </p>
+            <div className="text-center space-y-1.5">
+              <h2 className="text-xl font-black text-white">Sesión activa</h2>
+              <p className="text-sm text-neutral-400">¿Qué deseas hacer?</p>
+            </div>
+            {/* Active Run Card */}
+            <div className="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="fs-tiny font-black text-emerald-400 uppercase tracking-wider">Run en progreso</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-neutral-800 border border-neutral-700/50 p-1.5 shrink-0">
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${guide?.icon || '94'}.gif`} alt="" className="w-full h-full object-contain" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-white font-black text-sm truncate">{guide?.title || "Guía"} Rerun</div>
+                  <div className="text-neutral-500 text-xs">
+                    {savedStep >= 0
+                      ? `Paso ${savedStep + 1}`
+                      : "Portada"}
+                    {savedTimer && ` · ${formatTime(timerIsRunning && timerStartTime ? timerElapsed + (Date.now() - timerStartTime) : timerElapsed)}`}
+                  </div>
+                </div>
+              </div>
+              {sessionGymCount > 0 && (
+                <div className="flex items-center gap-2 text-xs text-neutral-400">
+                  <Target className="w-3.5 h-3.5 text-emerald-400" />
+                  <span><span className="font-bold text-white">{sessionGymCount}</span> gym{sessionGymCount !== 1 ? 's' : ''} completado{sessionGymCount !== 1 ? 's' : ''}</span>
+                </div>
+              )}
             </div>
             {/* Buttons */}
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               <button
                 onClick={() => {
                   setHasActiveSession(false);
-                  const idx = currentStepIndex >= 0 ? currentStepIndex : -1;
-                  if (idx >= 0) {
+                  if (savedStep >= 0) {
                     setShowMenu(false);
                   }
                 }}
                 className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-500 hover:from-indigo-500 hover:to-violet-400 text-white font-black text-base transition-all shadow-lg shadow-indigo-600/20 active:scale-[0.98]"
               >
-                Continuar con la ruta
+                ▶ Continuar ruta
               </button>
               <button
                 onClick={() => {
                   setHasActiveSession(false);
                   abandonRun();
                 }}
-                className="w-full py-3.5 rounded-2xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-black text-base transition-all border border-neutral-700 active:scale-[0.98]"
+                className="w-full py-3.5 rounded-2xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-sm transition-all border border-neutral-700 active:scale-[0.98]"
               >
                 Empezar desde el menú
               </button>
+            </div>
+            {/* Login */}
+            <div className="pt-2 border-t border-neutral-800/50">
+              <AuthButton />
             </div>
           </div>
         </div>
