@@ -964,7 +964,11 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     incrementStat("totalTimeMs", finalElapsed);
   };
 
-  const requestFinishRun = () => setShowFinishConfirm(true);
+  const requestFinishRun = () => finishRun();
+
+  const handleTaskComplete = useCallback((taskLabel: string) => {
+    grantXP(25, `Tarea diaria: ${taskLabel}`);
+  }, [grantXP]);
 
   const abandonRun = () => {
     resetTimer();
@@ -2049,7 +2053,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           </div>
         </div>
       )}
-      <DailyTasks gymsCompleted={sessionGymCount} timerElapsedMs={timerElapsed} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} />
+      <DailyTasks gymsCompleted={sessionGymCount} timerElapsedMs={timerElapsed} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} onTaskComplete={handleTaskComplete} />
       </>
     );
   }
@@ -2906,31 +2910,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         </div>
       )}
 
-      {showFinishConfirm && (
-        <div className={OVERLAY_CLASSES}>
-          <div className="bg-neutral-900 rounded-2xl border border-neutral-800 w-full max-w-sm p-5">
-            <h3 className="font-black fs-h2 text-white">¿Terminar ruta?</h3>
-            <p className="fs-body text-neutral-400 mt-2">
-              Se guardará la run, se reiniciará el cronómetro y se activará el reset de gyms de 18 horas desde el último gym hecho.
-            </p>
-            <div className="mt-4 grid grid-cols-2 gap-2.5">
-              <button
-                onClick={() => setShowFinishConfirm(false)}
-                className="py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-black fs-body"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={finishRun}
-                className="py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black fs-body"
-              >
-                Sí, terminar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {showTeam && (
         <div className={`fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-start justify-center p-3 overflow-y-auto ${teamExiting ? 'overlay-exit' : 'overlay-enter'}`} onClick={() => closeTeam()}>
           <div className={`relative w-full max-w-3xl my-3 ${teamExiting ? 'modal-exit' : 'modal-enter'}`} onClick={e => e.stopPropagation()}>
@@ -3332,7 +3311,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         </div>
       </div>
     )}
-    <DailyTasks gymsCompleted={sessionGymCount} timerElapsedMs={timerElapsed} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} />
+    <DailyTasks gymsCompleted={sessionGymCount} timerElapsedMs={timerElapsed} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} onTaskComplete={handleTaskComplete} />
 
     {showSettings && (
       <div className={OVERLAY_CLASSES} onClick={() => setShowSettings(false)}>

@@ -1,7 +1,7 @@
 /* eslint-disable */
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { X, CheckCircle, Clock, MessageCircle, Zap, Timer, Medal, Flame, AlertTriangle, Shield } from "lucide-react";
 import { DailyTask, DailyTasksState } from "../types";
 import { storageGet, storageSet } from "@/lib/storage";
@@ -104,11 +104,13 @@ interface DailyTasksProps {
   timerElapsedMs?: number;
   isOpen: boolean;
   onToggle: () => void;
+  onTaskComplete?: (taskLabel: string) => void;
 }
 
-export default function DailyTasks({ gymsCompleted, timerElapsedMs = 0, isOpen, onToggle }: DailyTasksProps) {
+export default function DailyTasks({ gymsCompleted, timerElapsedMs = 0, isOpen, onToggle, onTaskComplete }: DailyTasksProps) {
   const [tasksState, setTasksState] = useState<DailyTasksState>(createFreshTasks);
   const [panelVisible, setPanelVisible] = useState(false);
+  const prevCompletedRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     loadTasks().then(fresh => setTasksState(fresh));
@@ -154,9 +156,19 @@ export default function DailyTasks({ gymsCompleted, timerElapsedMs = 0, isOpen, 
       });
       const next: DailyTasksState = { ...prev, tasks: updated };
       saveTasks(next);
+      const prevCompleted = prevCompletedRef.current;
+      const newCompleted = new Set(updated.filter(t => t.completed).map(t => t.id));
+      if (onTaskComplete) {
+        updated.forEach(t => {
+          if (t.completed && !prevCompleted.has(t.id)) {
+            onTaskComplete(t.label);
+          }
+        });
+      }
+      prevCompletedRef.current = newCompleted;
       return next;
     });
-  }, [gymsCompleted, timerElapsedMs]);
+  }, [gymsCompleted, timerElapsedMs, onTaskComplete]);
 
   const timeUntilReset = (() => {
     const elapsed = Date.now() - tasksState.lastResetAt;
