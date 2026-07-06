@@ -520,17 +520,39 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       });
       loadedDataRef.current = d;
 
-      const savedStep = d["gym_step"];
-      if (savedStep) {
-        const idx = Number(savedStep);
-        if (!isNaN(idx) && idx >= -1 && idx < steps.length) {
+      // Check for active sessions and restore directly (skip menu)
+      const activeGuides: Array<{ id: 'gym33' | 'hooh' | 'guide2'; key: string }> = [
+        { id: 'gym33', key: 'run_active_gym33' },
+        { id: 'hooh', key: 'run_active_hooh' },
+        { id: 'guide2', key: 'run_active_guide2' },
+      ];
+      const activeGuide = activeGuides.find(g => d[g.key] === "true");
+      if (activeGuide) {
+        const savedStep = d[`run_step_${activeGuide.id}`];
+        const idx = savedStep ? parseInt(savedStep, 10) : -1;
+        setSelectedGuideId(activeGuide.id);
+        setLS("selected_guide", activeGuide.id);
+        if (!isNaN(idx) && idx >= 0) {
           setCurrentStepIndex(idx);
-          if (idx >= 0) {
-            const savedGuide = d["selected_guide"];
-            if (savedGuide === "hooh") setSelectedGuideId("hooh");
-            else if (savedGuide === "guide2") setSelectedGuideId("guide2");
-            else setSelectedGuideId("gym33");
-            setShowResumePrompt(true);
+          setShowMenu(false);
+        } else {
+          setCurrentStepIndex(-1);
+          setShowMenu(true);
+        }
+      } else {
+        // No active session — check for legacy gym_step
+        const savedStep = d["gym_step"];
+        if (savedStep) {
+          const idx = Number(savedStep);
+          if (!isNaN(idx) && idx >= -1 && idx < steps.length) {
+            setCurrentStepIndex(idx);
+            if (idx >= 0) {
+              const savedGuide = d["selected_guide"];
+              if (savedGuide === "hooh") setSelectedGuideId("hooh");
+              else if (savedGuide === "guide2") setSelectedGuideId("guide2");
+              else setSelectedGuideId("gym33");
+              setShowResumePrompt(true);
+            }
           }
         }
       }
@@ -583,10 +605,10 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       setManualTimer(d["manual_timer"] === "true");
 
       setDataReady(true);
-      setLoaded(true);
+      setTimeout(() => setLoaded(true), 400);
     }).catch(() => {
       setDataReady(true);
-      setLoaded(true);
+      setTimeout(() => setLoaded(true), 400);
     });
   }, []);
 
@@ -1122,6 +1144,29 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       </div>
     </div>
   ) : null;
+
+  if (!loaded) {
+    return (
+      <div className="fixed inset-0 z-[100] bg-neutral-950 flex flex-col items-center justify-center gap-6">
+        <div className="relative">
+          <img
+            src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/94.gif"
+            alt="Loading"
+            className="w-24 h-24 md:w-32 md:h-32 drop-shadow-[0_0_30px_rgba(168,85,247,0.4)] animate-pulse"
+          />
+          <div className="absolute inset-0 bg-purple-500/10 blur-2xl rounded-full" />
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <div className="flex gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+            <div className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+          </div>
+          <span className="text-sm font-bold text-neutral-500 tracking-wider uppercase">Cargando...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (showMenu) {
     const bestRun = history.length > 0 ? history.reduce((a, b) => a.elapsed < b.elapsed ? a : b) : null;
@@ -2153,7 +2198,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     const isGuide2 = selectedGuideId === 'guide2';
                     const teamIds = (guide.team || []).map(t => t.spriteId);
                     return (
-                      <div className="w-full max-w-lg mx-auto flex flex-col items-center">
+                      <div className="w-full max-w-lg mx-auto flex flex-col items-center page-enter-scale">
                         {/* Hero Card */}
                         <div className={`w-full relative rounded-3xl border overflow-hidden bg-gradient-to-b ${isHooh ? 'from-amber-950/40 via-neutral-900/80 to-neutral-900/80 border-amber-500/20' : isGuide2 ? 'from-teal-950/40 via-neutral-900/80 to-neutral-900/80 border-teal-500/20' : 'from-indigo-950/40 via-neutral-900/80 to-neutral-900/80 border-indigo-500/20'}`}>
                           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.06),transparent_70%)]" />
