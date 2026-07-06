@@ -1290,7 +1290,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   <span className="fs-tiny font-black text-violet-300 uppercase tracking-wider">Actividad</span>
                 </div>
                 {lastRunStats ? (
-                  <div className="space-y-2">
+              <div className="w-full space-y-2">
                     <div className="bg-neutral-900/60 rounded-lg px-2 py-1.5">
                       <div className="flex items-center justify-between">
                         <span className="fs-tiny text-neutral-400">Última run</span>
@@ -2293,7 +2293,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             )}
 
             {currentStep.type === "prep" && (
-              <div className="space-y-1.5">
+              <div className="w-full space-y-1.5">
                 {currentStep.heal && (
                   <div className="reveal-2 flex items-center justify-center gap-1.5 bg-red-950/20 border border-red-900/30 p-1.5 rounded-xl text-red-400 fs-tiny font-bold">
                     <Heart className="w-3.5 h-3.5 fill-current" /> Curar equipo en el Centro Pokémon
