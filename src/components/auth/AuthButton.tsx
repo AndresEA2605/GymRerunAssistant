@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { LogIn, User } from "lucide-react";
+import { LogIn, User, Zap, Trophy, Cloud, Star } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import LoginModal from "./LoginModal";
 import RegisterModal from "./RegisterModal";
@@ -80,13 +80,47 @@ export default function AuthButton() {
           </div>
         </button>
       ) : (
-        <button
-          onClick={() => setShowLogin(true)}
-          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl bg-indigo-600/20 border border-indigo-500/30 hover:bg-indigo-600/30 hover:border-indigo-500/50 transition-all text-indigo-300 hover:text-indigo-200"
-        >
-          <LogIn className="w-4 h-4 shrink-0" />
-          <span className="fs-tiny font-bold">Iniciar sesión</span>
-        </button>
+        <div className="space-y-2">
+          <button
+            onClick={() => setShowRegister(true)}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white transition-all shadow-lg shadow-indigo-500/15"
+          >
+            <Star className="w-4 h-4 shrink-0 fill-current" />
+            <span className="fs-tiny font-black">Registrate gratis</span>
+          </button>
+
+          <button
+            onClick={() => setShowLogin(true)}
+            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl bg-neutral-800/60 border border-neutral-700/50 hover:bg-neutral-800 hover:border-neutral-600 transition-all text-neutral-300 hover:text-white"
+          >
+            <LogIn className="w-4 h-4 shrink-0" />
+            <span className="fs-tiny font-bold">Ya tengo cuenta</span>
+          </button>
+
+          <div className="rounded-xl bg-gradient-to-b from-indigo-950/30 to-violet-950/20 border border-indigo-500/10 p-2.5 space-y-2">
+            <div className="fs-[10px] uppercase tracking-[0.2em] text-indigo-400/70 font-black text-center">Beneficios</div>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-md bg-amber-500/15 flex items-center justify-center shrink-0">
+                  <Zap className="w-3 h-3 text-amber-400" />
+                </div>
+                <span className="fs-[11px] text-neutral-400 font-bold leading-tight">Subí de nivel completando runs</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-md bg-emerald-500/15 flex items-center justify-center shrink-0">
+                  <Trophy className="w-3 h-3 text-emerald-400" />
+                </div>
+                <span className="fs-[11px] text-neutral-400 font-bold leading-tight">Desbloqueá logros y recompensas</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-md bg-blue-500/15 flex items-center justify-center shrink-0">
+                  <Cloud className="w-3 h-3 text-blue-400" />
+                </div>
+                <span className="fs-[11px] text-neutral-400 font-bold leading-tight">Sincronizá tu progreso en la nube</span>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       <LoginModal
