@@ -1190,9 +1190,17 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 {/* Back / Finish button */}
                 <div className="flex justify-start mb-4">
                   {runIsActive ? (
-                    <button onClick={() => setShowAbandonConfirm(true)} className="flex items-center gap-1.5 fs-tiny font-bold uppercase tracking-wider transition-colors border px-4 py-2.5 rounded-xl shadow-md text-red-400 hover:text-white bg-red-950/50 hover:bg-red-900/60 border-red-500/30 hover:border-red-500/50">
-                      <Power className="w-4 h-4" /> Abandonar ruta
-                    </button>
+                    showAbandonConfirm ? (
+                      <div className="flex items-center gap-2 bg-red-950/50 border border-red-500/30 rounded-xl px-3 py-2 shadow-lg">
+                        <span className="fs-tiny font-bold text-red-300">¿Abandonar?</span>
+                        <button onClick={() => setShowAbandonConfirm(false)} className="px-2.5 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 fs-tiny font-bold transition-colors">Cancelar</button>
+                        <button onClick={() => { setShowAbandonConfirm(false); abandonRun(); }} className="px-2.5 py-1 rounded-lg bg-red-700 hover:bg-red-600 text-white fs-tiny font-bold transition-colors">Sí, abandonar</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setShowAbandonConfirm(true)} className="flex items-center gap-1.5 fs-tiny font-bold uppercase tracking-wider transition-colors border px-4 py-2.5 rounded-xl shadow-md text-red-400 hover:text-white bg-red-950/50 hover:bg-red-900/60 border-red-500/30 hover:border-red-500/50">
+                        <Power className="w-4 h-4" /> Abandonar ruta
+                      </button>
+                    )
                   ) : (
                     <button onClick={() => selectGuide('none')} className="flex items-center gap-1.5 fs-tiny font-bold uppercase tracking-wider transition-colors border px-4 py-2.5 rounded-xl shadow-md text-neutral-400 hover:text-white bg-neutral-900/80 hover:bg-neutral-800 border-neutral-800/80">
                       <ChevronLeft className="w-4 h-4 text-indigo-400" /> Volver a guías
@@ -2810,31 +2818,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 className="py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black fs-body"
               >
                 Sí, terminar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showAbandonConfirm && (
-        <div className={OVERLAY_CLASSES}>
-          <div className="bg-neutral-900 rounded-2xl border border-red-800/50 w-full max-w-sm p-5 shadow-2xl shadow-red-950/30">
-            <h3 className="font-black fs-h2 text-white">¿Abandonar ruta?</h3>
-            <p className="fs-body text-neutral-400 mt-2">
-              Se perderá todo el progreso de la sesión actual. No se guardará ningún dato de la run.
-            </p>
-            <div className="mt-4 grid grid-cols-2 gap-2.5">
-              <button
-                onClick={() => setShowAbandonConfirm(false)}
-                className="py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-black fs-body"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => { setShowAbandonConfirm(false); abandonRun(); }}
-                className="py-2.5 rounded-xl bg-red-700 hover:bg-red-600 text-white font-black fs-body"
-              >
-                Sí, abandonar
               </button>
             </div>
           </div>
