@@ -1,9 +1,10 @@
 /* eslint-disable */
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { X, CheckCircle, Clock, MessageCircle, Zap, Timer, Medal, Flame, AlertTriangle, Shield } from "lucide-react";
 import { DailyTask, DailyTasksState } from "../types";
+import { storageGet, storageSet } from "@/lib/storage";
 
 interface PoolTask {
   id: string;
@@ -76,9 +77,14 @@ function poolToTasks(pool: PoolTask[]): DailyTask[] {
   }));
 }
 
-function loadTasks(): DailyTasksState {
+function createFreshTasks(): DailyTasksState {
+  const seed = getDateSeed();
+  return { tasks: poolToTasks(pickDailyTasks(seed)), lastResetAt: Date.now() };
+}
+
+async function loadTasks(): Promise<DailyTasksState> {
   try {
-    const raw = localStorage.getItem(TASKS_LS_KEY);
+    const raw = await storageGet(TASKS_LS_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as DailyTasksState;
       if (parsed.lastResetAt && parsed.tasks) {
@@ -86,12 +92,11 @@ function loadTasks(): DailyTasksState {
       }
     }
   } catch {}
-  const seed = getDateSeed();
-  return { tasks: poolToTasks(pickDailyTasks(seed)), lastResetAt: Date.now() };
+  return createFreshTasks();
 }
 
 function saveTasks(state: DailyTasksState) {
-  try { localStorage.setItem(TASKS_LS_KEY, JSON.stringify(state)); } catch {}
+  storageSet(TASKS_LS_KEY, JSON.stringify(state)).catch(() => {});
 }
 
 interface DailyTasksProps {
@@ -102,8 +107,12 @@ interface DailyTasksProps {
 }
 
 export default function DailyTasks({ gymsCompleted, timerElapsedMs = 0, isOpen, onToggle }: DailyTasksProps) {
-  const [tasksState, setTasksState] = useState<DailyTasksState>(loadTasks);
+  const [tasksState, setTasksState] = useState<DailyTasksState>(createFreshTasks);
   const [panelVisible, setPanelVisible] = useState(false);
+
+  useEffect(() => {
+    loadTasks().then(fresh => setTasksState(fresh));
+  }, []);
 
   useEffect(() => {
     if (isOpen) {

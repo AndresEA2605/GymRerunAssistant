@@ -40,6 +40,7 @@ import { formatTime } from "./shared/TimerDisplay";
 import { getGuideColorClasses, getGuidePokeGlow } from "@/lib/design-tokens";
 import { getGuide, getGuidesByCategory, GUIDE_CATEGORIES, GUIDES } from "../data/guides";
 import { showCompleteGym as shouldShowCompleteGym, isRoutesGuide } from "@/lib/guide-footer";
+import { storageSet, storageMGet } from "@/lib/storage";
 
 export type GymCoordMap = Record<string, { region: string; x: number; y: number }>;
 export type RegionMap = Record<string, string>;
@@ -416,13 +417,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [startChecks, setStartChecks] = useState<[boolean, boolean, boolean]>([false, false, false]);
   const [showCountdown, setShowCountdown] = useState<boolean>(false);
   const [countdownValue, setCountdownValue] = useState<number>(5);
-  const [skipChecklist, setSkipChecklist] = useState<boolean>(() => typeof window !== "undefined" && localStorage.getItem(`${storagePrefix}_skip_checklist`) === "true");
+  const [skipChecklist, setSkipChecklist] = useState<boolean>(false);
   const skipChecklistRef = useRef(skipChecklist);
   useEffect(() => { skipChecklistRef.current = skipChecklist; }, [skipChecklist]);
-  const [skipCountdown, setSkipCountdown] = useState<boolean>(() => typeof window !== "undefined" && localStorage.getItem(`${storagePrefix}_skip_countdown`) === "true");
+  const [skipCountdown, setSkipCountdown] = useState<boolean>(false);
   const skipCountdownRef = useRef(skipCountdown);
   useEffect(() => { skipCountdownRef.current = skipCountdown; }, [skipCountdown]);
-  const [manualTimer, setManualTimer] = useState<boolean>(() => typeof window !== "undefined" && localStorage.getItem(`${storagePrefix}_manual_timer`) === "true");
+  const [manualTimer, setManualTimer] = useState<boolean>(false);
   const manualTimerRef = useRef(manualTimer);
   useEffect(() => { manualTimerRef.current = manualTimer; }, [manualTimer]);
 
@@ -449,21 +450,15 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [storageWarning, setStorageWarning] = useState<string | null>(null);
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const LS = (key: string) => `${storagePrefix}_${key}`;
+  const loadedDataRef = useRef<Record<string, string>>({});
+  const [dataReady, setDataReady] = useState<boolean>(false);
+
   const getLS = (key: string, fallback: string = "") => {
-    try {
-      return localStorage.getItem(LS(key)) ?? fallback;
-    } catch {
-      setStorageWarning("No se pudo leer el progreso local. La app sigue funcionando.");
-      return fallback;
-    }
+    return loadedDataRef.current[key] ?? fallback;
   };
   const setLS = (key: string, value: string) => {
-    try {
-      localStorage.setItem(LS(key), value);
-    } catch {
-      setStorageWarning("No se pudo guardar el progreso local. Revisa el almacenamiento del navegador.");
-    }
+    loadedDataRef.current[key] = value;
+    storageSet(key, value).catch(() => {});
   };
 
   useEffect(() => {
@@ -490,13 +485,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       const now = Date.now();
       const currentTotal = timerIsRunning && timerStartTime ? timerElapsed + (now - timerStartTime) : timerElapsed;
       const event: TimerEventLog = { type, timestamp: now, elapsed: currentTotal, stepIndex: currentStepIndex };
-      const raw = localStorage.getItem(LS("gym_timer_events"));
+      const raw = getLS("gym_timer_events");
       const events: TimerEventLog[] = raw ? JSON.parse(raw) : [];
       events.push(event);
       if (events.length > 100) events.splice(0, events.length - 100);
-      localStorage.setItem(LS("gym_timer_events"), JSON.stringify(events));
+      setLS("gym_timer_events", JSON.stringify(events));
     } catch {}
-  }, [timerIsRunning, timerStartTime, timerElapsed, currentStepIndex, LS]);
+  }, [timerIsRunning, timerStartTime, timerElapsed, currentStepIndex]);
 
   const currentStep = currentStepIndex >= 0 ? steps[currentStepIndex] || steps[0] : null;
 
@@ -507,65 +502,88 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   }, []);
 
   useEffect(() => {
-    const savedStep = getLS("gym_step");
-    if (savedStep) {
-      const idx = Number(savedStep);
-      if (!isNaN(idx) && idx >= -1 && idx < steps.length) {
-        setCurrentStepIndex(idx);
-        if (idx >= 0) {
-          const savedGuide = getLS("selected_guide");
-          if (savedGuide === "hooh") setSelectedGuideId("hooh");
-          else if (savedGuide === "guide2") setSelectedGuideId("guide2");
-          else setSelectedGuideId("gym33");
-          setShowResumePrompt(true);
+    const keys = [
+      "gym_step", "selected_guide", "gym_timer", "gym_history",
+      "gym_cooldown", "all_cooldowns", "gym_timer_events",
+      "skip_checklist", "skip_countdown", "manual_timer",
+      "run_step_gym33", "run_step_hooh", "run_step_guide2",
+      "run_active_gym33", "run_active_hooh", "run_active_guide2",
+    ];
+    storageMGet(keys).then(redisData => {
+      const d: Record<string, string> = {};
+      keys.forEach((key) => {
+        d[key] = redisData[key] ?? '';
+      });
+      loadedDataRef.current = d;
+
+      const savedStep = d["gym_step"];
+      if (savedStep) {
+        const idx = Number(savedStep);
+        if (!isNaN(idx) && idx >= -1 && idx < steps.length) {
+          setCurrentStepIndex(idx);
+          if (idx >= 0) {
+            const savedGuide = d["selected_guide"];
+            if (savedGuide === "hooh") setSelectedGuideId("hooh");
+            else if (savedGuide === "guide2") setSelectedGuideId("guide2");
+            else setSelectedGuideId("gym33");
+            setShowResumePrompt(true);
+          }
         }
       }
-    }
 
-    const savedTimer = parseLS<StoredTimerState>("gym_timer");
-    if (savedTimer) {
-      const elapsed = typeof savedTimer.elapsed === "number" && Number.isFinite(savedTimer.elapsed) ? savedTimer.elapsed : 0;
-      const startedAt = typeof savedTimer.startedAt === "number" && Number.isFinite(savedTimer.startedAt) ? savedTimer.startedAt : null;
-      const isRunning = savedTimer.isRunning === true && startedAt !== null;
-      setTimerElapsed(elapsed);
-      setTimerIsRunning(isRunning);
-      setTimerStartTime(isRunning ? startedAt : null);
-    }
-
-    const savedHistory = parseLS<RunHistoryEntry[]>("gym_history");
-    if (Array.isArray(savedHistory)) {
-      setHistory(savedHistory);
-    }
-
-    const savedCooldown = parseLS<CooldownState>("gym_cooldown");
-    if (savedCooldown) {
-      const endAt = typeof savedCooldown.endAt === "number" && Number.isFinite(savedCooldown.endAt) ? savedCooldown.endAt : null;
-      const lastGym = typeof savedCooldown.lastGym === "string" ? savedCooldown.lastGym : null;
-      setCooldown({ endAt, lastGym });
-      if (endAt && endAt > Date.now()) {
-        setShowCooldownNotice(true);
+      const savedTimer = d["gym_timer"] ? (() => { try { return JSON.parse(d["gym_timer"]) as StoredTimerState; } catch { return null; } })() : null;
+      if (savedTimer) {
+        const elapsed = typeof savedTimer.elapsed === "number" && Number.isFinite(savedTimer.elapsed) ? savedTimer.elapsed : 0;
+        const startedAt = typeof savedTimer.startedAt === "number" && Number.isFinite(savedTimer.startedAt) ? savedTimer.startedAt : null;
+        const isRunning = savedTimer.isRunning === true && startedAt !== null;
+        setTimerElapsed(elapsed);
+        setTimerIsRunning(isRunning);
+        setTimerStartTime(isRunning ? startedAt : null);
       }
-    }
 
-    const savedAllCooldowns = parseLS<AllCooldowns>("all_cooldowns");
-    if (savedAllCooldowns) {
-      setAllCooldowns({
-        gym: {
-          endAt: typeof savedAllCooldowns.gym?.endAt === "number" ? savedAllCooldowns.gym.endAt : null,
-          lastGym: typeof savedAllCooldowns.gym?.lastGym === "string" ? savedAllCooldowns.gym.lastGym : null,
-        },
-        hooh: {
-          endAt: typeof savedAllCooldowns.hooh?.endAt === "number" ? savedAllCooldowns.hooh.endAt : null,
-          lastGym: typeof savedAllCooldowns.hooh?.lastGym === "string" ? savedAllCooldowns.hooh.lastGym : null,
-        },
-        npc: {
-          endAt: typeof savedAllCooldowns.npc?.endAt === "number" ? savedAllCooldowns.npc.endAt : null,
-          lastGym: typeof savedAllCooldowns.npc?.lastGym === "string" ? savedAllCooldowns.npc.lastGym : null,
-        },
-      });
-    }
+      const savedHistory = d["gym_history"] ? (() => { try { return JSON.parse(d["gym_history"]) as RunHistoryEntry[]; } catch { return null; } })() : null;
+      if (Array.isArray(savedHistory)) {
+        setHistory(savedHistory);
+      }
 
-    setLoaded(true);
+      const savedCooldown = d["gym_cooldown"] ? (() => { try { return JSON.parse(d["gym_cooldown"]) as CooldownState; } catch { return null; } })() : null;
+      if (savedCooldown) {
+        const endAt = typeof savedCooldown.endAt === "number" && Number.isFinite(savedCooldown.endAt) ? savedCooldown.endAt : null;
+        const lastGym = typeof savedCooldown.lastGym === "string" ? savedCooldown.lastGym : null;
+        setCooldown({ endAt, lastGym });
+        if (endAt && endAt > Date.now()) {
+          setShowCooldownNotice(true);
+        }
+      }
+
+      const savedAllCooldowns = d["all_cooldowns"] ? (() => { try { return JSON.parse(d["all_cooldowns"]) as AllCooldowns; } catch { return null; } })() : null;
+      if (savedAllCooldowns) {
+        setAllCooldowns({
+          gym: {
+            endAt: typeof savedAllCooldowns.gym?.endAt === "number" ? savedAllCooldowns.gym.endAt : null,
+            lastGym: typeof savedAllCooldowns.gym?.lastGym === "string" ? savedAllCooldowns.gym.lastGym : null,
+          },
+          hooh: {
+            endAt: typeof savedAllCooldowns.hooh?.endAt === "number" ? savedAllCooldowns.hooh.endAt : null,
+            lastGym: typeof savedAllCooldowns.hooh?.lastGym === "string" ? savedAllCooldowns.hooh.lastGym : null,
+          },
+          npc: {
+            endAt: typeof savedAllCooldowns.npc?.endAt === "number" ? savedAllCooldowns.npc.endAt : null,
+            lastGym: typeof savedAllCooldowns.npc?.lastGym === "string" ? savedAllCooldowns.npc.lastGym : null,
+          },
+        });
+      }
+
+      setSkipChecklist(d["skip_checklist"] === "true");
+      setSkipCountdown(d["skip_countdown"] === "true");
+      setManualTimer(d["manual_timer"] === "true");
+
+      setDataReady(true);
+      setLoaded(true);
+    }).catch(() => {
+      setDataReady(true);
+      setLoaded(true);
+    });
   }, []);
 
   useEffect(() => {
