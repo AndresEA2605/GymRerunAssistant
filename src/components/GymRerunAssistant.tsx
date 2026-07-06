@@ -658,14 +658,20 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     } else {
       setCurrentStepIndex((prev) => {
         if (prev === -1) return 0;
-        for (let i = prev + 1; i < steps.length; i++) {
-          if (steps[i].type === 'gym') return i;
+        let groupIdx = -1;
+        for (let i = 0; i < gymGroups.length; i++) {
+          const g = gymGroups[i];
+          if (g.gymStep.id === steps[prev]?.id || g.subBattles.some(s => s.id === steps[prev]?.id) || g.extras.some(e => e.id === steps[prev]?.id)) {
+            groupIdx = i;
+            break;
+          }
         }
-        return prev;
+        if (groupIdx < 0 || groupIdx >= gymGroups.length - 1) return prev;
+        return steps.indexOf(gymGroups[groupIdx + 1].gymStep);
       });
       setSlideClass("slide-in-right"); setSlideKey(k => k + 1);
     }
-  }, [steps, selectedGuideId]);
+  }, [steps, selectedGuideId, gymGroups]);
 
   const completeGym = useCallback(() => {
     setSessionGymCount(prev => prev + 1);
@@ -680,14 +686,20 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     } else {
       setCurrentStepIndex((prev) => {
         if (prev === -1) return 0;
-        for (let i = prev + 1; i < steps.length; i++) {
-          if (steps[i].type === 'gym') return i;
+        let groupIdx = -1;
+        for (let i = 0; i < gymGroups.length; i++) {
+          const g = gymGroups[i];
+          if (g.gymStep.id === steps[prev]?.id || g.subBattles.some(s => s.id === steps[prev]?.id) || g.extras.some(e => e.id === steps[prev]?.id)) {
+            groupIdx = i;
+            break;
+          }
         }
-        return prev;
+        if (groupIdx < 0 || groupIdx >= gymGroups.length - 1) return prev;
+        return steps.indexOf(gymGroups[groupIdx + 1].gymStep);
       });
       setSlideClass("slide-in-right"); setSlideKey(k => k + 1);
     }
-  }, [steps, selectedGuideId, triggerToast]);
+  }, [steps, selectedGuideId, triggerToast, gymGroups]);
 
   const handlePrev = useCallback(() => {
     const isTurn = selectedGuideId === 'hooh';
@@ -700,14 +712,20 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     } else {
       setCurrentStepIndex((prev) => {
         if (prev <= 0) return -1;
-        for (let i = prev - 1; i >= 0; i--) {
-          if (steps[i].type === 'gym') return i;
+        let groupIdx = -1;
+        for (let i = 0; i < gymGroups.length; i++) {
+          const g = gymGroups[i];
+          if (g.gymStep.id === steps[prev]?.id || g.subBattles.some(s => s.id === steps[prev]?.id) || g.extras.some(e => e.id === steps[prev]?.id)) {
+            groupIdx = i;
+            break;
+          }
         }
-        return -1;
+        if (groupIdx <= 0) return -1;
+        return steps.indexOf(gymGroups[groupIdx - 1].gymStep);
       });
       setSlideClass("slide-in-left"); setSlideKey(k => k + 1);
     }
-  }, [steps, selectedGuideId]);
+  }, [steps, selectedGuideId, gymGroups]);
 
   const stepNavRef = useRef<HTMLDivElement | null>(null);
   const stepButtonRefs = useRef<Array<HTMLButtonElement | null>>([]);
