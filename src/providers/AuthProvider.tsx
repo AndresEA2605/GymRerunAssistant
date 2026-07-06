@@ -76,13 +76,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
+      const text = await res.text();
+      let data: Record<string, unknown>;
+      try { data = JSON.parse(text); } catch { return { error: `Respuesta no válida (${res.status}): ${text.substring(0, 200)}` }; }
 
-      if (data.error) return { error: data.error };
+      if (data.error) return { error: data.error as string };
 
-      localStorage.setItem("pkmmo_auth_token", data.token);
-      setUser(data.user);
-      setToken(data.token);
+      localStorage.setItem("pkmmo_auth_token", data.token as string);
+      setUser(data.user as User);
+      setToken(data.token as string);
 
       const statsRes = await fetch("/api/auth/session", {
         method: "POST",
@@ -93,8 +95,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setStats(statsData.stats || null);
 
       return {};
-    } catch {
-      return { error: "Error de conexión" };
+    } catch (e) {
+      return { error: `Error de conexión: ${e instanceof Error ? e.message : String(e)}` };
     }
   }, []);
 
@@ -105,18 +107,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, username, password }),
       });
-      const data = await res.json();
+      const text = await res.text();
+      let data: Record<string, unknown>;
+      try { data = JSON.parse(text); } catch { return { error: `Respuesta no válida (${res.status}): ${text.substring(0, 200)}` }; }
 
-      if (data.error) return { error: data.error };
+      if (data.error) return { error: data.error as string };
 
-      localStorage.setItem("pkmmo_auth_token", data.token);
-      setUser(data.user);
-      setToken(data.token);
+      localStorage.setItem("pkmmo_auth_token", data.token as string);
+      setUser(data.user as User);
+      setToken(data.token as string);
       setStats({ totalGyms: 0, totalHoohRuns: 0, totalTimeMs: 0, streaks: { current: 0, best: 0 }, achievements: [] });
 
       return {};
-    } catch {
-      return { error: "Error de conexión" };
+    } catch (e) {
+      return { error: `Error de conexión: ${e instanceof Error ? e.message : String(e)}` };
     }
   }, []);
 

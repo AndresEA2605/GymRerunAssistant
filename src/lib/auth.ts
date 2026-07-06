@@ -98,68 +98,74 @@ export async function registerUser(
   username: string,
   password: string
 ): Promise<{ user: User; token: string } | { error: string }> {
-  const cleanEmail = email.toLowerCase().trim();
-  const cleanUsername = username.trim();
+  try {
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanUsername = username.trim();
 
-  if (cleanEmail.length < 5 || !cleanEmail.includes('@')) {
-    return { error: 'Email inválido' };
+    if (cleanEmail.length < 5 || !cleanEmail.includes('@')) {
+      return { error: 'Email inválido' };
+    }
+    if (cleanUsername.length < 3 || cleanUsername.length > 20) {
+      return { error: 'El username debe tener entre 3 y 20 caracteres' };
+    }
+    if (password.length < 6) {
+      return { error: 'La contraseña debe tener al menos 6 caracteres' };
+    }
+
+    const existingEmail = await redis.get<string>(kemail(cleanEmail));
+    if (existingEmail) {
+      return { error: 'Este email ya está registrado' };
+    }
+
+    const existingUsername = await redis.get<string>(kusername(cleanUsername));
+    if (existingUsername) {
+      return { error: 'Este username ya está en uso' };
+    }
+
+    const id = crypto.randomUUID();
+    const passwordHash = await hashPassword(password);
+    const now = Date.now();
+
+    const user: User = {
+      id,
+      username: cleanUsername,
+      email: cleanEmail,
+      avatar: '',
+      createdAt: now,
+      lastLogin: now,
+      level: 1,
+      xp: 0,
+      coins: 0,
+    };
+
+    const userWithHash = { ...user, passwordHash };
+
+    await redis.set(kuser(id), JSON.stringify(userWithHash));
+    await redis.set(kemail(cleanEmail), id);
+    await redis.set(kusername(cleanUsername), id);
+
+    const stats: UserStats = {
+      totalGyms: 0,
+      totalHoohRuns: 0,
+      totalTimeMs: 0,
+      streaks: { current: 0, best: 0 },
+      achievements: [],
+    };
+    await redis.set(`${kuser(id)}:stats`, JSON.stringify(stats));
+    await redis.set(`${kuser(id)}:settings`, JSON.stringify({ preferences: {}, cooldowns: {} }));
+    await redis.set(`${kuser(id)}:history`, JSON.stringify({ gymHistory: [], hoohHistory: [], runHistory: [] }));
+    await redis.set(`${kuser(id)}:daily`, JSON.stringify({ tasksState: null }));
+
+    const token = generateToken();
+    const session: SessionData = { userId: id, expiresAt: now + SESSION_TTL * 1000 };
+    await redis.set(ksession(token), JSON.stringify(session), { ex: SESSION_TTL });
+
+    return { user, token };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('registerUser error:', msg);
+    return { error: msg };
   }
-  if (cleanUsername.length < 3 || cleanUsername.length > 20) {
-    return { error: 'El username debe tener entre 3 y 20 caracteres' };
-  }
-  if (password.length < 6) {
-    return { error: 'La contraseña debe tener al menos 6 caracteres' };
-  }
-
-  const existingEmail = await redis.get<string>(kemail(cleanEmail));
-  if (existingEmail) {
-    return { error: 'Este email ya está registrado' };
-  }
-
-  const existingUsername = await redis.get<string>(kusername(cleanUsername));
-  if (existingUsername) {
-    return { error: 'Este username ya está en uso' };
-  }
-
-  const id = crypto.randomUUID();
-  const passwordHash = await hashPassword(password);
-  const now = Date.now();
-
-  const user: User = {
-    id,
-    username: cleanUsername,
-    email: cleanEmail,
-    avatar: '',
-    createdAt: now,
-    lastLogin: now,
-    level: 1,
-    xp: 0,
-    coins: 0,
-  };
-
-  const userWithHash = { ...user, passwordHash };
-
-  await redis.set(kuser(id), JSON.stringify(userWithHash));
-  await redis.set(kemail(cleanEmail), id);
-  await redis.set(kusername(cleanUsername), id);
-
-  const stats: UserStats = {
-    totalGyms: 0,
-    totalHoohRuns: 0,
-    totalTimeMs: 0,
-    streaks: { current: 0, best: 0 },
-    achievements: [],
-  };
-  await redis.set(`${kuser(id)}:stats`, JSON.stringify(stats));
-  await redis.set(`${kuser(id)}:settings`, JSON.stringify({ preferences: {}, cooldowns: {} }));
-  await redis.set(`${kuser(id)}:history`, JSON.stringify({ gymHistory: [], hoohHistory: [], runHistory: [] }));
-  await redis.set(`${kuser(id)}:daily`, JSON.stringify({ tasksState: null }));
-
-  const token = generateToken();
-  const session: SessionData = { userId: id, expiresAt: now + SESSION_TTL * 1000 };
-  await redis.set(ksession(token), JSON.stringify(session), { ex: SESSION_TTL });
-
-  return { user, token };
 }
 
 export async function loginUser(
