@@ -112,11 +112,13 @@ export function RoutesFooterInner({ guideId, nav, gym }: RoutesFooterProps) {
 export default function RoutesFooter({ guideId, nav, gym }: RoutesFooterProps) {
   return (
     <footer
-      className="fixed bottom-0 left-0 right-0 z-25 bg-neutral-950/95 border-t border-indigo-500/30 backdrop-blur-md"
+      className="fixed bottom-0 left-0 right-0 z-25 bg-neutral-950/95 border-t border-indigo-500/30 backdrop-blur-md lg:static lg:fixed lg:right-0 lg:top-0 lg:bottom-0 lg:left-auto lg:w-[340px] lg:border-t-0 lg:border-l"
       style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))", paddingTop: "12px" }}
       role="contentinfo"
     >
-      <RoutesFooterInner guideId={guideId} nav={nav} gym={gym} />
+      <div className="h-full lg:h-full">
+        <RoutesFooterInner guideId={guideId} nav={nav} gym={gym} />
+      </div>
     </footer>
   );
 }

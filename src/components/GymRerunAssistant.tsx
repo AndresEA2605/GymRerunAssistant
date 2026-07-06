@@ -1719,15 +1719,73 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     <>
     <div className={`app-enter ${appExiting ? "app-exit" : ""} flex bg-neutral-950 text-neutral-200 overflow-hidden font-sans relative`} style={{ height: '100dvh' }}>
       <PokeBackground />
-      
-      <main className={`flex-1 flex flex-col h-full relative z-10 ${focusStepMode ? "overflow-hidden" : "overflow-y-auto"} overflow-x-hidden ${currentStepIndex === -1 ? "pb-0" : selectedGuideId === "hooh" ? "pb-[calc(var(--footer-hooh-height)+1.5rem)]" : "pb-[calc(var(--footer-routes-height)+2rem)]"}`}>
+      <aside className="hidden lg:flex fixed inset-y-0 left-0 z-30 w-[280px] border-r border-neutral-800 bg-neutral-950/95 p-4 gap-4 overflow-y-auto">
+        <div className="space-y-4">
+          <button onClick={() => goToMenu()} title="Volver al menú principal" className="w-full rounded-2xl border border-neutral-700 bg-neutral-900/90 px-4 py-3 text-left text-sm font-bold uppercase tracking-[0.2em] text-neutral-200 hover:bg-neutral-800 transition">
+            Menú
+          </button>
+
+          <div className="rounded-3xl border border-neutral-800 bg-neutral-950/90 p-4 shadow-inner">
+            <div className="fs-tiny uppercase tracking-[0.35em] text-neutral-500 font-black mb-2">Guía</div>
+            <div className="text-white font-black text-lg leading-tight truncate">{getGuide(selectedGuideId)?.title ?? "Guía"}</div>
+            <div className="mt-3 grid gap-2 text-sm">
+              <div className="rounded-2xl bg-neutral-900/80 p-3 border border-neutral-800">
+                <div className="text-neutral-400 uppercase tracking-[0.2em] text-[0.65rem] font-bold">Estado</div>
+                <div className="mt-1 text-white font-semibold">
+                  {currentStepIndex === -1
+                    ? "Portada"
+                    : selectedGuideId === "hooh"
+                    ? `Paso ${currentStepIndex + 1} / ${steps.length}`
+                    : `${currentGymIndex + 1} / ${gymGroupCount} gimnasios`}
+                </div>
+              </div>
+              <div className="rounded-2xl bg-neutral-900/80 p-3 border border-neutral-800">
+                <div className="text-neutral-400 uppercase tracking-[0.2em] text-[0.65rem] font-bold">Región</div>
+                <div className="mt-1 text-white font-semibold truncate">{currentStep?.region || getGuide(selectedGuideId)?.category || "-"}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-neutral-800 bg-neutral-950/90 p-4 shadow-inner space-y-3">
+            <div className="fs-tiny uppercase tracking-[0.35em] text-neutral-500 font-black">Controles</div>
+            {currentStepIndex !== -1 && (
+              <button onClick={() => setFocusStepMode((prev) => !prev)} className="w-full rounded-2xl bg-indigo-700 px-4 py-3 text-sm font-bold text-white hover:bg-indigo-600 transition">
+                {focusStepMode ? "Cerrar foco" : "Modo foco"}
+              </button>
+            )}
+            {isRoutesGuide(selectedGuideId) && (
+              <div className="space-y-3">
+                <div className="rounded-2xl border border-neutral-800 bg-neutral-900/80 p-3">
+                  <div className="fs-tiny uppercase tracking-[0.2em] text-neutral-500 font-black">Cronómetro</div>
+                  <div className="mt-2 rounded-2xl bg-neutral-950 p-3 text-center text-white font-black">
+                    <TimerDisplay isRunning={timerIsRunning} startTime={timerStartTime} elapsedBeforePause={timerElapsed} />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  {!timerIsRunning ? (
+                    <Button variant="primary" size="sm" onClick={startTimer} className="w-full">Iniciar</Button>
+                  ) : (
+                    <Button variant="neutral" size="sm" onClick={pauseTimer} className="w-full bg-amber-700 hover:bg-amber-600 border-amber-600/40">Pausar</Button>
+                  )}
+                  <Button variant="ghost" size="sm" onClick={requestTimerReset} className="w-full">Reiniciar</Button>
+                  <button type="button" onClick={() => setShowCooldownNotice(true)} className="w-full rounded-2xl border border-neutral-700 bg-neutral-900/80 px-4 py-3 text-sm font-semibold text-neutral-200 hover:bg-neutral-800 transition">
+                    Cooldown gyms
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </aside>
+
+      <main className={`flex-1 flex flex-col h-full relative z-10 ${focusStepMode ? "overflow-hidden" : "overflow-y-auto"} overflow-x-hidden ${currentStepIndex === -1 ? "pb-0" : selectedGuideId === "hooh" ? "pb-[calc(var(--footer-hooh-height)+1.5rem)]" : "pb-[calc(var(--footer-routes-height)+2rem)]"} lg:pl-[280px] lg:pr-[340px]`}>
         {guideLoading && (
           <div className="absolute inset-0 z-50 bg-neutral-950/90 backdrop-blur-sm flex items-center justify-center">
             <LoadingSpinner size="lg" text="Cargando guía..." />
           </div>
         )}
         
-        <header className="flex items-center justify-between gap-3 p-3 md:p-3 border-b border-neutral-800 bg-neutral-900/50">
+        <header className="flex items-center justify-between gap-3 p-3 md:p-3 border-b border-neutral-800 bg-neutral-900/50 lg:hidden">
           <div className="flex min-w-0 items-center gap-3">
             <button onClick={() => goToMenu()} title="Volver al menú principal" className="fs-small font-bold tracking-wide text-neutral-400 uppercase hover:text-white transition-colors truncate">
               {getGuide(selectedGuideId)?.title ?? "Guía"}

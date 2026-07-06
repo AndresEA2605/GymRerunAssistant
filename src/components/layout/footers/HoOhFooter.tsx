@@ -60,11 +60,13 @@ export function HoOhFooterInner({ nav }: HoOhFooterProps) {
 export default function HoOhFooter({ nav }: HoOhFooterProps) {
   return (
     <footer
-      className="fixed bottom-0 left-0 right-0 z-25 bg-neutral-950/95 border-t border-amber-500/25 backdrop-blur-md"
+      className="fixed bottom-0 left-0 right-0 z-25 bg-neutral-950/95 border-t border-amber-500/25 backdrop-blur-md lg:static lg:fixed lg:right-0 lg:top-0 lg:bottom-0 lg:left-auto lg:w-[340px] lg:border-t-0 lg:border-l"
       style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom))", paddingTop: "8px" }}
       role="contentinfo"
     >
-      <HoOhFooterInner nav={nav} />
+      <div className="h-full lg:h-full">
+        <HoOhFooterInner nav={nav} />
+      </div>
     </footer>
   );
 }
