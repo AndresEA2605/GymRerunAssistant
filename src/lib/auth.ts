@@ -139,10 +139,9 @@ export async function registerUser(
 
   const userWithHash = { ...user, passwordHash };
 
-  const pipe = redis.pipeline();
-  pipe.set(kuser(id), JSON.stringify(userWithHash));
-  pipe.set(kemail(cleanEmail), id);
-  pipe.set(kusername(cleanUsername), id);
+  await redis.set(kuser(id), JSON.stringify(userWithHash));
+  await redis.set(kemail(cleanEmail), id);
+  await redis.set(kusername(cleanUsername), id);
 
   const stats: UserStats = {
     totalGyms: 0,
@@ -151,12 +150,10 @@ export async function registerUser(
     streaks: { current: 0, best: 0 },
     achievements: [],
   };
-  pipe.set(`${kuser(id)}:stats`, JSON.stringify(stats));
-  pipe.set(`${kuser(id)}:settings`, JSON.stringify({ preferences: {}, cooldowns: {} }));
-  pipe.set(`${kuser(id)}:history`, JSON.stringify({ gymHistory: [], hoohHistory: [], runHistory: [] }));
-  pipe.set(`${kuser(id)}:daily`, JSON.stringify({ tasksState: null }));
-
-  await pipe.exec();
+  await redis.set(`${kuser(id)}:stats`, JSON.stringify(stats));
+  await redis.set(`${kuser(id)}:settings`, JSON.stringify({ preferences: {}, cooldowns: {} }));
+  await redis.set(`${kuser(id)}:history`, JSON.stringify({ gymHistory: [], hoohHistory: [], runHistory: [] }));
+  await redis.set(`${kuser(id)}:daily`, JSON.stringify({ tasksState: null }));
 
   const token = generateToken();
   const session: SessionData = { userId: id, expiresAt: now + SESSION_TTL * 1000 };
@@ -302,4 +299,17 @@ export async function hasLocalData(localData: Record<string, string>): Promise<b
     localData['run_active_hooh'] === 'true' ||
     localData['run_active_guide2'] === 'true'
   );
+}
+
+export async function updateUserProfile(userId: string, updates: { username?: string; avatar?: string }): Promise<User> {
+  const raw = await redis.get<string>(kuser(userId));
+  if (!raw) throw new Error('User not found');
+
+  const data = JSON.parse(raw) as User & { passwordHash: string };
+  if (updates.username) data.username = updates.username;
+  if (updates.avatar !== undefined) data.avatar = updates.avatar;
+  await redis.set(kuser(userId), JSON.stringify(data));
+
+  const { passwordHash: _, ...user } = data;
+  return user;
 }
