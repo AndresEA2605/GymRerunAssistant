@@ -182,9 +182,11 @@ async function handler(
       default:
         return NextResponse.json({ error: 'Acción desconocida' }, { status: 404 });
     }
-  } catch (err) {
-    console.error('Auth API error:', err);
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error ? err.stack : '';
+    console.error('Auth API error:', msg, stack);
+    return NextResponse.json({ error: 'Error interno del servidor', detail: msg }, { status: 500 });
   }
 }
 
