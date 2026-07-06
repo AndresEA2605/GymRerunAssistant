@@ -836,6 +836,28 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  // Inactivity timer — after 30 min of no activity, go to guide info page
+  useEffect(() => {
+    const INACTIVITY_MS = 30 * 60 * 1000;
+    let timer: ReturnType<typeof setTimeout>;
+    const resetTimer = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        if (!showMenu && currentStepIndexRef.current >= 0) {
+          goToMenu();
+          triggerToast("Sesión cerrada por inactividad");
+        }
+      }, INACTIVITY_MS);
+    };
+    const events = ["mousedown", "mousemove", "keydown", "scroll", "touchstart"];
+    events.forEach(e => window.addEventListener(e, resetTimer, { passive: true }));
+    resetTimer();
+    return () => {
+      clearTimeout(timer);
+      events.forEach(e => window.removeEventListener(e, resetTimer));
+    };
+  }, [showMenu]);
+
   const startTimer = () => {
     setTimerIsRunning(true);
     setTimerStartTime(Date.now());
@@ -2121,82 +2143,242 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif" alt="" className="w-full h-full object-contain" />
             </div>
 
-            <div className="flex flex-col items-center gap-2 mb-3 md:gap-4 md:mb-6">
+            <div className="flex flex-col items-center gap-0 mb-0 md:gap-2 md:mb-4">
               {currentStepIndex === -1 ? (
                 <>
-                  <div className="w-full flex mb-2">
-                    <button onClick={() => goToMenu()} title="Volver al menú" className="px-2 py-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 rounded-lg fs-tiny font-bold uppercase tracking-wider self-start">← Menú</button>
-                  </div>
-                  {selectedGuideId === "hooh" ? (
-                    <>
-                      <div className="w-24 h-24 md:w-32 md:h-32 mb-1 poke-aura poke-glow-amber">
-                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/250.gif" alt="Ho-Oh" className="w-full h-full object-contain" />
-                      </div>
-                      <h2 className="fs-h2 font-black tracking-tight text-white">Ho-Oh Farming</h2>
-                      <p className="fs-body text-neutral-400">Derrota a Ho-Oh (Revancha) en 10 turnos — ~8 min · ~97.000 PokéYen</p>
-                    </>
-                  ) : selectedGuideId === "guide2" ? (
-                    <>
-                      <div className="flex items-center justify-center gap-2 mb-1">
-                        {[468, 530, 9, 584, 142, 157].map(id => (
-                          <div key={id} className="w-10 h-10 md:w-14 md:h-14 poke-aura poke-glow-teal" style={{ animationDelay: `${[0, 0.3, 0.6, 0.9, 1.2, 1.5][[468, 530, 9, 584, 142, 157].indexOf(id)]}s` }}>
-                            <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`} alt="" className="w-full h-full object-contain" />
-                          </div>
-                        ))}
-                      </div>
-                      <h2 className="fs-h2 font-black tracking-tight text-white">25 GYMS 1H</h2>
-                      <p className="fs-body text-neutral-400">Ruta alternativa — 25 gimnasios · 5 regiones · leads optimizados</p>
-                    </>
-                  ) : (
-                    <>
-                  <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" title="Ver video de muestra de la ruta" className="w-full max-w-sm mx-auto mb-4 block group">
-                    <div className="relative rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl">
-                      <img src="https://img.youtube.com/vi/himBCqDN2-I/maxresdefault.jpg" alt="Video de muestra de la ruta" className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500" />
-                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/10 transition-colors">
-                        <div className="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-red-600/40 group-hover:scale-110 transition-transform">
-                          <svg viewBox="0 0 24 24" fill="white" className="w-8 h-8 ml-1"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.386.507 9.386.507s7.518 0 9.387-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                        </div>
-                      </div>
-                    </div>
-                  </a>
-                  <p className="fs-body text-neutral-400">{description}</p>
-                  </>)}
                   {(() => {
                     const guide = getGuide(selectedGuideId);
-                    return guide ? <GuideCredits guide={guide} mode="full" /> : null;
-                  })()}
+                    if (!guide) return null;
+                    const gc = getGuideColorClasses(guide.color);
+                    const teamIds = (guide.team || []).map(t => t.spriteId);
+                    const isHooh = selectedGuideId === 'hooh';
+                    const isGuide2 = selectedGuideId === 'guide2';
+                    const isGym33 = selectedGuideId === 'gym33';
+                    return (
+                      <div className="w-full max-w-3xl mx-auto space-y-4">
+                        {/* Hero Card */}
+                        <div className={`relative rounded-3xl border overflow-hidden bg-gradient-to-b ${isHooh ? 'from-amber-950/40 via-neutral-900/80 to-neutral-900/80 border-amber-500/20' : isGuide2 ? 'from-teal-950/40 via-neutral-900/80 to-neutral-900/80 border-teal-500/20' : 'from-indigo-950/40 via-neutral-900/80 to-neutral-900/80 border-indigo-500/20'}`}>
+                          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.06),transparent_70%)]" />
+                          <div className="relative p-6 md:p-8 flex flex-col items-center text-center">
+                            {/* Pokemon Icon */}
+                            {isHooh ? (
+                              <div className="w-28 h-28 md:w-36 md:h-36 poke-aura poke-glow-amber mb-4">
+                                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/250.gif" alt="Ho-Oh" className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(245,158,11,0.3)]" />
+                              </div>
+                            ) : isGuide2 ? (
+                              <div className="flex items-center justify-center gap-1.5 mb-4">
+                                {teamIds.slice(0,6).map((id, i) => (
+                                  <div key={id} className="w-12 h-12 md:w-14 md:h-14 poke-aura poke-glow-teal" style={{ animationDelay: `${i * 0.15}s` }}>
+                                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`} alt="" className="w-full h-full object-contain" />
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="w-28 h-28 md:w-36 md:h-36 mb-4 poke-aura poke-glow-indigo">
+                                <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${guide.icon}.gif`} alt={guide.title} className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(99,102,241,0.3)]" />
+                              </div>
+                            )}
 
-                  <div className="flex flex-col items-center gap-1 mt-6 text-indigo-400 animate-bounce cursor-pointer hover:text-indigo-300 shrink-0" onClick={(e) => {
-                    const container = e.currentTarget.closest(".overflow-y-auto");
-                    if (container) {
-                      const btn = container.querySelector("#comenzar-ruta-btn");
-                      if (btn) btn.scrollIntoView({ behavior: "smooth", block: "center" });
-                    }
-                  }}>
-                    <span className="fs-tiny font-black uppercase tracking-wider">Desliza o haz clic para comenzar</span>
-                    <ChevronDown className="w-5 h-5" />
-                  </div>
-                  
-                  {steps[0] && (
-                    <div className="w-full bg-neutral-950 rounded-xl border border-neutral-800 p-4 mt-4 max-h-[55vh] overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900">
-                      <div className="fs-tiny md:fs-small text-neutral-500 uppercase font-bold tracking-widest mb-3">{selectedGuideId === "hooh" ? "Primer turno" : "Primer gimnasio"}</div>
-                      <div className="flex items-center justify-center gap-3">
-                        <span className="p-3 bg-neutral-900 rounded-lg">{renderIcon(steps[0].type)}</span>
-                        <span className="fs-h3 font-black text-white">{steps[0].title}</span>
-                        {steps[0].region && <span className="fs-small font-bold uppercase tracking-widest px-3 py-2 rounded border bg-neutral-900 text-neutral-400 border-neutral-800">{steps[0].region}</span>}
-                      </div>
-                      {steps[0].type === "gym" && steps[0].gym && gymCoords[steps[0].gym as keyof typeof gymCoords] && (
-                        <div className="w-full max-w-[180px] md:max-w-[200px] mx-auto mt-4 relative aspect-square rounded-lg border border-neutral-700/50 overflow-hidden bg-neutral-950 shadow-inner group">
-                          <img src={regionMap[gymCoords[steps[0].gym as keyof typeof gymCoords].region as keyof typeof regionMap]} alt="Map" className="absolute inset-0 w-full h-full object-contain opacity-70" />
-                          <div className="absolute inset-0 bg-indigo-900/10 mix-blend-color" />
-                          <div className="absolute w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.8)] -translate-x-1/2 -translate-y-1/2 animate-bounce" style={{ left: `${gymCoords[steps[0].gym as keyof typeof gymCoords].x}%`, top: `${gymCoords[steps[0].gym as keyof typeof gymCoords].y}%` }} />
+                            {/* Title */}
+                            <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-2">{guide.title} Rerun</h1>
+                            <p className="text-sm md:text-base text-neutral-400 max-w-md leading-relaxed">{guide.subtitle}</p>
+
+                            {/* Stats Row */}
+                            <div className="flex items-center gap-3 md:gap-4 mt-6 flex-wrap justify-center">
+                              {isGym33 && (
+                                <>
+                                  <div className="flex flex-col items-center px-4 py-2.5 rounded-xl bg-neutral-800/50 border border-neutral-700/30 min-w-[72px]">
+                                    <span className="text-xl font-black text-indigo-400">31</span>
+                                    <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Gimnasios</span>
+                                  </div>
+                                  <div className="flex flex-col items-center px-4 py-2.5 rounded-xl bg-neutral-800/50 border border-neutral-700/30 min-w-[72px]">
+                                    <span className="text-xl font-black text-indigo-400">5</span>
+                                    <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Regiones</span>
+                                  </div>
+                                  <div className="flex flex-col items-center px-4 py-2.5 rounded-xl bg-neutral-800/50 border border-neutral-700/30 min-w-[72px]">
+                                    <span className="text-xl font-black text-indigo-400">12</span>
+                                    <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Swaps</span>
+                                  </div>
+                                  <div className="flex flex-col items-center px-4 py-2.5 rounded-xl bg-neutral-800/50 border border-neutral-700/30 min-w-[72px]">
+                                    <span className="text-xl font-black text-amber-400">★</span>
+                                    <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Media</span>
+                                  </div>
+                                </>
+                              )}
+                              {isHooh && (
+                                <>
+                                  <div className="flex flex-col items-center px-4 py-2.5 rounded-xl bg-neutral-800/50 border border-neutral-700/30 min-w-[72px]">
+                                    <span className="text-xl font-black text-amber-400">10</span>
+                                    <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Turnos</span>
+                                  </div>
+                                  <div className="flex flex-col items-center px-4 py-2.5 rounded-xl bg-neutral-800/50 border border-neutral-700/30 min-w-[72px]">
+                                    <span className="text-xl font-black text-amber-400">5</span>
+                                    <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Regiones</span>
+                                  </div>
+                                  <div className="flex flex-col items-center px-4 py-2.5 rounded-xl bg-neutral-800/50 border border-neutral-700/30 min-w-[72px]">
+                                    <span className="text-xl font-black text-amber-400">0</span>
+                                    <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Swaps</span>
+                                  </div>
+                                  <div className="flex flex-col items-center px-4 py-2.5 rounded-xl bg-neutral-800/50 border border-neutral-700/30 min-w-[72px]">
+                                    <span className="text-xl font-black text-amber-400">★</span>
+                                    <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Media</span>
+                                  </div>
+                                </>
+                              )}
+                              {isGuide2 && (
+                                <>
+                                  <div className="flex flex-col items-center px-4 py-2.5 rounded-xl bg-neutral-800/50 border border-neutral-700/30 min-w-[72px]">
+                                    <span className="text-xl font-black text-teal-400">25</span>
+                                    <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Gimnasios</span>
+                                  </div>
+                                  <div className="flex flex-col items-center px-4 py-2.5 rounded-xl bg-neutral-800/50 border border-neutral-700/30 min-w-[72px]">
+                                    <span className="text-xl font-black text-teal-400">5</span>
+                                    <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Regiones</span>
+                                  </div>
+                                  <div className="flex flex-col items-center px-4 py-2.5 rounded-xl bg-neutral-800/50 border border-neutral-700/30 min-w-[72px]">
+                                    <span className="text-xl font-black text-teal-400">12</span>
+                                    <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Swaps</span>
+                                  </div>
+                                  <div className="flex flex-col items-center px-4 py-2.5 rounded-xl bg-neutral-800/50 border border-neutral-700/30 min-w-[72px]">
+                                    <span className="text-xl font-black text-amber-400">★</span>
+                                    <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Media-Alta</span>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  )}
-                  <button id="comenzar-ruta-btn" onClick={() => { if (skipChecklistRef.current) { beginRun(); } else { setStartChecks([false, false, false]); setShowStartCheck(true); } }} className="w-full max-w-md h-14 mx-auto bg-indigo-600 hover:bg-indigo-500 text-white fs-body font-black rounded-2xl transition-all shadow-lg shadow-indigo-900/30">
-                    ▶ Comenzar ruta
-                  </button>
+
+                        {/* Team Preview */}
+                        <div className="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-5">
+                          <div className="flex items-center gap-2 mb-4">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-neutral-400"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            <span className="fs-small font-black text-neutral-300 uppercase tracking-wider">Equipo Recomendado</span>
+                          </div>
+                          <div className="flex items-center justify-center gap-3 md:gap-4 flex-wrap">
+                            {(guide.team || []).map((t, i) => (
+                              <div key={i} className="flex flex-col items-center gap-1.5">
+                                <div className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl border border-neutral-700/50 bg-neutral-800/60 p-2 poke-aura ${getGuidePokeGlow(guide.color)}`} style={{ animationDelay: `${i * 0.1}s` }}>
+                                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${t.spriteId}.gif`} alt={t.name} className="w-full h-full object-contain" />
+                                </div>
+                                <span className="text-[10px] font-bold text-neutral-400 max-w-[64px] truncate">{t.name}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Info Details */}
+                        {guide.info && guide.info.length > 0 && (
+                          <div className="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-5">
+                            <div className="flex items-center gap-2 mb-4">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-neutral-400"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                              <span className="fs-small font-black text-neutral-300 uppercase tracking-wider">Detalles Adicionales</span>
+                            </div>
+                            <ul className="space-y-2">
+                              {guide.info.map((info, i) => (
+                                <li key={i} className="flex items-start gap-2.5 text-sm text-neutral-400">
+                                  <span className="w-1 h-1 rounded-full bg-neutral-600 mt-2 shrink-0" />
+                                  {info}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Credits */}
+                        <div className="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-5">
+                          <div className="flex items-center gap-2 mb-4">
+                            <div className="w-1 h-5 rounded-full bg-gradient-to-b from-indigo-500 to-indigo-700" />
+                            <span className="fs-small font-black text-neutral-300 uppercase tracking-wider">Créditos</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <span className="text-[10px] font-bold text-neutral-600 uppercase tracking-wider block mb-0.5">Autor</span>
+                              <span className="text-sm font-bold text-white">{guide.credits.author}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] font-bold text-neutral-600 uppercase tracking-wider block mb-0.5">Adaptado por</span>
+                              <span className="text-sm font-bold text-white">{guide.credits.adaptedBy}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] font-bold text-neutral-600 uppercase tracking-wider block mb-0.5">Estado</span>
+                              <span className={`text-xs font-bold px-2 py-0.5 rounded border inline-block ${guide.credits.status === 'Original' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' : guide.credits.status === 'Actualizada' ? 'text-amber-400 bg-amber-500/10 border-amber-500/30' : 'text-sky-400 bg-sky-500/10 border-sky-500/30'}`}>
+                                {guide.credits.status}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] font-bold text-neutral-600 uppercase tracking-wider block mb-0.5">Actualizado</span>
+                              <span className="text-sm font-bold text-neutral-300">{guide.credits.lastUpdated}</span>
+                            </div>
+                          </div>
+                          {(() => {
+                            const sources = guide.credits.sources;
+                            const sourceEntries: { key: string; label: string; color: string }[] = [];
+                            if (sources.youtube) sourceEntries.push({ key: 'youtube', label: 'YouTube', color: 'text-red-400 hover:bg-red-500/10 border-red-500/20' });
+                            if (sources.docs) sourceEntries.push({ key: 'docs', label: 'Documentación', color: 'text-blue-400 hover:bg-blue-500/10 border-blue-500/20' });
+                            if (sourceEntries.length === 0) return null;
+                            return (
+                              <div className="mt-4 pt-4 border-t border-neutral-800">
+                                <span className="text-[10px] font-bold text-neutral-600 uppercase tracking-wider block mb-2">Fuentes</span>
+                                <div className="flex flex-wrap gap-2">
+                                  {sourceEntries.map(s => {
+                                    const url = s.key === 'youtube' ? sources.youtube : sources.docs;
+                                    if (!url) return null;
+                                    return (
+                                      <a key={s.key} href={url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-800/60 border transition-all fs-tiny font-bold ${s.color}`}>
+                                        {s.key === 'youtube' ? (
+                                          <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                                        ) : (
+                                          <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z"/></svg>
+                                        )}
+                                        {s!.label}
+                                      </a>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </div>
+
+                        {/* Start Button */}
+                        <div className="pt-2 pb-4">
+                          <button
+                            id="comenzar-ruta-btn"
+                            onClick={() => { if (skipChecklistRef.current) { beginRun(); } else { setStartChecks([false, false, false]); setShowStartCheck(true); } }}
+                            className={`w-full h-16 rounded-2xl font-black text-lg text-white transition-all duration-300 shadow-xl hover:scale-[1.02] active:scale-[0.98] ${
+                              isHooh ? 'bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 shadow-amber-600/25' :
+                              isGuide2 ? 'bg-gradient-to-r from-teal-600 to-emerald-500 hover:from-teal-500 hover:to-emerald-400 shadow-teal-600/25' :
+                              'bg-gradient-to-r from-indigo-600 to-violet-500 hover:from-indigo-500 hover:to-violet-400 shadow-indigo-600/25'
+                            }`}
+                          >
+                            ▶ COMENZAR RUTA
+                          </button>
+                        </div>
+
+                        {/* First Step Preview */}
+                        {steps[0] && (
+                          <div className="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-5">
+                            <div className="text-center mb-3">
+                              <span className="fs-tiny font-black text-neutral-600 uppercase tracking-[0.2em]">{isHooh ? "Primer Turno" : "Primer Gimnasio"}</span>
+                            </div>
+                            <div className="flex items-center justify-center gap-3">
+                              <span className="p-2.5 bg-neutral-800 rounded-xl border border-neutral-700/50">{renderIcon(steps[0].type)}</span>
+                              <span className="fs-h3 font-black text-white">{steps[0].title}</span>
+                              {steps[0].region && <span className="fs-tiny font-bold uppercase tracking-widest px-2.5 py-1.5 rounded-lg bg-neutral-800 text-neutral-400 border border-neutral-700/50">{steps[0].region}</span>}
+                            </div>
+                            {steps[0].type === "gym" && steps[0].gym && gymCoords[steps[0].gym as keyof typeof gymCoords] && (
+                              <div className="w-full max-w-[200px] mx-auto mt-4 relative aspect-square rounded-xl border border-neutral-700/50 overflow-hidden bg-neutral-950 shadow-inner">
+                                <img src={regionMap[gymCoords[steps[0].gym as keyof typeof gymCoords].region as keyof typeof regionMap]} alt="Map" className="absolute inset-0 w-full h-full object-contain opacity-70" />
+                                <div className="absolute inset-0 bg-indigo-900/10 mix-blend-color" />
+                                <div className="absolute w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.8)] -translate-x-1/2 -translate-y-1/2 animate-bounce" style={{ left: `${gymCoords[steps[0].gym as keyof typeof gymCoords].x}%`, top: `${gymCoords[steps[0].gym as keyof typeof gymCoords].y}%` }} />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </>
               ) : selectedGuideId === 'hooh' ? (
                 <>
