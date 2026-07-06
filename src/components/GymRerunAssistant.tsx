@@ -2248,7 +2248,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                         <div key={extra.id}>
                           {extra.type === "prep" && extra.items && extra.items.length > 0 && (
                             <div className="reveal bg-neutral-950 p-2 rounded-xl border border-neutral-800">
-                              <div className="fs-tiny text-blue-400 uppercase font-black tracking-widest mb-1 flex items-center justify-center gap-1"><Sparkles className="w-3 h-3"/> Equipar Objetos</div>
+<div className="fs-tiny text-blue-400 uppercase font-black tracking-widest mb-1 text-center">Equipar Objetos</div>
                               <div className="grid grid-cols-2 gap-1">
                                 {extra.items.map((it, i) => {
                                   const isScarf = it.item.toLowerCase().includes("panuelo") || it.item.toLowerCase().includes("pañuelo");
