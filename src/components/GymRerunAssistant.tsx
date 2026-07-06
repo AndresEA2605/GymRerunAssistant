@@ -1811,7 +1811,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       <PokeBackground />
       <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 w-[230px] border-r border-neutral-800/70 bg-neutral-950/98 backdrop-blur-xl">
         {/* Sidebar Header */}
-        <button onClick={() => goToMenu()} className="flex items-center gap-2.5 px-3 py-3 border-b border-neutral-800/60 hover:bg-neutral-800/40 transition-colors w-full text-left">
+        <button onClick={() => goToMenu()} disabled={currentStepIndex !== -1} className={`flex items-center gap-2.5 px-3 py-3 border-b border-neutral-800/60 transition-colors w-full text-left ${currentStepIndex !== -1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-neutral-800/40'}`}>
           <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png" alt="" className="w-5 h-5" />
           <span className="fs-tiny font-black text-white uppercase tracking-widest">Poke Assistant</span>
         </button>
@@ -1882,7 +1882,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           <div className="bg-neutral-900/60 border border-neutral-800/60 rounded-xl p-2.5">
             <div className="fs-[10px] uppercase tracking-[0.3em] text-neutral-500 font-black mb-1.5">Navegación</div>
             <div className="space-y-1">
-              <button onClick={() => goToMenu()} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-colors text-left">
+              <button onClick={() => goToMenu()} disabled={currentStepIndex !== -1} className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition-colors text-left ${currentStepIndex !== -1 ? 'opacity-40 cursor-not-allowed text-neutral-600' : 'text-neutral-300 hover:text-white hover:bg-neutral-800/60'}`}>
                 <ChevronLeft className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
                 <span className="fs-tiny font-bold">Menú principal</span>
               </button>
@@ -1913,7 +1913,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         
         <header className="flex items-center justify-between gap-3 p-3 md:p-3 border-b border-neutral-800 bg-neutral-900/50 lg:hidden">
           <div className="flex min-w-0 items-center gap-3">
-            <button onClick={() => goToMenu()} title="Volver al menú principal" className="fs-small font-bold tracking-wide text-neutral-400 uppercase hover:text-white transition-colors truncate">
+            <button onClick={() => goToMenu()} disabled={currentStepIndex !== -1} title="Volver al menú principal" className={`fs-small font-bold tracking-wide uppercase transition-colors truncate ${currentStepIndex !== -1 ? 'text-neutral-600 cursor-not-allowed' : 'text-neutral-400 hover:text-white'}`}>
               {getGuide(selectedGuideId)?.title ?? "Guía"}
             </button>
             <div className="w-px h-4 bg-neutral-700 shrink-0" />
@@ -1948,7 +1948,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
               </div>
             )}
-            <button onClick={() => goToMenu()} title="Volver al menú principal" className="shrink-0 px-3 py-2 bg-neutral-800 text-neutral-400 rounded-lg hover:bg-neutral-700 fs-tiny font-bold uppercase tracking-wider">
+            <button onClick={() => goToMenu()} disabled={currentStepIndex !== -1} title="Volver al menú principal" className={`shrink-0 px-3 py-2 rounded-lg fs-tiny font-bold uppercase tracking-wider transition-colors ${currentStepIndex !== -1 ? 'bg-neutral-900 text-neutral-600 cursor-not-allowed' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'}`}>
               Menú
             </button>
           </div>
