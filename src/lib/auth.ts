@@ -1,9 +1,15 @@
 import { Redis } from '@upstash/redis';
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+let _redis: Redis | null = null;
+function getRedis() {
+  if (!_redis) {
+    _redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL!,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    });
+  }
+  return _redis;
+}
 
 export interface User {
   id: string;
@@ -112,12 +118,12 @@ export async function registerUser(
       return { error: 'La contraseña debe tener al menos 6 caracteres' };
     }
 
-    const existingEmail = await redis.get<string>(kemail(cleanEmail));
+    const existingEmail = await getRedis().get<string>(kemail(cleanEmail));
     if (existingEmail) {
       return { error: 'Este email ya está registrado' };
     }
 
-    const existingUsername = await redis.get<string>(kusername(cleanUsername));
+    const existingUsername = await getRedis().get<string>(kusername(cleanUsername));
     if (existingUsername) {
       return { error: 'Este username ya está en uso' };
     }
@@ -140,9 +146,9 @@ export async function registerUser(
 
     const userWithHash = { ...user, passwordHash };
 
-    await redis.set(kuser(id), JSON.stringify(userWithHash));
-    await redis.set(kemail(cleanEmail), id);
-    await redis.set(kusername(cleanUsername), id);
+    await getRedis().set(kuser(id), JSON.stringify(userWithHash));
+    await getRedis().set(kemail(cleanEmail), id);
+    await getRedis().set(kusername(cleanUsername), id);
 
     const stats: UserStats = {
       totalGyms: 0,
@@ -151,14 +157,14 @@ export async function registerUser(
       streaks: { current: 0, best: 0 },
       achievements: [],
     };
-    await redis.set(`${kuser(id)}:stats`, JSON.stringify(stats));
-    await redis.set(`${kuser(id)}:settings`, JSON.stringify({ preferences: {}, cooldowns: {} }));
-    await redis.set(`${kuser(id)}:history`, JSON.stringify({ gymHistory: [], hoohHistory: [], runHistory: [] }));
-    await redis.set(`${kuser(id)}:daily`, JSON.stringify({ tasksState: null }));
+    await getRedis().set(`${kuser(id)}:stats`, JSON.stringify(stats));
+    await getRedis().set(`${kuser(id)}:settings`, JSON.stringify({ preferences: {}, cooldowns: {} }));
+    await getRedis().set(`${kuser(id)}:history`, JSON.stringify({ gymHistory: [], hoohHistory: [], runHistory: [] }));
+    await getRedis().set(`${kuser(id)}:daily`, JSON.stringify({ tasksState: null }));
 
     const token = generateToken();
     const session: SessionData = { userId: id, expiresAt: now + SESSION_TTL * 1000 };
-    await redis.set(ksession(token), JSON.stringify(session), { ex: SESSION_TTL });
+    await getRedis().set(ksession(token), JSON.stringify(session), { ex: SESSION_TTL });
 
     return { user, token };
   } catch (err) {
@@ -174,12 +180,12 @@ export async function loginUser(
 ): Promise<{ user: User; token: string } | { error: string }> {
   const cleanEmail = email.toLowerCase().trim();
 
-  const userId = await redis.get<string>(kemail(cleanEmail));
+  const userId = await getRedis().get<string>(kemail(cleanEmail));
   if (!userId) {
     return { error: 'Email o contraseña incorrectos' };
   }
 
-  const raw = await redis.get<string>(kuser(userId));
+  const raw = await getRedis().get<string>(kuser(userId));
   if (!raw) {
     return { error: 'Usuario no encontrado' };
   }
@@ -203,26 +209,26 @@ export async function loginUser(
     coins: userData.coins,
   };
 
-  await redis.set(kuser(userId), JSON.stringify({ ...userData, lastLogin: now }));
+  await getRedis().set(kuser(userId), JSON.stringify({ ...userData, lastLogin: now }));
 
   const token = generateToken();
   const session: SessionData = { userId, expiresAt: now + SESSION_TTL * 1000 };
-  await redis.set(ksession(token), JSON.stringify(session), { ex: SESSION_TTL });
+  await getRedis().set(ksession(token), JSON.stringify(session), { ex: SESSION_TTL });
 
   return { user, token };
 }
 
 export async function getUserByToken(token: string): Promise<User | null> {
-  const raw = await redis.get<string>(ksession(token));
+  const raw = await getRedis().get<string>(ksession(token));
   if (!raw) return null;
 
   const session = JSON.parse(raw) as SessionData;
   if (session.expiresAt < Date.now()) {
-    await redis.del(ksession(token));
+    await getRedis().del(ksession(token));
     return null;
   }
 
-  const userRaw = await redis.get<string>(kuser(session.userId));
+  const userRaw = await getRedis().get<string>(kuser(session.userId));
   if (!userRaw) return null;
 
   const data = JSON.parse(userRaw) as User & { passwordHash: string };
@@ -231,7 +237,7 @@ export async function getUserByToken(token: string): Promise<User | null> {
 }
 
 export async function getUserStats(userId: string): Promise<UserStats> {
-  const raw = await redis.get<string>(`${kuser(userId)}:stats`);
+  const raw = await getRedis().get<string>(`${kuser(userId)}:stats`);
   if (!raw) {
     return { totalGyms: 0, totalHoohRuns: 0, totalTimeMs: 0, streaks: { current: 0, best: 0 }, achievements: [] };
   }
@@ -239,11 +245,11 @@ export async function getUserStats(userId: string): Promise<UserStats> {
 }
 
 export async function updateUserStats(userId: string, stats: UserStats): Promise<void> {
-  await redis.set(`${kuser(userId)}:stats`, JSON.stringify(stats));
+  await getRedis().set(`${kuser(userId)}:stats`, JSON.stringify(stats));
 }
 
 export async function getUserHistory(userId: string): Promise<UserHistory> {
-  const raw = await redis.get<string>(`${kuser(userId)}:history`);
+  const raw = await getRedis().get<string>(`${kuser(userId)}:history`);
   if (!raw) {
     return { gymHistory: [], hoohHistory: [], runHistory: [] };
   }
@@ -251,11 +257,11 @@ export async function getUserHistory(userId: string): Promise<UserHistory> {
 }
 
 export async function updateUserHistory(userId: string, history: UserHistory): Promise<void> {
-  await redis.set(`${kuser(userId)}:history`, JSON.stringify(history));
+  await getRedis().set(`${kuser(userId)}:history`, JSON.stringify(history));
 }
 
 export async function getUserSettings(userId: string): Promise<UserSettings> {
-  const raw = await redis.get<string>(`${kuser(userId)}:settings`);
+  const raw = await getRedis().get<string>(`${kuser(userId)}:settings`);
   if (!raw) {
     return { preferences: {}, cooldowns: {} };
   }
@@ -263,11 +269,11 @@ export async function getUserSettings(userId: string): Promise<UserSettings> {
 }
 
 export async function updateUserSettings(userId: string, settings: UserSettings): Promise<void> {
-  await redis.set(`${kuser(userId)}:settings`, JSON.stringify(settings));
+  await getRedis().set(`${kuser(userId)}:settings`, JSON.stringify(settings));
 }
 
 export async function getUserDaily(userId: string): Promise<UserDaily> {
-  const raw = await redis.get<string>(`${kuser(userId)}:daily`);
+  const raw = await getRedis().get<string>(`${kuser(userId)}:daily`);
   if (!raw) {
     return { tasksState: null };
   }
@@ -275,22 +281,22 @@ export async function getUserDaily(userId: string): Promise<UserDaily> {
 }
 
 export async function updateUserDaily(userId: string, daily: UserDaily): Promise<void> {
-  await redis.set(`${kuser(userId)}:daily`, JSON.stringify(daily));
+  await getRedis().set(`${kuser(userId)}:daily`, JSON.stringify(daily));
 }
 
 export async function logoutUser(token: string): Promise<void> {
-  await redis.del(ksession(token));
+  await getRedis().del(ksession(token));
 }
 
 export async function addXp(userId: string, amount: number): Promise<User> {
-  const raw = await redis.get<string>(kuser(userId));
+  const raw = await getRedis().get<string>(kuser(userId));
   if (!raw) throw new Error('User not found');
 
   const data = JSON.parse(raw) as User & { passwordHash: string };
   data.xp += amount;
   data.level = calculateLevel(data.xp);
 
-  await redis.set(kuser(userId), JSON.stringify(data));
+  await getRedis().set(kuser(userId), JSON.stringify(data));
 
   const { passwordHash: _, ...user } = data;
   return user;
@@ -308,13 +314,13 @@ export async function hasLocalData(localData: Record<string, string>): Promise<b
 }
 
 export async function updateUserProfile(userId: string, updates: { username?: string; avatar?: string }): Promise<User> {
-  const raw = await redis.get<string>(kuser(userId));
+  const raw = await getRedis().get<string>(kuser(userId));
   if (!raw) throw new Error('User not found');
 
   const data = JSON.parse(raw) as User & { passwordHash: string };
   if (updates.username) data.username = updates.username;
   if (updates.avatar !== undefined) data.avatar = updates.avatar;
-  await redis.set(kuser(userId), JSON.stringify(data));
+  await getRedis().set(kuser(userId), JSON.stringify(data));
 
   const { passwordHash: _, ...user } = data;
   return user;
