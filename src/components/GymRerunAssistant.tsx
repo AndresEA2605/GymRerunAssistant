@@ -896,7 +896,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
   const closeTeam = () => { setTeamExiting(true); setTimeout(() => { setShowTeam(false); setTeamExiting(false); }, 185); };
   const closeHistory = () => { setHistoryExiting(true); setTimeout(() => { setShowHistory(false); setHistoryExiting(false); }, 185); };
-  const goToMenu = () => { if (currentStepIndex !== -1) { setCurrentStepIndex(-1); return; } setAppExiting(true); setTimeout(() => { setMenuVisible(true); setShowMenu(true); setAppExiting(false); }, 310); };
+  const runIsActive = currentStepIndex >= 0 || timerIsRunning || sessionGymCount > 0;
+  const goToMenu = () => { if (runIsActive) { setCurrentStepIndex(-1); return; } setAppExiting(true); setTimeout(() => { setMenuVisible(true); setShowMenu(true); setAppExiting(false); }, 310); };
 
   const exitMenu = (callback?: () => void) => {
     setMenuExiting(true);
