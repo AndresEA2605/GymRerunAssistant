@@ -340,11 +340,20 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [selectedGuideId, setSelectedGuideId] = useState<'none' | 'gym33' | 'hooh' | 'guide2'>('none');
   const selectGuide = (id: 'none' | 'gym33' | 'hooh' | 'guide2') => {
     if (id !== 'none') {
+      const savedStep = getLS(`run_step_${id}`);
+      const hasActiveRun = getLS(`run_active_${id}`) === "true";
       setGuideLoading(true);
       setTimeout(() => {
         setSelectedGuideId(id);
         setLS("selected_guide", id);
-        if (id !== 'gym33') { setCurrentStepIndex(-1); resetTimer(); }
+        if (id !== 'gym33') {
+          if (hasActiveRun && savedStep !== "") {
+            setCurrentStepIndex(parseInt(savedStep, 10));
+          } else {
+            setCurrentStepIndex(-1);
+          }
+          resetTimer();
+        }
         setTimeout(() => setGuideLoading(false), 150);
       }, 300);
     } else {
@@ -456,6 +465,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       setStorageWarning("No se pudo guardar el progreso local. Revisa el almacenamiento del navegador.");
     }
   };
+
+  useEffect(() => {
+    if (selectedGuideId && selectedGuideId !== 'none' && currentStepIndex >= 0) {
+      setLS(`run_step_${selectedGuideId}`, String(currentStepIndex));
+      setLS(`run_active_${selectedGuideId}`, "true");
+    }
+  }, [currentStepIndex, selectedGuideId]);
 
   const parseLS = <T,>(key: string): T | null => {
     const raw = getLS(key);
@@ -825,6 +841,11 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     if (pendingResetAction === "route") {
       setCurrentStepIndex(-1);
       resetTimer();
+      if (selectedGuideId) {
+        setLS(`run_step_${selectedGuideId}`, "");
+        setLS(`run_active_${selectedGuideId}`, "");
+      }
+      setSessionGymCount(0);
       logTimerEvent("route_reset");
       triggerToast("Ruta reiniciada");
     }
@@ -857,6 +878,10 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     setSessionGymCount(0);
     setCurrentStepIndex(-1);
     setShowFinishConfirm(false);
+    if (selectedGuideId) {
+      setLS(`run_step_${selectedGuideId}`, "");
+      setLS(`run_active_${selectedGuideId}`, "");
+    }
     goToMenu();
     triggerToast("¡Run completada!");
   };
@@ -897,7 +922,15 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const closeTeam = () => { setTeamExiting(true); setTimeout(() => { setShowTeam(false); setTeamExiting(false); }, 185); };
   const closeHistory = () => { setHistoryExiting(true); setTimeout(() => { setShowHistory(false); setHistoryExiting(false); }, 185); };
   const runIsActive = currentStepIndex >= 0 || timerIsRunning || sessionGymCount > 0;
-  const goToMenu = () => { if (runIsActive) { setCurrentStepIndex(-1); return; } setAppExiting(true); setTimeout(() => { setMenuVisible(true); setShowMenu(true); setAppExiting(false); }, 310); };
+  const goToMenu = () => {
+    if (runIsActive && selectedGuideId !== 'none') {
+      setLS(`run_step_${selectedGuideId}`, String(currentStepIndex));
+      setLS(`run_active_${selectedGuideId}`, "true");
+      setCurrentStepIndex(-1);
+      return;
+    }
+    setAppExiting(true); setTimeout(() => { setMenuVisible(true); setShowMenu(true); setAppExiting(false); }, 310);
+  };
 
   const exitMenu = (callback?: () => void) => {
     setMenuExiting(true);
