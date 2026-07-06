@@ -12,6 +12,9 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "PokeMMO Gym Rerun Assistant",
   description: "Guía interactiva paso a paso para optimizar tus rutas de Gym Reruns en PokeMMO.",
+  icons: {
+    icon: "/gengar.gif",
+  },
 };
 
 export const viewport = {
