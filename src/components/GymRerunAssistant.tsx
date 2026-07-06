@@ -954,11 +954,9 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       if (runIsActive) {
         setLS(`run_step_${selectedGuideId}`, String(currentStepIndex));
         setLS(`run_active_${selectedGuideId}`, "true");
-        setCurrentStepIndex(-1);
-      } else {
-        setSelectedGuideId('none');
-        setLS("selected_guide", "none");
       }
+      setCurrentStepIndex(-1);
+      setAppExiting(true); setTimeout(() => { setMenuVisible(true); setShowMenu(true); setAppExiting(false); }, 310);
       return;
     }
     setAppExiting(true); setTimeout(() => { setMenuVisible(true); setShowMenu(true); setAppExiting(false); }, 310);
