@@ -9,9 +9,10 @@ interface LoginModalProps {
   onClose: () => void;
   onSwitchToRegister: () => void;
   onLogin: (identifier: string, password: string) => Promise<{ error?: string }>;
+  onForgotPassword: () => void;
 }
 
-export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLogin }: LoginModalProps) {
+export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLogin, onForgotPassword }: LoginModalProps) {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -135,8 +136,18 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLogi
             </button>
           </form>
 
-          <div className="text-center mt-6 pt-5 border-t border-neutral-800/50">
-            <button onClick={onSwitchToRegister} className="text-sm text-neutral-400 hover:text-indigo-400 transition-colors font-medium">
+          <div className="text-center mt-5 space-y-3">
+            <button
+              type="button"
+              onClick={onForgotPassword}
+              className="text-sm text-indigo-300 hover:text-indigo-100 font-semibold transition-colors"
+            >
+              ¿Olvidaste tu contraseña?
+            </button>
+            <button
+              onClick={onSwitchToRegister}
+              className="text-sm text-neutral-400 hover:text-indigo-400 transition-colors font-medium"
+            >
               ¿No tenés cuenta? <span className="font-bold text-indigo-400">Registrate</span>
             </button>
           </div>

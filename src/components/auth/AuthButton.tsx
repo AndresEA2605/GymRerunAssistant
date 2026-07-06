@@ -1,29 +1,38 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { LogIn, User, Zap, Trophy, Cloud, Star } from "lucide-react";
+import { LogIn, Star } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProgression } from "@/hooks/useProgression";
 import LoginModal from "./LoginModal";
 import RegisterModal from "./RegisterModal";
 import ProfilePanel from "./ProfilePanel";
 import SyncModal from "./SyncModal";
+import PasswordResetRequestModal from "./PasswordResetRequestModal";
+import PasswordResetModal from "./PasswordResetModal";
 
 export default function AuthButton() {
   const { user, token, isLoading, login, register } = useAuth();
-  const { grantXP } = useProgression();
+  const { grantXP, isLoaded } = useProgression();
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showSync, setShowSync] = useState(false);
+  const [showResetRequest, setShowResetRequest] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetToken, setResetToken] = useState("");
   const prevUserRef = useRef(user);
+  const loginXpGrantedRef = useRef(false);
 
   useEffect(() => {
-    if (user && !prevUserRef.current) {
+    if (!isLoaded) return;
+    if (user && !prevUserRef.current && !loginXpGrantedRef.current) {
       grantXP(25, "Inicio de sesión");
+      loginXpGrantedRef.current = true;
     }
     prevUserRef.current = user;
-  }, [user]);
+  }, [user, isLoaded, grantXP]);
 
   useEffect(() => {
     if (user && token) {
@@ -49,7 +58,7 @@ export default function AuthButton() {
     if (!token) return;
 
     const localData: Record<string, string> = {};
-    const keys = ["gym_step", "gym_timer", "gym_history", "gym_cooldown", "all_cooldowns", "daily_tasks", "run_active_gym33", "run_active_hooh", "run_active_guide2", "run_step_gym33", "run_step_hooh", "run_step_guide2"];
+    const keys = ["gym_step", "gym_timer", "gym_history", "gym_cooldown", "all_cooldowns", "daily_tasks", "gym_count", "run_active_gym33", "run_active_hooh", "run_active_guide2", "run_step_gym33", "run_step_hooh", "run_step_guide2"];
     keys.forEach(key => {
       const val = localStorage.getItem(`pkmmo_${key}`);
       if (val) localData[key] = val;
@@ -63,13 +72,42 @@ export default function AuthButton() {
       });
       const data = await res.json();
 
-      if (data.ok && data.cloudData) {
-        Object.entries(data.cloudData).forEach(([key, value]) => {
-          localStorage.setItem(`pkmmo_${key}`, value as string);
-        });
+      if (data.ok) {
         window.location.reload();
       }
     } catch {}
+  };
+
+  const handleRequestPasswordReset = async (email: string) => {
+    try {
+      const res = await fetch("/api/auth/request-reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!data.error && data.token) {
+        setResetEmail(email);
+        setResetToken(data.token);
+      }
+      return data;
+    } catch {
+      return { error: "No se pudo conectar con el servidor." };
+    }
+  };
+
+  const handleResetPassword = async (email: string, token: string, password: string) => {
+    try {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, token, password }),
+      });
+      const data = await res.json();
+      return data;
+    } catch {
+      return { error: "No se pudo conectar con el servidor." };
+    }
   };
 
   if (isLoading) return null;
@@ -77,59 +115,34 @@ export default function AuthButton() {
   return (
     <>
       {user ? (
-        <button
-          onClick={() => setShowProfile(!showProfile)}
-          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-neutral-800/60 border border-neutral-700/50 hover:bg-neutral-800 hover:border-neutral-600 transition-all group"
-        >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-xs font-black shrink-0 shadow-md shadow-indigo-500/20">
-            {user.username.charAt(0).toUpperCase()}
-          </div>
-          <div className="min-w-0 text-left">
-            <div className="text-white text-xs font-bold truncate">{user.username}</div>
-            <div className="text-neutral-500 text-[10px] font-bold">Nivel {user.level}</div>
-          </div>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowProfile(true)}
+            className="inline-flex items-center gap-2 rounded-full border border-neutral-800/80 bg-neutral-950/90 px-3 py-1.5 text-xs font-bold text-white transition hover:border-indigo-400/25 hover:bg-neutral-900"
+          >
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white text-[11px] font-black shadow-sm shadow-indigo-500/15">
+              {user.username.charAt(0).toUpperCase()}
+            </span>
+            {user.username}
+          </button>
+        </div>
       ) : (
-        <div className="space-y-2">
+        <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={() => setShowRegister(true)}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white transition-all shadow-lg shadow-indigo-500/15"
+            className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.04em] text-white shadow-sm shadow-indigo-500/15 transition hover:from-indigo-500 hover:to-violet-500"
           >
-            <Star className="w-4 h-4 shrink-0 fill-current" />
-            <span className="fs-tiny font-black">Registrate gratis</span>
+            Registrate
           </button>
-
           <button
+            type="button"
             onClick={() => setShowLogin(true)}
-            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl bg-neutral-800/60 border border-neutral-700/50 hover:bg-neutral-800 hover:border-neutral-600 transition-all text-neutral-300 hover:text-white"
+            className="inline-flex items-center justify-center rounded-full border border-neutral-700/70 bg-neutral-900/80 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-neutral-200 transition hover:border-indigo-400/30 hover:bg-neutral-800"
           >
-            <LogIn className="w-4 h-4 shrink-0" />
-            <span className="fs-tiny font-bold">Ya tengo cuenta</span>
+            Login
           </button>
-
-          <div className="rounded-xl bg-gradient-to-b from-indigo-950/30 to-violet-950/20 border border-indigo-500/10 p-2.5 space-y-2">
-            <div className="fs-[10px] uppercase tracking-[0.2em] text-indigo-400/70 font-black text-center">Beneficios</div>
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-md bg-amber-500/15 flex items-center justify-center shrink-0">
-                  <Zap className="w-3 h-3 text-amber-400" />
-                </div>
-                <span className="fs-[11px] text-neutral-400 font-bold leading-tight">Subí de nivel completando runs</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-md bg-emerald-500/15 flex items-center justify-center shrink-0">
-                  <Trophy className="w-3 h-3 text-emerald-400" />
-                </div>
-                <span className="fs-[11px] text-neutral-400 font-bold leading-tight">Desbloqueá logros y recompensas</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-md bg-blue-500/15 flex items-center justify-center shrink-0">
-                  <Cloud className="w-3 h-3 text-blue-400" />
-                </div>
-                <span className="fs-[11px] text-neutral-400 font-bold leading-tight">Sincronizá tu progreso en la nube</span>
-              </div>
-            </div>
-          </div>
         </div>
       )}
 
@@ -138,6 +151,7 @@ export default function AuthButton() {
         onClose={() => setShowLogin(false)}
         onSwitchToRegister={() => { setShowLogin(false); setShowRegister(true); }}
         onLogin={login}
+        onForgotPassword={() => { setShowLogin(false); setShowResetRequest(true); }}
       />
 
       <RegisterModal
@@ -145,6 +159,27 @@ export default function AuthButton() {
         onClose={() => setShowRegister(false)}
         onSwitchToLogin={() => { setShowRegister(false); setShowLogin(true); }}
         onRegister={register}
+      />
+
+      <PasswordResetRequestModal
+        isOpen={showResetRequest}
+        onClose={() => setShowResetRequest(false)}
+        onRequestReset={async (email) => {
+          const result = await handleRequestPasswordReset(email);
+          if (!result.error) {
+            setShowResetRequest(false);
+            setShowResetPassword(true);
+          }
+          return result;
+        }}
+      />
+
+      <PasswordResetModal
+        isOpen={showResetPassword}
+        onClose={() => setShowResetPassword(false)}
+        onReset={handleResetPassword}
+        email={resetEmail}
+        token={resetToken}
       />
 
       <ProfilePanel

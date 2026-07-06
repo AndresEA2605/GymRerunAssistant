@@ -50,6 +50,8 @@ export interface SessionData {
 
 interface UserWithHash extends User {
   passwordHash: string;
+  resetToken?: string | null;
+  resetTokenExpiresAt?: number | null;
 }
 
 const SESSION_TTL = 30 * 24 * 60 * 60;
@@ -234,11 +236,69 @@ export async function getUserByToken(token: string): Promise<User | null> {
     const data = await getRedis().get<UserWithHash>(kuser(session.userId));
     if (!data) return null;
 
-    const { passwordHash: _, ...user } = data;
+    const { passwordHash: _, resetToken: __, resetTokenExpiresAt: ___, ...user } = data;
     return user;
   } catch {
     return null;
   }
+}
+
+export async function getUserByEmail(email: string): Promise<UserWithHash | null> {
+  try {
+    const clean = email.toLowerCase().trim();
+    const userId = await getRedis().get<string>(kemail(clean));
+    if (!userId) return null;
+    const data = await getRedis().get<UserWithHash>(kuser(userId));
+    return data || null;
+  } catch {
+    return null;
+  }
+}
+
+export async function requestPasswordReset(email: string): Promise<{ token?: string; error?: string }> {
+  const user = await getUserByEmail(email);
+  if (!user) {
+    return { error: 'No se encontró una cuenta con ese email.' };
+  }
+
+  const token = crypto.randomUUID();
+  const expiresAt = Date.now() + 30 * 60 * 1000;
+  const updated: UserWithHash = {
+    ...user,
+    resetToken: token,
+    resetTokenExpiresAt: expiresAt,
+  };
+  await getRedis().set(kuser(user.id), updated);
+  return { token };
+}
+
+export async function resetPassword(email: string, token: string, password: string): Promise<{ error?: string }> {
+  const user = await getUserByEmail(email);
+  if (!user) {
+    return { error: 'No se encontró una cuenta con ese email.' };
+  }
+  if (!user.resetToken || !user.resetTokenExpiresAt) {
+    return { error: 'No se ha solicitado un token de recuperación.' };
+  }
+  if (user.resetToken !== token) {
+    return { error: 'Token de recuperación inválido.' };
+  }
+  if (Date.now() > user.resetTokenExpiresAt) {
+    return { error: 'El token de recuperación expiró.' };
+  }
+  if (password.length < 6) {
+    return { error: 'La contraseña debe tener al menos 6 caracteres.' };
+  }
+
+  const passwordHash = await hashPassword(password);
+  const updated: UserWithHash = {
+    ...user,
+    passwordHash,
+    resetToken: null,
+    resetTokenExpiresAt: null,
+  };
+  await getRedis().set(kuser(user.id), updated);
+  return {};
 }
 
 export async function getUserStats(userId: string): Promise<UserStats> {

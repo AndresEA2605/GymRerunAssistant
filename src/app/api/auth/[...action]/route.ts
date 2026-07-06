@@ -180,6 +180,30 @@ async function handler(
         return NextResponse.json({ user: updated });
       }
 
+      case 'request-reset': {
+        const { email } = body;
+        if (!email) {
+          return NextResponse.json({ error: 'Email requerido' }, { status: 400 });
+        }
+        const result = await import('@/lib/auth').then(m => m.requestPasswordReset(email));
+        if (result.error) {
+          return NextResponse.json({ error: result.error }, { status: 400 });
+        }
+        return NextResponse.json({ ok: true, token: result.token });
+      }
+
+      case 'reset-password': {
+        const { email, token, password } = body;
+        if (!email || !token || !password) {
+          return NextResponse.json({ error: 'Parámetros requeridos' }, { status: 400 });
+        }
+        const result = await import('@/lib/auth').then(m => m.resetPassword(email, token, password));
+        if (result.error) {
+          return NextResponse.json({ error: result.error }, { status: 400 });
+        }
+        return NextResponse.json({ ok: true });
+      }
+
       default:
         return NextResponse.json({ error: 'Acción desconocida' }, { status: 404 });
     }

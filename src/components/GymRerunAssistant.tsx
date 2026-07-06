@@ -518,7 +518,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     const keys = [
       "gym_step", "selected_guide", "gym_timer", "gym_history",
       "gym_cooldown", "all_cooldowns", "gym_timer_events",
-      "skip_checklist", "skip_countdown", "manual_timer",
+      "gym_count", "skip_checklist", "skip_countdown", "manual_timer",
       "run_step_gym33", "run_step_hooh", "run_step_guide2",
       "run_active_gym33", "run_active_hooh", "run_active_guide2",
     ];
@@ -579,6 +579,9 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         setTimerIsRunning(isRunning);
         setTimerStartTime(isRunning ? startedAt : null);
       }
+
+      const savedCount = d["gym_count"] ? Number(d["gym_count"]) : 0;
+      setSessionGymCount(!Number.isNaN(savedCount) && savedCount >= 0 ? savedCount : 0);
 
       const savedHistory = d["gym_history"] ? (() => { try { return JSON.parse(d["gym_history"]) as RunHistoryEntry[]; } catch { return null; } })() : null;
       if (Array.isArray(savedHistory)) {
@@ -661,6 +664,11 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       startedAt: timerStartTime,
     }));
   }, [loaded, timerElapsed, timerIsRunning, timerStartTime]);
+
+  useEffect(() => {
+    if (!loaded) return;
+    setLS("gym_count", String(sessionGymCount));
+  }, [loaded, sessionGymCount]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -927,6 +935,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         setLS(`run_active_${selectedGuideId}`, "");
       }
       setSessionGymCount(0);
+      setLS("gym_count", "0");
       logTimerEvent("route_reset");
       triggerToast("Ruta reiniciada");
     }
@@ -956,6 +965,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     logTimerEvent("finish");
     resetTimer();
     setSessionGymCount(0);
+    setLS("gym_count", "0");
     setCurrentStepIndex(-1);
     setShowFinishConfirm(false);
     if (selectedGuideId) {
@@ -978,6 +988,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const abandonRun = () => {
     resetTimer();
     setSessionGymCount(0);
+    setLS("gym_count", "0");
     setCurrentStepIndex(-1);
     if (selectedGuideId) {
       setLS(`run_step_${selectedGuideId}`, "");
