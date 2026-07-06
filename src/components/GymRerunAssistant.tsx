@@ -1504,6 +1504,34 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </div>
             </div>
 
+            {/* Login + Session Status */}
+            <div className="flex flex-col sm:flex-row items-stretch gap-3 mb-4">
+              <div className="flex-1">
+                <AuthButton />
+              </div>
+              <div className="flex-1 bg-neutral-900/60 border border-neutral-800/60 rounded-2xl p-3">
+                <div className="flex items-center gap-2 mb-1.5">
+                  {hasActiveSession ? (
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  ) : (
+                    <div className="w-2 h-2 rounded-full bg-neutral-600" />
+                  )}
+                  <span className="fs-[10px] uppercase tracking-[0.3em] text-neutral-500 font-black">Estado</span>
+                </div>
+                {hasActiveSession ? (
+                  <div className="flex items-center gap-2">
+                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${getGuide(activeSessionGuide)?.icon || '94'}.gif`} alt="" className="w-8 h-8 object-contain shrink-0" />
+                    <div className="min-w-0">
+                      <div className="text-emerald-400 font-black fs-tiny truncate">Run activa</div>
+                      <div className="text-neutral-500 text-[10px] truncate">{getGuide(activeSessionGuide)?.title || "Guía"}</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-neutral-600 fs-tiny">Sin actividad</div>
+                )}
+              </div>
+            </div>
+
             {finishSummary && (
               <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-emerald-950/60 to-indigo-950/60 border border-emerald-500/30 relative animate-in fade-in slide-in-from-top-4 duration-300">
                 <button onClick={() => setFinishSummary(null)} className="absolute top-2 right-2 p-1 rounded-lg text-neutral-500 hover:text-white hover:bg-neutral-800 transition-colors">
