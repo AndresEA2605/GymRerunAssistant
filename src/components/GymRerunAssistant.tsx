@@ -949,9 +949,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     setHistory(updatedHistory);
     setLastRunStats({ elapsed: finalElapsed, gymsCompleted: totalGymsDone, totalGyms, finishedAt: Date.now() });
     logTimerEvent("finish");
-    const hoohCooldownMs = 7 * 24 * 60 * 60 * 1000;
-    const cooldownDuration = selectedGuideId === 'hooh' ? hoohCooldownMs : gymResetMs;
-    startGymCooldown(getLastCompletedGym(), cooldownDuration);
     resetTimer();
     setSessionGymCount(0);
     setCurrentStepIndex(-1);
