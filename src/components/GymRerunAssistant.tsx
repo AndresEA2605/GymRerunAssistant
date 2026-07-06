@@ -42,6 +42,7 @@ import { getGuide, getGuidesByCategory, GUIDE_CATEGORIES, GUIDES } from "../data
 import { showCompleteGym as shouldShowCompleteGym, isRoutesGuide } from "@/lib/guide-footer";
 import { storageSet, storageMGet } from "@/lib/storage";
 import AuthButton from "@/components/auth/AuthButton";
+import { useProgression } from "@/hooks/useProgression";
 
 export type GymCoordMap = Record<string, { region: string; x: number; y: number }>;
 export type RegionMap = Record<string, string>;
@@ -318,6 +319,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     gymResetMs = 18 * 60 * 60 * 1000,
     storagePrefix = "pkmmo",
   } = config;
+
+  const { grantXP, incrementStat, profile } = useProgression();
 
   const [showMenu, setShowMenu] = useState<boolean>(true);
   const [loaded, setLoaded] = useState<boolean>(false);
@@ -711,6 +714,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const completeGym = useCallback(() => {
     setSessionGymCount(prev => prev + 1);
     triggerToast("Gym completado");
+    grantXP(50, "Gym completado");
+    incrementStat("gymsCompleted");
     const isTurn = selectedGuideId === 'hooh';
     if (isTurn) {
       setCurrentStepIndex((prev) => {
@@ -903,6 +908,9 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     }
     goToMenu();
     triggerToast("¡Run completada!");
+    grantXP(100 + sessionGymCount * 50, "Run completada");
+    incrementStat("guidesFinished");
+    incrementStat("totalTimeMs", finalElapsed);
   };
 
   const requestFinishRun = () => setShowFinishConfirm(true);
@@ -1080,7 +1088,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     const bestRun = history.length > 0 ? history.reduce((a, b) => a.elapsed < b.elapsed ? a : b) : null;
     return (
       <>
-      <div className={`${menuVisible ? 'menu-enter' : 'fade-in-screen'} bg-neutral-950 text-neutral-200 font-sans relative overflow-hidden ${menuExiting ? 'menu-exit' : ''}`} style={{ minHeight: '100dvh' }}>
+      <div className={`${menuVisible ? 'menu-enter' : 'fade-in-screen'} bg-neutral-950 text-neutral-200 font-sans relative overflow-x-hidden overflow-y-auto ${menuExiting ? 'menu-exit' : ''}`} style={{ minHeight: '100dvh' }}>
         <PokeBackground />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none" />
 

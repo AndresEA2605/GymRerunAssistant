@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { LogIn, User, Zap, Trophy, Cloud, Star } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useProgression } from "@/hooks/useProgression";
 import LoginModal from "./LoginModal";
 import RegisterModal from "./RegisterModal";
 import ProfilePanel from "./ProfilePanel";
@@ -10,10 +11,19 @@ import SyncModal from "./SyncModal";
 
 export default function AuthButton() {
   const { user, token, isLoading, login, register } = useAuth();
+  const { grantXP } = useProgression();
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showSync, setShowSync] = useState(false);
+  const prevUserRef = useRef(user);
+
+  useEffect(() => {
+    if (user && !prevUserRef.current) {
+      grantXP(25, "Inicio de sesión");
+    }
+    prevUserRef.current = user;
+  }, [user]);
 
   useEffect(() => {
     if (user && token) {

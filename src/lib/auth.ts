@@ -344,3 +344,16 @@ export async function updateUserProfile(userId: string, updates: { username?: st
   const { passwordHash: _, ...user } = data;
   return user;
 }
+
+export async function getProgression(userId: string): Promise<Record<string, unknown>> {
+  try {
+    const data = await getRedis().get<Record<string, unknown>>(`${kuser(userId)}:progression`);
+    return data ?? {};
+  } catch {
+    return {};
+  }
+}
+
+export async function saveProgression(userId: string, data: Record<string, unknown>): Promise<void> {
+  await getRedis().set(`${kuser(userId)}:progression`, data);
+}
