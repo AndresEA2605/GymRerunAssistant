@@ -1,12 +1,12 @@
 import { Redis } from '@upstash/redis';
 
 let _redis: Redis | null = null;
-function getRedis() {
+function getRedis(): Redis | null {
   if (!_redis) {
-    _redis = new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL!,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-    });
+    const url = process.env.NEXT_PUBLIC_UPSTASH_REDIS_REST_URL;
+    const token = process.env.NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN;
+    if (!url || !token) return null;
+    _redis = new Redis({ url, token });
   }
   return _redis;
 }
@@ -16,7 +16,9 @@ const k = (key: string) => `${PREFIX}_${key}`;
 
 export async function storageGet(key: string): Promise<string> {
   try {
-    const val = await getRedis().get<string>(k(key));
+    const r = getRedis();
+    if (!r) return '';
+    const val = await r.get<string>(k(key));
     return val ?? '';
   } catch {
     return '';
@@ -25,7 +27,9 @@ export async function storageGet(key: string): Promise<string> {
 
 export async function storageSet(key: string, value: string): Promise<void> {
   try {
-    await getRedis().set(k(key), value);
+    const r = getRedis();
+    if (!r) return;
+    await r.set(k(key), value);
   } catch {
     console.error(`Redis set failed for key: ${key}`);
   }
@@ -47,7 +51,9 @@ export async function storageSetJSON(key: string, value: unknown): Promise<void>
 
 export async function storageRemove(key: string): Promise<void> {
   try {
-    await getRedis().del(k(key));
+    const r = getRedis();
+    if (!r) return;
+    await r.del(k(key));
   } catch {
     console.error(`Redis del failed for key: ${key}`);
   }
@@ -55,8 +61,14 @@ export async function storageRemove(key: string): Promise<void> {
 
 export async function storageMGet(keys: string[]): Promise<Record<string, string>> {
   try {
+    const r = getRedis();
+    if (!r) {
+      const result: Record<string, string> = {};
+      keys.forEach(key => { result[key] = ''; });
+      return result;
+    }
     const redisKeys = keys.map(k);
-    const values = await getRedis().mget<string[]>(...redisKeys);
+    const values = await r.mget<string[]>(...redisKeys);
     const result: Record<string, string> = {};
     keys.forEach((key, i) => {
       result[key] = values[i] ?? '';
