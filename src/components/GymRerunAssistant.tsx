@@ -1050,10 +1050,14 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           })()}
 
           {selectedGuideId === 'none' && (<>
-            <div className="reveal-1 text-center mb-3 md:mb-4">
+            <div className="reveal-1 text-center mb-3 md:mb-4 flex flex-col items-center">
+              <div className="relative mb-3 w-28 h-28 flex flex-col items-center justify-end group cursor-pointer">
+                <div className="absolute inset-0 bg-indigo-500/20 blur-2xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/94.gif" alt="Gengar" className="relative z-10 w-20 h-20 object-contain translate-y-4 group-hover:-translate-y-2 transition-transform duration-500" style={{ filter: 'drop-shadow(0 0 10px rgba(139,92,246,0.5))' }} />
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png" alt="Master Ball" className="relative z-20 w-16 h-16 object-contain" />
+              </div>
               <span className="fs-tiny uppercase tracking-widest font-black text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-2 py-0.5 rounded-full">PokeMMO Speedrun Tool</span>
-              <h1 className="fs-hero font-black tracking-tight text-white leading-none mt-1" style={{ textShadow: '0 0 60px rgba(99,102,241,0.5)' }}>GYM RERUN</h1>
-              <h2 className="fs-h2 font-bold text-indigo-400 tracking-widest">ASSISTANT</h2>
+              <h1 className="fs-hero font-black tracking-tight text-white leading-none mt-2" style={{ textShadow: '0 0 60px rgba(99,102,241,0.5)' }}>POKE ASSISTANT</h1>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-5">
@@ -1098,7 +1102,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     <div className="fs-tiny text-neutral-500">Gyms</div>
                   </div>
                   <div className="bg-neutral-900/60 rounded-lg px-2 py-2 text-center">
-                    <div className="fs-small font-black text-white">3</div>
+                    <div className="fs-small font-black text-white">{GUIDES.length}</div>
                     <div className="fs-tiny text-neutral-500">Guías</div>
                   </div>
                   <div className="bg-neutral-900/60 rounded-lg px-2 py-2 text-center">
@@ -1150,13 +1154,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               {GUIDE_CATEGORIES.map(cat => {
                 const catGuides = getGuidesByCategory(cat.id);
                 return (
-                  <div key={cat.id} className="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-4">
-                    <div className="flex items-center gap-2 mb-3">
+                  <div key={cat.id} className="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-4 flex flex-col max-h-[360px]">
+                    <div className="flex items-center gap-2 mb-3 shrink-0">
                       <span className="text-lg">{cat.icon}</span>
                       <span className="fs-small font-black text-neutral-300 uppercase tracking-wider">{cat.label}</span>
                     </div>
                     {catGuides.length > 0 ? (
-                      <div className="space-y-3">
+                      <div className="space-y-3 overflow-y-auto flex-1 pr-1 custom-scrollbar">
                         {catGuides.map(g => {
                           const gc = getGuideColorClasses(g.color);
                           return (
@@ -1185,7 +1189,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                         })}
                       </div>
                     ) : cat.id === 'guides' ? (
-                      <div className="space-y-3">
+                      <div className="space-y-3 overflow-y-auto flex-1 pr-1 custom-scrollbar">
                         <a href="https://docs.google.com/document/d/1GkgTlrZwm2jUO_aD_U9Gha8CaljwRQaMLMMJfpsr4Bc/edit?tab=t.kd1fquq7r0zb" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-neutral-950/60 border border-neutral-800 hover:border-blue-500/40 rounded-xl py-3 px-4 transition-all group">
                           <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
                             <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-blue-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z"/></svg>

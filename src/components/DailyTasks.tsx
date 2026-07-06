@@ -212,7 +212,7 @@ export default function DailyTasks({ gymsCompleted, timerElapsedMs = 0, isOpen, 
             style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + var(--footer-routes-height, 9rem) + 4rem)", maxHeight: "calc(100dvh - var(--footer-routes-height, 9rem) - 8rem)" }}
           >
             <div
-              className="w-[340px] max-w-[calc(100vw-24px)] bg-neutral-900/95 backdrop-blur-xl rounded-2xl border border-neutral-800 shadow-2xl overflow-hidden flex flex-col"
+              className="w-[340px] max-w-[calc(100vw-24px)] bg-neutral-900/95 backdrop-blur-xl rounded-2xl border border-neutral-800 shadow-2xl overflow-hidden flex flex-col max-h-full"
               onClick={e => e.stopPropagation()}
             >
               <div className="shrink-0 flex items-center justify-between px-4 pt-3 pb-2 border-b border-neutral-800">
@@ -230,7 +230,7 @@ export default function DailyTasks({ gymsCompleted, timerElapsedMs = 0, isOpen, 
                 </button>
               </div>
 
-              <div className="overflow-y-auto p-3 space-y-3">
+              <div className="overflow-y-auto flex-1 min-h-0 p-3 space-y-3 custom-scrollbar">
                 <div className="flex items-start gap-2">
                   <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shrink-0 mt-0.5 shadow-sm shadow-indigo-500/20">
                     <MessageCircle className="w-3.5 h-3.5 text-white" />
