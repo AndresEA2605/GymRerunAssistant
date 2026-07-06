@@ -376,7 +376,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         if (current && step.gym !== current.gymStep.gym) {
           groups.push(current);
           current = { gymStep: step, subBattles: [], extras: [], gymIndex: groups.length + 1, region: getGroupRegion(step) };
-        } else if (current && step.gym === current.gymStep.gym && current.extras.length === 0) {
+        } else if (current && step.gym === current.gymStep.gym && !current.extras.some(e => e.type === 'gym')) {
           current.subBattles.push(step);
         } else {
           if (current) groups.push(current);

@@ -213,7 +213,7 @@ export const guide2Steps: RouteStep[] = [
     id: 33, type: "gym", region: "Unova", gym: "Striaton",
     title: "Vs Floatzel", lead: ["Excadrill", "Togekiss"],
     switchTo: ["Vanilluxe"],
-    actions: ["Excadrill → Earthquake", "Typhlosion → Vanilluxe (Cambio)"],
+    actions: ["Excadrill → Earthquake", "Togekiss → Vanilluxe (Cambio)"],
   },
   // Vs Stoutland + Gyarados
   {
