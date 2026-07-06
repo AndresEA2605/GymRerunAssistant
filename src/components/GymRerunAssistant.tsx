@@ -1042,8 +1042,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               <div className="reveal-1 max-w-5xl mx-auto mt-2 pb-6">
                 {/* Back button */}
                 <div className="flex justify-start mb-4">
-                  <button onClick={() => selectGuide('none')} className="flex items-center gap-1.5 text-neutral-400 hover:text-white fs-tiny font-bold uppercase tracking-wider transition-colors bg-neutral-900/80 hover:bg-neutral-800 border border-neutral-800/80 px-4 py-2.5 rounded-xl shadow-md">
-                    <ChevronLeft className="w-4 h-4 text-indigo-400" /> Volver a guías
+                  <button onClick={() => { if (!runIsActive) selectGuide('none'); }} disabled={runIsActive} className={`flex items-center gap-1.5 fs-tiny font-bold uppercase tracking-wider transition-colors border px-4 py-2.5 rounded-xl shadow-md ${runIsActive ? 'text-neutral-600 border-neutral-800/40 bg-neutral-900/40 cursor-not-allowed' : 'text-neutral-400 hover:text-white bg-neutral-900/80 hover:bg-neutral-800 border-neutral-800/80'}`}>
+                    <ChevronLeft className={`w-4 h-4 ${runIsActive ? 'text-neutral-700' : 'text-indigo-400'}`} /> Volver a guías
                   </button>
                 </div>
 
