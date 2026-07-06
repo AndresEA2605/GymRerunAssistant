@@ -1018,32 +1018,198 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             if (!guide) return null;
             const gc = getGuideColorClasses(guide.color);
             return (
-              <div className="reveal-1 w-full text-center space-y-1.5 mb-2">
-                <span className={`fs-tiny uppercase tracking-widest font-black border px-1.5 py-0.5 rounded-full inline-block ${gc.text} ${gc.border} ${gc.bg}`}>
-                  {guide.credits.author}
-                </span>
-                <h2 className="fs-h3 font-black text-white leading-tight">{guide.title} Rerun</h2>
-                <p className="fs-small text-neutral-400 max-w-xl mx-auto leading-relaxed">{guide.subtitle}</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5 mt-2 max-w-2xl mx-auto">
-                  <div className="bg-neutral-900 border border-neutral-800 rounded-lg py-1 px-1.5">
-                    <div className="text-sm">🎯</div>
-                    <div className={`fs-tiny font-black ${gc.text}`}>{steps.filter(s => s.type === "gym").length || steps.length}</div>
-                    <div className="fs-tiny text-neutral-500 uppercase tracking-wider">{selectedGuideId === 'hooh' ? 'Turnos' : 'Gimnasios'}</div>
+              <div className="reveal-1 max-w-5xl mx-auto mt-2 pb-6">
+                {/* Back button */}
+                <div className="flex justify-start mb-4">
+                  <button onClick={() => selectGuide('none')} className="flex items-center gap-1.5 text-neutral-400 hover:text-white fs-tiny font-bold uppercase tracking-wider transition-colors bg-neutral-900/80 hover:bg-neutral-800 border border-neutral-800/80 px-4 py-2.5 rounded-xl shadow-md">
+                    <ChevronLeft className="w-4 h-4 text-indigo-400" /> Volver a guías
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                  
+                  {/* LEFT PANEL: Details & Info */}
+                  <div className="lg:col-span-7 space-y-4">
+                    
+                    {/* Header Card */}
+                    <div className="bg-neutral-900/60 border border-neutral-800/80 rounded-2xl p-5 backdrop-blur-xl relative overflow-hidden shadow-xl">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-500/10 to-violet-500/5 blur-2xl rounded-full pointer-events-none" />
+                      <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                        <span className={`fs-tiny uppercase tracking-widest font-black border px-2.5 py-0.5 rounded-full inline-block ${gc.text} ${gc.border} ${gc.bg}`}>
+                          Autor: {guide.credits.author}
+                        </span>
+                        {guide.credits.status && (
+                          <span className="fs-tiny uppercase tracking-widest font-black bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-0.5 rounded-full">
+                            {guide.credits.status}
+                          </span>
+                        )}
+                      </div>
+                      <h2 className="fs-h2 font-black text-white leading-tight mb-2">{guide.title} Rerun</h2>
+                      <p className="fs-small text-neutral-400 leading-relaxed">{guide.subtitle}</p>
+                    </div>
+
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="bg-neutral-900/40 border border-neutral-800/60 rounded-xl p-3 text-center shadow-inner">
+                        <div className="text-xl mb-1">🎯</div>
+                        <div className={`fs-small font-black ${gc.text}`}>{steps.filter(s => s.type === "gym").length || steps.length}</div>
+                        <div className="fs-tiny text-neutral-500 uppercase font-bold tracking-wider">{selectedGuideId === 'hooh' ? 'Turnos' : 'Gimnasios'}</div>
+                      </div>
+                      <div className="bg-neutral-900/40 border border-neutral-800/60 rounded-xl p-3 text-center shadow-inner">
+                        <div className="text-xl mb-1">🗺️</div>
+                        <div className={`fs-small font-black ${gc.text}`}>5</div>
+                        <div className="fs-tiny text-neutral-500 uppercase font-bold tracking-wider">Regiones</div>
+                      </div>
+                      <div className="bg-neutral-900/40 border border-neutral-800/60 rounded-xl p-3 text-center shadow-inner">
+                        <div className="text-xl mb-1">🔄</div>
+                        <div className={`fs-small font-black ${gc.text}`}>{steps.filter(s => s.switchTo).length}</div>
+                        <div className="fs-tiny text-neutral-500 uppercase font-bold tracking-wider">Swaps</div>
+                      </div>
+                      <div className="bg-neutral-900/40 border border-neutral-800/60 rounded-xl p-3 text-center shadow-inner">
+                        <div className="text-xl mb-1">⭐</div>
+                        <div className={`fs-small font-black ${gc.text}`}>{guide.difficulty ?? (selectedGuideId === 'hooh' ? 'Media' : 'Media-Alta')}</div>
+                        <div className="fs-tiny text-neutral-500 uppercase font-bold tracking-wider">Dificultad</div>
+                      </div>
+                    </div>
+
+                    {/* Team Preview Card */}
+                    <div className="bg-neutral-900/40 border border-neutral-800/60 rounded-2xl p-5 shadow-xl">
+                      <div className="flex items-center gap-2 mb-3.5">
+                        <Users className="w-4 h-4 text-violet-400" />
+                        <h3 className="fs-small font-black text-neutral-300 uppercase tracking-wider">Equipo Recomendado</h3>
+                      </div>
+                      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
+                        {(guide.team || []).map((t, idx) => (
+                          <div key={idx} className="bg-neutral-950/80 border border-neutral-800/80 rounded-xl p-2.5 flex flex-col items-center justify-center group hover:border-violet-500/30 transition-colors">
+                            <div className="w-12 h-12 flex items-center justify-center p-1">
+                              <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${t.spriteId}.gif`} alt={t.name} className="w-full h-full object-contain group-hover:scale-115 transition-transform duration-350" />
+                            </div>
+                            <span className="fs-tiny text-neutral-400 font-bold mt-1.5 truncate max-w-full text-center">{t.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Additional Info / Credits Card */}
+                    <div className="bg-neutral-900/40 border border-neutral-800/60 rounded-2xl p-5 text-left shadow-xl">
+                      <h3 className="fs-small font-black text-neutral-300 uppercase tracking-wider mb-3">Detalles Adicionales</h3>
+                      <div className="space-y-2 text-neutral-400 fs-tiny">
+                        {guide.info && guide.info.map((inf, i) => (
+                          <div key={i} className="flex items-start gap-2.5">
+                            <span className="text-indigo-400 mt-0.5">•</span>
+                            <span className="leading-relaxed">{inf}</span>
+                          </div>
+                        ))}
+                        {guide.credits.adaptedBy && (
+                          <div className="mt-4 pt-3 border-t border-neutral-800/50 flex flex-wrap justify-between gap-2 text-neutral-500">
+                            <span>Adaptado por: <span className="text-neutral-400 font-bold">{guide.credits.adaptedBy}</span></span>
+                            <span>Última Actualización: <span className="text-neutral-400 font-bold">{guide.credits.lastUpdated}</span></span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
                   </div>
-                  <div className="bg-neutral-900 border border-neutral-800 rounded-lg py-1 px-1.5">
-                    <div className="text-sm">🗺️</div>
-                    <div className={`fs-tiny font-black ${gc.text}`}>5</div>
-                    <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Regiones</div>
-                  </div>
-                  <div className="bg-neutral-900 border border-neutral-800 rounded-lg py-1 px-1.5">
-                    <div className="text-sm">🔄</div>
-                    <div className={`fs-tiny font-black ${gc.text}`}>{steps.filter(s => s.switchTo).length}</div>
-                    <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Swaps</div>
-                  </div>
-                  <div className="bg-neutral-900 border border-neutral-800 rounded-lg py-1 px-1.5">
-                    <div className="text-sm">⭐</div>
-                    <div className={`fs-tiny font-black ${gc.text}`}>{selectedGuideId === 'hooh' ? 'Media' : 'Media-Alta'}</div>
-                    <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Dificultad</div>
+
+                  {/* RIGHT PANEL: Controls & Actions */}
+                  <div className="lg:col-span-5 space-y-4">
+                    
+                    {/* Cooldown Box */}
+                    <div className="bg-gradient-to-br from-amber-500/15 to-orange-500/5 border border-amber-500/35 rounded-2xl p-4 shadow-xl">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Timer className="w-4 h-4 text-amber-400" />
+                        <h3 className="font-black fs-small text-amber-300 uppercase tracking-wider">
+                          {selectedGuideId === 'hooh' ? 'Cooldown Ho-Oh' : 'Cooldown Gyms'}
+                        </h3>
+                        <div className="ml-auto">
+                          <CooldownBadge endAt={selectedGuideId === 'hooh' ? allCooldowns.hooh.endAt : cooldown.endAt} />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between mb-3 bg-neutral-950/50 p-3 rounded-xl border border-neutral-800/60">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                          <span className="fs-tiny text-amber-200/70 truncate">
+                            {selectedGuideId === 'hooh' ? (allCooldowns.hooh.lastGym || "Mt. Silver") : (cooldown.lastGym || "Sin gym registrado")}
+                          </span>
+                        </div>
+                        <button onClick={() => setShowCooldownEditor(true)} className="fs-tiny text-amber-400 hover:text-amber-300 font-black transition-colors shrink-0">
+                          Ajustar
+                        </button>
+                      </div>
+                      <CooldownProgressBar
+                        isHooh={selectedGuideId === 'hooh'}
+                        endAt={selectedGuideId === 'hooh' ? allCooldowns.hooh.endAt : cooldown.endAt}
+                        gymResetMs={gymResetMs}
+                      />
+                    </div>
+
+                    {/* Action Block */}
+                    <div className="bg-neutral-900/60 border border-neutral-800/80 rounded-2xl p-5 shadow-xl">
+                      {currentStepIndex >= 0 ? (
+                        <div className="flex flex-col gap-3">
+                          <div className="flex items-center gap-2.5 pb-2.5 border-b border-neutral-800">
+                            <Info className="w-4 h-4 text-amber-400" />
+                            <div>
+                              <h4 className="fs-small font-black text-amber-300 uppercase">Sesión activa</h4>
+                              <p className="fs-tiny text-neutral-400">Paso {currentStepIndex + 1} de {steps.length}</p>
+                            </div>
+                          </div>
+                          <Button variant="primary" size="lg" onClick={() => exitMenu()} className="w-full bg-amber-600 hover:bg-amber-500 border-amber-500/50 justify-center gap-2 font-black py-3.5">
+                            <Play className="w-4 h-4 fill-current" /> Continuar ruta
+                          </Button>
+                          <Button variant="secondary" size="md" onClick={() => setPendingResetAction("route")} className="w-full bg-neutral-950 hover:bg-neutral-900 justify-center font-bold">
+                            Empezar de cero
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-3">
+                          <Button
+                            variant="primary"
+                            size="lg"
+                            fullWidth
+                            onClick={() => exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); })}
+                            title="Comenzar la ruta seleccionada"
+                            className="btn-glow-active justify-center py-4 font-black shadow-lg shadow-indigo-900/20"
+                          >
+                            ▶ INICIAR RUTA
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="md"
+                            fullWidth
+                            onClick={() => setShowTeam(true)}
+                            className="bg-violet-600/10 hover:bg-violet-600/25 border-violet-500/20 text-violet-300 justify-center font-bold py-3"
+                          >
+                            <Users className="w-4 h-4" /> VER DETALLES EQUIPO
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* History Stats Card */}
+                    {lastRunStats && (
+                      <div className="bg-neutral-900/40 border border-neutral-800/60 rounded-2xl p-4 shadow-xl">
+                        <div className="flex items-center gap-1.5 mb-2.5">
+                          <Clock className="w-4 h-4 text-indigo-400" />
+                          <h3 className="font-black fs-small text-indigo-300 uppercase tracking-wider">Última Run</h3>
+                        </div>
+                        <div className="grid grid-cols-3 gap-1.5 text-center bg-neutral-950/50 p-3 rounded-xl border border-neutral-800/60">
+                          <div>
+                            <div className="fs-small font-black text-white">{formatTime(lastRunStats.elapsed)}</div>
+                            <div className="fs-tiny text-neutral-500 uppercase font-bold tracking-wider">Tiempo</div>
+                          </div>
+                          <div>
+                            <div className="fs-small font-black text-emerald-400">{lastRunStats.gymsCompleted}/{lastRunStats.totalGyms}</div>
+                            <div className="fs-tiny text-neutral-500 uppercase font-bold tracking-wider">Gyms</div>
+                          </div>
+                          <div>
+                            <div className="fs-small font-black text-amber-400">{new Date(lastRunStats.finishedAt).toLocaleDateString()}</div>
+                            <div className="fs-tiny text-neutral-500 uppercase font-bold tracking-wider">Fecha</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                   </div>
                 </div>
               </div>
@@ -1245,126 +1411,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           </div>
           )}
 
-          {lastRunStats && selectedGuideId !== 'none' && (
-            <div className="reveal-3 w-full bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border border-indigo-500/30 rounded-xl p-2">
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <Clock className="w-3.5 h-3.5 text-indigo-400" />
-                <h3 className="font-black fs-small text-indigo-300 uppercase tracking-wider">Última Run</h3>
-              </div>
-              <div className="grid grid-cols-3 gap-1.5 text-center">
-                <div>
-                  <div className="fs-small font-black text-white">{formatTime(lastRunStats.elapsed)}</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Tiempo</div>
-                </div>
-                <div>
-                  <div className="fs-small font-black text-emerald-400">{lastRunStats.gymsCompleted}/{lastRunStats.totalGyms}</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Gyms</div>
-                </div>
-                <div>
-                  <div className="fs-small font-black text-amber-400">{new Date(lastRunStats.finishedAt).toLocaleDateString()}</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider">Fecha</div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {selectedGuideId !== 'none' && (
-            <div className="reveal-3 w-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl p-2">
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <Timer className="w-3.5 h-3.5 text-amber-400" />
-                <h3 className="font-black fs-small text-amber-300 uppercase tracking-wider">
-                  {selectedGuideId === 'hooh' ? 'Cooldown Ho-Oh' : 'Cooldown Gyms'}
-                </h3>
-                <div className="ml-auto">
-                  <CooldownBadge endAt={selectedGuideId === 'hooh' ? allCooldowns.hooh.endAt : cooldown.endAt} />
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                  <span className="fs-tiny text-amber-200/70">
-                    {selectedGuideId === 'hooh' ? (allCooldowns.hooh.lastGym || "Mt. Silver") : (cooldown.lastGym || "Sin gym registrado")}
-                  </span>
-                </div>
-                <button onClick={() => setShowCooldownEditor(true)} className="fs-tiny text-amber-400 hover:text-amber-300 font-bold transition-colors">
-                  Ajustar
-                </button>
-              </div>
-              <CooldownProgressBar
-                isHooh={selectedGuideId === 'hooh'}
-                endAt={selectedGuideId === 'hooh' ? allCooldowns.hooh.endAt : cooldown.endAt}
-                gymResetMs={gymResetMs}
-              />
-            </div>
-          )}
-
-          {selectedGuideId !== 'none' && (currentStepIndex >= 0 ? (
-            <div className="reveal-4 w-full">
-              <div className="w-full bg-amber-900/20 backdrop-blur-sm border border-amber-500/30 rounded-2xl p-5 shadow-xl shadow-amber-900/20 flex flex-col gap-4 relative overflow-hidden text-left">
-                <div className="absolute -top-10 -right-10 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-                
-                <div className="flex items-center gap-3 relative z-10">
-                  <div className="w-12 h-12 rounded-xl bg-amber-950/80 border border-amber-500/50 flex items-center justify-center shrink-0 shadow-inner">
-                    <Info className="w-6 h-6 text-amber-400" />
-                  </div>
-                  <div>
-                    <h3 className="font-black fs-h3 text-amber-300 leading-tight">Sesión activa</h3>
-                    <p className="fs-small text-amber-200/70 mt-1">
-                      Hay una ruta en progreso en el paso <span className="font-bold text-white">{currentStepIndex + 1}</span> de {steps.length}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10 mt-2">
-                  <Button variant="primary" size="lg" onClick={() => exitMenu()} className="w-full bg-amber-600 hover:bg-amber-500 border-amber-500/50 shadow-lg shadow-amber-900/40 text-sm font-black justify-center gap-2">
-                    <Play className="w-4 h-4 fill-current" /> Continuar ruta
-                  </Button>
-                  <Button variant="secondary" size="lg" onClick={() => setPendingResetAction("route")} className="w-full bg-neutral-950 hover:bg-neutral-900 text-sm font-black justify-center">
-                    Empezar de cero
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="w-full">
-              <Button
-                variant="primary"
-                size="lg"
-                fullWidth
-                onClick={() => exitMenu(() => { setCurrentStepIndex(-1); resetTimer(); })}
-                title="Comenzar la ruta seleccionada"
-                className="reveal-4 btn-glow-active"
-              >
-                ▶ INICIAR RUTA
-              </Button>
-            </div>
-          ))}
-
-          {selectedGuideId !== 'none' && (() => {
-            const guide = getGuide(selectedGuideId);
-            return guide ? <GuideCredits guide={guide} mode="compact" /> : null;
-          })()}
-
-          {selectedGuideId !== 'none' && currentStepIndex < 0 && (
-            <Button variant="ghost" size="md" fullWidth onClick={() => selectGuide('none')} title="Volver a la selección de guías" className="justify-center gap-2">
-              <ChevronLeft className="w-3.5 h-3.5" />Volver a guías
-            </Button>
-          )}
-
-          {selectedGuideId !== 'none' && (
-            <div className="reveal-5 w-full group/btn relative">
-              <Button
-                variant="primary"
-                size="md"
-                fullWidth
-                onClick={() => setShowTeam(true)}
-                className="bg-violet-600/80 hover:bg-violet-600 text-white"
-                title="Ver el equipo Pokémon recomendado para esta ruta"
-              >
-                <Users className="w-4 h-4 md:w-5 md:h-5" />VER EQUIPO
-              </Button>
-            </div>
-          )}
 
           <div className="reveal-6 w-full border-t border-neutral-800/40 pt-2 flex items-center justify-center gap-4 text-neutral-500">
             <div className="relative group/btn">
