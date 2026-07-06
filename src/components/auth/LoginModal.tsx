@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { X, Mail, Lock, User, Loader2 } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { X, Mail, Lock, LogIn, Loader2 } from "lucide-react";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -15,6 +15,14 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLogi
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const emailRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setError("");
+      setTimeout(() => emailRef.current?.focus(), 100);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -34,40 +42,41 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLogi
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
       <div
-        className="relative w-full max-w-md bg-neutral-900/95 backdrop-blur-xl rounded-2xl border border-neutral-800 shadow-2xl p-6"
+        className="relative w-full max-w-lg bg-gradient-to-b from-neutral-900 to-neutral-950 rounded-3xl border border-neutral-700/50 shadow-[0_0_60px_rgba(99,102,241,0.1)] p-8 animate-in zoom-in-95 fade-in duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <button onClick={onClose} className="absolute top-3 right-3 w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition-colors">
+        <button onClick={onClose} className="absolute top-4 right-4 w-9 h-9 rounded-full bg-neutral-800/80 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition-all">
           <X className="w-4 h-4" />
         </button>
 
-        <div className="text-center mb-6">
-          <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <User className="w-7 h-7 text-white" />
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+            <LogIn className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-xl font-black text-white">Iniciar Sesión</h2>
-          <p className="text-sm text-neutral-400 mt-1">Accedé a tu cuenta para sincronizar tu progreso</p>
+          <h2 className="text-2xl font-black text-white tracking-tight">Iniciar Sesión</h2>
+          <p className="text-sm text-neutral-400 mt-2">Accedé a tu cuenta para sincronizar tu progreso</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="bg-red-950/40 border border-red-900/50 rounded-xl p-3 text-red-400 text-sm text-center">
+            <div className="bg-red-950/50 border border-red-800/50 rounded-2xl p-4 text-red-300 text-sm text-center font-medium">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-bold text-neutral-400 uppercase tracking-wider mb-1.5">Email</label>
+            <label className="block text-xs font-bold text-neutral-300 uppercase tracking-wider mb-2">Email</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
               <input
+                ref={emailRef}
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-neutral-800 border border-neutral-700 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                className="w-full bg-neutral-800/80 border border-neutral-700 rounded-2xl pl-12 pr-4 py-3.5 text-white text-base focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all placeholder:text-neutral-600"
                 placeholder="tu@email.com"
                 required
               />
@@ -75,14 +84,14 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLogi
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-neutral-400 uppercase tracking-wider mb-1.5">Contraseña</label>
+            <label className="block text-xs font-bold text-neutral-300 uppercase tracking-wider mb-2">Contraseña</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-neutral-800 border border-neutral-700 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                className="w-full bg-neutral-800/80 border border-neutral-700 rounded-2xl pl-12 pr-4 py-3.5 text-white text-base focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all placeholder:text-neutral-600"
                 placeholder="••••••••"
                 required
               />
@@ -91,17 +100,17 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLogi
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full h-12 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-800 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+            disabled={loading || !email || !password}
+            className="w-full h-13 bg-indigo-600 hover:bg-indigo-500 disabled:bg-neutral-800 disabled:text-neutral-500 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2.5 text-base mt-2"
           >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogIn className="w-5 h-5" />}
             {loading ? "Ingresando..." : "Iniciar Sesión"}
           </button>
         </form>
 
-        <div className="text-center mt-4">
-          <button onClick={onSwitchToRegister} className="text-sm text-neutral-400 hover:text-indigo-400 transition-colors">
-            ¿No tenés cuenta? <span className="font-bold">Registrate</span>
+        <div className="text-center mt-6 pt-5 border-t border-neutral-800/50">
+          <button onClick={onSwitchToRegister} className="text-sm text-neutral-400 hover:text-indigo-400 transition-colors font-medium">
+            ¿No tenés cuenta? <span className="font-bold text-indigo-400">Registrate</span>
           </button>
         </div>
       </div>
