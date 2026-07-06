@@ -104,6 +104,19 @@
 .menu-exit   { animation: menu-exit-anim 0.38s cubic-bezier(0.4,0,0.2,1) forwards; pointer-events: none; }
 .app-enter   { animation: app-enter      0.42s cubic-bezier(0.25,0.46,0.45,0.94) both; }
 
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  min-height: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* ── Pokemon Background Animations ───────────────────────────────── */
 @keyframes pokefloat {
   0%   { transform: translateY(108vh) translateX(0px)   rotate(0deg);   opacity: 0;    }
