@@ -2247,21 +2247,19 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       {currentGymGroup.extras.map((extra) => (
                         <div key={extra.id}>
                           {extra.type === "prep" && extra.items && extra.items.length > 0 && (
-                            <div className="bg-neutral-950 p-1.5 rounded-xl border border-neutral-800">
-                              <div className="fs-[10px] text-blue-400 uppercase font-black tracking-widest mb-0.5 text-center">Equipar Objetos</div>
-                              <div className="grid grid-cols-2 gap-0.5">
+                            <div className="bg-neutral-950 p-2 rounded-xl border border-neutral-800">
+                              <div className="fs-tiny text-blue-400 uppercase font-black tracking-widest mb-1 text-center">Equipar Objetos</div>
+                              <ul className="space-y-0.5">
                                 {extra.items.map((it, i) => {
                                   const isScarf = it.item.toLowerCase().includes("panuelo") || it.item.toLowerCase().includes("pañuelo");
                                   return (
-                                    <div key={i} className={`flex items-center justify-between gap-1 px-1.5 py-0.5 rounded ${isScarf ? 'bg-indigo-900/40 border border-indigo-500/50' : 'bg-neutral-900 border border-neutral-800 opacity-60'}`}>
-                                      <span className={`fs-[10px] ${isScarf ? 'text-white' : 'text-neutral-400'}`}>{renderWithSprites(it.pokemon, " ")}</span>
-                                      <span className={`${isScarf ? 'text-indigo-400' : 'text-neutral-500'} fs-[9px] font-bold uppercase tracking-wider`}>
-                                        {it.item}
-                                      </span>
-                                    </div>
+                                    <li key={i} className={`flex items-center justify-center gap-2 fs-small p-1 rounded border ${isScarf ? 'bg-indigo-900/40 border-indigo-500/50 text-white' : 'bg-neutral-900 border-neutral-800 text-neutral-400'}`}>
+                                      {renderWithSprites(it.pokemon, " ")}
+                                      <span className={`${isScarf ? 'text-indigo-400' : 'text-neutral-500'} font-bold`}>{it.item}</span>
+                                    </li>
                                   );
                                 })}
-                              </div>
+                              </ul>
                             </div>
                           )}
                           {extra.type === "prep" && extra.heal && (
