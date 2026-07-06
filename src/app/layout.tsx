@@ -15,7 +15,9 @@ export const metadata: Metadata = {
   description: "Guía interactiva paso a paso para optimizar tus rutas de Gym Reruns en PokeMMO.",
   icons: {
     icon: "/gengar.gif",
+    apple: "/icons/icon-192.png",
   },
+  manifest: "/manifest.json",
 };
 
 export const viewport = {
