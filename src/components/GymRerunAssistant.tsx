@@ -1170,20 +1170,16 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className={`fs-tiny font-black ${gc.text} truncate`}>{g.title}</div>
-                                <div className="fs-tiny text-neutral-500 truncate">{g.subtitle}</div>
-                              </div>
-                              <span className={`fs-tiny font-black ${gc.text} opacity-0 group-hover:opacity-100 transition-opacity`}>→</span>
-                              {/* Hover preview: show team sprites and names */}
-                              <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-3 px-3 py-3 bg-neutral-900 border border-neutral-700 rounded-xl text-neutral-300 fs-tiny text-center opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 shadow-xl w-max">
-                                <div className="flex items-center gap-2">
+                                <div className="fs-tiny text-neutral-500 truncate mb-1">{g.subtitle}</div>
+                                <div className="flex items-center gap-1 flex-wrap">
                                   {(g.team || []).slice(0,6).map((t, i) => (
-                                    <div key={i} className="w-10 h-10 rounded-lg bg-neutral-950 border border-neutral-800 flex items-center justify-center p-1">
+                                    <div key={i} className="w-6 h-6 rounded bg-neutral-900 border border-neutral-800/40 flex items-center justify-center p-0.5 shrink-0" title={t.name}>
                                       <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${t.spriteId}.gif`} alt={t.name} className="w-full h-full object-contain" loading="lazy" />
                                     </div>
                                   ))}
                                 </div>
-                                <div className="mt-2 text-neutral-400">{(g.team || []).map(t => t.name).join(' · ')}</div>
                               </div>
+                              <span className={`fs-tiny font-black ${gc.text} opacity-0 group-hover:opacity-100 transition-opacity shrink-0`}>→</span>
                             </button>
                           );
                         })}
