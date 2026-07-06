@@ -1,16 +1,22 @@
 import { Redis } from '@upstash/redis';
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+let _redis: Redis | null = null;
+function getRedis() {
+  if (!_redis) {
+    _redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL!,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    });
+  }
+  return _redis;
+}
 
 const PREFIX = 'pkmmo';
 const k = (key: string) => `${PREFIX}_${key}`;
 
 export async function storageGet(key: string): Promise<string> {
   try {
-    const val = await redis.get<string>(k(key));
+    const val = await getRedis().get<string>(k(key));
     return val ?? '';
   } catch {
     return '';
@@ -19,7 +25,7 @@ export async function storageGet(key: string): Promise<string> {
 
 export async function storageSet(key: string, value: string): Promise<void> {
   try {
-    await redis.set(k(key), value);
+    await getRedis().set(k(key), value);
   } catch {
     console.error(`Redis set failed for key: ${key}`);
   }
@@ -41,7 +47,7 @@ export async function storageSetJSON(key: string, value: unknown): Promise<void>
 
 export async function storageRemove(key: string): Promise<void> {
   try {
-    await redis.del(k(key));
+    await getRedis().del(k(key));
   } catch {
     console.error(`Redis del failed for key: ${key}`);
   }
@@ -50,7 +56,7 @@ export async function storageRemove(key: string): Promise<void> {
 export async function storageMGet(keys: string[]): Promise<Record<string, string>> {
   try {
     const redisKeys = keys.map(k);
-    const values = await redis.mget<string[]>(...redisKeys);
+    const values = await getRedis().mget<string[]>(...redisKeys);
     const result: Record<string, string> = {};
     keys.forEach((key, i) => {
       result[key] = values[i] ?? '';
