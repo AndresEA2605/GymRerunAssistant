@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProgression } from "@/hooks/useProgression";
 import LoginModal from "./LoginModal";
@@ -10,7 +10,7 @@ import SyncModal from "./SyncModal";
 import PasswordResetRequestModal from "./PasswordResetRequestModal";
 import PasswordResetModal from "./PasswordResetModal";
 
-export default function AuthButton() {
+export default forwardRef(function AuthButton(_props, ref) {
   const { user, token, isLoading, login, register } = useAuth();
   const { grantXP, isLoaded } = useProgression();
   const [showLogin, setShowLogin] = useState(false);
@@ -23,6 +23,11 @@ export default function AuthButton() {
   const [resetToken, setResetToken] = useState("");
   const prevUserRef = useRef(user);
   const loginXpGrantedRef = useRef(false);
+
+  useImperativeHandle(ref, () => ({
+    openRegister: () => setShowRegister(true),
+    openLogin: () => setShowLogin(true),
+  }));
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -191,4 +196,4 @@ export default function AuthButton() {
       />
     </>
   );
-}
+});

@@ -44,6 +44,7 @@ import { getGuide, getGuidesByCategory, GUIDE_CATEGORIES, GUIDES } from "../data
 import { showCompleteGym as shouldShowCompleteGym, isRoutesGuide } from "@/lib/guide-footer";
 import { storageSet, storageMGet } from "@/lib/storage";
 import AuthButton from "@/components/auth/AuthButton";
+import { useAuth } from "@/hooks/useAuth";
 import { useProgression } from "@/hooks/useProgression";
 
 export type GymCoordMap = Record<string, { region: string; x: number; y: number }>;
@@ -323,6 +324,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   } = config;
 
   const { grantXP, incrementStat, profile } = useProgression();
+  const { user: authUser } = useAuth();
 
   const [showMenu, setShowMenu] = useState<boolean>(true);
   const [loaded, setLoaded] = useState<boolean>(false);
@@ -331,6 +333,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
   const currentStepIndexRef = useRef(currentStepIndex);
   useEffect(() => { currentStepIndexRef.current = currentStepIndex; }, [currentStepIndex]);
+  const authButtonRef = useRef<{ openRegister: () => void; openLogin: () => void }>(null);
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [showTeam, setShowTeam] = useState<boolean>(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState<boolean>(false);
@@ -1258,7 +1261,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             </div>
             {/* Login */}
             <div className="pt-2 border-t border-neutral-800/50">
-              <AuthButton />
+              <AuthButton ref={authButtonRef} />
             </div>
           </div>
         </div>
@@ -1504,7 +1507,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             {/* Login + Session Status */}
             <div className="flex items-center gap-2 mb-3">
               <div className="flex-1 min-w-0">
-                <AuthButton />
+                <AuthButton ref={authButtonRef} />
               </div>
               <div className="shrink-0 inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-2">
                 {hasActiveSession ? (
@@ -1523,28 +1526,44 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             </div>
 
             {finishSummary && (
-              <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-emerald-950/60 to-indigo-950/60 border border-emerald-500/30 relative animate-in fade-in slide-in-from-top-4 duration-300">
-                <button onClick={() => setFinishSummary(null)} className="absolute top-2 right-2 p-1 rounded-lg text-neutral-500 hover:text-white hover:bg-neutral-800 transition-colors">
-                  <X className="w-4 h-4" />
-                </button>
-                <div className="flex items-center gap-2 mb-2">
-                  <CheckCircle className="w-5 h-5 text-emerald-400" />
-                  <span className="fs-small font-black text-emerald-300">¡Run completada!</span>
-                </div>
-                <div className="text-white font-black text-sm mb-1">{finishSummary.guideTitle} Rerun</div>
-                <div className="flex flex-wrap gap-3 mt-2">
-                  <div className="flex items-center gap-1.5 text-xs">
-                    <Timer className="w-3.5 h-3.5 text-amber-400" />
-                    <span className="text-neutral-300">{formatTime(finishSummary.elapsed)}</span>
+              <div className="mb-4 rounded-2xl bg-gradient-to-br from-emerald-950/70 to-indigo-950/70 border border-emerald-500/30 relative overflow-hidden animate-in fade-in slide-in-from-top-4 duration-500">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.1),transparent_70%)]" />
+                <div className="relative p-4 md:p-5">
+                  <button onClick={() => setFinishSummary(null)} className="absolute top-3 right-3 p-1.5 rounded-xl text-neutral-500 hover:text-white hover:bg-neutral-800/60 transition-colors">
+                    <X className="w-4 h-4" />
+                  </button>
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <div className="p-1.5 rounded-full bg-emerald-500/20">
+                      <CheckCircle className="w-5 h-5 text-emerald-400" />
+                    </div>
+                    <span className="fs-base font-black bg-gradient-to-r from-emerald-300 to-indigo-300 bg-clip-text text-transparent">¡Run completada!</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-xs">
-                    <Target className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-neutral-300">{finishSummary.gyms} gym{finishSummary.gyms !== 1 ? 's' : ''}</span>
+                  <div className="text-white font-black text-sm tracking-wide">{finishSummary.guideTitle} Rerun</div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-2.5 mb-3">
+                    <div className="flex items-center gap-1.5 text-xs">
+                      <Timer className="w-3.5 h-3.5 text-amber-400" />
+                      <span className="text-neutral-300 font-medium">{formatTime(finishSummary.elapsed)}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs">
+                      <Target className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="text-neutral-300 font-medium">{finishSummary.gyms} gyms</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs">
+                      <Zap className="w-3.5 h-3.5 text-indigo-400" />
+                      <span className="text-indigo-300 font-black">+{finishSummary.xpEarned} XP</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 text-xs">
-                    <Zap className="w-3.5 h-3.5 text-indigo-400" />
-                    <span className="text-indigo-300 font-bold">+{finishSummary.xpEarned} XP</span>
-                  </div>
+                  {!authUser && (
+                    <div className="mt-3 pt-3 border-t border-neutral-700/50">
+                      <p className="text-[11px] text-neutral-400 mb-2">
+                        Crea una cuenta para guardar tus recompensas, seguir tu progreso y desbloquear logros.
+                      </p>
+                      <button onClick={() => authButtonRef.current?.openRegister()} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 rounded-xl transition-all active:scale-[0.97]">
+                        <Zap className="w-3.5 h-3.5" />
+                        Recibir recompensas
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -2211,7 +2230,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           </div>
 
           {/* Auth */}
-          <AuthButton />
+          <AuthButton ref={authButtonRef} />
 
         </div>
 
@@ -2328,7 +2347,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </div>
 
               {/* Auth */}
-              <AuthButton />
+              <AuthButton ref={authButtonRef} />
             </div>
 
             {/* Mobile Sidebar Footer */}
