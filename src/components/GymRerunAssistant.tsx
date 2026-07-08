@@ -1834,7 +1834,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                                   setRestartTargetGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2');
                                   setShowRestartConfirm(true);
                                 }}
-                                className="absolute bottom-1.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/30 border border-neutral-700/20 text-[9px] font-bold text-neutral-500 opacity-0 group-hover:opacity-100 hover:bg-amber-950/30 hover:border-amber-700/30 hover:text-amber-400 transition-all z-20"
+                                className="absolute bottom-1.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/50 border border-neutral-700/40 text-[9px] font-bold text-neutral-400 hover:bg-amber-950/30 hover:border-amber-700/30 hover:text-amber-400 transition-all z-20"
                                 title="Repetir run — reinicia todos los temporizadores"
                               >
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
@@ -2477,12 +2477,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 <span className="fs-tiny font-bold">Historial de runs</span>
               </button>
               {runIsActive && (
-                <>
-                <button onClick={() => { setRestartTargetGuide(selectedGuideId as 'none' | 'gym33' | 'hooh' | 'guide2'); setShowRestartConfirm(true); }} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-amber-400 hover:text-white hover:bg-amber-950/50 border border-amber-500/20 hover:border-amber-500/40 transition-colors text-left">
-                  <RotateCcw className="w-3.5 h-3.5 shrink-0" />
-                  <span className="fs-tiny font-bold">Reiniciar ruta</span>
-                </button>
-                {showAbandonConfirm ? (
+                showAbandonConfirm ? (
                   <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-red-950/50 border border-red-500/30 rounded-lg">
                     <span className="fs-tiny font-bold text-red-300">¿Abandonar?</span>
                     <button onClick={() => setShowAbandonConfirm(false)} className="px-2 py-0.5 rounded-md bg-neutral-800 hover:bg-neutral-700 text-neutral-300 fs-tiny font-bold transition-colors">No</button>
@@ -2494,9 +2489,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     <span className="fs-tiny font-bold">Abandonar ruta</span>
                   </button>
                 )
-              }
-              </>
-            )}
+              )}
             </div>
           </div>
 
@@ -2638,16 +2631,10 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     <span className="fs-tiny font-bold">Historial de runs</span>
                   </button>
                   {runIsActive && (
-                    <>
-                    <button onClick={() => { setShowMobileSidebar(false); setRestartTargetGuide(selectedGuideId as 'none' | 'gym33' | 'hooh' | 'guide2'); setShowRestartConfirm(true); }} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-amber-400 hover:text-white hover:bg-amber-950/50 border border-amber-500/20 hover:border-amber-500/40 transition-colors text-left">
-                      <RotateCcw className="w-3.5 h-3.5 shrink-0" />
-                      <span className="fs-tiny font-bold">Reiniciar ruta</span>
-                    </button>
                     <button onClick={() => { setShowMobileSidebar(false); setShowAbandonConfirm(true); }} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-red-400 hover:text-white hover:bg-red-950/50 border border-red-500/20 hover:border-red-500/40 transition-colors text-left">
                       <Power className="w-3.5 h-3.5 shrink-0" />
                       <span className="fs-tiny font-bold">Abandonar ruta</span>
                     </button>
-                    </>
                   )}
                 </div>
               </div>
