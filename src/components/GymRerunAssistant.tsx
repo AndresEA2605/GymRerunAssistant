@@ -1908,74 +1908,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         document.body
       )}
 
-      {showFinishConfirm && createPortal(
-        <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-sm rounded-2xl bg-neutral-900 border border-neutral-700/60 overflow-hidden shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300" onClick={e => e.stopPropagation()}>
-            <div className="p-5">
-              <div className="flex items-center gap-2.5 mb-3">
-                <div className="p-1.5 rounded-full bg-amber-500/20">
-                  <Info className="w-5 h-5 text-amber-400" />
-                </div>
-                <span className="fs-base font-black text-white">¿Finalizar run?</span>
-              </div>
-              <p className="text-sm text-neutral-400 mb-1">
-                Se guardará tu progreso y recibirás tus recompensas.
-              </p>
-              {selectedGuideId && (freeRuns[selectedGuideId] ?? 2) > 1 ? (
-                <p className="text-xs text-emerald-400 mb-4">
-                  ⚡ Te quedan <span className="font-bold">{(freeRuns[selectedGuideId] ?? 2) - 1}</span> intento{(freeRuns[selectedGuideId] ?? 2) - 1 !== 1 ? 's' : ''} gratis sin cooldown.
-                </p>
-              ) : (
-                <p className="text-xs text-amber-400 mb-4">
-                  ⏳ Este es tu último intento gratis. Al finalizar se activará un cooldown de {selectedGuideId === 'hooh' ? '7 días' : `${Math.floor(gymResetMs / 3600000)}h ${Math.round((gymResetMs % 3600000) / 60000)}m`}.
-                </p>
-              )}
-              <div className="flex gap-2">
-                <button onClick={() => setShowFinishConfirm(false)} className="flex-1 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-sm transition-all border border-neutral-700 active:scale-[0.98]">
-                  Cancelar
-                </button>
-                <button onClick={() => finishRun()} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-bold text-sm transition-all active:scale-[0.98]">
-                  Finalizar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
-
-      {showRestartConfirm && createPortal(
-        <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-sm rounded-2xl bg-neutral-900 border border-neutral-700/60 overflow-hidden shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300" onClick={e => e.stopPropagation()}>
-            <div className="p-5">
-              <div className="flex items-center gap-2.5 mb-3">
-                <div className="p-1.5 rounded-full bg-amber-500/20">
-                  <Info className="w-5 h-5 text-amber-400" />
-                </div>
-                <span className="fs-base font-black text-white">¿Repetir run?</span>
-              </div>
-              <p className="text-sm text-neutral-400 mb-1">
-                Se reiniciará la run desde el principio.
-              </p>
-              {selectedGuideId && (
-                <p className="text-xs text-emerald-400 mb-4">
-                  ⚡ Te quedan <span className="font-bold">{freeRuns[selectedGuideId] ?? 2}</span> intento{(freeRuns[selectedGuideId] ?? 2) !== 1 ? 's' : ''} gratis de esta guía.
-                </p>
-              )}
-              <div className="flex gap-2">
-                <button onClick={() => setShowRestartConfirm(false)} className="flex-1 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-sm transition-all border border-neutral-700 active:scale-[0.98]">
-                  Cancelar
-                </button>
-                <button onClick={confirmRestartRun} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-sm transition-all active:scale-[0.98]">
-                  Repetir
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
-
       {showTeam && (
         <div className={`fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-start justify-center p-3 overflow-y-auto ${teamExiting ? 'overlay-exit' : 'overlay-enter'}`} onClick={() => closeTeam()}>
           <div className={`relative w-full max-w-3xl my-3 ${teamExiting ? 'modal-exit' : 'modal-enter'}`} onClick={e => e.stopPropagation()}>
@@ -3621,6 +3553,74 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           </div>
         </div>
       </div>
+    )}
+
+    {showFinishConfirm && createPortal(
+      <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
+        <div className="w-full max-w-sm rounded-2xl bg-neutral-900 border border-neutral-700/60 overflow-hidden shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300" onClick={e => e.stopPropagation()}>
+          <div className="p-5">
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="p-1.5 rounded-full bg-amber-500/20">
+                <Info className="w-5 h-5 text-amber-400" />
+              </div>
+              <span className="fs-base font-black text-white">¿Finalizar run?</span>
+            </div>
+            <p className="text-sm text-neutral-400 mb-1">
+              Se guardará tu progreso y recibirás tus recompensas.
+            </p>
+            {selectedGuideId && (freeRuns[selectedGuideId] ?? 2) > 1 ? (
+              <p className="text-xs text-emerald-400 mb-4">
+                ⚡ Te quedan <span className="font-bold">{(freeRuns[selectedGuideId] ?? 2) - 1}</span> intento{(freeRuns[selectedGuideId] ?? 2) - 1 !== 1 ? 's' : ''} gratis sin cooldown.
+              </p>
+            ) : (
+              <p className="text-xs text-amber-400 mb-4">
+                ⏳ Este es tu último intento gratis. Al finalizar se activará un cooldown de {selectedGuideId === 'hooh' ? '7 días' : `${Math.floor(gymResetMs / 3600000)}h ${Math.round((gymResetMs % 3600000) / 60000)}m`}.
+              </p>
+            )}
+            <div className="flex gap-2">
+              <button onClick={() => setShowFinishConfirm(false)} className="flex-1 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-sm transition-all border border-neutral-700 active:scale-[0.98]">
+                Cancelar
+              </button>
+              <button onClick={() => finishRun()} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-bold text-sm transition-all active:scale-[0.98]">
+                Finalizar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>,
+      document.body
+    )}
+
+    {showRestartConfirm && createPortal(
+      <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
+        <div className="w-full max-w-sm rounded-2xl bg-neutral-900 border border-neutral-700/60 overflow-hidden shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300" onClick={e => e.stopPropagation()}>
+          <div className="p-5">
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="p-1.5 rounded-full bg-amber-500/20">
+                <Info className="w-5 h-5 text-amber-400" />
+              </div>
+              <span className="fs-base font-black text-white">¿Repetir run?</span>
+            </div>
+            <p className="text-sm text-neutral-400 mb-1">
+              Se reiniciará la run desde el principio.
+            </p>
+            {selectedGuideId && (
+              <p className="text-xs text-emerald-400 mb-4">
+                ⚡ Te quedan <span className="font-bold">{freeRuns[selectedGuideId] ?? 2}</span> intento{(freeRuns[selectedGuideId] ?? 2) !== 1 ? 's' : ''} gratis de esta guía.
+              </p>
+            )}
+            <div className="flex gap-2">
+              <button onClick={() => setShowRestartConfirm(false)} className="flex-1 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-sm transition-all border border-neutral-700 active:scale-[0.98]">
+                Cancelar
+              </button>
+              <button onClick={confirmRestartRun} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-sm transition-all active:scale-[0.98]">
+                Repetir
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>,
+      document.body
     )}
     </>
   );
