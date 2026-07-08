@@ -1685,6 +1685,21 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </div>
             </div>
 
+            {!authUser && (
+              <div className="bg-amber-950/40 border border-amber-500/20 rounded-xl p-3 mb-4 flex items-start gap-3 relative overflow-hidden animate-in fade-in zoom-in-95 duration-500">
+                <div className="absolute -right-4 -top-4 w-16 h-16 bg-amber-500/10 blur-xl rounded-full pointer-events-none" />
+                <div className="mt-0.5 shrink-0 bg-amber-500/20 p-1.5 rounded-full border border-amber-500/30">
+                  <Info className="w-4 h-4 text-amber-400" />
+                </div>
+                <div>
+                  <h4 className="text-amber-300 fs-tiny font-black uppercase tracking-wider mb-0.5">¡Aviso importante!</h4>
+                  <p className="text-amber-200/80 text-xs leading-relaxed">
+                    Necesitas una cuenta para <strong>ganar XP</strong>, llevar el <strong>registro de cooldowns</strong> y <strong>guardar tu progreso</strong>. ¡Crea una y no pierdas tu avance!
+                  </p>
+                </div>
+              </div>
+            )}
+
             {authUser && (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-5">
               <div className="bg-gradient-to-br from-amber-500/15 to-orange-500/5 border border-amber-500/30 rounded-2xl p-4">
