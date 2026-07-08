@@ -56,10 +56,10 @@ export default function ProfileDashboard({ isOpen, onClose }: ProfileDashboardPr
                 </div>
                 <div className="grid grid-cols-4 gap-2">
                   {[
-                    { icon: <Swords className="w-4 h-4 text-rose-400" />, label: "Gyms", value: stats.totalGyms },
+                    { icon: <Swords className="w-4 h-4 text-rose-400" />, label: "Regiones", value: Math.floor(stats.totalGyms / 8) },
                     { icon: <Flag className="w-4 h-4 text-purple-400" />, label: "Ho-Oh", value: stats.totalHoohRuns },
                     { icon: <Clock className="w-4 h-4 text-indigo-400" />, label: "Tiempo", value: `${Math.floor(stats.totalTimeMs / 3600000)}h` },
-                    { icon: <Trophy className="w-4 h-4 text-amber-400" />, label: "Logros", value: stats.achievements?.length ?? 0 },
+                    { icon: <Trophy className="w-4 h-4 text-amber-400" />, label: "Promedio", value: `${Math.round(stats.totalGyms / Math.max(1, (stats.totalTimeMs || 1) / 86400000))}/d` },
                   ].map(s => (
                     <div key={s.label} className="flex flex-col items-center gap-1 px-1 py-2.5 rounded-xl bg-neutral-800/40 border border-neutral-800/30">
                       {s.icon}

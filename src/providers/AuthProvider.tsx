@@ -3,6 +3,8 @@
 import React, { createContext, useState, useEffect, useCallback, useRef } from "react";
 import type { User, UserStats } from "@/lib/auth";
 
+const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000;
+
 interface AuthContextType {
   user: User | null;
   stats: UserStats | null;
@@ -27,6 +29,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const refreshRef = useRef<NodeJS.Timeout | null>(null);
+  const inactivityRef = useRef<NodeJS.Timeout | null>(null);
+
+  const clearInactivity = useCallback(() => {
+    if (inactivityRef.current) { clearTimeout(inactivityRef.current); inactivityRef.current = null; }
+  }, []);
+
+  const startInactivityTimer = useCallback(() => {
+    clearInactivity();
+    if (typeof window === "undefined") return;
+    inactivityRef.current = setTimeout(() => {
+      ls()?.removeItem("pkmmo_auth_token");
+      setUser(null);
+      setStats(null);
+      setToken(null);
+    }, INACTIVITY_TIMEOUT_MS);
+  }, []);
+
+  const resetInactivity = useCallback(() => {
+    if (token) startInactivityTimer();
+  }, [token, startInactivityTimer]);
 
   const refreshSession = useCallback(async () => {
     const stored = ls()?.getItem("pkmmo_auth_token") ?? null;
@@ -72,6 +94,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (refreshRef.current) clearInterval(refreshRef.current);
     };
   }, [refreshSession]);
+
+  useEffect(() => {
+    if (token) {
+      startInactivityTimer();
+      const events = ["mousedown", "keydown", "touchstart", "scroll"];
+      events.forEach(e => window.addEventListener(e, resetInactivity));
+      return () => {
+        clearInactivity();
+        events.forEach(e => window.removeEventListener(e, resetInactivity));
+      };
+    } else {
+      clearInactivity();
+    }
+  }, [token, startInactivityTimer, clearInactivity, resetInactivity]);
 
   const login = useCallback(async (identifier: string, password: string) => {
     try {
@@ -129,6 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
+    clearInactivity();
     if (token) {
       try {
         await fetch("/api/auth/logout", {
@@ -138,11 +175,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       } catch {}
     }
-    localStorage.removeItem("pkmmo_auth_token");
+    ls()?.removeItem("pkmmo_auth_token");
     setUser(null);
     setStats(null);
     setToken(null);
-  }, [token]);
+  }, [token, clearInactivity]);
 
   const updateStats = useCallback((newStats: UserStats) => {
     setStats(newStats);

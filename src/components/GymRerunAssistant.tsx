@@ -1680,9 +1680,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                     <div className="flex items-center gap-1.5">
                       <CooldownBadge endAt={allCooldowns.gym.endAt} />
-                      <button type="button" onClick={() => { startGymCooldown("Gyms", gymResetMs); triggerToast("Cooldown de Gyms reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar cooldown">
-                        <RotateCcw className="w-2.5 h-2.5" />
-                      </button>
+                      <CooldownBadge endAt={allCooldowns.gym.endAt} />
                     </div>
                   </div>
                   <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
@@ -1692,9 +1690,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                     <div className="flex items-center gap-1.5">
                       <CooldownBadge endAt={allCooldowns.hooh.endAt} />
-                      <button type="button" onClick={() => { startGymCooldown("Ho-Oh", 7 * 24 * 60 * 60 * 1000); triggerToast("Cooldown de Ho-Oh reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar cooldown">
-                        <RotateCcw className="w-2.5 h-2.5" />
-                      </button>
                     </div>
                   </div>
                   <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
@@ -1704,9 +1699,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                     <div className="flex items-center gap-1.5">
                       <CooldownBadge endAt={allCooldowns.npc.endAt} />
-                      <button type="button" onClick={() => { startGymCooldown("NPCs", 6 * 60 * 60 * 1000); triggerToast("Cooldown de NPCs reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar cooldown">
-                        <RotateCcw className="w-2.5 h-2.5" />
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -2421,9 +2413,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
                 <div className="flex items-center gap-1">
                   <CooldownBadge endAt={allCooldowns.gym.endAt} />
-                  <button type="button" onClick={() => { startGymCooldown("Gyms", gymResetMs); triggerToast("Cooldown Gyms reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar">
-                    <RotateCcw className="w-2.5 h-2.5" />
-                  </button>
                 </div>
               </div>
               <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
@@ -2433,9 +2422,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
                 <div className="flex items-center gap-1">
                   <CooldownBadge endAt={allCooldowns.hooh.endAt} />
-                  <button type="button" onClick={() => { startGymCooldown("Ho-Oh", 7 * 24 * 60 * 60 * 1000); triggerToast("Cooldown Ho-Oh reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar">
-                    <RotateCcw className="w-2.5 h-2.5" />
-                  </button>
                 </div>
               </div>
               <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
@@ -2445,9 +2431,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
                 <div className="flex items-center gap-1">
                   <CooldownBadge endAt={allCooldowns.npc.endAt} />
-                  <button type="button" onClick={() => { startGymCooldown("NPCs", 6 * 60 * 60 * 1000); triggerToast("Cooldown NPCs reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar">
-                    <RotateCcw className="w-2.5 h-2.5" />
-                  </button>
                 </div>
               </div>
             </div>
@@ -2575,9 +2558,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                     <div className="flex items-center gap-1">
                       <CooldownBadge endAt={allCooldowns.gym.endAt} />
-                      <button type="button" onClick={() => { startGymCooldown("Gyms", gymResetMs); triggerToast("Cooldown Gyms reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar">
-                        <RotateCcw className="w-2.5 h-2.5" />
-                      </button>
                     </div>
                   </div>
                   <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
@@ -2587,9 +2567,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                     <div className="flex items-center gap-1">
                       <CooldownBadge endAt={allCooldowns.hooh.endAt} />
-                      <button type="button" onClick={() => { startGymCooldown("Ho-Oh", 7 * 24 * 60 * 60 * 1000); triggerToast("Cooldown Ho-Oh reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar">
-                        <RotateCcw className="w-2.5 h-2.5" />
-                      </button>
                     </div>
                   </div>
                   <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
@@ -2599,9 +2576,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                     <div className="flex items-center gap-1">
                       <CooldownBadge endAt={allCooldowns.npc.endAt} />
-                      <button type="button" onClick={() => { startGymCooldown("NPCs", 6 * 60 * 60 * 1000); triggerToast("Cooldown NPCs reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar">
-                        <RotateCcw className="w-2.5 h-2.5" />
-                      </button>
                     </div>
                   </div>
                 </div>
