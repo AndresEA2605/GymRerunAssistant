@@ -10,10 +10,29 @@ export async function POST(req: NextRequest) {
     if (!user) return NextResponse.json({ ok: false, error: 'Sesión inválida' }, { status: 401 });
 
     const progression = await getProgression(user.id);
-    // Backfill user level/xp from saved progression data
-    if (progression && progression.profile) {
-      await updateUserLevelFromProgression(user.id, progression);
+    
+    // If progression is empty, backfill it from existing user data to prevent data loss
+    if (!progression || Object.keys(progression).length === 0) {
+      const stats = await getUserStats(user.id);
+      progression.profile = {
+        level: user.level || 1,
+        totalXP: user.xp || 0,
+        currentXP: user.xp || 0,
+        coins: user.coins || 0
+      };
+      progression.statistics = {
+        gymsCompleted: stats.totalGyms || 0,
+        guidesFinished: stats.totalHoohRuns || 0,
+        totalTimeMs: stats.totalTimeMs || 0
+      };
+      progression.achievements = stats.achievements || [];
+    } else {
+      // Backfill user level/xp from saved progression data
+      if (progression && progression.profile) {
+        await updateUserLevelFromProgression(user.id, progression);
+      }
     }
+    
     return NextResponse.json({ ok: true, progression });
   } catch (err) {
     console.error('Progression GET error:', err);

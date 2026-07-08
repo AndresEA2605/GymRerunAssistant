@@ -329,12 +329,12 @@ function CooldownProgressBar({ isHooh: _isHooh, endAt, gymResetMs }: { isHooh: b
     return () => clearInterval(id);
   }, [endAt]);
   if (!endAt || endAt <= now) return null;
-  const pct = Math.min(100, ((gymResetMs - (endAt - now)) / gymResetMs) * 100);
+  const pct = Math.max(0, Math.min(1, (gymResetMs - (endAt - now)) / gymResetMs));
   return (
     <div className="mt-1.5 w-full h-1 bg-black/30 rounded-full overflow-hidden">
       <div
-        className="h-full bg-gradient-to-r from-amber-500 to-orange-400 rounded-full will-change-transform"
-        style={{ width: `${pct}%` }}
+        className="h-full w-full bg-gradient-to-r from-amber-500 to-orange-400 rounded-full will-change-transform origin-left"
+        style={{ transform: `scaleX(${pct})` }}
       />
     </div>
   );
