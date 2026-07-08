@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserByToken } from '@/lib/auth';
-import { Redis } from '@upstash/redis';
-
-function getRedis() {
-  return Redis.fromEnv();
-}
-
-const kuser = (id: string) => `auth:user:${id}`;
+import { getSupabase } from '@/lib/supabase';
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,8 +10,14 @@ export async function POST(req: NextRequest) {
     const user = await getUserByToken(token);
     if (!user) return NextResponse.json({ ok: false, error: 'Sesión inválida' }, { status: 401 });
 
-    const data = await getRedis().get<Record<string, unknown>>(`${kuser(user.id)}:cooldowns`);
-    return NextResponse.json({ ok: true, cooldowns: data ?? {} });
+    const db = getSupabase();
+    const { data } = await db
+      .from('user_cooldowns')
+      .select('data')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    return NextResponse.json({ ok: true, cooldowns: data?.data ?? {} });
   } catch (err) {
     console.error('Cooldowns GET error:', err);
     return NextResponse.json({ ok: false, error: 'Error interno' }, { status: 500 });
@@ -32,7 +32,12 @@ export async function PUT(req: NextRequest) {
     const user = await getUserByToken(token);
     if (!user) return NextResponse.json({ ok: false, error: 'Sesión inválida' }, { status: 401 });
 
-    await getRedis().set(`${kuser(user.id)}:cooldowns`, cooldowns ?? {});
+    const db = getSupabase();
+    await db.from('user_cooldowns').upsert({
+      user_id: user.id,
+      data: cooldowns ?? {},
+    });
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error('Cooldowns PUT error:', err);

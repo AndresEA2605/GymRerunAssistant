@@ -1,12 +1,4 @@
-import { Redis } from '@upstash/redis';
-
-let _redis: Redis | null = null;
-function getRedis() {
-  if (!_redis) {
-    _redis = Redis.fromEnv();
-  }
-  return _redis;
-}
+import { getSupabase } from '@/lib/supabase';
 
 export interface User {
   id: string;
@@ -54,13 +46,10 @@ interface UserWithHash extends User {
   resetTokenExpiresAt?: number | null;
 }
 
-const SESSION_TTL = 30 * 24 * 60 * 60;
+const SESSION_TTL = 30 * 24 * 60 * 60; // 30 days in seconds
 const XP_PER_LEVEL = 100;
 
-function kuser(id: string) { return `auth:user:${id}`; }
-function ksession(token: string) { return `auth:session:${token}`; }
-function kemail(email: string) { return `auth:email:${email.toLowerCase()}`; }
-function kusername(username: string) { return `auth:username:${username.toLowerCase()}`; }
+// ─── Password helpers ──────────────────────────────────────────────────────
 
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -93,6 +82,8 @@ async function verifyPassword(password: string, stored: string): Promise<boolean
   return hashHex === hashHex2;
 }
 
+// ─── Public helpers ────────────────────────────────────────────────────────
+
 export function generateToken(): string {
   return crypto.randomUUID();
 }
@@ -104,6 +95,28 @@ export function calculateLevel(xp: number): number {
 export function xpForNextLevel(level: number): number {
   return level * XP_PER_LEVEL;
 }
+
+// ─── DB row → domain mappers ───────────────────────────────────────────────
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function rowToUserWithHash(row: any): UserWithHash {
+  return {
+    id: row.id,
+    username: row.username,
+    email: row.email,
+    avatar: row.avatar ?? '',
+    createdAt: row.created_at,
+    lastLogin: row.last_login,
+    level: row.level ?? 1,
+    xp: row.xp ?? 0,
+    coins: row.coins ?? 0,
+    passwordHash: row.password_hash,
+    resetToken: row.reset_token ?? null,
+    resetTokenExpiresAt: row.reset_token_expires_at ?? null,
+  };
+}
+
+// ─── Register ─────────────────────────────────────────────────────────────
 
 export async function registerUser(
   email: string,
@@ -124,22 +137,71 @@ export async function registerUser(
       return { error: 'La contraseña debe tener al menos 6 caracteres' };
     }
 
-    const existingEmail = await getRedis().get(kemail(cleanEmail));
-    if (existingEmail) {
-      return { error: 'Este email ya está registrado' };
-    }
+    const db = getSupabase();
 
-    const existingUsername = await getRedis().get(kusername(cleanUsername));
-    if (existingUsername) {
-      return { error: 'Este username ya está en uso' };
-    }
+    // Check duplicates
+    const { data: existingEmail } = await db
+      .from('users')
+      .select('id')
+      .eq('email', cleanEmail)
+      .maybeSingle();
+    if (existingEmail) return { error: 'Este email ya está registrado' };
 
-    const id = crypto.randomUUID();
+    const { data: existingUsername } = await db
+      .from('users')
+      .select('id')
+      .eq('username', cleanUsername)
+      .maybeSingle();
+    if (existingUsername) return { error: 'Este username ya está en uso' };
+
     const passwordHash = await hashPassword(password);
     const now = Date.now();
 
-    const user: UserWithHash = {
-      id,
+    const { data: newUser, error: insertError } = await db
+      .from('users')
+      .insert({
+        username: cleanUsername,
+        email: cleanEmail,
+        avatar: '',
+        password_hash: passwordHash,
+        created_at: now,
+        last_login: now,
+        level: 1,
+        xp: 0,
+        coins: 0,
+      })
+      .select()
+      .single();
+
+    if (insertError || !newUser) {
+      return { error: insertError?.message || 'Error al crear usuario' };
+    }
+
+    const userId = newUser.id;
+
+    // Create companion rows
+    await db.from('user_stats').insert({
+      user_id: userId,
+      total_gyms: 0,
+      total_hooh_runs: 0,
+      total_time_ms: 0,
+      streak_current: 0,
+      streak_best: 0,
+      achievements: [],
+    });
+    await db.from('user_settings').insert({ user_id: userId, preferences: {}, cooldowns: {} });
+    await db.from('user_history').insert({ user_id: userId, gym_history: [], hooh_history: [], run_history: [] });
+    await db.from('user_daily').insert({ user_id: userId, tasks_state: null });
+    await db.from('user_progression').insert({ user_id: userId, data: {} });
+    await db.from('user_cooldowns').insert({ user_id: userId, data: {} });
+
+    // Create session
+    const token = generateToken();
+    const expiresAt = now + SESSION_TTL * 1000;
+    await db.from('sessions').insert({ token, user_id: userId, expires_at: expiresAt });
+
+    const user: User = {
+      id: userId,
       username: cleanUsername,
       email: cleanEmail,
       avatar: '',
@@ -148,31 +210,9 @@ export async function registerUser(
       level: 1,
       xp: 0,
       coins: 0,
-      passwordHash,
     };
 
-    await getRedis().set(kuser(id), user);
-    await getRedis().set(kemail(cleanEmail), id);
-    await getRedis().set(kusername(cleanUsername), id);
-
-    const stats: UserStats = {
-      totalGyms: 0,
-      totalHoohRuns: 0,
-      totalTimeMs: 0,
-      streaks: { current: 0, best: 0 },
-      achievements: [],
-    };
-    await getRedis().set(`${kuser(id)}:stats`, stats);
-    await getRedis().set(`${kuser(id)}:settings`, { preferences: {}, cooldowns: {} });
-    await getRedis().set(`${kuser(id)}:history`, { gymHistory: [], hoohHistory: [], runHistory: [] });
-    await getRedis().set(`${kuser(id)}:daily`, { tasksState: null });
-
-    const token = generateToken();
-    const session: SessionData = { userId: id, expiresAt: now + SESSION_TTL * 1000 };
-    await getRedis().set(ksession(token), session, { ex: SESSION_TTL });
-
-    const { passwordHash: _, ...safeUser } = user;
-    return { user: safeUser, token };
+    return { user, token };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error('registerUser error:', msg);
@@ -180,45 +220,54 @@ export async function registerUser(
   }
 }
 
+// ─── Login ────────────────────────────────────────────────────────────────
+
 export async function loginUser(
   identifier: string,
   password: string
 ): Promise<{ user: User; token: string } | { error: string }> {
   try {
     const clean = identifier.toLowerCase().trim();
+    const db = getSupabase();
 
-    let userId: string | null = null;
-
+    let query;
     if (clean.includes('@')) {
-      userId = await getRedis().get<string>(kemail(clean));
+      query = db.from('users').select('*').eq('email', clean).maybeSingle();
     } else {
-      userId = await getRedis().get<string>(kusername(clean));
+      query = db.from('users').select('*').eq('username', clean).maybeSingle();
     }
 
-    if (!userId || typeof userId !== 'string') {
+    const { data: row, error } = await query;
+    if (error || !row) {
       return { error: 'Usuario o contraseña incorrectos' };
     }
 
-    const userData = await getRedis().get<UserWithHash>(kuser(userId));
-    if (!userData || !userData.passwordHash) {
-      return { error: 'Usuario no encontrado' };
-    }
-
+    const userData = rowToUserWithHash(row);
     const valid = await verifyPassword(password, userData.passwordHash);
     if (!valid) {
       return { error: 'Usuario o contraseña incorrectos' };
     }
 
     const now = Date.now();
-    const updatedUser: UserWithHash = { ...userData, lastLogin: now };
-    await getRedis().set(kuser(userId), updatedUser);
+    await db.from('users').update({ last_login: now }).eq('id', userData.id);
 
     const token = generateToken();
-    const session: SessionData = { userId, expiresAt: now + SESSION_TTL * 1000 };
-    await getRedis().set(ksession(token), session, { ex: SESSION_TTL });
+    const expiresAt = now + SESSION_TTL * 1000;
+    await db.from('sessions').insert({ token, user_id: userData.id, expires_at: expiresAt });
 
-    const { passwordHash: _, ...safeUser } = updatedUser;
-    return { user: safeUser, token };
+    const user: User = {
+      id: userData.id,
+      username: userData.username,
+      email: userData.email,
+      avatar: userData.avatar,
+      createdAt: userData.createdAt,
+      lastLogin: now,
+      level: userData.level,
+      xp: userData.xp,
+      coins: userData.coins,
+    };
+
+    return { user, token };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error('loginUser error:', msg);
@@ -226,33 +275,64 @@ export async function loginUser(
   }
 }
 
+// ─── Session ──────────────────────────────────────────────────────────────
+
 export async function getUserByToken(token: string): Promise<User | null> {
   try {
-    const session = await getRedis().get<SessionData>(ksession(token));
-    if (!session || !session.userId) return null;
+    const db = getSupabase();
+    const { data: session } = await db
+      .from('sessions')
+      .select('*')
+      .eq('token', token)
+      .maybeSingle();
 
-    if (session.expiresAt < Date.now()) {
-      await getRedis().del(ksession(token));
+    if (!session) return null;
+    if (session.expires_at < Date.now()) {
+      await db.from('sessions').delete().eq('token', token);
       return null;
     }
 
-    const data = await getRedis().get<UserWithHash>(kuser(session.userId));
-    if (!data) return null;
+    const { data: row } = await db
+      .from('users')
+      .select('*')
+      .eq('id', session.user_id)
+      .maybeSingle();
 
-    const { passwordHash: _, resetToken: __, resetTokenExpiresAt: ___, ...user } = data;
-    return user;
+    if (!row) return null;
+
+    return {
+      id: row.id,
+      username: row.username,
+      email: row.email,
+      avatar: row.avatar ?? '',
+      createdAt: row.created_at,
+      lastLogin: row.last_login,
+      level: row.level ?? 1,
+      xp: row.xp ?? 0,
+      coins: row.coins ?? 0,
+    };
   } catch {
     return null;
   }
 }
 
+export async function logoutUser(token: string): Promise<void> {
+  const db = getSupabase();
+  await db.from('sessions').delete().eq('token', token);
+}
+
+// ─── Password reset ───────────────────────────────────────────────────────
+
 export async function getUserByEmail(email: string): Promise<UserWithHash | null> {
   try {
-    const clean = email.toLowerCase().trim();
-    const userId = await getRedis().get<string>(kemail(clean));
-    if (!userId) return null;
-    const data = await getRedis().get<UserWithHash>(kuser(userId));
-    return data || null;
+    const db = getSupabase();
+    const { data: row } = await db
+      .from('users')
+      .select('*')
+      .eq('email', email.toLowerCase().trim())
+      .maybeSingle();
+    if (!row) return null;
+    return rowToUserWithHash(row);
   } catch {
     return null;
   }
@@ -265,125 +345,239 @@ export async function requestPasswordReset(email: string): Promise<{ token?: str
   }
 
   const token = crypto.randomUUID();
-  const expiresAt = Date.now() + 30 * 60 * 1000;
-  const updated: UserWithHash = {
-    ...user,
-    resetToken: token,
-    resetTokenExpiresAt: expiresAt,
-  };
-  await getRedis().set(kuser(user.id), updated);
+  const expiresAt = Date.now() + 30 * 60 * 1000; // 30 min
+
+  const db = getSupabase();
+  await db
+    .from('users')
+    .update({ reset_token: token, reset_token_expires_at: expiresAt })
+    .eq('id', user.id);
+
   return { token };
 }
 
-export async function resetPassword(email: string, token: string, password: string): Promise<{ error?: string }> {
+export async function resetPassword(
+  email: string,
+  token: string,
+  password: string
+): Promise<{ error?: string }> {
   const user = await getUserByEmail(email);
-  if (!user) {
-    return { error: 'No se encontró una cuenta con ese email.' };
-  }
-  if (!user.resetToken || !user.resetTokenExpiresAt) {
-    return { error: 'No se ha solicitado un token de recuperación.' };
-  }
-  if (user.resetToken !== token) {
-    return { error: 'Token de recuperación inválido.' };
-  }
-  if (Date.now() > user.resetTokenExpiresAt) {
-    return { error: 'El token de recuperación expiró.' };
-  }
-  if (password.length < 6) {
-    return { error: 'La contraseña debe tener al menos 6 caracteres.' };
-  }
+  if (!user) return { error: 'No se encontró una cuenta con ese email.' };
+  if (!user.resetToken || !user.resetTokenExpiresAt) return { error: 'No se ha solicitado un token de recuperación.' };
+  if (user.resetToken !== token) return { error: 'Token de recuperación inválido.' };
+  if (Date.now() > user.resetTokenExpiresAt) return { error: 'El token de recuperación expiró.' };
+  if (password.length < 6) return { error: 'La contraseña debe tener al menos 6 caracteres.' };
 
   const passwordHash = await hashPassword(password);
-  const updated: UserWithHash = {
-    ...user,
-    passwordHash,
-    resetToken: null,
-    resetTokenExpiresAt: null,
-  };
-  await getRedis().set(kuser(user.id), updated);
+  const db = getSupabase();
+  await db
+    .from('users')
+    .update({ password_hash: passwordHash, reset_token: null, reset_token_expires_at: null })
+    .eq('id', user.id);
+
   return {};
 }
 
+// ─── Stats ────────────────────────────────────────────────────────────────
+
 export async function getUserStats(userId: string): Promise<UserStats> {
   try {
-    const stats = await getRedis().get<UserStats>(`${kuser(userId)}:stats`);
-    if (!stats) {
-      return { totalGyms: 0, totalHoohRuns: 0, totalTimeMs: 0, streaks: { current: 0, best: 0 }, achievements: [] };
-    }
-    return stats;
+    const db = getSupabase();
+    const { data } = await db.from('user_stats').select('*').eq('user_id', userId).maybeSingle();
+    if (!data) return { totalGyms: 0, totalHoohRuns: 0, totalTimeMs: 0, streaks: { current: 0, best: 0 }, achievements: [] };
+    return {
+      totalGyms: data.total_gyms ?? 0,
+      totalHoohRuns: data.total_hooh_runs ?? 0,
+      totalTimeMs: data.total_time_ms ?? 0,
+      streaks: { current: data.streak_current ?? 0, best: data.streak_best ?? 0 },
+      achievements: data.achievements ?? [],
+    };
   } catch {
     return { totalGyms: 0, totalHoohRuns: 0, totalTimeMs: 0, streaks: { current: 0, best: 0 }, achievements: [] };
   }
 }
 
 export async function updateUserStats(userId: string, stats: UserStats): Promise<void> {
-  await getRedis().set(`${kuser(userId)}:stats`, stats);
+  const db = getSupabase();
+  await db.from('user_stats').upsert({
+    user_id: userId,
+    total_gyms: stats.totalGyms,
+    total_hooh_runs: stats.totalHoohRuns,
+    total_time_ms: stats.totalTimeMs,
+    streak_current: stats.streaks.current,
+    streak_best: stats.streaks.best,
+    achievements: stats.achievements,
+  });
 }
+
+// ─── History ──────────────────────────────────────────────────────────────
 
 export async function getUserHistory(userId: string): Promise<UserHistory> {
   try {
-    const history = await getRedis().get<UserHistory>(`${kuser(userId)}:history`);
-    if (!history) {
-      return { gymHistory: [], hoohHistory: [], runHistory: [] };
-    }
-    return history;
+    const db = getSupabase();
+    const { data } = await db.from('user_history').select('*').eq('user_id', userId).maybeSingle();
+    if (!data) return { gymHistory: [], hoohHistory: [], runHistory: [] };
+    return {
+      gymHistory: data.gym_history ?? [],
+      hoohHistory: data.hooh_history ?? [],
+      runHistory: data.run_history ?? [],
+    };
   } catch {
     return { gymHistory: [], hoohHistory: [], runHistory: [] };
   }
 }
 
 export async function updateUserHistory(userId: string, history: UserHistory): Promise<void> {
-  await getRedis().set(`${kuser(userId)}:history`, history);
+  const db = getSupabase();
+  await db.from('user_history').upsert({
+    user_id: userId,
+    gym_history: history.gymHistory,
+    hooh_history: history.hoohHistory,
+    run_history: history.runHistory,
+  });
 }
+
+// ─── Settings ─────────────────────────────────────────────────────────────
 
 export async function getUserSettings(userId: string): Promise<UserSettings> {
   try {
-    const settings = await getRedis().get<UserSettings>(`${kuser(userId)}:settings`);
-    if (!settings) {
-      return { preferences: {}, cooldowns: {} };
-    }
-    return settings;
+    const db = getSupabase();
+    const { data } = await db.from('user_settings').select('*').eq('user_id', userId).maybeSingle();
+    if (!data) return { preferences: {}, cooldowns: {} };
+    return {
+      preferences: data.preferences ?? {},
+      cooldowns: data.cooldowns ?? {},
+    };
   } catch {
     return { preferences: {}, cooldowns: {} };
   }
 }
 
 export async function updateUserSettings(userId: string, settings: UserSettings): Promise<void> {
-  await getRedis().set(`${kuser(userId)}:settings`, settings);
+  const db = getSupabase();
+  await db.from('user_settings').upsert({
+    user_id: userId,
+    preferences: settings.preferences,
+    cooldowns: settings.cooldowns,
+  });
 }
+
+// ─── Daily ────────────────────────────────────────────────────────────────
 
 export async function getUserDaily(userId: string): Promise<UserDaily> {
   try {
-    const daily = await getRedis().get<UserDaily>(`${kuser(userId)}:daily`);
-    if (!daily) {
-      return { tasksState: null };
-    }
-    return daily;
+    const db = getSupabase();
+    const { data } = await db.from('user_daily').select('*').eq('user_id', userId).maybeSingle();
+    if (!data) return { tasksState: null };
+    return { tasksState: data.tasks_state ?? null };
   } catch {
     return { tasksState: null };
   }
 }
 
 export async function updateUserDaily(userId: string, daily: UserDaily): Promise<void> {
-  await getRedis().set(`${kuser(userId)}:daily`, daily);
+  const db = getSupabase();
+  await db.from('user_daily').upsert({ user_id: userId, tasks_state: daily.tasksState });
 }
 
-export async function logoutUser(token: string): Promise<void> {
-  await getRedis().del(ksession(token));
+// ─── Profile ──────────────────────────────────────────────────────────────
+
+export async function updateUserProfile(
+  userId: string,
+  updates: { username?: string; avatar?: string }
+): Promise<User> {
+  const db = getSupabase();
+  const updateData: Record<string, unknown> = {};
+  if (updates.username) updateData.username = updates.username;
+  if (updates.avatar !== undefined) updateData.avatar = updates.avatar;
+
+  const { data: row, error } = await db
+    .from('users')
+    .update(updateData)
+    .eq('id', userId)
+    .select()
+    .single();
+
+  if (error || !row) throw new Error(error?.message || 'User not found');
+
+  return {
+    id: row.id,
+    username: row.username,
+    email: row.email,
+    avatar: row.avatar ?? '',
+    createdAt: row.created_at,
+    lastLogin: row.last_login,
+    level: row.level ?? 1,
+    xp: row.xp ?? 0,
+    coins: row.coins ?? 0,
+  };
 }
+
+// ─── XP / Level ───────────────────────────────────────────────────────────
 
 export async function addXp(userId: string, amount: number): Promise<User> {
-  const data = await getRedis().get<UserWithHash>(kuser(userId));
-  if (!data) throw new Error('User not found');
+  const db = getSupabase();
+  const { data: row } = await db.from('users').select('*').eq('id', userId).maybeSingle();
+  if (!row) throw new Error('User not found');
 
-  data.xp += amount;
-  data.level = calculateLevel(data.xp);
+  const newXp = (row.xp ?? 0) + amount;
+  const newLevel = calculateLevel(newXp);
 
-  await getRedis().set(kuser(userId), data);
+  const { data: updated, error } = await db
+    .from('users')
+    .update({ xp: newXp, level: newLevel })
+    .eq('id', userId)
+    .select()
+    .single();
 
-  const { passwordHash: _, ...user } = data;
-  return user;
+  if (error || !updated) throw new Error(error?.message || 'Update failed');
+
+  return {
+    id: updated.id,
+    username: updated.username,
+    email: updated.email,
+    avatar: updated.avatar ?? '',
+    createdAt: updated.created_at,
+    lastLogin: updated.last_login,
+    level: updated.level ?? 1,
+    xp: updated.xp ?? 0,
+    coins: updated.coins ?? 0,
+  };
 }
+
+// ─── Progression ──────────────────────────────────────────────────────────
+
+export async function getProgression(userId: string): Promise<Record<string, unknown>> {
+  try {
+    const db = getSupabase();
+    const { data } = await db.from('user_progression').select('data').eq('user_id', userId).maybeSingle();
+    return (data?.data as Record<string, unknown>) ?? {};
+  } catch {
+    return {};
+  }
+}
+
+export async function saveProgression(userId: string, data: Record<string, unknown>): Promise<void> {
+  const db = getSupabase();
+  await db.from('user_progression').upsert({ user_id: userId, data });
+}
+
+export async function updateUserLevelFromProgression(
+  userId: string,
+  data: Record<string, unknown>
+): Promise<void> {
+  const db = getSupabase();
+  const profile = (data as Record<string, unknown>).profile as Record<string, unknown> | undefined;
+  if (profile && typeof profile.level === 'number' && typeof profile.totalXP === 'number') {
+    await db.from('users').update({
+      level: profile.level,
+      xp: profile.totalXP,
+      coins: typeof profile.coins === 'number' ? profile.coins : 0,
+    }).eq('id', userId);
+  }
+}
+
+// ─── Local data check ─────────────────────────────────────────────────────
 
 export async function hasLocalData(localData: Record<string, string>): Promise<boolean> {
   return !!(
@@ -394,41 +588,4 @@ export async function hasLocalData(localData: Record<string, string>): Promise<b
     localData['run_active_hooh'] === 'true' ||
     localData['run_active_guide2'] === 'true'
   );
-}
-
-export async function updateUserProfile(userId: string, updates: { username?: string; avatar?: string }): Promise<User> {
-  const data = await getRedis().get<UserWithHash>(kuser(userId));
-  if (!data) throw new Error('User not found');
-
-  if (updates.username) data.username = updates.username;
-  if (updates.avatar !== undefined) data.avatar = updates.avatar;
-  await getRedis().set(kuser(userId), data);
-
-  const { passwordHash: _, ...user } = data;
-  return user;
-}
-
-export async function getProgression(userId: string): Promise<Record<string, unknown>> {
-  try {
-    const data = await getRedis().get<Record<string, unknown>>(`${kuser(userId)}:progression`);
-    return data ?? {};
-  } catch {
-    return {};
-  }
-}
-
-export async function saveProgression(userId: string, data: Record<string, unknown>): Promise<void> {
-  await getRedis().set(`${kuser(userId)}:progression`, data);
-}
-
-export async function updateUserLevelFromProgression(userId: string, data: Record<string, unknown>): Promise<void> {
-  const userData = await getRedis().get<UserWithHash>(kuser(userId));
-  if (!userData) return;
-  const profile = (data as Record<string, unknown>).profile as Record<string, unknown> | undefined;
-  if (profile && typeof profile.level === 'number' && typeof profile.totalXP === 'number') {
-    userData.level = profile.level;
-    userData.xp = profile.totalXP;
-    userData.coins = typeof profile.coins === 'number' ? profile.coins : 0;
-    await getRedis().set(kuser(userId), userData);
-  }
 }
