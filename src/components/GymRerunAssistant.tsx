@@ -1801,10 +1801,10 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                           const onCooldown = cdEnd ? cdEnd > Date.now() : false;
                           const cdRemaining = onCooldown ? cdEnd! - Date.now() : 0;
                           return (
-                            <div key={g.id} className="relative">
+                            <div key={g.id}>
                               {onCooldown ? (
-                                <div className="relative overflow-hidden">
-                                  <div className={`w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 py-3 text-left bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} opacity-50`}>
+                                <div className="relative rounded-2xl overflow-hidden">
+                                  <div className={`w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 pb-7 pt-3 text-left bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} opacity-50`}>
                                     <div className={`w-11 h-11 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-900/70 p-1.5 poke-aura ${getGuidePokeGlow(g.color)}`}>
                                       <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
                                     </div>
@@ -1828,7 +1828,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                               ) : (
                                 <button
                                   onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')}
-                                  className={`w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} ${`hover:bg-neutral-800 ${gc.borderHover} group`}`}
+                                  className={`w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 pt-3 pb-7 text-left transition-all bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} ${`hover:bg-neutral-800 ${gc.borderHover} group`}`}
                                 >
                                   <div className={`w-11 h-11 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-900/70 p-1.5 poke-aura ${getGuidePokeGlow(g.color)}`}>
                                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
@@ -1847,10 +1847,10 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                                   <span className={`fs-tiny font-black ${gc.text} opacity-0 group-hover:opacity-100 transition-opacity shrink-0`}>→</span>
                                 </button>
                               )}
-                              <div className="absolute bottom-1.5 right-2.5 flex items-center gap-1 z-20">
+                              <div className="flex justify-end gap-1 -mt-6 relative z-10 mr-2">
                                 <button
-                                  onClick={(e) => { e.stopPropagation(); setPreviewGuide(g.id); }}
-                                  className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/50 border border-neutral-700/40 text-[9px] font-bold text-neutral-400 hover:bg-indigo-950/30 hover:border-indigo-700/30 hover:text-indigo-400 transition-all z-20"
+                                  onClick={() => setPreviewGuide(g.id)}
+                                  className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/50 border border-neutral-700/40 text-[9px] font-bold text-neutral-400 hover:bg-indigo-950/30 hover:border-indigo-700/30 hover:text-indigo-400 transition-all pointer-events-auto"
                                   title="Vista previa de la guía"
                                 >
                                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -1858,12 +1858,11 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                                 </button>
                                 {g.id !== "none" && (
                                   <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
+                                    onClick={() => {
                                       setRestartTargetGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2');
                                       setShowRestartConfirm(true);
                                     }}
-                                    className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/50 border border-neutral-700/40 text-[9px] font-bold text-neutral-400 hover:bg-amber-950/30 hover:border-amber-700/30 hover:text-amber-400 transition-all z-20"
+                                    className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/50 border border-neutral-700/40 text-[9px] font-bold text-neutral-400 hover:bg-amber-950/30 hover:border-amber-700/30 hover:text-amber-400 transition-all pointer-events-auto"
                                     title="Repetir run — reinicia todos los temporizadores"
                                   >
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
