@@ -1,0 +1,13 @@
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=andresgarci518@gmail.com
+SMTP_PASS=rxluzcptdeemhzlw
+SMTP_FROM=andresgarci518@gmail.com
+
+GMAIL_HOST=smtp.gmail.com
+GMAIL_PORT=587
+GMAIL_SECURE=false
+GMAIL_USER=andresgarci518@gmail.com
+GMAIL_PASS=rxluzcptdeemhzlw
+GMAIL_FROM=andresgarci518@gmail.com

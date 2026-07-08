@@ -32,11 +32,11 @@ SMTP_FROM=tu-correo@gmail.com
 
 ### En Vercel
 Agrega estas variables en el Proyecto > Settings > Environment Variables:
-- SMTP_HOST
-- SMTP_PORT
-- SMTP_SECURE
-- SMTP_USER
-- SMTP_PASS
-- SMTP_FROM
+- SMTP_HOST=smtp.gmail.com
+- SMTP_PORT=587
+- SMTP_SECURE=false
+- SMTP_USER=andresgarci518@gmail.com
+- SMTP_PASS=rxluzcptdeemhzlw
+- SMTP_FROM=andresgarci518@gmail.com
 
 Si usas Gmail, también puedes usar GMAIL_USER / GMAIL_PASS / GMAIL_FROM como alias.
