@@ -1,0 +1,41 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getUserByToken } from '@/lib/auth';
+import { Redis } from '@upstash/redis';
+
+function getRedis() {
+  return Redis.fromEnv();
+}
+
+const kuser = (id: string) => `auth:user:${id}`;
+
+export async function POST(req: NextRequest) {
+  try {
+    const { token } = await req.json();
+    if (!token) return NextResponse.json({ ok: false, error: 'Token requerido' }, { status: 400 });
+
+    const user = await getUserByToken(token);
+    if (!user) return NextResponse.json({ ok: false, error: 'Sesión inválida' }, { status: 401 });
+
+    const data = await getRedis().get<Record<string, unknown>>(`${kuser(user.id)}:cooldowns`);
+    return NextResponse.json({ ok: true, cooldowns: data ?? {} });
+  } catch (err) {
+    console.error('Cooldowns GET error:', err);
+    return NextResponse.json({ ok: false, error: 'Error interno' }, { status: 500 });
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const { token, cooldowns } = await req.json();
+    if (!token) return NextResponse.json({ ok: false, error: 'Token requerido' }, { status: 400 });
+
+    const user = await getUserByToken(token);
+    if (!user) return NextResponse.json({ ok: false, error: 'Sesión inválida' }, { status: 401 });
+
+    await getRedis().set(`${kuser(user.id)}:cooldowns`, cooldowns ?? {});
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error('Cooldowns PUT error:', err);
+    return NextResponse.json({ ok: false, error: 'Error interno' }, { status: 500 });
+  }
+}

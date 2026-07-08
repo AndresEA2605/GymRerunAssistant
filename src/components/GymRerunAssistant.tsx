@@ -325,7 +325,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   } = config;
 
   const { grantXP, incrementStat, profile } = useProgression();
-  const { user: authUser } = useAuth();
+  const { user: authUser, token: authToken } = useAuth();
 
   const [showMenu, setShowMenu] = useState<boolean>(true);
   const [loaded, setLoaded] = useState<boolean>(false);
@@ -351,6 +351,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [hasActiveSession, setHasActiveSession] = useState<boolean>(true);
   const [activeSessionGuide, setActiveSessionGuide] = useState<string>('');
   const [appExiting, setAppExiting] = useState<boolean>(false);
+  const [freeRuns, setFreeRuns] = useState<Record<string, number>>({ gym33: 2, hooh: 2, guide2: 2 });
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
   const [slideClass, setSlideClass] = useState<string>("");
   const [slideKey, setSlideKey] = useState<number>(0);
@@ -651,6 +652,43 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     if (!loaded) return;
     setLS("gym_step", currentStepIndex.toString());
   }, [loaded, currentStepIndex]);
+
+  // Load cooldowns/freeRuns from user account
+  useEffect(() => {
+    if (!authToken) return;
+    fetch("/api/auth/cooldowns", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: authToken }),
+    }).then(r => r.json()).then(data => {
+      if (data.ok && data.cooldowns) {
+        if (data.cooldowns.freeRuns) setFreeRuns(data.cooldowns.freeRuns);
+        if (data.cooldowns.gym) {
+          setAllCooldowns(prev => ({ ...prev, gym: data.cooldowns.gym }));
+        }
+        if (data.cooldowns.hooh) {
+          setAllCooldowns(prev => ({ ...prev, hooh: data.cooldowns.hooh }));
+        }
+      }
+    }).catch(() => {});
+  }, [authToken]);
+
+  // Save cooldowns/freeRuns to user account on change
+  const saveCooldownsToServer = useCallback(() => {
+    if (!authToken) return;
+    fetch("/api/auth/cooldowns", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token: authToken,
+        cooldowns: { ...allCooldowns, freeRuns },
+      }),
+    }).catch(() => {});
+  }, [authToken, allCooldowns, freeRuns]);
+
+  useEffect(() => {
+    saveCooldownsToServer();
+  }, [allCooldowns, freeRuns]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -993,11 +1031,23 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       setLS(`run_active_${selectedGuideId}`, "");
     }
     setFinishSummary({ elapsed: finalElapsed, gyms: totalGymsDone, xpEarned: runXP, guideTitle });
-    // Start cooldown on finish
-    if (selectedGuideId === 'hooh') {
-      startGymCooldown("Ho-Oh", 24 * 60 * 60 * 1000);
-    } else if (selectedGuideId) {
-      startGymCooldown(getLastCompletedGym(), gymResetMs);
+    // Free run logic: 2 free finishes before cooldown kicks in
+    const guideId = selectedGuideId;
+    if (guideId) {
+      const remaining = freeRuns[guideId] ?? 2;
+      if (remaining > 1) {
+        // Free finish — decrement counter, no cooldown
+        setFreeRuns(prev => ({ ...prev, [guideId]: remaining - 1 }));
+        triggerToast(`Run guardada — te quedan ${remaining - 1} intento${remaining - 1 !== 1 ? 's' : ''} gratis`);
+      } else {
+        // Last free run — start cooldown, reset counter
+        if (guideId === 'hooh') {
+          startGymCooldown("Ho-Oh", 24 * 60 * 60 * 1000);
+        } else {
+          startGymCooldown(getLastCompletedGym(), gymResetMs);
+        }
+        setFreeRuns(prev => ({ ...prev, [guideId]: 2 }));
+      }
     }
     goToMenu(false);
     grantXP(runXP, "Run completada");
@@ -1859,9 +1909,18 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
                 <span className="fs-base font-black text-white">¿Finalizar run?</span>
               </div>
-              <p className="text-sm text-neutral-400 mb-4">
-                Se guardará tu progreso y se activará un cooldown de {selectedGuideId === 'hooh' ? '24 horas' : `${Math.floor(gymResetMs / 3600000)}h ${Math.round((gymResetMs % 3600000) / 60000)}m`} antes de poder iniciar otra run en esta guía.
+              <p className="text-sm text-neutral-400 mb-1">
+                Se guardará tu progreso y recibirás tus recompensas.
               </p>
+              {selectedGuideId && (freeRuns[selectedGuideId] ?? 2) > 1 ? (
+                <p className="text-xs text-emerald-400 mb-4">
+                  ⚡ Te quedan <span className="font-bold">{(freeRuns[selectedGuideId] ?? 2) - 1}</span> intento{(freeRuns[selectedGuideId] ?? 2) - 1 !== 1 ? 's' : ''} gratis sin cooldown.
+                </p>
+              ) : (
+                <p className="text-xs text-amber-400 mb-4">
+                  ⏳ Este es tu último intento gratis. Al finalizar se activará un cooldown de {selectedGuideId === 'hooh' ? '24 horas' : `${Math.floor(gymResetMs / 3600000)}h ${Math.round((gymResetMs % 3600000) / 60000)}m`}.
+                </p>
+              )}
               <div className="flex gap-2">
                 <button onClick={() => setShowFinishConfirm(false)} className="flex-1 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-sm transition-all border border-neutral-700 active:scale-[0.98]">
                   Cancelar
