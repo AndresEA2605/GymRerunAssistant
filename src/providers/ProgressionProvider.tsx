@@ -25,7 +25,7 @@ interface ProgressionContextType {
 export const ProgressionContext = createContext<ProgressionContextType | null>(null);
 
 export function ProgressionProvider({ children }: { children: React.ReactNode }) {
-  const { user, token } = useAuth();
+  const { user, token, refreshSession } = useAuth();
   const [manager, setManager] = useState<ProgressionManager | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [notifications, setNotifications] = useState<ProgressionEvent[]>([]);
@@ -69,13 +69,16 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
   const saveToServer = useCallback(async (mgr: ProgressionManager) => {
     if (!token) return;
     try {
-      await fetch("/api/auth/progression", {
+      const res = await fetch("/api/auth/progression", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, data: mgr.toRedis() }),
       });
+      if (res.ok) {
+        refreshSession();
+      }
     } catch {}
-  }, [token]);
+  }, [token, refreshSession]);
 
   const flushNotifications = useCallback((mgr: ProgressionManager) => {
     const newNotes = mgr.consumeNotifications();

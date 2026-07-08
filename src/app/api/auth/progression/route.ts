@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserByToken, getProgression, saveProgression } from '@/lib/auth';
+import { getUserByToken, getProgression, saveProgression, getUserStats, updateUserStats } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,6 +26,26 @@ export async function PUT(req: NextRequest) {
     if (!user) return NextResponse.json({ ok: false, error: 'Sesión inválida' }, { status: 401 });
 
     await saveProgression(user.id, data);
+
+    // Sync auth stats from progression data
+    const existingStats = await getUserStats(user.id);
+    const progStats = (data as Record<string, unknown>).statistics as Record<string, unknown> | undefined;
+    if (progStats) {
+      const progProfile = (data as Record<string, unknown>).profile as Record<string, unknown> | undefined;
+      await updateUserStats(user.id, {
+        totalGyms: (progStats.gymsCompleted as number) ?? existingStats.totalGyms,
+        totalHoohRuns: (progStats.guidesFinished as number) ?? existingStats.totalHoohRuns,
+        totalTimeMs: (progStats.totalTimeMs as number) ?? existingStats.totalTimeMs,
+        streaks: {
+          current: (progProfile?.currentStreak as number) ?? existingStats.streaks.current,
+          best: (progProfile?.bestStreak as number) ?? existingStats.streaks.best,
+        },
+        achievements: (progStats.totalAchievements as number) > 0
+          ? ((data as Record<string, unknown>).achievements as string[]) ?? existingStats.achievements
+          : existingStats.achievements,
+      });
+    }
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error('Progression PUT error:', err);
