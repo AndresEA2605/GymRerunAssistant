@@ -2402,6 +2402,116 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       </div>,
       document.body
     )}
+    {previewGuide && createPortal(
+      <div
+        className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4"
+        onClick={() => setPreviewGuide(null)}
+      >
+        <div
+          className="w-full max-w-md rounded-2xl bg-neutral-900 border border-neutral-700/60 overflow-hidden shadow-2xl"
+          onClick={e => e.stopPropagation()}
+        >
+          {(() => {
+            const guide = getGuide(previewGuide);
+            if (!guide) return <div className="p-5 text-neutral-400">Guía no encontrada</div>;
+            const gc = getGuideColorClasses(guide.color);
+            return (
+              <>
+                <div className="p-5 border-b border-neutral-800">
+                  <div className="flex items-start gap-3">
+                    <div className={`w-14 h-14 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-950 p-2 ${getGuidePokeGlow(guide.color)}`}>
+                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${guide.icon}.gif`} alt="" className="w-full h-full object-contain" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className={`fs-sm font-black ${gc.text}`}>{guide.title}</div>
+                          <div className="fs-tiny text-neutral-400 mt-0.5">{guide.subtitle}</div>
+                        </div>
+                        <button onClick={() => setPreviewGuide(null)} className="p-1 rounded-lg hover:bg-neutral-800 text-neutral-500 hover:text-white transition-all shrink-0">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-5 space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                  <div className="flex flex-wrap gap-2">
+                    {guide.difficulty && (
+                      <span className="px-2.5 py-1 rounded-full bg-neutral-800 text-[10px] font-bold text-neutral-300 uppercase tracking-wider">{guide.difficulty}</span>
+                    )}
+                    {guide.estimatedCost && (
+                      <span className="px-2.5 py-1 rounded-full bg-neutral-800 text-[10px] font-bold text-amber-400 uppercase tracking-wider">{guide.estimatedCost}</span>
+                    )}
+                    <span className="px-2.5 py-1 rounded-full bg-neutral-800 text-[10px] font-bold text-neutral-300 uppercase tracking-wider">{guide.team.length} Pokémon</span>
+                  </div>
+                  {guide.team.length > 0 && (
+                    <div>
+                      <div className="fs-tiny font-bold text-neutral-400 uppercase tracking-wider mb-2">Equipo</div>
+                      <div className="flex flex-wrap gap-2">
+                        {guide.team.map((t, i) => (
+                          <div key={i} className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-neutral-950 border border-neutral-800/60" title={t.name}>
+                            <div className="w-7 h-7 rounded bg-neutral-900 p-0.5 shrink-0">
+                              <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${t.spriteId}.gif`} alt={t.name} className="w-full h-full object-contain" />
+                            </div>
+                            <span className="text-[10px] font-bold text-neutral-300">{t.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {guide.info.length > 0 && (
+                    <div>
+                      <div className="fs-tiny font-bold text-neutral-400 uppercase tracking-wider mb-2">Información</div>
+                      <ul className="space-y-1">
+                        {guide.info.map((item, i) => (
+                          <li key={i} className="flex items-start gap-2 text-xs text-neutral-400">
+                            <span className="text-neutral-600 mt-0.5">•</span>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {guide.credits && (
+                    <div>
+                      <div className="fs-tiny font-bold text-neutral-400 uppercase tracking-wider mb-2">Créditos</div>
+                      <div className="bg-neutral-950 rounded-xl p-3 border border-neutral-800/60 space-y-1">
+                        {guide.credits.author && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-neutral-500">Autor</span>
+                            <span className="text-[11px] font-bold text-neutral-300">{guide.credits.author}</span>
+                          </div>
+                        )}
+                        {guide.credits.adaptedBy && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-neutral-500">Adaptado por</span>
+                            <span className="text-[11px] font-bold text-neutral-300">{guide.credits.adaptedBy}</span>
+                          </div>
+                        )}
+                        {guide.credits.status && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-neutral-500">Estado</span>
+                            <span className="text-[11px] font-bold text-emerald-400">{guide.credits.status}</span>
+                          </div>
+                        )}
+                        {guide.credits.lastUpdated && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-neutral-500">Actualizado</span>
+                            <span className="text-[11px] font-bold text-neutral-300">{guide.credits.lastUpdated}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            );
+          })()}
+        </div>
+      </div>,
+      document.body
+    )}
     </>
     );
   }
@@ -3813,122 +3923,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </button>
             </div>
           </div>
-        </div>
-      </div>,
-      document.body
-    )}
-    {previewGuide && createPortal(
-      <div
-        className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 transition-opacity duration-200"
-        onClick={() => setPreviewGuide(null)}
-      >
-        <div
-          className="w-full max-w-md rounded-2xl bg-neutral-900 border border-neutral-700/60 overflow-hidden shadow-2xl"
-          onClick={e => e.stopPropagation()}
-        >
-          {(() => {
-            const guide = getGuide(previewGuide);
-            if (!guide) return <div className="p-5 text-neutral-400">Guía no encontrada</div>;
-            const gc = getGuideColorClasses(guide.color);
-            return (
-              <>
-                <div className="p-5 border-b border-neutral-800">
-                  <div className="flex items-start gap-3">
-                    <div className={`w-14 h-14 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-950 p-2 ${getGuidePokeGlow(guide.color)}`}>
-                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${guide.icon}.gif`} alt="" className="w-full h-full object-contain" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <div className={`fs-sm font-black ${gc.text}`}>{guide.title}</div>
-                          <div className="fs-tiny text-neutral-400 mt-0.5">{guide.subtitle}</div>
-                        </div>
-                        <button onClick={() => setPreviewGuide(null)} className="p-1 rounded-lg hover:bg-neutral-800 text-neutral-500 hover:text-white transition-all shrink-0">
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-5 space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
-                  <div className="flex flex-wrap gap-2">
-                    {guide.difficulty && (
-                      <span className="px-2.5 py-1 rounded-full bg-neutral-800 text-[10px] font-bold text-neutral-300 uppercase tracking-wider">
-                        {guide.difficulty}
-                      </span>
-                    )}
-                    {guide.estimatedCost && (
-                      <span className="px-2.5 py-1 rounded-full bg-neutral-800 text-[10px] font-bold text-amber-400 uppercase tracking-wider">
-                        {guide.estimatedCost}
-                      </span>
-                    )}
-                    <span className="px-2.5 py-1 rounded-full bg-neutral-800 text-[10px] font-bold text-neutral-300 uppercase tracking-wider">
-                      {guide.team.length} Pokémon
-                    </span>
-                  </div>
-                  {guide.team.length > 0 && (
-                    <div>
-                      <div className="fs-tiny font-bold text-neutral-400 uppercase tracking-wider mb-2">Equipo</div>
-                      <div className="flex flex-wrap gap-2">
-                        {guide.team.map((t, i) => (
-                          <div key={i} className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-neutral-950 border border-neutral-800/60" title={t.name}>
-                            <div className="w-7 h-7 rounded bg-neutral-900 p-0.5 shrink-0">
-                              <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${t.spriteId}.gif`} alt={t.name} className="w-full h-full object-contain" />
-                            </div>
-                            <span className="text-[10px] font-bold text-neutral-300">{t.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {guide.info.length > 0 && (
-                    <div>
-                      <div className="fs-tiny font-bold text-neutral-400 uppercase tracking-wider mb-2">Información</div>
-                      <ul className="space-y-1">
-                        {guide.info.map((item, i) => (
-                          <li key={i} className="flex items-start gap-2 text-xs text-neutral-400">
-                            <span className="text-neutral-600 mt-0.5">•</span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {guide.credits && (
-                    <div>
-                      <div className="fs-tiny font-bold text-neutral-400 uppercase tracking-wider mb-2">Créditos</div>
-                      <div className="bg-neutral-950 rounded-xl p-3 border border-neutral-800/60 space-y-1">
-                        {guide.credits.author && (
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-neutral-500">Autor</span>
-                            <span className="text-[11px] font-bold text-neutral-300">{guide.credits.author}</span>
-                          </div>
-                        )}
-                        {guide.credits.adaptedBy && (
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-neutral-500">Adaptado por</span>
-                            <span className="text-[11px] font-bold text-neutral-300">{guide.credits.adaptedBy}</span>
-                          </div>
-                        )}
-                        {guide.credits.status && (
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-neutral-500">Estado</span>
-                            <span className="text-[11px] font-bold text-emerald-400">{guide.credits.status}</span>
-                          </div>
-                        )}
-                        {guide.credits.lastUpdated && (
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-neutral-500">Actualizado</span>
-                            <span className="text-[11px] font-bold text-neutral-300">{guide.credits.lastUpdated}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
-            );
-          })()}
         </div>
       </div>,
       document.body
