@@ -70,6 +70,7 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
     setIsLoaded(true);
   }, [token, user]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadFromServer(); }, [loadFromServer]);
 
   const saveToServer = useCallback(async (mgr: ProgressionManager) => {

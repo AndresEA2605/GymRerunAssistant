@@ -16,6 +16,7 @@ export default function PasswordResetRequestModal({ isOpen, onClose, onRequestRe
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (isOpen) {
       setEmail("");

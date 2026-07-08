@@ -458,3 +458,44 @@ button {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0,0,0,0.3);
 }
+
+/* ── Shimmer for skeleton loading ───────────────────────────────── */
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ── Slow spin (LevelUpOverlay star) ────────────────────────────── */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 4s linear infinite;
+}
+
+/* ── Gradient border pulse ──────────────────────────────────────── */
+@keyframes border-glow {
+  0%,100% { box-shadow: 0 0 0 1px rgba(99,102,241,0.2), 0 0 16px rgba(99,102,241,0.05); }
+  50%     { box-shadow: 0 0 0 1px rgba(99,102,241,0.5), 0 0 32px rgba(99,102,241,0.15); }
+}
+.animate-border-glow { animation: border-glow 3s ease-in-out infinite; }
+
+/* ── XP bar fill animation ──────────────────────────────────────── */
+@keyframes xp-fill {
+  from { width: 0%; }
+}
+.animate-xp-fill { animation: xp-fill 0.8s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+
+/* ── Reduce motion for accessibility ────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .aurora-bg { animation: none; }
+  .poke-aura, .poke-aura-sm { animation: none; }
+  .pokeball-float { animation: none; }
+  .star-twinkle { animation: none; }
+}

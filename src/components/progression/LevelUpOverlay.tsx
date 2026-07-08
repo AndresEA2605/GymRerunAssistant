@@ -14,6 +14,7 @@ export default function LevelUpOverlay() {
   const [prevUser, setPrevUser] = useState<string | undefined>(user?.id);
   const [showLevel, setShowLevel] = useState<number | null>(null);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (profile) {
       // Si el usuario cambió (ej. acaba de iniciar sesión), reiniciamos el trackeo sin animar

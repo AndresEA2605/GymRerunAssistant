@@ -37,6 +37,9 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://raw.githubusercontent.com" />
         <link rel="dns-prefetch" href="https://raw.githubusercontent.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <meta name="theme-color" content="#07090e" />
       </head>
       <body className="min-h-full flex flex-col font-sans overflow-hidden">
         <ClientProviders>

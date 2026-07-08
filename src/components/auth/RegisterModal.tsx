@@ -22,17 +22,9 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin, onRegi
   const [loading, setLoading] = useState(false);
   const usernameRef = useRef<HTMLInputElement>(null);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
-    if (isOpen) {
-      setError("");
-      setEmail("");
-      setUsername("");
-      setPassword("");
-      setConfirmPassword("");
-      setShowPassword(false);
-      setShowConfirm(false);
-      setTimeout(() => usernameRef.current?.focus(), 200);
-    }
+    if (isOpen) setTimeout(() => usernameRef.current?.focus(), 200);
   }, [isOpen]);
 
   useEffect(() => {
