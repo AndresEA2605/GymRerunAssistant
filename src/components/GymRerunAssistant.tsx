@@ -1298,7 +1298,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           <h3 className="font-bold fs-h2">Historial</h3>
           <button onClick={() => closeHistory()} className="text-neutral-500 hover:text-white"><X className="w-5 h-5" /></button>
         </div>
-        {user ? (
+        {authUser ? (
           <div className="max-h-[60vh] overflow-y-auto space-y-1.5">
             {history.length > 0 ? history.map((entry, idx) => (
               <div key={entry.id} className="bg-neutral-950 p-2.5 rounded flex justify-between items-center border border-neutral-800 group">

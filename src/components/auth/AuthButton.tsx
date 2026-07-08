@@ -21,7 +21,6 @@ export default forwardRef(function AuthButton(_props, ref) {
   const [showResetRequest, setShowResetRequest] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
-  const [resetToken, setResetToken] = useState("");
   const prevUserRef = useRef(user);
   const loginXpGrantedRef = useRef(false);
 
@@ -181,7 +180,6 @@ export default forwardRef(function AuthButton(_props, ref) {
         onClose={() => setShowResetPassword(false)}
         onReset={handleResetPassword}
         email={resetEmail}
-        token={resetToken}
       />
 
       <ProfileDashboard
