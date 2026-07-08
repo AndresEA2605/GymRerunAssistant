@@ -62,7 +62,6 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
         managerRef.current = mgr;
         setManager(mgr);
       }
-      refreshSessionRef.current();
     } catch {
       const mgr = new ProgressionManager();
       if (user) mgr.initProfile(user.id, user.username);
@@ -70,7 +69,8 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
       setManager(mgr);
     }
     setIsLoaded(true);
-  }, [token, user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, user?.id, user?.username]);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadFromServer(); }, [loadFromServer]);
