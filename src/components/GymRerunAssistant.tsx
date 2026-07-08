@@ -1031,23 +1031,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       setLS(`run_active_${selectedGuideId}`, "");
     }
     setFinishSummary({ elapsed: finalElapsed, gyms: totalGymsDone, xpEarned: runXP, guideTitle });
-    // Free run logic: 2 free finishes before cooldown kicks in
+    // Start cooldown
     const guideId = selectedGuideId;
-    if (guideId) {
-      const remaining = freeRuns[guideId] ?? 2;
-      if (remaining > 1) {
-        // Free finish — decrement counter, no cooldown
-        setFreeRuns(prev => ({ ...prev, [guideId]: remaining - 1 }));
-        triggerToast(`Run guardada — te quedan ${remaining - 1} intento${remaining - 1 !== 1 ? 's' : ''} gratis`);
-      } else {
-        // Last free run — start cooldown, reset counter
-        if (guideId === 'hooh') {
-          startGymCooldown("Ho-Oh", 7 * 24 * 60 * 60 * 1000);
-        } else {
-          startGymCooldown(getLastCompletedGym(), gymResetMs);
-        }
-        setFreeRuns(prev => ({ ...prev, [guideId]: 2 }));
-      }
+    if (guideId === 'hooh') {
+      startGymCooldown("Ho-Oh", 7 * 24 * 60 * 60 * 1000);
+    } else if (guideId) {
+      startGymCooldown(getLastCompletedGym(), gymResetMs);
     }
     goToMenu(false);
     grantXP(runXP, "Run completada");
@@ -1727,6 +1716,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                           const onCooldown = cdEnd ? cdEnd > Date.now() : false;
                           const cdRemaining = onCooldown ? cdEnd! - Date.now() : 0;
                           return (
+                            <>
                             <button
                               key={g.id}
                               onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')}
@@ -1734,8 +1724,14 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                               className={`relative w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} ${onCooldown ? 'opacity-50 cursor-not-allowed' : `hover:bg-neutral-800 ${gc.borderHover} group`}`}
                             >
                               {onCooldown && (
-                                <div className="absolute inset-0 rounded-2xl bg-neutral-950/60 flex items-center justify-center z-10">
+                                <div className="absolute inset-0 rounded-2xl bg-neutral-950/60 flex items-center justify-center z-10 flex-col gap-1">
                                   <span className="text-xs font-bold text-neutral-400">Cooldown — {formatTime(cdRemaining)}</span>
+                                  <span
+                                    onClick={(e) => { e.stopPropagation(); const prevId = g.id as 'none' | 'gym33' | 'hooh' | 'guide2'; abandonRun(); selectGuide(prevId); }}
+                                    className="text-[10px] font-bold text-amber-400 hover:text-amber-300 underline cursor-pointer"
+                                  >
+                                    Repetir run
+                                  </span>
                                 </div>
                               )}
                               <div className={`w-11 h-11 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-900/70 p-1.5 poke-aura ${getGuidePokeGlow(g.color)}`}>
@@ -1754,6 +1750,20 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                               </div>
                               <span className={`fs-tiny font-black ${gc.text} opacity-0 group-hover:opacity-100 transition-opacity shrink-0`}>→</span>
                             </button>
+                            {g.id !== "none" && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const prevId = g.id as 'none' | 'gym33' | 'hooh' | 'guide2';
+                                  abandonRun();
+                                  selectGuide(prevId);
+                                }}
+                                className="w-full mt-1 text-[10px] font-bold text-neutral-600 hover:text-amber-400 transition-colors text-center"
+                              >
+                                🔄 Repetir run
+                              </button>
+                              )}
+                            </>
                           );
                         })}
                       </div>
@@ -3566,17 +3576,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               <span className="fs-base font-black text-white">¿Finalizar run?</span>
             </div>
             <p className="text-sm text-neutral-400 mb-1">
-              Se guardará tu progreso y recibirás tus recompensas.
+              Se guardará tu progreso y se activará un cooldown de {selectedGuideId === 'hooh' ? '7 días' : `${Math.floor(gymResetMs / 3600000)}h ${Math.round((gymResetMs % 3600000) / 60000)}m`}.
             </p>
-            {selectedGuideId && (freeRuns[selectedGuideId] ?? 2) > 1 ? (
-              <p className="text-xs text-emerald-400 mb-4">
-                ⚡ Te quedan <span className="font-bold">{(freeRuns[selectedGuideId] ?? 2) - 1}</span> intento{(freeRuns[selectedGuideId] ?? 2) - 1 !== 1 ? 's' : ''} gratis sin cooldown.
-              </p>
-            ) : (
-              <p className="text-xs text-amber-400 mb-4">
-                ⏳ Este es tu último intento gratis. Al finalizar se activará un cooldown de {selectedGuideId === 'hooh' ? '7 días' : `${Math.floor(gymResetMs / 3600000)}h ${Math.round((gymResetMs % 3600000) / 60000)}m`}.
-              </p>
-            )}
             <div className="flex gap-2">
               <button onClick={() => setShowFinishConfirm(false)} className="flex-1 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-sm transition-all border border-neutral-700 active:scale-[0.98]">
                 Cancelar
