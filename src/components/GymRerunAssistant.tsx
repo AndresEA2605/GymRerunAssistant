@@ -250,12 +250,6 @@ const CooldownNoticeModal = memo(({ allCooldowns, onDismiss }: { allCooldowns: A
     if (allCooldowns.gym.endAt && allCooldowns.gym.endAt > now) {
       items.push({ label: "Gyms", color: "amber", endAt: allCooldowns.gym.endAt, lastGym: allCooldowns.gym.lastGym });
     }
-    if (allCooldowns.gym33.endAt && allCooldowns.gym33.endAt > now) {
-      items.push({ label: "33 Gyms", color: "indigo", endAt: allCooldowns.gym33.endAt, lastGym: allCooldowns.gym33.lastGym });
-    }
-    if (allCooldowns.guide2.endAt && allCooldowns.guide2.endAt > now) {
-      items.push({ label: "25 Gyms", color: "teal", endAt: allCooldowns.guide2.endAt, lastGym: allCooldowns.guide2.lastGym });
-    }
     if (allCooldowns.hooh.endAt && allCooldowns.hooh.endAt > now) {
       items.push({ label: "Ho-Oh", color: "red", endAt: allCooldowns.hooh.endAt, lastGym: allCooldowns.hooh.lastGym });
     }
@@ -389,7 +383,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [selectedGuideId, setSelectedGuideId] = useState<'none' | 'gym33' | 'hooh' | 'guide2'>('none');
   const selectGuide = (id: 'none' | 'gym33' | 'hooh' | 'guide2') => {
     if (id !== 'none') {
-      const cd = id === 'hooh' ? allCooldowns.hooh : id === 'gym33' ? (allCooldowns.gym33.endAt ? allCooldowns.gym33 : allCooldowns.gym) : id === 'guide2' ? (allCooldowns.guide2.endAt ? allCooldowns.guide2 : allCooldowns.gym) : null;
+      const cd = id === 'hooh' ? allCooldowns.hooh : allCooldowns.gym;
       if (cd && cd.endAt && cd.endAt > Date.now()) {
         triggerToast("Cooldown activo — espera a que termine");
         return;
@@ -795,8 +789,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     logTimerEvent("cooldown_start");
     if (gymName === "Ho-Oh" || durationMs >= 24 * 60 * 60 * 1000) {
       setAllCooldowns(prev => ({ ...prev, hooh: nextCooldown }));
-    } else if (guideId === 'gym33' || guideId === 'guide2') {
-      setAllCooldowns(prev => ({ ...prev, [guideId]: nextCooldown }));
     } else if (durationMs <= 6 * 60 * 60 * 1000) {
       setAllCooldowns(prev => ({ ...prev, npc: nextCooldown }));
     } else {
@@ -1714,24 +1706,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   </div>
                   <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-                      <span className="fs-tiny font-bold text-indigo-300">33 Gyms</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <CooldownBadge endAt={allCooldowns.gym33.endAt} />
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
-                      <span className="fs-tiny font-bold text-teal-300">25 Gyms</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <CooldownBadge endAt={allCooldowns.guide2.endAt} />
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
-                    <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                       <span className="fs-tiny font-bold text-red-300">Ho-Oh</span>
                     </div>
@@ -1823,31 +1797,33 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       <div className="space-y-3 overflow-y-auto flex-1 pr-1 custom-scrollbar">
                           {catGuides.map(g => {
                           const gc = getGuideColorClasses(g.color);
-                          const cdEnd = g.id === 'hooh' ? allCooldowns.hooh.endAt : g.id === 'gym33' ? (allCooldowns.gym33.endAt || allCooldowns.gym.endAt) : g.id === 'guide2' ? (allCooldowns.guide2.endAt || allCooldowns.gym.endAt) : null;
+                          const cdEnd = g.id === 'hooh' ? allCooldowns.hooh.endAt : allCooldowns.gym.endAt;
                           const onCooldown = cdEnd ? cdEnd > Date.now() : false;
                           const cdRemaining = onCooldown ? cdEnd! - Date.now() : 0;
                           return (
                             <div key={g.id} className="relative">
                               {onCooldown ? (
-                                <div className={`w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 py-3 text-left bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} opacity-50 pointer-events-none`}>
-                                  <div className="absolute inset-0 rounded-2xl bg-neutral-950/60 flex items-center justify-center z-10">
+                                <div className="relative overflow-hidden">
+                                  <div className={`w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 py-3 text-left bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} opacity-50`}>
+                                    <div className={`w-11 h-11 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-900/70 p-1.5 poke-aura ${getGuidePokeGlow(g.color)}`}>
+                                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className={`fs-tiny font-black ${gc.text} truncate`}>{g.title}</div>
+                                      <div className="fs-tiny text-neutral-500 truncate mb-1">{g.subtitle}</div>
+                                      <div className="flex items-center gap-1 flex-wrap">
+                                        {(g.team || []).slice(0,6).map((t, i) => (
+                                          <div key={i} className="w-6 h-6 rounded bg-neutral-900 border border-neutral-800/40 flex items-center justify-center p-0.5 shrink-0" title={t.name}>
+                                            <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${t.spriteId}.gif`} alt={t.name} className="w-full h-full object-contain" loading="lazy" />
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    <span className={`fs-tiny font-black ${gc.text} opacity-0 shrink-0`}>→</span>
+                                  </div>
+                                  <div className="absolute inset-0 rounded-2xl bg-neutral-950/60 flex items-center justify-center">
                                     <span className="text-xs font-bold text-neutral-400">Cooldown — {formatCooldown(cdRemaining)}</span>
                                   </div>
-                                  <div className={`w-11 h-11 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-900/70 p-1.5 poke-aura ${getGuidePokeGlow(g.color)}`}>
-                                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className={`fs-tiny font-black ${gc.text} truncate`}>{g.title}</div>
-                                    <div className="fs-tiny text-neutral-500 truncate mb-1">{g.subtitle}</div>
-                                    <div className="flex items-center gap-1 flex-wrap">
-                                      {(g.team || []).slice(0,6).map((t, i) => (
-                                        <div key={i} className="w-6 h-6 rounded bg-neutral-900 border border-neutral-800/40 flex items-center justify-center p-0.5 shrink-0" title={t.name}>
-                                          <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${t.spriteId}.gif`} alt={t.name} className="w-full h-full object-contain" loading="lazy" />
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                  <span className={`fs-tiny font-black ${gc.text} opacity-0 shrink-0`}>→</span>
                                 </div>
                               ) : (
                                 <button
@@ -2490,24 +2466,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </div>
               <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-                  <span className="fs-[10px] font-bold text-indigo-300">33 Gyms</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <CooldownBadge endAt={allCooldowns.gym33.endAt} />
-                </div>
-              </div>
-              <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-                  <span className="fs-[10px] font-bold text-teal-300">25 Gyms</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <CooldownBadge endAt={allCooldowns.guide2.endAt} />
-                </div>
-              </div>
-              <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
-                <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
                   <span className="fs-[10px] font-bold text-red-300">Ho-Oh</span>
                 </div>
@@ -2649,24 +2607,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                     <div className="flex items-center gap-1">
                       <CooldownBadge endAt={allCooldowns.gym.endAt} />
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-                      <span className="fs-[10px] font-bold text-indigo-300">33 Gyms</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <CooldownBadge endAt={allCooldowns.gym33.endAt} />
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-                      <span className="fs-[10px] font-bold text-teal-300">25 Gyms</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <CooldownBadge endAt={allCooldowns.guide2.endAt} />
                     </div>
                   </div>
                   <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
