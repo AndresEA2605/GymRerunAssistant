@@ -111,15 +111,15 @@ const matchPokemon = (text: string): { name: string; id: number } | null => {
   return null;
 };
 
-const PokemonSprite = ({ name, id, size = 24 }: { name: string; id: number; size?: number }) => {
+const PokemonSprite = ({ name, id, size = 18 }: { name: string; id: number; size?: number }) => {
   const [errored, setErrored] = useState(false);
   return errored ? (
-    <span className="inline-block w-[${size}px] h-[${size}px] mr-1 rounded bg-neutral-800 align-middle" />
+    <span style={{ width: size, height: size }} className="inline-block mr-1 rounded bg-neutral-800 align-middle hidden sm:inline-block" />
   ) : (
     <img
       src={`${SPRITE_BASE}/${id}.gif`}
       alt={name}
-      className="inline-block object-contain -mt-0.5 mr-1 poke-aura-sm poke-glow-white"
+      className="hidden sm:inline-block object-contain -mt-0.5 mr-1 poke-aura-sm poke-glow-white"
       style={{ width: size, height: size }}
       loading="lazy"
       onError={() => setErrored(true)}
@@ -128,7 +128,7 @@ const PokemonSprite = ({ name, id, size = 24 }: { name: string; id: number; size
 };
 
 const renderWithSprites = (items: string[], sep = " • ") => (
-  <span className="fs-body font-semibold inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
+  <span className="fs-body font-semibold inline-flex flex-wrap items-center gap-x-1 gap-y-1">
     {items.map((item, i) => {
       const match = matchPokemon(item);
       return (
@@ -631,25 +631,11 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   useEffect(() => {
     window.history.pushState(null, "", window.location.href);
     const handlePop = () => {
-  if (!loaded) return null;
-
-  if (showMenu) {
-        window.history.pushState(null, "", window.location.href);
-        return;
-      }
-      if (currentStepIndex > 0) {
-        handlePrevRef.current();
-        window.history.pushState(null, "", window.location.href);
-      } else {
-        setMenuVisible(true);
-        setShowMenu(true);
-        window.history.pushState(null, "", window.location.href);
-      }
+      window.history.pushState(null, "", window.location.href);
     };
     window.addEventListener("popstate", handlePop);
     return () => window.removeEventListener("popstate", handlePop);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showMenu, currentStepIndex]);
+  }, []);
 
   useEffect(() => {
     if (!loaded) return;
@@ -1520,7 +1506,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               <div className="flex-1 min-w-0">
                 <AuthButton />
               </div>
-              <div className="shrink-0 flex items-center gap-2 bg-neutral-900/60 border border-neutral-800/60 rounded-xl px-3 py-2">
+              <div className="shrink-0 inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-2">
                 {hasActiveSession ? (
                   <>
                     <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -1529,8 +1515,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   </>
                 ) : (
                   <>
-                    <div className="w-2 h-2 rounded-full bg-neutral-600" />
-                    <span className="text-neutral-500 fs-tiny whitespace-nowrap">Sin actividad</span>
+                    <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                    <span className="text-emerald-300 fs-tiny font-semibold whitespace-nowrap">Sin actividad</span>
                   </>
                 )}
               </div>
@@ -2482,7 +2468,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           <div className="flex-1 flex flex-col items-center justify-center p-2 md:p-4 lg:p-6 overflow-y-auto overflow-x-hidden">
           <div key={slideKey} className={`w-full max-w-6xl bg-neutral-900/80 backdrop-blur-sm rounded-2xl border border-neutral-800 p-2 md:p-4 lg:p-5 shadow-2xl relative text-center smooth-transition ${slideClass} scroll-mb-[var(--footer-routes-height)] max-h-[calc(100dvh-8rem)] overflow-y-auto overflow-x-hidden`}>
             
-            <div className="absolute -top-6 -right-6 w-24 h-24 opacity-[0.04] pointer-events-none select-none">
+            <div className="absolute -top-6 -right-6 w-24 h-24 opacity-[0.04] pointer-events-none select-none hidden sm:block">
               <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif" alt="" className="w-full h-full object-contain" />
             </div>
 
@@ -2500,21 +2486,21 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                         {/* Hero Card */}
                         <div className={`w-full relative rounded-3xl border overflow-hidden bg-gradient-to-b ${isHooh ? 'from-amber-950/40 via-neutral-900/80 to-neutral-900/80 border-amber-500/20' : isGuide2 ? 'from-teal-950/40 via-neutral-900/80 to-neutral-900/80 border-teal-500/20' : 'from-indigo-950/40 via-neutral-900/80 to-neutral-900/80 border-indigo-500/20'}`}>
                           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.06),transparent_70%)]" />
-                          <div className="relative p-8 md:p-10 flex flex-col items-center text-center">
+                          <div className="relative p-5 sm:p-7 md:p-10 flex flex-col items-center text-center">
                             {isHooh ? (
-                              <div className="w-32 h-32 md:w-40 md:h-40 poke-aura poke-glow-amber mb-5">
+                              <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-40 md:h-40 poke-aura poke-glow-amber mb-5">
                                 <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/250.gif" alt="Ho-Oh" className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(245,158,11,0.3)]" />
                               </div>
                             ) : isGuide2 ? (
-                              <div className="flex items-center justify-center gap-2 mb-5">
+                              <div className="flex flex-wrap justify-center gap-1.5 mb-5">
                                 {teamIds.slice(0,6).map((id, i) => (
-                                  <div key={id} className="w-12 h-12 md:w-14 md:h-14 poke-aura poke-glow-teal" style={{ animationDelay: `${i * 0.15}s` }}>
+                                  <div key={id} className="w-8 h-8 sm:w-10 sm:h-10 poke-aura poke-glow-teal" style={{ animationDelay: `${i * 0.15}s` }}>
                                     <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`} alt="" className="w-full h-full object-contain" />
                                   </div>
                                 ))}
                               </div>
                             ) : (
-                              <div className="w-32 h-32 md:w-40 md:h-40 mb-5 poke-aura poke-glow-indigo">
+                              <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-40 md:h-40 mb-5 poke-aura poke-glow-indigo">
                                 <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${guide.icon}.gif`} alt={guide.title} className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(99,102,241,0.3)]" />
                               </div>
                             )}
@@ -2527,7 +2513,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                         <button
                           id="comenzar-ruta-btn"
                           onClick={() => { if (skipChecklistRef.current) { beginRun(); } else { setStartChecks([false, false, false]); setShowStartCheck(true); } }}
-                          className={`w-full h-16 mt-6 rounded-2xl font-black text-lg text-white transition-all duration-300 shadow-xl hover:scale-[1.02] active:scale-[0.98] ${
+                          className={`w-full h-14 sm:h-16 mt-5 sm:mt-6 rounded-2xl font-black text-base sm:text-lg text-white transition-all duration-300 shadow-xl hover:scale-[1.02] active:scale-[0.98] ${
                             isHooh ? 'bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 shadow-amber-600/25' :
                             isGuide2 ? 'bg-gradient-to-r from-teal-600 to-emerald-500 hover:from-teal-500 hover:to-emerald-400 shadow-teal-600/25' :
                             'bg-gradient-to-r from-indigo-600 to-violet-500 hover:from-indigo-500 hover:to-violet-400 shadow-indigo-600/25'
@@ -2551,9 +2537,9 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
 
                   {currentStep!.type === "gym" && currentStep!.gym && gymCoords[currentStep!.gym as keyof typeof gymCoords] && (
                     <div className="grid w-full max-w-[960px] grid-cols-1 gap-3 lg:grid-cols-[minmax(160px,1fr)_minmax(220px,300px)_minmax(160px,1fr)] items-start mx-auto">
-                      <div className="flex flex-col gap-2 rounded-2xl border border-neutral-800 bg-neutral-950 p-2.5 shadow-inner">
+                      <div className="flex flex-col gap-1 rounded-2xl border border-neutral-800 bg-neutral-950 p-2 sm:p-2.5 shadow-inner">
                         <div className="fs-tiny uppercase font-black tracking-widest text-indigo-400">Leads</div>
-                        <div className="flex flex-wrap justify-center gap-1.5">{currentStep!.lead ? renderWithSprites(currentStep!.lead) : <span className="text-neutral-500">Sin leads</span>}</div>
+                        <div className="flex flex-wrap justify-center gap-1">{currentStep!.lead ? renderWithSprites(currentStep!.lead) : <span className="text-neutral-500">Sin leads</span>}</div>
                       </div>
 
                       <div className="rounded-2xl border border-neutral-800 overflow-hidden bg-neutral-950 shadow-inner mx-auto w-full max-w-[280px]">
@@ -2573,9 +2559,9 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-2 rounded-2xl border border-neutral-800 bg-neutral-950 p-2.5 shadow-inner">
+                      <div className="flex flex-col gap-1 rounded-2xl border border-neutral-800 bg-neutral-950 p-2 sm:p-2.5 shadow-inner">
                         <div className="fs-tiny uppercase font-black tracking-widest text-emerald-400">Cambios Seguros</div>
-                        <div className="flex flex-wrap justify-center gap-1.5">{currentStep!.switchTo ? renderWithSprites(currentStep!.switchTo) : <span className="text-neutral-500">Sin cambios</span>}</div>
+                        <div className="flex flex-wrap justify-center gap-1">{currentStep!.switchTo ? renderWithSprites(currentStep!.switchTo) : <span className="text-neutral-500">Sin cambios</span>}</div>
                       </div>
                     </div>
                   )}
@@ -2602,17 +2588,17 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                     <div className="flex flex-col gap-2">
                       {(currentGymGroup.gymStep.lead || currentGymGroup.gymStep.switchTo) && (
-                        <div className="flex gap-2">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
                           {currentGymGroup.gymStep.lead && (
                             <div className="bg-neutral-950 p-2 rounded-xl border border-neutral-800 flex-1">
                               <div className="fs-tiny text-indigo-400 uppercase font-black tracking-widest mb-1">Leads</div>
-                              <div className="flex justify-center">{renderWithSprites(currentGymGroup.gymStep.lead)}</div>
+                              <div className="flex justify-center gap-1 flex-wrap">{renderWithSprites(currentGymGroup.gymStep.lead)}</div>
                             </div>
                           )}
                           {currentGymGroup.gymStep.switchTo && (
                             <div className="bg-neutral-950 p-2 rounded-xl border border-neutral-800 flex-1">
                               <div className="fs-tiny text-emerald-400 uppercase font-black tracking-widest mb-1">Cambios</div>
-                              <div className="flex justify-center">{renderWithSprites(currentGymGroup.gymStep.switchTo)}</div>
+                              <div className="flex justify-center gap-1 flex-wrap">{renderWithSprites(currentGymGroup.gymStep.switchTo)}</div>
                             </div>
                           )}
                         </div>
@@ -2636,22 +2622,22 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       )}
                       {currentGymGroup.subBattles.map((sub) => (
                         <div key={sub.id} className="bg-neutral-950 p-2 rounded-xl border border-neutral-800/60">
-                          <div className="flex items-center justify-center gap-1.5 mb-1">
+                          <div className="flex flex-col items-center gap-1.5 mb-1 sm:flex-row sm:justify-center sm:gap-2">
                             <span className="p-0.5 bg-neutral-900 rounded">{renderIcon("gym")}</span>
                             <h3 className="fs-tiny font-black text-white">{sub.title}</h3>
                           </div>
                           {(sub.lead || sub.switchTo) && (
-                            <div className="flex gap-1.5 mb-1">
+                            <div className="flex flex-col gap-1.5 sm:flex-row sm:gap-1.5 mb-1">
                               {sub.lead && (
                                 <div className="bg-neutral-900/60 p-1 rounded-lg border border-neutral-800/50 flex-1">
                                   <div className="fs-[10px] text-indigo-400/80 uppercase font-black tracking-widest mb-0.5 text-center">Leads</div>
-                                  <div className="flex justify-center">{renderWithSprites(sub.lead)}</div>
+                                  <div className="flex justify-center gap-1 flex-wrap">{renderWithSprites(sub.lead)}</div>
                                 </div>
                               )}
                               {sub.switchTo && (
                                 <div className="bg-neutral-900/60 p-1 rounded-lg border border-neutral-800/50 flex-1">
                                   <div className="fs-[10px] text-emerald-400/80 uppercase font-black tracking-widest mb-0.5 text-center">Cambios</div>
-                                  <div className="flex justify-center">{renderWithSprites(sub.switchTo)}</div>
+                                  <div className="flex justify-center gap-1 flex-wrap">{renderWithSprites(sub.switchTo)}</div>
                                 </div>
                               )}
                             </div>
@@ -2825,28 +2811,28 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           <div className="reveal w-full max-w-4xl mt-2.5">
             <button onClick={() => setShowTeam(true)} title="Ver el equipo Pokémon recomendado para esta ruta" className="w-full bg-neutral-900/80 border border-violet-500/20 hover:border-violet-400/40 rounded-xl p-2.5 flex items-center gap-2.5 group transition-all hover:bg-neutral-800/80">
               {selectedGuideId === "hooh" ? (
-                <div className="flex items-center -space-x-2 shrink-0">
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Chandelure}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Rotom}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Lunatone}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
+                <div className="flex flex-wrap items-center justify-center gap-1 -space-x-1 shrink-0">
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Chandelure}.gif`} alt="" className="w-6 h-6 sm:w-7 sm:h-7 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Rotom}.gif`} alt="" className="w-6 h-6 sm:w-7 sm:h-7 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Lunatone}.gif`} alt="" className="w-6 h-6 sm:w-7 sm:h-7 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
                 </div>
               ) : selectedGuideId === "guide2" ? (
-                <div className="flex items-center -space-x-2 shrink-0">
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Togekiss}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Excadrill}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Blastoise}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Vanilluxe}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Aerodactyl}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
-                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Typhlosion}.gif`} alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
+                <div className="flex flex-wrap items-center justify-center gap-1 -space-x-1 shrink-0">
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Togekiss}.gif`} alt="" className="w-6 h-6 sm:w-7 sm:h-7 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Excadrill}.gif`} alt="" className="w-6 h-6 sm:w-7 sm:h-7 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Blastoise}.gif`} alt="" className="w-6 h-6 sm:w-7 sm:h-7 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Vanilluxe}.gif`} alt="" className="w-6 h-6 sm:w-7 sm:h-7 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Aerodactyl}.gif`} alt="" className="w-6 h-6 sm:w-7 sm:h-7 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
+                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${POKEMON_ARTWORK.Typhlosion}.gif`} alt="" className="w-6 h-6 sm:w-7 sm:h-7 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
                 </div>
               ) : (
-                <div className="flex items-center -space-x-2 shrink-0">
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/635.gif" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/110.gif" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/468.gif" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/157.gif" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/584.gif" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
-                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/9.gif" alt="" className="w-7 h-7 md:w-8 md:h-8 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
+                <div className="flex flex-wrap items-center justify-center gap-1 -space-x-1 shrink-0">
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/635.gif" alt="" className="w-6 h-6 sm:w-7 sm:h-7 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/110.gif" alt="" className="w-6 h-6 sm:w-7 sm:h-7 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/468.gif" alt="" className="w-6 h-6 sm:w-7 sm:h-7 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/157.gif" alt="" className="w-6 h-6 sm:w-7 sm:h-7 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/584.gif" alt="" className="w-6 h-6 sm:w-7 sm:h-7 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
+                  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/9.gif" alt="" className="w-6 h-6 sm:w-7 sm:h-7 object-contain relative z- poke-aura-sm poke-glow-white" loading="lazy" />
                 </div>
               )}
               <div className="flex-1 text-left min-w-0">

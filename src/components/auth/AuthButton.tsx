@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { LogIn, Star } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProgression } from "@/hooks/useProgression";
 import LoginModal from "./LoginModal";
@@ -115,31 +114,29 @@ export default function AuthButton() {
   return (
     <>
       {user ? (
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setShowProfile(true)}
-            className="inline-flex items-center gap-2 rounded-full border border-neutral-800/80 bg-neutral-950/90 px-3 py-1.5 text-xs font-bold text-white transition hover:border-indigo-400/25 hover:bg-neutral-900"
-          >
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white text-[11px] font-black shadow-sm shadow-indigo-500/15">
-              {user.username.charAt(0).toUpperCase()}
-            </span>
-            {user.username}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setShowProfile(true)}
+          className="inline-flex items-center gap-1.5 rounded-full border border-neutral-800/70 bg-neutral-900/60 px-2 py-1 text-[10px] font-bold text-white transition hover:border-indigo-400/25 hover:bg-neutral-800"
+        >
+          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white text-[9px] font-black">
+            {user.username.charAt(0).toUpperCase()}
+          </span>
+          <span className="max-w-[60px] truncate">{user.username}</span>
+        </button>
       ) : (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={() => setShowRegister(true)}
-            className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.04em] text-white shadow-sm shadow-indigo-500/15 transition hover:from-indigo-500 hover:to-violet-500"
+            className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-xs transition hover:from-indigo-500 hover:to-violet-500"
           >
             Registrate
           </button>
           <button
             type="button"
             onClick={() => setShowLogin(true)}
-            className="inline-flex items-center justify-center rounded-full border border-neutral-700/70 bg-neutral-900/80 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-neutral-200 transition hover:border-indigo-400/30 hover:bg-neutral-800"
+            className="inline-flex items-center justify-center rounded-full border border-neutral-700/60 bg-neutral-900/70 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-200 transition hover:border-indigo-400/30 hover:bg-neutral-800"
           >
             Login
           </button>
