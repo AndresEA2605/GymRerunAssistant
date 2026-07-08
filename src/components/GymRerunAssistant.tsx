@@ -2477,7 +2477,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 <span className="fs-tiny font-bold">Historial de runs</span>
               </button>
               {runIsActive && (
-                showAbandonConfirm ? (
+                <>
+                <button onClick={() => { setRestartTargetGuide(selectedGuideId as 'none' | 'gym33' | 'hooh' | 'guide2'); setShowRestartConfirm(true); }} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-amber-400 hover:text-white hover:bg-amber-950/50 border border-amber-500/20 hover:border-amber-500/40 transition-colors text-left">
+                  <RotateCcw className="w-3.5 h-3.5 shrink-0" />
+                  <span className="fs-tiny font-bold">Reiniciar ruta</span>
+                </button>
+                {showAbandonConfirm ? (
                   <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-red-950/50 border border-red-500/30 rounded-lg">
                     <span className="fs-tiny font-bold text-red-300">¿Abandonar?</span>
                     <button onClick={() => setShowAbandonConfirm(false)} className="px-2 py-0.5 rounded-md bg-neutral-800 hover:bg-neutral-700 text-neutral-300 fs-tiny font-bold transition-colors">No</button>
@@ -2489,7 +2494,9 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     <span className="fs-tiny font-bold">Abandonar ruta</span>
                   </button>
                 )
-              )}
+              }
+              </>
+            )}
             </div>
           </div>
 
@@ -2631,10 +2638,16 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     <span className="fs-tiny font-bold">Historial de runs</span>
                   </button>
                   {runIsActive && (
+                    <>
+                    <button onClick={() => { setShowMobileSidebar(false); setRestartTargetGuide(selectedGuideId as 'none' | 'gym33' | 'hooh' | 'guide2'); setShowRestartConfirm(true); }} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-amber-400 hover:text-white hover:bg-amber-950/50 border border-amber-500/20 hover:border-amber-500/40 transition-colors text-left">
+                      <RotateCcw className="w-3.5 h-3.5 shrink-0" />
+                      <span className="fs-tiny font-bold">Reiniciar ruta</span>
+                    </button>
                     <button onClick={() => { setShowMobileSidebar(false); setShowAbandonConfirm(true); }} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-red-400 hover:text-white hover:bg-red-950/50 border border-red-500/20 hover:border-red-500/40 transition-colors text-left">
                       <Power className="w-3.5 h-3.5 shrink-0" />
                       <span className="fs-tiny font-bold">Abandonar ruta</span>
                     </button>
+                    </>
                   )}
                 </div>
               </div>
