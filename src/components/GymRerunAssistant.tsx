@@ -962,7 +962,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       setLS(`run_active_${selectedGuideId}`, "");
     }
     setFinishSummary({ elapsed: finalElapsed, gyms: totalGymsDone, xpEarned: runXP, guideTitle });
-    goToMenu();
+    goToMenu(false);
     grantXP(runXP, "Run completada");
     incrementStat("guidesFinished");
     incrementStat("totalTimeMs", finalElapsed);
@@ -1023,15 +1023,15 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const closeTeam = () => { setTeamExiting(true); setTimeout(() => { setShowTeam(false); setTeamExiting(false); }, 185); };
   const closeHistory = () => { setHistoryExiting(true); setTimeout(() => { setShowHistory(false); setHistoryExiting(false); }, 185); };
   const runIsActive = currentStepIndex >= 0 || timerIsRunning || sessionGymCount > 0;
-  const goToMenu = () => {
+  const goToMenu = (keepSession = true) => {
     if (selectedGuideId !== 'none') {
-      if (runIsActive) {
+      if (runIsActive && keepSession) {
         setLS(`run_step_${selectedGuideId}`, String(currentStepIndex));
         setLS(`run_active_${selectedGuideId}`, "true");
       }
       setCurrentStepIndex(-1);
       setAppExiting(true); setTimeout(() => {
-        setHasActiveSession(true);
+        setHasActiveSession(keepSession);
         setMenuVisible(true);
         setShowMenu(true);
         setAppExiting(false);
