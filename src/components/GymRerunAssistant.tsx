@@ -364,7 +364,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [showTeam, setShowTeam] = useState<boolean>(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState<boolean>(false);
-  const [finishSummary, setFinishSummary] = useState<{ elapsed: number; gyms: number; xpEarned: number; runXP: number; gymsXP: number; guideTitle: string } | null>(null);
+  const [finishSummary, setFinishSummary] = useState<{ elapsed: number; gyms: number; xpEarned: number; runXP: number; gymsXP: number; guideTitle: string; xpLog: { label: string; amount: number }[] } | null>(null);
+  const runXPLogRef = useRef<{ label: string; amount: number }[]>([]);
   const [showAbandonConfirm, setShowAbandonConfirm] = useState<boolean>(false);
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
   const [showResumePrompt, setShowResumePrompt] = useState<boolean>(false);
@@ -858,6 +859,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       triggerToast("Gym completado");
       const gymXP = XP_VALUES.gymCompletion;
       grantXP(gymXP, "Gym completado");
+      runXPLogRef.current.push({ label: "Gym completado", amount: gymXP });
       incrementStat("gymsCompleted");
       setCurrentStepIndex((prev) => {
         const nextIdx = prev === -1 ? 0 : Math.min(prev + 1, steps.length - 1);
@@ -884,6 +886,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       setSessionGymCount(prev => prev + regionGymCount);
       triggerToast(`Región ${currentRegion} completada (${regionGymCount} gyms)`);
       grantXP(totalXP, `Región ${currentRegion} completada`);
+      runXPLogRef.current.push({ label: `Región ${currentRegion} (${regionGymCount} gyms)`, amount: totalXP });
       incrementStat("gymsCompleted");
 
       // Advance to next region's first gym, or finish if last region
@@ -1067,6 +1070,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     const gymsXP = totalGymsDone * XP_VALUES.gymCompletion;
     const totalXPEarned = runXP + gymsXP;
     const guideTitle = getGuide(selectedGuideId)?.title || "Guía";
+    // Build the full XP log (mid-run + completion bonus)
+    const xpLog = [
+      ...runXPLogRef.current,
+      { label: "Bono de Run", amount: runXP },
+    ];
+    runXPLogRef.current = [];
     const newEntry: RunHistoryEntry = {
       id: Math.random().toString(36).substr(2, 9),
       finishedAt: Date.now(),
@@ -1087,7 +1096,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       setLS(`run_step_${selectedGuideId}`, "");
       setLS(`run_active_${selectedGuideId}`, "");
     }
-    setFinishSummary({ elapsed: finalElapsed, gyms: totalGymsDone, xpEarned: totalXPEarned, runXP, gymsXP, guideTitle });
+    setFinishSummary({ elapsed: finalElapsed, gyms: totalGymsDone, xpEarned: totalXPEarned, runXP, gymsXP, guideTitle, xpLog });
     // Start cooldown
     const gid = selectedGuideId;
     if (gid === 'hooh') {
@@ -1106,23 +1115,26 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   const [restartTargetGuide, setRestartTargetGuide] = useState<'none' | 'gym33' | 'hooh' | 'guide2'>('none');
   const confirmRestartRun = () => {
-    setShowRestartConfirm(false);
-    setPreviewGuide(null);
     const target = restartTargetGuide;
     if (target === 'none') return;
+    // Check BEFORE resetting anything
+    const remaining = freeRuns[target] ?? 2;
+    if (remaining <= 0) {
+      triggerToast("No te quedan puntos para repetir esta guía.");
+      setShowRestartConfirm(false);
+      return;
+    }
+    setShowRestartConfirm(false);
+    setPreviewGuide(null);
     ['gym33', 'hooh', 'guide2'].forEach(id => {
       setLS(`run_step_${id}`, "");
       setLS(`run_active_${id}`, "");
     });
     setLS("gym_count", "0");
     resetTimer();
+    runXPLogRef.current = [];
     setSessionGymCount(0);
     setCurrentStepIndex(-1);
-    const remaining = freeRuns[target] ?? 2;
-    if (remaining <= 0) {
-      triggerToast("No te quedan puntos para repetir esta guía.");
-      return;
-    }
     setFreeRuns(prev => ({ ...prev, [target]: remaining - 1 }));
     setFreeRunsResetAt(prev => ({ ...prev, [target]: Date.now() }));
     triggerToast(`Run reiniciada — te quedan ${remaining - 1} intento${remaining - 1 !== 1 ? 's' : ''} gratis`);
@@ -2060,18 +2072,16 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     <span className="text-neutral-300 font-medium">{finishSummary.gyms} gyms</span>
                   </div>
                 </div>
-                <div className="flex flex-col gap-1.5 w-full mt-2 bg-neutral-900/50 p-3 rounded-xl border border-emerald-500/10">
-                  <div className="flex items-center justify-between text-xs text-neutral-400">
-                    <span>Gimnasios completados:</span>
-                    <span>+{finishSummary.gymsXP} XP</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-neutral-400 border-b border-neutral-800 pb-2">
-                    <span>Bono de Run:</span>
-                    <span>+{finishSummary.runXP} XP</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm font-black text-indigo-300 pt-1">
-                    <span>Total Recolectado:</span>
-                    <span className="flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> +{finishSummary.xpEarned} XP</span>
+                <div className="flex flex-col gap-1 w-full mt-2 bg-neutral-900/50 p-3 rounded-xl border border-emerald-500/10 max-h-48 overflow-y-auto">
+                  {finishSummary.xpLog.map((entry, i) => (
+                    <div key={i} className="flex items-center justify-between text-xs text-neutral-400 py-0.5">
+                      <span className="truncate pr-2">{entry.label}</span>
+                      <span className="text-emerald-300 font-bold shrink-0">+{entry.amount} XP</span>
+                    </div>
+                  ))}
+                  <div className="flex items-center justify-between text-sm font-black text-indigo-300 pt-2 mt-1 border-t border-neutral-700">
+                    <span>Total XP recolectado:</span>
+                    <span className="flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> +{finishSummary.xpLog.reduce((acc, e) => acc + e.amount, 0)} XP</span>
                   </div>
                 </div>
               </div>
