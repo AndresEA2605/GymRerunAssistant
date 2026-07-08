@@ -11,6 +11,7 @@ export interface RouteFooterActions {
   onCompleteGym: () => void;
   onFinish: () => void;
   onRouteReset: () => void;
+  onRestartRun: () => void;
   prevDisabled: boolean;
   nextDisabled: boolean;
   isLastStep: boolean;
@@ -84,6 +85,15 @@ export function RoutesFooterInner({ nav }: Pick<RoutesFooterProps, "nav">) {
         </div>
 
         <div className="flex items-center gap-3 mt-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={nav.onRestartRun}
+            aria-label="Repetir run desde el principio"
+            className="px-3 shrink-0"
+          >
+            Repetir run
+          </Button>
           <Button
             variant="ghost"
             size="sm"

@@ -17,12 +17,12 @@ export default function CooldownBadge({ endAt }: CooldownBadgeProps) {
     return () => window.clearInterval(id);
   }, [isActive]);
 
-  if (!endAt) return <span className="text-neutral-600 fs-tiny tabular-nums">--:--:--</span>;
+  if (!endAt) return <span className="text-neutral-600 fs-tiny tabular-nums min-w-[4.5rem] text-right inline-block">--:--:--</span>;
 
   const remaining = Math.max(0, endAt - now);
   return (
     <span
-      className={`fs-tiny font-bold tabular-nums ${remaining > 0 ? "text-emerald-400" : "text-amber-400"}`}
+      className={`fs-tiny font-bold tabular-nums min-w-[4.5rem] text-right inline-block ${remaining > 0 ? "text-emerald-400" : "text-amber-400"}`}
     >
       {remaining > 0 ? formatTime(remaining) : "LISTO"}
     </span>

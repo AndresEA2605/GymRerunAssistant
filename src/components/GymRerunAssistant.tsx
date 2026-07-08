@@ -307,7 +307,7 @@ function CooldownProgressBar({ isHooh: _isHooh, endAt, gymResetMs }: { isHooh: b
   return (
     <div className="mt-1.5 w-full h-1 bg-black/30 rounded-full overflow-hidden">
       <div
-        className="h-full bg-gradient-to-r from-amber-500 to-orange-400 rounded-full transition-all"
+        className="h-full bg-gradient-to-r from-amber-500 to-orange-400 rounded-full will-change-transform"
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -743,7 +743,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     setCooldownHours(String(Math.floor(durationMs / 3600000)));
     setCooldownMinutes(String(Math.round((durationMs % 3600000) / 60000)));
     logTimerEvent("cooldown_start");
-    if (durationMs >= 7 * 24 * 60 * 60 * 1000) {
+    if (gymName === "Ho-Oh" || durationMs >= 24 * 60 * 60 * 1000) {
       setAllCooldowns(prev => ({ ...prev, hooh: nextCooldown }));
     } else if (durationMs <= 6 * 60 * 60 * 1000) {
       setAllCooldowns(prev => ({ ...prev, npc: nextCooldown }));
@@ -1056,6 +1056,15 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   };
 
   const requestFinishRun = () => setShowFinishConfirm(true);
+
+  const [showRestartConfirm, setShowRestartConfirm] = useState(false);
+  const requestRestartRun = () => setShowRestartConfirm(true);
+  const confirmRestartRun = () => {
+    setShowRestartConfirm(false);
+    const guideId = selectedGuideId;
+    abandonRun();
+    if (guideId && guideId !== 'none') selectGuide(guideId);
+  };
 
   const handleTaskComplete = useCallback((taskLabel: string) => {
     grantXP(25, `Tarea diaria: ${taskLabel}`);
@@ -1927,6 +1936,38 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </button>
                 <button onClick={() => finishRun()} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-bold text-sm transition-all active:scale-[0.98]">
                   Finalizar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {showRestartConfirm && createPortal(
+        <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-sm rounded-2xl bg-neutral-900 border border-neutral-700/60 overflow-hidden shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300" onClick={e => e.stopPropagation()}>
+            <div className="p-5">
+              <div className="flex items-center gap-2.5 mb-3">
+                <div className="p-1.5 rounded-full bg-amber-500/20">
+                  <Info className="w-5 h-5 text-amber-400" />
+                </div>
+                <span className="fs-base font-black text-white">¿Repetir run?</span>
+              </div>
+              <p className="text-sm text-neutral-400 mb-1">
+                Se reiniciará la run desde el principio.
+              </p>
+              {selectedGuideId && (
+                <p className="text-xs text-emerald-400 mb-4">
+                  ⚡ Te quedan <span className="font-bold">{freeRuns[selectedGuideId] ?? 2}</span> intento{(freeRuns[selectedGuideId] ?? 2) !== 1 ? 's' : ''} gratis de esta guía.
+                </p>
+              )}
+              <div className="flex gap-2">
+                <button onClick={() => setShowRestartConfirm(false)} className="flex-1 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-sm transition-all border border-neutral-700 active:scale-[0.98]">
+                  Cancelar
+                </button>
+                <button onClick={confirmRestartRun} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-sm transition-all active:scale-[0.98]">
+                  Repetir
                 </button>
               </div>
             </div>
@@ -3016,6 +3057,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             onCompleteGym: completeGym,
             onFinish: requestFinishRun,
             onRouteReset: requestRouteReset,
+            onRestartRun: requestRestartRun,
             prevDisabled: selectedGuideId === "hooh" ? currentStepIndex <= 0 : currentGymIndex <= 0,
             nextDisabled:
               selectedGuideId === "hooh"

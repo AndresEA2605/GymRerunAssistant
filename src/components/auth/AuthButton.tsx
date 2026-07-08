@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProgression } from "@/hooks/useProgression";
 import LoginModal from "./LoginModal";
 import RegisterModal from "./RegisterModal";
-import ProfilePanel from "./ProfilePanel";
+import ProfileDashboard from "./ProfileDashboard";
 import SyncModal from "./SyncModal";
 import PasswordResetRequestModal from "./PasswordResetRequestModal";
 import PasswordResetModal from "./PasswordResetModal";
@@ -184,7 +184,7 @@ export default forwardRef(function AuthButton(_props, ref) {
         token={resetToken}
       />
 
-      <ProfilePanel
+      <ProfileDashboard
         isOpen={showProfile}
         onClose={() => setShowProfile(false)}
       />
