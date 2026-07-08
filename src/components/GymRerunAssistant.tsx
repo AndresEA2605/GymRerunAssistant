@@ -251,8 +251,8 @@ const CooldownNoticeModal = memo(({ allCooldowns, onDismiss }: { allCooldowns: A
   }, [allCooldowns, now]);
   const anyActive = cooldownEntries.length > 0;
   return (
-    <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4" style={{ animation: 'fadeIn 0.2s ease both' }}>
-      <div className="w-full max-w-sm bg-neutral-900/95 backdrop-blur-xl rounded-3xl border border-neutral-700/50 p-6 shadow-2xl shadow-neutral-950/50" style={{ animation: 'zoomIn 0.3s cubic-bezier(0.25,0.46,0.45,0.94) both' }}>
+    <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 transition-opacity duration-200">
+      <div className="w-full max-w-sm bg-neutral-900/95 backdrop-blur-xl rounded-3xl border border-neutral-700/50 p-6 shadow-2xl shadow-neutral-950/50">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-xl md:text-2xl font-black text-white leading-tight">Cooldowns activos</h2>
           <button onClick={onDismiss} className="w-7 h-7 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition-all shrink-0">
@@ -265,7 +265,7 @@ const CooldownNoticeModal = memo(({ allCooldowns, onDismiss }: { allCooldowns: A
               const remaining = Math.max(0, entry.endAt! - now);
               const expired = remaining <= 0;
               return (
-                <div key={entry.label} className="bg-neutral-950/80 border border-neutral-800/60 rounded-xl p-3" style={{ animation: `slideUpItem 0.3s ease both ${i * 0.08}s` }}>
+                <div key={entry.label} className="bg-neutral-950/80 border border-neutral-800/60 rounded-xl p-3 transition-all duration-300" style={i > 0 ? { transitionDelay: `${i * 80}ms` } : undefined}>
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full bg-${entry.color}-500 animate-pulse`} />
@@ -293,11 +293,6 @@ const CooldownNoticeModal = memo(({ allCooldowns, onDismiss }: { allCooldowns: A
           Entendido
         </button>
       </div>
-      <style jsx global>{`
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes zoomIn { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        @keyframes slideUpItem { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-      `}</style>
     </div>
   );
 });
@@ -1650,7 +1645,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             </div>
 
             {!authUser && !hasActiveSession && (
-              <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/5 border border-indigo-500/30 rounded-2xl p-4 mb-4" style={{ animation: 'slideUpItem 0.3s ease both' }}>
+              <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/5 border border-indigo-500/30 rounded-2xl p-4 mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0">
                     <Users className="w-5 h-5 text-indigo-400" />
