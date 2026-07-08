@@ -389,7 +389,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [selectedGuideId, setSelectedGuideId] = useState<'none' | 'gym33' | 'hooh' | 'guide2'>('none');
   const selectGuide = (id: 'none' | 'gym33' | 'hooh' | 'guide2') => {
     if (id !== 'none') {
-      const cd = id === 'hooh' ? allCooldowns.hooh : id === 'gym33' ? allCooldowns.gym33 : id === 'guide2' ? allCooldowns.guide2 : null;
+      const cd = id === 'hooh' ? allCooldowns.hooh : id === 'gym33' ? (allCooldowns.gym33.endAt ? allCooldowns.gym33 : allCooldowns.gym) : id === 'guide2' ? (allCooldowns.guide2.endAt ? allCooldowns.guide2 : allCooldowns.gym) : null;
       if (cd && cd.endAt && cd.endAt > Date.now()) {
         triggerToast("Cooldown activo — espera a que termine");
         return;
@@ -1823,7 +1823,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       <div className="space-y-3 overflow-y-auto flex-1 pr-1 custom-scrollbar">
                           {catGuides.map(g => {
                           const gc = getGuideColorClasses(g.color);
-                          const cdEnd = g.id === 'hooh' ? allCooldowns.hooh.endAt : g.id === 'gym33' ? allCooldowns.gym33.endAt : g.id === 'guide2' ? allCooldowns.guide2.endAt : null;
+                          const cdEnd = g.id === 'hooh' ? allCooldowns.hooh.endAt : g.id === 'gym33' ? (allCooldowns.gym33.endAt || allCooldowns.gym.endAt) : g.id === 'guide2' ? (allCooldowns.guide2.endAt || allCooldowns.gym.endAt) : null;
                           const onCooldown = cdEnd ? cdEnd > Date.now() : false;
                           const cdRemaining = onCooldown ? cdEnd! - Date.now() : 0;
                           return (
