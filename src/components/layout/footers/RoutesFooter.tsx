@@ -59,19 +59,7 @@ export function RoutesFooterInner({ nav }: Pick<RoutesFooterProps, "nav">) {
             Anterior
           </Button>
 
-          <Button
-            variant="primary"
-            size="md"
-            onClick={nav.isLastStep ? nav.onFinish : nav.onNext}
-            disabled={!nav.isLastStep && nav.nextDisabled}
-            aria-label={nav.isLastStep ? "Finalizar ruta" : "Siguiente gimnasio"}
-            className="flex-1 min-w-[118px] max-w-[180px]"
-            icon={<ChevronRight className="w-4 h-4" />}
-          >
-            {nav.isLastStep ? "Finalizar" : "Siguiente"}
-          </Button>
-
-          {nav.showCompleteGym && (
+          {nav.showCompleteGym ? (
             <Button
               variant="success"
               size="md"
@@ -80,6 +68,18 @@ export function RoutesFooterInner({ nav }: Pick<RoutesFooterProps, "nav">) {
               className="flex-1 min-w-[132px] max-w-[190px]"
             >
               {nav.completeLabel || "Completar Gym"}
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              size="md"
+              onClick={nav.isLastStep ? nav.onFinish : nav.onNext}
+              disabled={!nav.isLastStep && nav.nextDisabled}
+              aria-label={nav.isLastStep ? "Finalizar ruta" : "Siguiente gimnasio"}
+              className="flex-1 min-w-[118px] max-w-[180px]"
+              icon={<ChevronRight className="w-4 h-4" />}
+            >
+              {nav.isLastStep ? "Finalizar" : "Siguiente"}
             </Button>
           )}
         </div>

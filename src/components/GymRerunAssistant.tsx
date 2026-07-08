@@ -824,20 +824,9 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         return nextIdx;
       });
     } else {
-      // Find current gym group and its region
-      let currentGroupIdx = -1;
-      let currentRegion = '';
-      for (let i = 0; i < gymGroups.length; i++) {
-        const g = gymGroups[i];
-        if (g.gymStep.id === steps[currentStepIndex]?.id ||
-            g.subBattles.some(s => s.id === steps[currentStepIndex]?.id) ||
-            g.extras.some(e => e.id === steps[currentStepIndex]?.id)) {
-          currentGroupIdx = i;
-          currentRegion = g.region;
-          break;
-        }
-      }
-      if (currentGroupIdx < 0) return;
+      if (currentGymIndex < 0 || !currentGymGroup) return;
+      const currentRegion = currentGymGroup.region;
+      if (!currentRegion) return;
 
       // Count gyms and find last index in this region
       let regionGymCount = 0;
@@ -856,14 +845,16 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       grantXP(totalXP, `Región ${currentRegion} completada`);
       incrementStat("gymsCompleted");
 
-      // Advance to next region's first gym
+      // Advance to next region's first gym, or finish if last region
       if (lastGroupInRegion < gymGroups.length - 1) {
         setCurrentStepIndex(steps.indexOf(gymGroups[lastGroupInRegion + 1].gymStep));
         setSlideClass("slide-in-right");
         setSlideKey(k => k + 1);
+      } else {
+        setShowFinishConfirm(true);
       }
     }
-  }, [steps, selectedGuideId, triggerToast, gymGroups, grantXP, incrementStat]);
+  }, [steps, selectedGuideId, triggerToast, gymGroups, grantXP, incrementStat, currentGymIndex, currentGymGroup]);
 
   const handlePrev = useCallback(() => {
     const isTurn = selectedGuideId === 'hooh';
