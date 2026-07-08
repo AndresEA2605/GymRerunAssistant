@@ -55,7 +55,7 @@ export async function sendPasswordResetEmail(email: string, token: string) {
       console.log(`TO: ${email}`);
       console.log(`TOKEN: ${token}`);
       console.log('=============================================\n');
-      return { ok: false, error: 'No hay configuración SMTP activa para enviar el correo. Configura SMTP_USER y SMTP_PASS (o GMAIL_USER/GMAIL_PASS).' };
+      return { ok: false, error: 'No hay configuración SMTP activa para enviar el correo. Configura SMTP_USER y SMTP_PASS (o GMAIL_USER/GMAIL_PASS) con una cuenta de Gmail o un SMTP válido.' };
     }
 
     await transporter.verify();
