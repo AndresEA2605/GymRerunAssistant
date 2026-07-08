@@ -1828,33 +1828,50 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                           const cdRemaining = onCooldown ? cdEnd! - Date.now() : 0;
                           return (
                             <div key={g.id} className="relative">
-                              <button
-                                onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')}
-                                disabled={onCooldown}
-                                className={`w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} ${onCooldown ? 'opacity-50 cursor-not-allowed' : `hover:bg-neutral-800 ${gc.borderHover} group`}`}
-                              >
-                                {onCooldown && (
+                              {onCooldown ? (
+                                <div className={`w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 py-3 text-left bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} opacity-50 pointer-events-none`}>
                                   <div className="absolute inset-0 rounded-2xl bg-neutral-950/60 flex items-center justify-center z-10">
                                     <span className="text-xs font-bold text-neutral-400">Cooldown — {formatCooldown(cdRemaining)}</span>
                                   </div>
-                                )}
-                                <div className={`w-11 h-11 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-900/70 p-1.5 poke-aura ${getGuidePokeGlow(g.color)}`}>
-                                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className={`fs-tiny font-black ${gc.text} truncate`}>{g.title}</div>
-                                  <div className="fs-tiny text-neutral-500 truncate mb-1">{g.subtitle}</div>
-                                  <div className="flex items-center gap-1 flex-wrap">
-                                    {(g.team || []).slice(0,6).map((t, i) => (
-                                      <div key={i} className="w-6 h-6 rounded bg-neutral-900 border border-neutral-800/40 flex items-center justify-center p-0.5 shrink-0" title={t.name}>
-                                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${t.spriteId}.gif`} alt={t.name} className="w-full h-full object-contain" loading="lazy" />
-                                      </div>
-                                    ))}
+                                  <div className={`w-11 h-11 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-900/70 p-1.5 poke-aura ${getGuidePokeGlow(g.color)}`}>
+                                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
                                   </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className={`fs-tiny font-black ${gc.text} truncate`}>{g.title}</div>
+                                    <div className="fs-tiny text-neutral-500 truncate mb-1">{g.subtitle}</div>
+                                    <div className="flex items-center gap-1 flex-wrap">
+                                      {(g.team || []).slice(0,6).map((t, i) => (
+                                        <div key={i} className="w-6 h-6 rounded bg-neutral-900 border border-neutral-800/40 flex items-center justify-center p-0.5 shrink-0" title={t.name}>
+                                          <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${t.spriteId}.gif`} alt={t.name} className="w-full h-full object-contain" loading="lazy" />
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  <span className={`fs-tiny font-black ${gc.text} opacity-0 shrink-0`}>→</span>
                                 </div>
-                                <span className={`fs-tiny font-black ${gc.text} ${onCooldown ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'} transition-opacity shrink-0`}>→</span>
-                              </button>
-                              <div className="absolute bottom-1.5 right-2.5 flex items-center gap-1">
+                              ) : (
+                                <button
+                                  onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')}
+                                  className={`w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} ${`hover:bg-neutral-800 ${gc.borderHover} group`}`}
+                                >
+                                  <div className={`w-11 h-11 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-900/70 p-1.5 poke-aura ${getGuidePokeGlow(g.color)}`}>
+                                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className={`fs-tiny font-black ${gc.text} truncate`}>{g.title}</div>
+                                    <div className="fs-tiny text-neutral-500 truncate mb-1">{g.subtitle}</div>
+                                    <div className="flex items-center gap-1 flex-wrap">
+                                      {(g.team || []).slice(0,6).map((t, i) => (
+                                        <div key={i} className="w-6 h-6 rounded bg-neutral-900 border border-neutral-800/40 flex items-center justify-center p-0.5 shrink-0" title={t.name}>
+                                          <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${t.spriteId}.gif`} alt={t.name} className="w-full h-full object-contain" loading="lazy" />
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  <span className={`fs-tiny font-black ${gc.text} opacity-0 group-hover:opacity-100 transition-opacity shrink-0`}>→</span>
+                                </button>
+                              )}
+                              <div className="absolute bottom-1.5 right-2.5 flex items-center gap-1 z-20">
                                 <button
                                   onClick={(e) => { e.stopPropagation(); setPreviewGuide(g.id); }}
                                   className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/50 border border-neutral-700/40 text-[9px] font-bold text-neutral-400 hover:bg-indigo-950/30 hover:border-indigo-700/30 hover:text-indigo-400 transition-all z-20"
