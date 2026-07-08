@@ -1,3 +1,4 @@
+import { createHash, randomUUID } from 'crypto';
 import { getSupabase } from '@/lib/supabase';
 
 export interface User {
@@ -85,7 +86,11 @@ async function verifyPassword(password: string, stored: string): Promise<boolean
 // ─── Public helpers ────────────────────────────────────────────────────────
 
 export function generateToken(): string {
-  return crypto.randomUUID();
+  return randomUUID();
+}
+
+function hashToken(token: string): string {
+  return createHash('sha256').update(token).digest('hex');
 }
 
 export function calculateLevel(xp: number): number {
@@ -336,22 +341,24 @@ export async function getUserByEmail(email: string): Promise<UserWithHash | null
   }
 }
 
-export async function requestPasswordReset(email: string): Promise<{ token?: string; error?: string }> {
-  const user = await getUserByEmail(email);
+export async function requestPasswordReset(email: string): Promise<{ ok?: boolean; token?: string; error?: string }> {
+  const normalizedEmail = email.toLowerCase().trim();
+  const user = await getUserByEmail(normalizedEmail);
   if (!user) {
-    return { error: 'No se encontró una cuenta con ese email.' };
+    return { ok: true };
   }
 
-  const token = crypto.randomUUID();
-  const expiresAt = Date.now() + 30 * 60 * 1000; // 30 min
+  const token = randomUUID();
+  const expiresAt = Date.now() + 15 * 60 * 1000; // 15 min
+  const hashedToken = hashToken(token);
 
   const db = getSupabase();
   await db
     .from('users')
-    .update({ reset_token: token, reset_token_expires_at: expiresAt })
+    .update({ reset_token: hashedToken, reset_token_expires_at: expiresAt })
     .eq('id', user.id);
 
-  return { token };
+  return { ok: true, token };
 }
 
 export async function resetPassword(
@@ -362,7 +369,7 @@ export async function resetPassword(
   const user = await getUserByEmail(email);
   if (!user) return { error: 'No se encontró una cuenta con ese email.' };
   if (!user.resetToken || !user.resetTokenExpiresAt) return { error: 'No se ha solicitado un token de recuperación.' };
-  if (user.resetToken !== token) return { error: 'Token de recuperación inválido.' };
+  if (user.resetToken !== hashToken(token)) return { error: 'Token de recuperación inválido.' };
   if (Date.now() > user.resetTokenExpiresAt) return { error: 'El token de recuperación expiró.' };
   if (password.length < 6) return { error: 'La contraseña debe tener al menos 6 caracteres.' };
 

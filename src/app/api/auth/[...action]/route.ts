@@ -187,16 +187,19 @@ async function handler(
           return NextResponse.json({ error: 'Email requerido' }, { status: 400 });
         }
         const result = await import('@/lib/auth').then(m => m.requestPasswordReset(email));
-        if (result.error || !result.token) {
-          return NextResponse.json({ error: result.error || 'Error' }, { status: 400 });
+        if (!result.ok) {
+          return NextResponse.json({ error: result.error || 'No se pudo procesar la solicitud.' }, { status: 400 });
         }
 
-        const emailResult = await import('@/lib/email').then(m => m.sendPasswordResetEmail(email, result.token as string));
-        if (!emailResult.ok) {
-          return NextResponse.json({ error: emailResult.error || 'No se pudo enviar el correo de recuperación.' }, { status: 400 });
+        const token = result.token;
+        if (token) {
+          const emailResult = await import('@/lib/email').then(m => m.sendPasswordResetEmail(email, token));
+          if (!emailResult.ok) {
+            return NextResponse.json({ error: emailResult.error || 'No se pudo enviar el correo de recuperación.' }, { status: 400 });
+          }
         }
 
-        return NextResponse.json({ ok: true });
+        return NextResponse.json({ ok: true, message: 'Si el correo existe, recibirás un enlace de recuperación.' });
       }
 
       case 'reset-password': {

@@ -74,7 +74,7 @@ export default function PasswordResetRequestModal({ isOpen, onClose, onRequestRe
           {success ? (
             <div className="mb-4 rounded-2xl border border-emerald-700/40 bg-emerald-950/30 px-4 py-4 text-sm text-emerald-200 flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-emerald-300" />
-              <span>Se generó el token de recuperación. Ahora podés cambiar tu contraseña.</span>
+              <span>Si el correo existe, recibirás un mensaje con el código de recuperación.</span>
             </div>
           ) : null}
 
