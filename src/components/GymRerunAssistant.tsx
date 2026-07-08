@@ -44,6 +44,7 @@ import { getGuide, getGuidesByCategory, GUIDE_CATEGORIES, GUIDES } from "../data
 import { showCompleteGym as shouldShowCompleteGym, isRoutesGuide } from "@/lib/guide-footer";
 import { storageSet, storageMGet } from "@/lib/storage";
 import AuthButton from "@/components/auth/AuthButton";
+import NotificationBell from "@/components/progression/NotificationBell";
 import { useAuth } from "@/hooks/useAuth";
 import { useProgression } from "@/hooks/useProgression";
 
@@ -77,6 +78,8 @@ type AllCooldowns = {
   gym: CooldownState;
   hooh: CooldownState;
   npc: CooldownState;
+  gym33: CooldownState;
+  guide2: CooldownState;
 };
 
 type StoredTimerState = {
@@ -378,8 +381,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [selectedGuideId, setSelectedGuideId] = useState<'none' | 'gym33' | 'hooh' | 'guide2'>('none');
   const selectGuide = (id: 'none' | 'gym33' | 'hooh' | 'guide2') => {
     if (id !== 'none') {
-      const isRoutes = id === 'gym33' || id === 'guide2';
-      const cooldownEnd = isRoutes ? allCooldowns.gym.endAt : allCooldowns.hooh.endAt;
+      const cooldownEnd = id === 'hooh' ? allCooldowns.hooh.endAt : id === 'gym33' ? allCooldowns.gym33.endAt : id === 'guide2' ? allCooldowns.guide2.endAt : null;
       if (cooldownEnd && cooldownEnd > Date.now()) {
         triggerToast("Cooldown activo — espera a que termine");
         return;
@@ -485,6 +487,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     gym: { endAt: null, lastGym: null },
     hooh: { endAt: null, lastGym: null },
     npc: { endAt: null, lastGym: null },
+    gym33: { endAt: null, lastGym: null },
+    guide2: { endAt: null, lastGym: null },
   });
   const [cooldownHours, setCooldownHours] = useState<string>("18");
   const [cooldownMinutes, setCooldownMinutes] = useState<string>("0");
@@ -641,6 +645,14 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             endAt: typeof savedAllCooldowns.npc?.endAt === "number" ? savedAllCooldowns.npc.endAt : null,
             lastGym: typeof savedAllCooldowns.npc?.lastGym === "string" ? savedAllCooldowns.npc.lastGym : null,
           },
+          gym33: {
+            endAt: typeof savedAllCooldowns.gym33?.endAt === "number" ? savedAllCooldowns.gym33.endAt : null,
+            lastGym: typeof savedAllCooldowns.gym33?.lastGym === "string" ? savedAllCooldowns.gym33.lastGym : null,
+          },
+          guide2: {
+            endAt: typeof savedAllCooldowns.guide2?.endAt === "number" ? savedAllCooldowns.guide2.endAt : null,
+            lastGym: typeof savedAllCooldowns.guide2?.lastGym === "string" ? savedAllCooldowns.guide2.lastGym : null,
+          },
         });
         const now = Date.now();
         const hasAnyActive = [savedAllCooldowns.gym, savedAllCooldowns.hooh, savedAllCooldowns.npc]
@@ -691,6 +703,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         }
         if (data.cooldowns.hooh) {
           setAllCooldowns(prev => ({ ...prev, hooh: data.cooldowns.hooh }));
+        }
+        if (data.cooldowns.gym33) {
+          setAllCooldowns(prev => ({ ...prev, gym33: data.cooldowns.gym33 }));
+        }
+        if (data.cooldowns.guide2) {
+          setAllCooldowns(prev => ({ ...prev, guide2: data.cooldowns.guide2 }));
         }
       }
     }).catch(() => {});
@@ -759,7 +777,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     return null;
   }, [currentStepIndex, steps]);
 
-  const startGymCooldown = useCallback((gymName?: string | null, durationMs = gymResetMs) => {
+  const startGymCooldown = useCallback((gymName?: string | null, durationMs = gymResetMs, guideId?: string) => {
     const lastGym = gymName || getLastCompletedGym() || "Gym desconocido";
     const nextCooldown = { endAt: Date.now() + durationMs, lastGym };
     setCooldown(nextCooldown);
@@ -772,6 +790,9 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       setAllCooldowns(prev => ({ ...prev, npc: nextCooldown }));
     } else {
       setAllCooldowns(prev => ({ ...prev, gym: nextCooldown }));
+    }
+    if (guideId === 'gym33' || guideId === 'guide2') {
+      setAllCooldowns(prev => ({ ...prev, [guideId]: nextCooldown }));
     }
     triggerToast(`Reset gyms activo: ${lastGym}`);
   }, [getLastCompletedGym, gymResetMs, triggerToast, logTimerEvent]);
@@ -1046,11 +1067,11 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     }
     setFinishSummary({ elapsed: finalElapsed, gyms: totalGymsDone, xpEarned: runXP, guideTitle });
     // Start cooldown
-    const guideId = selectedGuideId;
-    if (guideId === 'hooh') {
+    const gid = selectedGuideId;
+    if (gid === 'hooh') {
       startGymCooldown("Ho-Oh", 7 * 24 * 60 * 60 * 1000);
-    } else if (guideId) {
-      startGymCooldown(getLastCompletedGym(), gymResetMs);
+    } else if (gid) {
+      startGymCooldown(getLastCompletedGym(), gymResetMs, gid);
     }
     goToMenu(false);
     grantXP(runXP, "Run completada");
@@ -1623,6 +1644,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               <div className="flex-1 min-w-0">
                 <AuthButton ref={authButtonRef} />
               </div>
+              <NotificationBell />
               <div className="shrink-0 inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-2">
                 {hasActiveSession ? (
                   <>
@@ -1776,8 +1798,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       <div className="space-y-3 overflow-y-auto flex-1 pr-1 custom-scrollbar">
                           {catGuides.map(g => {
                           const gc = getGuideColorClasses(g.color);
-                          const isRoutesGuideCard = g.id === 'gym33' || g.id === 'guide2';
-                          const cdEnd = isRoutesGuideCard ? allCooldowns.gym.endAt : g.id === 'hooh' ? allCooldowns.hooh.endAt : null;
+                          const cdEnd = g.id === 'hooh' ? allCooldowns.hooh.endAt : g.id === 'gym33' ? allCooldowns.gym33.endAt : g.id === 'guide2' ? allCooldowns.guide2.endAt : null;
                           const onCooldown = cdEnd ? cdEnd > Date.now() : false;
                           const cdRemaining = onCooldown ? cdEnd! - Date.now() : 0;
                           return (

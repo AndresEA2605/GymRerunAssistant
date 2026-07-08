@@ -2,8 +2,9 @@
 
 import React, { useEffect } from "react";
 import { createPortal } from "react-dom";
-import { X, LogOut, Trophy, Flame, Star, Swords, Target, Flag, Clock } from "lucide-react";
+import { X, LogOut, Trophy, Flame, Star, Swords, Target, Flag, Clock, Zap } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useProgression } from "@/hooks/useProgression";
 
 interface ProfileDashboardProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface ProfileDashboardProps {
 
 export default function ProfileDashboard({ isOpen, onClose }: ProfileDashboardProps) {
   const { user, stats, logout } = useAuth();
+  const { profile } = useProgression();
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden";
@@ -37,12 +39,27 @@ export default function ProfileDashboard({ isOpen, onClose }: ProfileDashboardPr
         <div className="px-6 pb-6">
           {/* Header */}
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-2xl font-black shadow-xl shadow-indigo-500/20 shrink-0">
-              {user.username.charAt(0).toUpperCase()}
+            <div className="relative">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-2xl font-black shadow-xl shadow-indigo-500/20 shrink-0">
+                {user.username.charAt(0).toUpperCase()}
+              </div>
+              {profile && (
+                <div className="absolute -bottom-1.5 -right-1.5 bg-indigo-600 border-2 border-neutral-900 rounded-full w-7 h-7 flex items-center justify-center text-[11px] font-black text-white shadow-lg">
+                  {profile.level}
+                </div>
+              )}
             </div>
             <div className="min-w-0 flex-1">
               <h2 className="text-white font-black text-xl truncate">{user.username}</h2>
               <div className="text-neutral-500 text-sm truncate">{user.email}</div>
+              {profile && (
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="flex-1 h-1.5 rounded-full bg-neutral-800 overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500" style={{ width: `${Math.min(100, (profile.currentXP / profile.xpToNextLevel) * 100)}%` }} />
+                  </div>
+                  <span className="text-[10px] font-bold text-neutral-400 shrink-0">{profile.currentXP}/{profile.xpToNextLevel} XP</span>
+                </div>
+              )}
             </div>
           </div>
 
