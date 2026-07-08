@@ -76,13 +76,13 @@ export class ProgressionManager {
   private pendingNotifications: ProgressionEvent[] = [];
 
   constructor(data?: Partial<ProgressionData>) {
-    this.profile = data?.profile ?? getDefaultProfile('', '');
-    this.statistics = data?.statistics ?? getDefaultStats();
+    this.profile = { ...getDefaultProfile('', ''), ...(data?.profile ?? {}) };
+    this.statistics = { ...getDefaultStats(), ...(data?.statistics ?? {}) };
     this.unlockedAchievements = data?.achievements ?? [];
     this.unlockedTitles = data?.titles ?? ['entrenador'];
     this.events = data?.events ?? [];
-    this.taskState = checkResets(data?.taskState ?? getDefaultTaskState());
-    this.season = data?.season ?? getDefaultSeason();
+    this.taskState = checkResets({ ...getDefaultTaskState(), ...(data?.taskState ?? {}) });
+    this.season = { ...getDefaultSeason(), ...(data?.season ?? {}) };
   }
 
   static fromRedis(data: Record<string, unknown>): ProgressionManager {
@@ -111,7 +111,8 @@ export class ProgressionManager {
 
   initProfile(id: string, username: string) {
     if (!this.profile.id) {
-      this.profile = getDefaultProfile(id, username);
+      this.profile.id = id;
+      this.profile.username = username;
     }
   }
 
