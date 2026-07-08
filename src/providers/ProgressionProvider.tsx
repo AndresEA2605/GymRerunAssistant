@@ -33,6 +33,8 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
   const [notifications, setNotifications] = useState<ProgressionEvent[]>([]);
   const managerRef = useRef<ProgressionManager | null>(null);
   const refreshSessionRef = useRef(refreshSession);
+  const lastSaveRef = useRef<number>(0);
+  const pendingSaveRef = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
     refreshSessionRef.current = refreshSession;
   }, [refreshSession]);
@@ -75,16 +77,31 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
 
   const saveToServer = useCallback(async (mgr: ProgressionManager) => {
     if (!token) return;
-    try {
-      const res = await fetch("/api/auth/progression", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, data: mgr.toRedis() }),
-      });
-      if (res.ok) {
-        refreshSessionRef.current();
-      }
-    } catch (e) { console.error("Progression save failed:", e); }
+    // Debounce: batch saves - only write to Redis at most once every 2 minutes
+    const now = Date.now();
+    const MIN_SAVE_INTERVAL = 2 * 60 * 1000;
+    if (pendingSaveRef.current) {
+      clearTimeout(pendingSaveRef.current);
+    }
+    const doSave = async () => {
+      lastSaveRef.current = Date.now();
+      pendingSaveRef.current = null;
+      try {
+        await fetch("/api/auth/progression", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, data: mgr.toRedis() }),
+        });
+      } catch (e) { console.error("Progression save failed:", e); }
+    };
+    const timeSinceLast = now - lastSaveRef.current;
+    if (timeSinceLast >= MIN_SAVE_INTERVAL) {
+      // Enough time passed — save immediately
+      await doSave();
+    } else {
+      // Schedule a save after the remaining interval
+      pendingSaveRef.current = setTimeout(doSave, MIN_SAVE_INTERVAL - timeSinceLast);
+    }
   }, [token]);
 
   const flushNotifications = useCallback((mgr: ProgressionManager) => {

@@ -81,6 +81,7 @@ async function handler(
         if (!user) {
           return NextResponse.json({ user: null });
         }
+        // Fetch stats in parallel with user lookup result
         const stats = await getUserStats(user.id);
         return NextResponse.json({ user, stats });
       }

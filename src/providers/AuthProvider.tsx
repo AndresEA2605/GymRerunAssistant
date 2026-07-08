@@ -90,7 +90,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     refreshSession();
-    refreshRef.current = setInterval(refreshSession, 5 * 60 * 1000);
+    // Refresh every 30 minutes instead of 5 to reduce Redis requests
+    refreshRef.current = setInterval(refreshSession, 30 * 60 * 1000);
     return () => {
       if (refreshRef.current) clearInterval(refreshRef.current);
     };
