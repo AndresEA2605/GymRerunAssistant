@@ -4,6 +4,7 @@ import React, { createContext, useState, useCallback, useRef, useEffect } from "
 import { ProgressionManager } from "@/lib/progression/manager";
 import type { ProgressionEvent, UserProfile, UserStatistics, TaskProgress } from "@/lib/progression/types";
 import { useAuth } from "@/hooks/useAuth";
+import LevelUpOverlay from "@/components/progression/LevelUpOverlay";
 
 interface ProgressionContextType {
   manager: ProgressionManager | null;
@@ -158,6 +159,7 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
       checkTasks, claimTask, getTaskProgress,
       setActiveTitle, dismissNotification, refreshFromServer,
     }}>
+      <LevelUpOverlay />
       {children}
     </ProgressionContext.Provider>
   );

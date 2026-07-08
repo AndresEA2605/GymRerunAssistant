@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { X, LogOut, Trophy, Flame, Star, Swords, Target, Flag, Clock, Zap } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProgression } from "@/hooks/useProgression";
+import { xpProgressInLevel, xpForLevel } from "@/lib/progression/xp";
 
 interface ProfileDashboardProps {
   isOpen: boolean;
@@ -55,9 +56,9 @@ export default function ProfileDashboard({ isOpen, onClose }: ProfileDashboardPr
               {profile && (
                 <div className="flex items-center gap-2 mt-1">
                   <div className="flex-1 h-1.5 rounded-full bg-neutral-800 overflow-hidden">
-                    <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500" style={{ width: `${Math.min(100, (profile.currentXP / profile.xpToNextLevel) * 100)}%` }} />
+                    <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500" style={{ width: `${xpProgressInLevel(profile.totalXP)}%` }} />
                   </div>
-                  <span className="text-[10px] font-bold text-neutral-400 shrink-0">{profile.currentXP}/{profile.xpToNextLevel} XP</span>
+                  <span className="text-[10px] font-bold text-neutral-400 shrink-0">{profile.totalXP - xpForLevel(profile.level)}/{profile.xpToNextLevel} XP</span>
                 </div>
               )}
             </div>

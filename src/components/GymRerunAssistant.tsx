@@ -364,7 +364,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [showTeam, setShowTeam] = useState<boolean>(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState<boolean>(false);
-  const [finishSummary, setFinishSummary] = useState<{ elapsed: number; gyms: number; xpEarned: number; guideTitle: string } | null>(null);
+  const [finishSummary, setFinishSummary] = useState<{ elapsed: number; gyms: number; xpEarned: number; runXP: number; gymsXP: number; guideTitle: string } | null>(null);
   const [showAbandonConfirm, setShowAbandonConfirm] = useState<boolean>(false);
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
   const [showResumePrompt, setShowResumePrompt] = useState<boolean>(false);
@@ -1064,6 +1064,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     const finalElapsed = timerIsRunning && timerStartTime ? timerElapsed + (Date.now() - timerStartTime) : timerElapsed;
     const totalGymsDone = sessionGymCount;
     const runXP = XP_VALUES.runBaseCompletion + XP_VALUES.runPerGymCompletion * totalGymsDone;
+    const gymsXP = totalGymsDone * XP_VALUES.gymCompletion;
+    const totalXPEarned = runXP + gymsXP;
     const guideTitle = getGuide(selectedGuideId)?.title || "Guía";
     const newEntry: RunHistoryEntry = {
       id: Math.random().toString(36).substr(2, 9),
@@ -1085,7 +1087,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       setLS(`run_step_${selectedGuideId}`, "");
       setLS(`run_active_${selectedGuideId}`, "");
     }
-    setFinishSummary({ elapsed: finalElapsed, gyms: totalGymsDone, xpEarned: runXP, guideTitle });
+    setFinishSummary({ elapsed: finalElapsed, gyms: totalGymsDone, xpEarned: totalXPEarned, runXP, gymsXP, guideTitle });
     // Start cooldown
     const gid = selectedGuideId;
     if (gid === 'hooh') {
@@ -1094,7 +1096,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       startGymCooldown(getLastCompletedGym(), gymResetMs, gid);
     }
     goToMenu(false);
-    grantXP(runXP, "Run completada");
+    grantXP(totalXPEarned, "Run completada");
     incrementStat("guidesFinished");
     incrementStat("totalTimeMs", finalElapsed);
   };
@@ -1117,13 +1119,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     setSessionGymCount(0);
     setCurrentStepIndex(-1);
     const remaining = freeRuns[target] ?? 2;
-    if (remaining > 0) {
-      setFreeRuns(prev => ({ ...prev, [target]: remaining - 1 }));
-      setFreeRunsResetAt(prev => ({ ...prev, [target]: Date.now() }));
-      triggerToast(`Run reiniciada — te quedan ${remaining - 1} intento${remaining - 1 !== 1 ? 's' : ''} gratis`);
-    } else {
-      triggerToast("Run reiniciada — sin intentos gratis restantes");
+    if (remaining <= 0) {
+      triggerToast("No te quedan puntos para repetir esta guía.");
+      return;
     }
+    setFreeRuns(prev => ({ ...prev, [target]: remaining - 1 }));
+    setFreeRunsResetAt(prev => ({ ...prev, [target]: Date.now() }));
+    triggerToast(`Run reiniciada — te quedan ${remaining - 1} intento${remaining - 1 !== 1 ? 's' : ''} gratis`);
     setSelectedGuideId(target);
     setLS("selected_guide", target);
     setShowMenu(false);
@@ -1877,141 +1879,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                             </div>
                           );
                         })}
-                      </div>
-                    ) : cat.id === 'guides' ? (
-                      <div className="space-y-3 overflow-y-auto flex-1 pr-1 custom-scrollbar">
-                        <a href="https://docs.google.com/document/d/1GkgTlrZwm2jUO_aD_U9Gha8CaljwRQaMLMMJfpsr4Bc/edit?tab=t.kd1fquq7r0zb" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-neutral-950/60 border border-neutral-800 hover:border-blue-500/40 rounded-xl py-3 px-4 transition-all group">
-                          <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
-                            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-blue-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z"/></svg>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <span className="fs-tiny font-bold text-neutral-300 group-hover:text-white transition-colors block truncate">Guía 25 Gyms (MYRROR)</span>
-                            <span className="fs-tiny text-neutral-500 block">Documentos</span>
-                          </div>
-                        </a>
-                        <a href="https://www.youtube.com/watch?v=himBCqDN2-I" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-neutral-950/60 border border-neutral-800 hover:border-red-500/40 rounded-xl py-3 px-4 transition-all group">
-                          <div className="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center shrink-0">
-                            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-red-400"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <span className="fs-tiny font-bold text-neutral-300 group-hover:text-white transition-colors block truncate">33 Gyms Guide</span>
-                            <span className="fs-tiny text-neutral-500 block">YouTube</span>
-                          </div>
-                        </a>
-                        <a href="https://www.youtube.com/watch?v=QEwUZKASfeI" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-neutral-950/60 border border-neutral-800 hover:border-amber-500/40 rounded-xl py-3 px-4 transition-all group">
-                          <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center shrink-0">
-                            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-amber-400"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <span className="fs-tiny font-bold text-neutral-300 group-hover:text-white transition-colors block truncate">Ho-Oh Farming</span>
-                            <span className="fs-tiny text-neutral-500 block">YouTube · Finya Cabrazo</span>
-                          </div>
-                        </a>
-                      </div>
-                    ) : (
-                      <div className="bg-neutral-950/40 border border-dashed border-neutral-700/60 rounded-xl py-4 text-center opacity-50">
-                        <Sparkles className="w-4 h-4 text-neutral-500 mx-auto mb-1" />
-                        <span className="fs-tiny font-bold text-neutral-400">Próximamente</span>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            <p className="fs-small text-neutral-500 text-center">{description}</p>
-          </>)}
-
-          {selectedGuideId === 'none' && (
-          <div className="reveal-2 w-full grid grid-cols-3 gap-3 text-center mb-6">
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-3 px-3">
-                  <div className="fs-small font-black text-white">{GUIDES.length}</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Guías Disp.</div>
-                </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-3 px-3">
-                  <div className="fs-small font-black text-neutral-400">{totalGyms}</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Gyms por Guía</div>
-                </div>
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl py-3 px-3">
-                  <div className="fs-small font-black text-neutral-400">{steps.length}</div>
-                  <div className="fs-tiny text-neutral-500 uppercase tracking-wider leading-tight">Pasos por Guía</div>
-                </div>
-          </div>
-          )}
-
-
-          <div className="reveal-6 w-full border-t border-neutral-800/40 pt-2 flex items-center justify-center gap-4 text-neutral-500">
-            <div className="relative group/btn">
-              <button onClick={() => setShowHistory(true)} className="flex items-center gap-2 hover:text-white transition-colors">
-                <History className="w-3.5 h-3.5 text-neutral-500" />
-                <span className="fs-tiny font-semibold">Historial</span>
-              </button>
-              <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 bg-neutral-900 border border-neutral-700 rounded-xl text-neutral-300 fs-tiny text-center opacity-0 pointer-events-none group-hover/btn:opacity-100 transition-opacity whitespace-nowrap z-50 shadow-xl">
-                Revisa tus runs anteriores: tiempos, gimnasios completados, ingresos y estadísticas detalladas
-              </div>
-            </div>
-            <span className="text-neutral-700">·</span>
-            <a href="https://www.instagram.com/dreasy__/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white transition-colors">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-pink-400"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-              <span className="fs-tiny font-semibold">Dreasy__</span>
-            </a>
-            <a href="https://github.com/AndresEA2605" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white transition-colors">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-neutral-300"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.305-5.466-1.335-5.466-5.942 0-1.312.468-2.383 1.236-3.223-.124-.303-.536-1.523.117-3.176 0 0 1.008-.322 3.301 1.23a11.52 11.52 0 0 1 3.005-.404c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.655 1.653.243 2.873.12 3.176.77.84 1.235 1.911 1.235 3.223 0 4.61-2.804 5.634-5.475 5.93.43.372.823 1.102.823 2.222 0 1.606-.015 2.898-.015 3.293 0 .322.216.694.825.576C20.565 22.092 24 17.596 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-              <span className="fs-tiny font-semibold">Dreasy</span>
-            </a>
-            <a href="https://open.spotify.com/intl-es/artist/728Rey8DKDMb40oWhQkzQz?si=L-P1GPu0Ti2AX3LR3xCPWQ" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white transition-colors">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-emerald-400"><path d="M12 0a12 12 0 1 0 12 12A12 12 0 0 0 12 0Zm5.33 17.1a.76.76 0 0 1-1.03.25c-2.82-1.73-6.37-2.12-10.54-1.16a.76.76 0 0 1-.95-.47.76.76 0 0 1 .47-.95c4.46-1.03 8.38-.62 11.56 1.34a.76.76 0 0 1 .25 1.03Zm1.47-3.28a.95.95 0 0 1-1.3.31c-3.22-1.98-8.14-2.56-11.95-1.39a.95.95 0 0 1-1.15-.72.95.95 0 0 1 .72-1.15c4.25-1.25 9.69-.64 13.48 1.58a.95.95 0 0 1 .31 1.3Zm.13-3.41c-3.86-2.29-10.24-2.5-13.93-1.39a1.14 1.14 0 0 1-1.46-.83 1.14 1.14 0 0 1 .83-1.46c4.09-1.24 11.55-.99 16.1 1.58a1.14 1.14 0 0 1-.54 2.12Z"/></svg>
-              <span className="fs-tiny font-semibold">Spotify</span>
-            </a>
-          </div>
-           <div className="reveal-6 w-full flex items-center justify-center mt-1">
-             <div className="relative group/btn">
-               <button onClick={() => setShowSettings(true)} className="flex items-center gap-2 px-4 py-2 text-neutral-500 hover:text-white hover:bg-neutral-800/60 rounded-xl transition-all group/btn-inner">
-                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 group-hover/btn-inner:rotate-90 transition-transform duration-300"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                 <span className="fs-small font-semibold">Configuración</span>
-               </button>
-               <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 bg-neutral-900 border border-neutral-700 rounded-xl text-neutral-300 fs-tiny text-center opacity-0 pointer-events-none group-hover/btn:opacity-100 transition-opacity whitespace-nowrap z-50 shadow-xl">
-                 Configura recordatorios de descanso, alertas de sonido, temporizador manual y opciones avanzadas
-               </div>
-             </div>
-           </div>
-         </div>
-       </div>
-        {historyModal}
-
-      {finishSummary && createPortal(
-        <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setFinishSummary(null)}>
-          <div className="w-full max-w-sm rounded-2xl bg-gradient-to-br from-emerald-950 to-indigo-950 border border-emerald-500/30 overflow-hidden shadow-2xl shadow-emerald-950/50 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300" onClick={e => e.stopPropagation()}>
-            <div className="relative p-5">
-              <button onClick={() => setFinishSummary(null)} className="absolute top-3 right-3 p-1.5 rounded-xl text-neutral-500 hover:text-white hover:bg-neutral-800/60 transition-colors">
-                <X className="w-4 h-4" />
-              </button>
-              <div className="flex items-center gap-2.5 mb-3">
-                <div className="p-2 rounded-full bg-emerald-500/20">
-                  <CheckCircle className="w-5 h-5 text-emerald-400" />
-                </div>
-                <div>
-                  <span className="fs-base font-black bg-gradient-to-r from-emerald-300 to-indigo-300 bg-clip-text text-transparent">¡Run completada!</span>
-                  <div className="text-white font-black text-sm tracking-wide mt-0.5">{finishSummary.guideTitle} Rerun</div>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-x-4 gap-y-2 py-3 border-t border-b border-emerald-500/10 my-3">
-                <div className="flex items-center gap-1.5 text-xs">
-                  <Timer className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="text-neutral-300 font-medium">{formatTime(finishSummary.elapsed)}</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-xs">
-                  <Target className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-neutral-300 font-medium">{finishSummary.gyms} gyms</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-xs">
-                  <Zap className="w-3.5 h-3.5 text-indigo-400" />
-                  <span className="text-indigo-300 font-black">+{finishSummary.xpEarned} XP</span>
-                </div>
-              </div>
-              {!authUser && (
-                <div className="mb-2">
-                  <p className="text-[11px] text-neutral-400 mb-2">
                     Crea una cuenta para guardar tus recompensas, seguir tu progreso y desbloquear logros.
                   </p>
                   <button onClick={() => { setFinishSummary(null); authButtonRef.current?.openRegister(); }} className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 rounded-xl transition-all active:scale-[0.97]">
