@@ -8,12 +8,14 @@ import { LEVEL_MILESTONES } from "@/lib/progression/xp";
 
 export default function LevelUpOverlay() {
   const { profile } = useProgression();
-  const [prevLevel, setPrevLevel] = useState(profile?.level ?? 1);
+  const [prevLevel, setPrevLevel] = useState<number | null>(null);
   const [showLevel, setShowLevel] = useState<number | null>(null);
 
   useEffect(() => {
     if (profile) {
-      if (profile.level > prevLevel) {
+      if (prevLevel === null) {
+        setPrevLevel(profile.level);
+      } else if (profile.level > prevLevel) {
         setShowLevel(profile.level);
         // Hide after 4 seconds
         const t = setTimeout(() => setShowLevel(null), 4000);
