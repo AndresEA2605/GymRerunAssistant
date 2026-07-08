@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { createPortal } from "react-dom";
-import { X, LogOut, Zap, Trophy, Flame, Star, Swords, Target, Flag, Clock, Users, Footprints, Route, MapPin } from "lucide-react";
+import { X, LogOut, Trophy, Flame, Star, Swords, Target, Flag, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 interface ProfileDashboardProps {
@@ -27,13 +27,16 @@ export default function ProfileDashboard({ isOpen, onClose }: ProfileDashboardPr
         className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto bg-gradient-to-b from-neutral-900 via-neutral-900 to-neutral-950 rounded-3xl border border-neutral-700/40 shadow-[0_0_80px_rgba(99,102,241,0.06)]"
         onClick={e => e.stopPropagation()}
       >
-        <button onClick={onClose} className="sticky top-3 float-right mr-3 z-20 w-9 h-9 rounded-full bg-neutral-800/60 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition-all">
-          <X className="w-4 h-4" />
-        </button>
+        <div className="sticky top-0 z-20 flex items-center justify-between px-6 pt-5 pb-2 bg-gradient-to-b from-neutral-900 to-transparent">
+          <h2 className="text-white font-black text-xl">Perfil</h2>
+          <button onClick={onClose} className="w-9 h-9 rounded-full bg-neutral-800/60 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition-all shrink-0">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
 
-        <div className="px-6 pb-6 -mt-2">
+        <div className="px-6 pb-6">
           {/* Header */}
-          <div className="flex items-center gap-4 pt-2">
+          <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-2xl font-black shadow-xl shadow-indigo-500/20 shrink-0">
               {user.username.charAt(0).toUpperCase()}
             </div>
