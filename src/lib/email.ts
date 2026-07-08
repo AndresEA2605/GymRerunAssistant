@@ -1,21 +1,37 @@
 import nodemailer from 'nodemailer';
 
-// Create a reusable transporter using default SMTP transport or Ethereal for testing
-// In production on Vercel, use environment variables: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.ethereal.email',
-  port: Number(process.env.SMTP_PORT) || 587,
-  auth: {
-    user: process.env.SMTP_USER || 'test@ethereal.email',
-    pass: process.env.SMTP_PASS || 'password123',
-  },
-});
+function getTransporterConfig() {
+  const host = process.env.SMTP_HOST || process.env.GMAIL_HOST || '';
+  const port = Number(process.env.SMTP_PORT || process.env.GMAIL_PORT || 587);
+  const secure = (process.env.SMTP_SECURE || process.env.GMAIL_SECURE || 'false').toLowerCase() === 'true';
+  const user = process.env.SMTP_USER || process.env.GMAIL_USER || '';
+  const pass = process.env.SMTP_PASS || process.env.GMAIL_PASS || '';
+
+  if (user && pass) {
+    if (host) {
+      return {
+        host,
+        port,
+        secure,
+        auth: { user, pass },
+      };
+    }
+
+    return {
+      service: 'gmail',
+      auth: { user, pass },
+    };
+  }
+
+  return null;
+}
+
+const transporterConfig = getTransporterConfig();
+const transporter = transporterConfig ? nodemailer.createTransport(transporterConfig) : null;
 
 export async function sendPasswordResetEmail(email: string, token: string) {
-  const isDev = process.env.NODE_ENV !== 'production' || !process.env.SMTP_HOST;
-  
   const mailOptions = {
-    from: process.env.SMTP_FROM || '"PokeAssistant" <noreply@pokeassistant.com>',
+    from: process.env.SMTP_FROM || process.env.GMAIL_FROM || '"PokeAssistant" <noreply@pokeassistant.com>',
     to: email,
     subject: 'Recuperación de contraseña - PokeAssistant',
     text: `Has solicitado recuperar tu contraseña en PokeAssistant.\n\nTu token de recuperación es:\n\n${token}\n\nIngresa este código en la aplicación para crear una nueva contraseña. Si no solicitaste este cambio, puedes ignorar este correo.`,
@@ -33,25 +49,20 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   };
 
   try {
-    if (isDev) {
-      // In development or when no SMTP is configured, we just log the token so the dev can use it
+    if (!transporter) {
       console.log('\n=============================================');
-      console.log('EMAIL INTERCEPTED (DEV MODE)');
+      console.log('EMAIL INTERCEPTED (SMTP not configured)');
       console.log(`TO: ${email}`);
       console.log(`TOKEN: ${token}`);
       console.log('=============================================\n');
+      return { ok: false, error: 'No hay configuración SMTP activa para enviar el correo. Configura SMTP_USER y SMTP_PASS (o GMAIL_USER/GMAIL_PASS).' };
     }
-    
-    // Attempt to send email. If it's the fake ethereal credentials, it will fail unless they match a real account, 
-    // but we wrap in try-catch so it doesn't break the flow.
-    if (process.env.SMTP_HOST) {
-      await transporter.sendMail(mailOptions);
-    }
+
+    await transporter.verify();
+    await transporter.sendMail(mailOptions);
     return { ok: true };
   } catch (error) {
     console.error('Error sending email:', error);
-    // We return ok: true even if it fails so we don't leak whether the email exists, 
-    // but in a real app we might handle it differently.
-    return { ok: true };
+    return { ok: false, error: 'No se pudo enviar el correo de recuperación. Revisa la configuración SMTP.' };
   }
 }

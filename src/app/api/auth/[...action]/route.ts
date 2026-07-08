@@ -190,9 +190,12 @@ async function handler(
         if (result.error || !result.token) {
           return NextResponse.json({ error: result.error || 'Error' }, { status: 400 });
         }
-        // Send the token via email instead of returning it to the client
-        await import('@/lib/email').then(m => m.sendPasswordResetEmail(email, result.token as string));
-        
+
+        const emailResult = await import('@/lib/email').then(m => m.sendPasswordResetEmail(email, result.token as string));
+        if (!emailResult.ok) {
+          return NextResponse.json({ error: emailResult.error || 'No se pudo enviar el correo de recuperación.' }, { status: 400 });
+        }
+
         return NextResponse.json({ ok: true });
       }
 
