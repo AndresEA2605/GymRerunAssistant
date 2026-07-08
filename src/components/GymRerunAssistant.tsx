@@ -39,7 +39,7 @@ import GuideCredits from "./GuideCredits";
 import CategoryFooter from "./layout/footers/CategoryFooter";
 import CooldownBadge from "./shared/CooldownBadge";
 import TimerDisplay from "./shared/TimerDisplay";
-import { formatTime } from "./shared/TimerDisplay";
+import { formatTime, formatCooldown } from "./shared/TimerDisplay";
 import { getGuideColorClasses, getGuidePokeGlow } from "@/lib/design-tokens";
 import { getGuide, getGuidesByCategory, GUIDE_CATEGORIES, GUIDES } from "../data/guides";
 import { showCompleteGym as shouldShowCompleteGym, isRoutesGuide } from "@/lib/guide-footer";
@@ -1742,7 +1742,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                             >
                               {onCooldown && (
                                 <div className="absolute inset-0 rounded-2xl bg-neutral-950/60 flex items-center justify-center z-10">
-                                  <span className="text-xs font-bold text-neutral-400">Cooldown — {formatTime(cdRemaining)}</span>
+                                  <span className="text-xs font-bold text-neutral-400">Cooldown — {formatCooldown(cdRemaining)}</span>
                                 </div>
                               )}
                               <div className={`w-11 h-11 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-900/70 p-1.5 poke-aura ${getGuidePokeGlow(g.color)}`}>
@@ -1768,9 +1768,11 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                                   setRestartTargetGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2');
                                   setShowRestartConfirm(true);
                                 }}
-                                className="w-full mt-1 text-[10px] font-bold text-neutral-600 hover:text-amber-400 transition-colors text-center"
+                                className="absolute bottom-1.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/30 border border-neutral-700/20 text-[9px] font-bold text-neutral-500 opacity-0 group-hover:opacity-100 hover:bg-amber-950/30 hover:border-amber-700/30 hover:text-amber-400 transition-all z-20"
+                                title="Repetir run — reinicia todos los temporizadores"
                               >
-                                🔄 Repetir run
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+                                Repetir
                               </button>
                             )}
                             </>
