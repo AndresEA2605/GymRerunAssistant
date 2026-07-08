@@ -1694,17 +1694,24 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 <AuthButton ref={authButtonRef} />
               </div>
               <NotificationBell />
-              <div className="shrink-0 inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-2">
-                {hasActiveSession ? (
-                  <>
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${getGuide(activeSessionGuide)?.icon || '94'}.gif`} alt="" className="w-6 h-6 object-contain" />
-                    <span className="text-emerald-400 fs-tiny font-bold whitespace-nowrap">Run activa</span>
-                  </>
+              <div className={`shrink-0 inline-flex items-center gap-2 border rounded-full px-3 py-2 ${authUser ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
+                {authUser ? (
+                  hasActiveSession ? (
+                    <>
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${getGuide(activeSessionGuide)?.icon || '94'}.gif`} alt="" className="w-6 h-6 object-contain" />
+                      <span className="text-emerald-400 fs-tiny font-bold whitespace-nowrap">Run activa</span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                      <span className="text-emerald-300 fs-tiny font-semibold whitespace-nowrap">Online</span>
+                    </>
+                  )
                 ) : (
                   <>
-                    <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                    <span className="text-emerald-300 fs-tiny font-semibold whitespace-nowrap">Sin actividad</span>
+                    <div className="w-2 h-2 rounded-full bg-red-500" />
+                    <span className="text-red-400 fs-tiny font-bold whitespace-nowrap">Offline</span>
                   </>
                 )}
               </div>
