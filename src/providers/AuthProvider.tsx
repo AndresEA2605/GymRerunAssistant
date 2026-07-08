@@ -17,6 +17,10 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
+function ls() {
+  return typeof window !== "undefined" ? localStorage : null;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [stats, setStats] = useState<UserStats | null>(null);
@@ -25,7 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshRef = useRef<NodeJS.Timeout | null>(null);
 
   const refreshSession = useCallback(async () => {
-    const stored = typeof window !== "undefined" ? localStorage.getItem("pkmmo_auth_token") : null;
+    const stored = ls()?.getItem("pkmmo_auth_token") ?? null;
     if (!stored) {
       setUser(null);
       setStats(null);
@@ -47,7 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setStats(data.stats || null);
         setToken(stored);
       } else {
-        localStorage.removeItem("pkmmo_auth_token");
+        ls()?.removeItem("pkmmo_auth_token");
         setUser(null);
         setStats(null);
         setToken(null);
@@ -82,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (data.error) return { error: `${data.error}${data.detail ? ` [${data.detail}]` : ''}` };
 
-      localStorage.setItem("pkmmo_auth_token", data.token as string);
+      ls()?.setItem("pkmmo_auth_token", data.token as string);
       setUser(data.user as User);
       setToken(data.token as string);
 
@@ -113,7 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (data.error) return { error: `${data.error}${data.detail ? ` [${data.detail}]` : ''}` };
 
-      localStorage.setItem("pkmmo_auth_token", data.token as string);
+      ls()?.setItem("pkmmo_auth_token", data.token as string);
       setUser(data.user as User);
       setToken(data.token as string);
       setStats({ totalGyms: 0, totalHoohRuns: 0, totalTimeMs: 0, streaks: { current: 0, best: 0 }, achievements: [] });

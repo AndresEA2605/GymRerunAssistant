@@ -80,7 +80,7 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
       if (res.ok) {
         refreshSessionRef.current();
       }
-    } catch {}
+    } catch (e) { console.error("Progression save failed:", e); }
   }, [token]);
 
   const flushNotifications = useCallback((mgr: ProgressionManager) => {

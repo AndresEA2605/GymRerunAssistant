@@ -101,7 +101,7 @@ async function handler(
         const cloudDaily = await getUserDaily(user.id);
 
         const localHistory = localData?.gym_history ? JSON.parse(localData.gym_history) : [];
-        const localStep = localData?.gym_step ? parseInt(localData.gym_step) : 0;
+        const localStep = localData?.gym_step ? Math.max(0, Number(localData.gym_step) || 0) : 0;
         const localTimer = localData?.gym_timer ? JSON.parse(localData.gym_timer) : null;
         const localCooldown = localData?.gym_cooldown ? JSON.parse(localData.gym_cooldown) : null;
         const localAllCooldowns = localData?.all_cooldowns ? JSON.parse(localData.all_cooldowns) : null;

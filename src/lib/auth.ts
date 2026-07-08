@@ -78,7 +78,10 @@ async function hashPassword(password: string): Promise<string> {
 
 async function verifyPassword(password: string, stored: string): Promise<boolean> {
   const [saltHex, hashHex] = stored.split(':');
-  const salt = new Uint8Array(saltHex.match(/.{2}/g)!.map(h => parseInt(h, 16)));
+  if (!saltHex || !hashHex) return false;
+  const bytes = saltHex.match(/.{2}/g);
+  if (!bytes) return false;
+  const salt = new Uint8Array(bytes.map(h => parseInt(h, 16)));
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
   const salted = new Uint8Array([...salt, ...data]);

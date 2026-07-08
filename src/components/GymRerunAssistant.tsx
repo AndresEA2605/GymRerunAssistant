@@ -1,6 +1,5 @@
 /* eslint-disable */
 "use client";
-"use no memo";
 
 import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import { createPortal } from "react-dom";
@@ -236,8 +235,13 @@ const CooldownNoticeModal = memo(({ allCooldowns, onDismiss }: { allCooldowns: A
     const intervalId = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(intervalId);
   }, []);
+  const CD_COLORS: Record<string, { dot: string; text: string }> = {
+    amber: { dot: 'bg-amber-500', text: 'text-amber-300' },
+    red: { dot: 'bg-red-500', text: 'text-red-300' },
+    emerald: { dot: 'bg-emerald-500', text: 'text-emerald-300' },
+  };
   const cooldownEntries = useMemo(() => {
-    const items: { label: string; color: string; endAt: number | null; lastGym: string | null }[] = [];
+    const items: { label: string; color: string; endAt: number; lastGym: string | null }[] = [];
     if (allCooldowns.gym.endAt && allCooldowns.gym.endAt > now) {
       items.push({ label: "Gyms", color: "amber", endAt: allCooldowns.gym.endAt, lastGym: allCooldowns.gym.lastGym });
     }
@@ -262,14 +266,14 @@ const CooldownNoticeModal = memo(({ allCooldowns, onDismiss }: { allCooldowns: A
         {anyActive ? (
           <div className="space-y-2.5">
             {cooldownEntries.map((entry, i) => {
-              const remaining = Math.max(0, entry.endAt! - now);
+              const remaining = Math.max(0, entry.endAt - now);
               const expired = remaining <= 0;
               return (
                 <div key={entry.label} className="bg-neutral-950/80 border border-neutral-800/60 rounded-xl p-3 transition-all duration-300" style={i > 0 ? { transitionDelay: `${i * 80}ms` } : undefined}>
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full bg-${entry.color}-500 animate-pulse`} />
-                      <span className={`font-black fs-small text-${entry.color}-300`}>{entry.label}</span>
+                      <div className={`w-2 h-2 rounded-full ${CD_COLORS[entry.color].dot} animate-pulse`} />
+                      <span className={`font-black fs-small ${CD_COLORS[entry.color].text}`}>{entry.label}</span>
                     </div>
                     <span className={`font-mono text-xl font-black tracking-tight ${expired ? "text-amber-400" : "text-emerald-400"}`}>
                       {expired ? "LISTO" : formatCooldown(remaining)}
@@ -1794,49 +1798,48 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                           const onCooldown = cdEnd ? cdEnd > Date.now() : false;
                           const cdRemaining = onCooldown ? cdEnd! - Date.now() : 0;
                           return (
-                            <>
-                            <button
-                              key={g.id}
-                              onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')}
-                              disabled={onCooldown}
-                              className={`relative w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} ${onCooldown ? 'opacity-50 cursor-not-allowed' : `hover:bg-neutral-800 ${gc.borderHover} group`}`}
-                            >
-                              {onCooldown && (
-                                <div className="absolute inset-0 rounded-2xl bg-neutral-950/60 flex items-center justify-center z-10">
-                                  <span className="text-xs font-bold text-neutral-400">Cooldown — {formatCooldown(cdRemaining)}</span>
-                                </div>
-                              )}
-                              <div className={`w-11 h-11 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-900/70 p-1.5 poke-aura ${getGuidePokeGlow(g.color)}`}>
-                                <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className={`fs-tiny font-black ${gc.text} truncate`}>{g.title}</div>
-                                <div className="fs-tiny text-neutral-500 truncate mb-1">{g.subtitle}</div>
-                                <div className="flex items-center gap-1 flex-wrap">
-                                  {(g.team || []).slice(0,6).map((t, i) => (
-                                    <div key={i} className="w-6 h-6 rounded bg-neutral-900 border border-neutral-800/40 flex items-center justify-center p-0.5 shrink-0" title={t.name}>
-                                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${t.spriteId}.gif`} alt={t.name} className="w-full h-full object-contain" loading="lazy" />
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                              <span className={`fs-tiny font-black ${gc.text} opacity-0 group-hover:opacity-100 transition-opacity shrink-0`}>→</span>
-                            </button>
-                            {g.id !== "none" && (
+                            <div key={g.id} className="relative">
                               <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setRestartTargetGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2');
-                                  setShowRestartConfirm(true);
-                                }}
-                                className="absolute bottom-1.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/50 border border-neutral-700/40 text-[9px] font-bold text-neutral-400 hover:bg-amber-950/30 hover:border-amber-700/30 hover:text-amber-400 transition-all z-20"
-                                title="Repetir run — reinicia todos los temporizadores"
+                                onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')}
+                                disabled={onCooldown}
+                                className={`w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} ${onCooldown ? 'opacity-50 cursor-not-allowed' : `hover:bg-neutral-800 ${gc.borderHover} group`}`}
                               >
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
-                                Repetir
+                                {onCooldown && (
+                                  <div className="absolute inset-0 rounded-2xl bg-neutral-950/60 flex items-center justify-center z-10">
+                                    <span className="text-xs font-bold text-neutral-400">Cooldown — {formatCooldown(cdRemaining)}</span>
+                                  </div>
+                                )}
+                                <div className={`w-11 h-11 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-900/70 p-1.5 poke-aura ${getGuidePokeGlow(g.color)}`}>
+                                  <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className={`fs-tiny font-black ${gc.text} truncate`}>{g.title}</div>
+                                  <div className="fs-tiny text-neutral-500 truncate mb-1">{g.subtitle}</div>
+                                  <div className="flex items-center gap-1 flex-wrap">
+                                    {(g.team || []).slice(0,6).map((t, i) => (
+                                      <div key={i} className="w-6 h-6 rounded bg-neutral-900 border border-neutral-800/40 flex items-center justify-center p-0.5 shrink-0" title={t.name}>
+                                        <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${t.spriteId}.gif`} alt={t.name} className="w-full h-full object-contain" loading="lazy" />
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                                <span className={`fs-tiny font-black ${gc.text} opacity-0 group-hover:opacity-100 transition-opacity shrink-0`}>→</span>
                               </button>
-                            )}
-                            </>
+                              {g.id !== "none" && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setRestartTargetGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2');
+                                    setShowRestartConfirm(true);
+                                  }}
+                                  className="absolute bottom-1.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/50 border border-neutral-700/40 text-[9px] font-bold text-neutral-400 hover:bg-amber-950/30 hover:border-amber-700/30 hover:text-amber-400 transition-all z-20"
+                                  title="Repetir run — reinicia todos los temporizadores"
+                                >
+                                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+                                  Repetir
+                                </button>
+                              )}
+                            </div>
                           );
                         })}
                       </div>
