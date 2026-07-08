@@ -150,7 +150,7 @@ export async function registerUser(
     const { data: existingUsername } = await db
       .from('users')
       .select('id')
-      .eq('username', cleanUsername)
+      .ilike('username', cleanUsername)
       .maybeSingle();
     if (existingUsername) return { error: 'Este username ya está en uso' };
 
@@ -227,14 +227,15 @@ export async function loginUser(
   password: string
 ): Promise<{ user: User; token: string } | { error: string }> {
   try {
-    const clean = identifier.toLowerCase().trim();
+    const trimmed = identifier.trim();
+    const cleanEmail = trimmed.toLowerCase();
     const db = getSupabase();
 
     let query;
-    if (clean.includes('@')) {
-      query = db.from('users').select('*').eq('email', clean).maybeSingle();
+    if (cleanEmail.includes('@')) {
+      query = db.from('users').select('*').eq('email', cleanEmail).maybeSingle();
     } else {
-      query = db.from('users').select('*').eq('username', clean).maybeSingle();
+      query = db.from('users').select('*').ilike('username', trimmed).limit(1).maybeSingle();
     }
 
     const { data: row, error } = await query;
