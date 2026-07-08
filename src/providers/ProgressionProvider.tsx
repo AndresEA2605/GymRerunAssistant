@@ -30,6 +30,8 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
   const [isLoaded, setIsLoaded] = useState(false);
   const [notifications, setNotifications] = useState<ProgressionEvent[]>([]);
   const managerRef = useRef<ProgressionManager | null>(null);
+  const refreshSessionRef = useRef(refreshSession);
+  refreshSessionRef.current = refreshSession;
 
   const loadFromServer = useCallback(async () => {
     if (!token) {
@@ -55,6 +57,7 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
         managerRef.current = mgr;
         setManager(mgr);
       }
+      refreshSessionRef.current();
     } catch {
       const mgr = new ProgressionManager();
       if (user) mgr.initProfile(user.id, user.username);
@@ -75,10 +78,10 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
         body: JSON.stringify({ token, data: mgr.toRedis() }),
       });
       if (res.ok) {
-        refreshSession();
+        refreshSessionRef.current();
       }
     } catch {}
-  }, [token, refreshSession]);
+  }, [token]);
 
   const flushNotifications = useCallback((mgr: ProgressionManager) => {
     const newNotes = mgr.consumeNotifications();

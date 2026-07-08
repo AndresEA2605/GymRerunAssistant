@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserByToken, getProgression, saveProgression, getUserStats, updateUserStats } from '@/lib/auth';
+import { getUserByToken, getProgression, saveProgression, updateUserLevelFromProgression, getUserStats, updateUserStats } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,6 +10,10 @@ export async function POST(req: NextRequest) {
     if (!user) return NextResponse.json({ ok: false, error: 'Sesión inválida' }, { status: 401 });
 
     const progression = await getProgression(user.id);
+    // Backfill user level/xp from saved progression data
+    if (progression && progression.profile) {
+      await updateUserLevelFromProgression(user.id, progression);
+    }
     return NextResponse.json({ ok: true, progression });
   } catch (err) {
     console.error('Progression GET error:', err);
@@ -26,6 +30,7 @@ export async function PUT(req: NextRequest) {
     if (!user) return NextResponse.json({ ok: false, error: 'Sesión inválida' }, { status: 401 });
 
     await saveProgression(user.id, data);
+    await updateUserLevelFromProgression(user.id, data);
 
     // Sync auth stats from progression data
     const existingStats = await getUserStats(user.id);

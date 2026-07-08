@@ -417,3 +417,15 @@ export async function getProgression(userId: string): Promise<Record<string, unk
 export async function saveProgression(userId: string, data: Record<string, unknown>): Promise<void> {
   await getRedis().set(`${kuser(userId)}:progression`, data);
 }
+
+export async function updateUserLevelFromProgression(userId: string, data: Record<string, unknown>): Promise<void> {
+  const userData = await getRedis().get<UserWithHash>(kuser(userId));
+  if (!userData) return;
+  const profile = (data as Record<string, unknown>).profile as Record<string, unknown> | undefined;
+  if (profile && typeof profile.level === 'number' && typeof profile.totalXP === 'number') {
+    userData.level = profile.level;
+    userData.xp = profile.totalXP;
+    userData.coins = typeof profile.coins === 'number' ? profile.coins : 0;
+    await getRedis().set(kuser(userId), userData);
+  }
+}
