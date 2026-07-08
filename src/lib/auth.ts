@@ -281,24 +281,21 @@ export async function loginUser(
 export async function getUserByToken(token: string): Promise<User | null> {
   try {
     const db = getSupabase();
+    // Use a join to get session and user in a single query
     const { data: session } = await db
       .from('sessions')
-      .select('*')
+      .select('*, users(*)')
       .eq('token', token)
       .maybeSingle();
 
     if (!session) return null;
     if (session.expires_at < Date.now()) {
-      await db.from('sessions').delete().eq('token', token);
+      // Async delete to not block returning null
+      db.from('sessions').delete().eq('token', token).then();
       return null;
     }
 
-    const { data: row } = await db
-      .from('users')
-      .select('*')
-      .eq('id', session.user_id)
-      .maybeSingle();
-
+    const row = session.users;
     if (!row) return null;
 
     return {
