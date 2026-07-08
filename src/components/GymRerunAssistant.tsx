@@ -1847,10 +1847,11 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                                   <span className={`fs-tiny font-black ${gc.text} opacity-0 group-hover:opacity-100 transition-opacity shrink-0`}>→</span>
                                 </button>
                               )}
-                              <div className="flex justify-end gap-1 -mt-6 relative z-10 mr-2">
+                              <div className="flex justify-end gap-1 -mt-6 relative mr-2">
                                 <button
-                                  onClick={() => setPreviewGuide(g.id)}
-                                  className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/50 border border-neutral-700/40 text-[9px] font-bold text-neutral-400 hover:bg-indigo-950/30 hover:border-indigo-700/30 hover:text-indigo-400 transition-all pointer-events-auto"
+                                  type="button"
+                                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setPreviewGuide(g.id); }}
+                                  className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/50 border border-neutral-700/40 text-[9px] font-bold text-neutral-400 hover:bg-indigo-950/30 hover:border-indigo-700/30 hover:text-indigo-400 transition-all"
                                   title="Vista previa de la guía"
                                 >
                                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -1858,11 +1859,14 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                                 </button>
                                 {g.id !== "none" && (
                                   <button
-                                    onClick={() => {
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
                                       setRestartTargetGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2');
                                       setShowRestartConfirm(true);
                                     }}
-                                    className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/50 border border-neutral-700/40 text-[9px] font-bold text-neutral-400 hover:bg-amber-950/30 hover:border-amber-700/30 hover:text-amber-400 transition-all pointer-events-auto"
+                                    className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/50 border border-neutral-700/40 text-[9px] font-bold text-neutral-400 hover:bg-amber-950/30 hover:border-amber-700/30 hover:text-amber-400 transition-all"
                                     title="Repetir run — reinicia todos los temporizadores"
                                   >
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
