@@ -91,9 +91,8 @@ export default forwardRef(function AuthButton(_props, ref) {
         body: JSON.stringify({ email }),
       });
       const data = await res.json();
-      if (!data.error && data.token) {
+      if (!data.error) {
         setResetEmail(email);
-        setResetToken(data.token);
       }
       return data;
     } catch {

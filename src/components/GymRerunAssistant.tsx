@@ -1298,29 +1298,54 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           <h3 className="font-bold fs-h2">Historial</h3>
           <button onClick={() => closeHistory()} className="text-neutral-500 hover:text-white"><X className="w-5 h-5" /></button>
         </div>
-        <div className="max-h-[60vh] overflow-y-auto space-y-1.5">
-          {history.length > 0 ? history.map((entry, idx) => (
-            <div key={entry.id} className="bg-neutral-950 p-2.5 rounded flex justify-between items-center border border-neutral-800 group">
-              <div>
-                <div className="font-bold fs-body">Run #{history.length - idx}</div>
-                <div className="fs-tiny text-neutral-500">{new Date(entry.finishedAt).toLocaleDateString()}</div>
+        {user ? (
+          <div className="max-h-[60vh] overflow-y-auto space-y-1.5">
+            {history.length > 0 ? history.map((entry, idx) => (
+              <div key={entry.id} className="bg-neutral-950 p-2.5 rounded flex justify-between items-center border border-neutral-800 group">
+                <div>
+                  <div className="font-bold fs-body">Run #{history.length - idx}</div>
+                  <div className="fs-tiny text-neutral-500">{new Date(entry.finishedAt).toLocaleDateString()}</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono fs-body font-bold text-indigo-400">{formatTime(entry.elapsed)}</span>
+                  <button
+                    onClick={() => {
+                      const updated = history.filter(e => e.id !== entry.id);
+                      setHistory(updated);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-400 transition-opacity"
+                    title="Borrar"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="font-mono fs-body font-bold text-indigo-400">{formatTime(entry.elapsed)}</span>
-                <button
-                  onClick={() => {
-                    const updated = history.filter(e => e.id !== entry.id);
-                    setHistory(updated);
-                  }}
-                  className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-400 transition-opacity"
-                  title="Borrar"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
+            )) : <div className="text-neutral-500 text-center py-6 fs-body">No hay historial.</div>}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center border border-indigo-500/30">
+              <History className="w-8 h-8 text-indigo-400" />
             </div>
-          )) : <div className="text-neutral-500 text-center py-6 fs-body">No hay historial.</div>}
-        </div>
+            <p className="text-neutral-300 fs-body mb-6 font-medium">Inicia sesión para llevar tu historial de runs, tiempos y guardar tus recompensas.</p>
+            <div className="flex flex-col gap-3">
+              <Button 
+                variant="primary" 
+                className="w-full justify-center"
+                onClick={() => { closeHistory(); authButtonRef.current?.openRegister(); }}
+              >
+                Registrarse
+              </Button>
+              <Button 
+                variant="ghost" 
+                className="w-full justify-center text-neutral-400"
+                onClick={() => { closeHistory(); authButtonRef.current?.openLogin(); }}
+              >
+                Inicia sesión
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   ) : null;

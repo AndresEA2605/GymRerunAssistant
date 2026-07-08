@@ -2,17 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Key, Loader2, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { Key, Loader2, ShieldCheck, CheckCircle2, Hash } from "lucide-react";
 
 interface PasswordResetModalProps {
   isOpen: boolean;
   onClose: () => void;
   onReset: (email: string, token: string, password: string) => Promise<{ error?: string }>;
   email: string;
-  token: string;
 }
 
-export default function PasswordResetModal({ isOpen, onClose, onReset, email, token }: PasswordResetModalProps) {
+export default function PasswordResetModal({ isOpen, onClose, onReset, email }: PasswordResetModalProps) {
+  const [token, setToken] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,12 +22,13 @@ export default function PasswordResetModal({ isOpen, onClose, onReset, email, to
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (isOpen) {
+      setToken("");
       setPassword("");
       setConfirmPassword("");
       setError("");
       setSuccess(false);
     }
-  }, [isOpen, email, token]);
+  }, [isOpen, email]);
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden";
@@ -38,6 +39,10 @@ export default function PasswordResetModal({ isOpen, onClose, onReset, email, to
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!token.trim()) {
+      setError("Ingresa el código que recibiste en tu correo.");
+      return;
+    }
     if (!password || password !== confirmPassword) {
       setError("Las contraseñas deben coincidir.");
       return;
@@ -49,7 +54,7 @@ export default function PasswordResetModal({ isOpen, onClose, onReset, email, to
 
     setError("");
     setLoading(true);
-    const result = await onReset(email, token, password);
+    const result = await onReset(email, token.trim(), password);
     setLoading(false);
 
     if (result.error) {
@@ -74,12 +79,11 @@ export default function PasswordResetModal({ isOpen, onClose, onReset, email, to
               <ShieldCheck className="w-9 h-9 text-white" />
             </div>
             <h2 className="text-2xl font-black text-white">Cambiar contraseña</h2>
-            <p className="text-sm text-neutral-400 mt-2">Usá el token generado y creá una nueva contraseña.</p>
+            <p className="text-sm text-neutral-400 mt-2">Ingresá el código de seguridad que enviamos a tu correo electrónico.</p>
           </div>
 
           <div className="mb-4 rounded-2xl border border-neutral-800/70 bg-neutral-900/80 px-4 py-3 text-sm text-neutral-300">
             <p><strong>Email:</strong> {email}</p>
-            <p className="mt-2 break-words"><strong>Token:</strong> {token || "Aún no generado"}</p>
           </div>
 
           {error ? (
@@ -96,6 +100,21 @@ export default function PasswordResetModal({ isOpen, onClose, onReset, email, to
           ) : null}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs uppercase tracking-[0.2em] text-neutral-500 mb-2">Código de seguridad</label>
+              <div className="relative">
+                <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+                <input
+                  type="text"
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  className="w-full rounded-2xl border border-neutral-800 bg-neutral-900/90 py-3.5 pl-12 pr-4 text-white placeholder:text-neutral-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition"
+                  placeholder="Ej: f47ac10b-58cc..."
+                  required
+                />
+              </div>
+            </div>
+
             <div>
               <label className="block text-xs uppercase tracking-[0.2em] text-neutral-500 mb-2">Nueva contraseña</label>
               <div className="relative">
@@ -114,20 +133,23 @@ export default function PasswordResetModal({ isOpen, onClose, onReset, email, to
 
             <div>
               <label className="block text-xs uppercase tracking-[0.2em] text-neutral-500 mb-2">Confirmar contraseña</label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full rounded-2xl border border-neutral-800 bg-neutral-900/90 py-3.5 pl-4 pr-4 text-white placeholder:text-neutral-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition"
-                placeholder="Repite la contraseña"
-                autoComplete="new-password"
-                required
-              />
+              <div className="relative">
+                <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full rounded-2xl border border-neutral-800 bg-neutral-900/90 py-3.5 pl-12 pr-4 text-white placeholder:text-neutral-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition"
+                  placeholder="Repite la contraseña"
+                  autoComplete="new-password"
+                  required
+                />
+              </div>
             </div>
 
             <button
               type="submit"
-              disabled={loading || !password || !confirmPassword}
+              disabled={loading || !token || !password || !confirmPassword || success}
               className="w-full rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-bold uppercase tracking-[0.08em] text-white transition hover:bg-emerald-500 disabled:opacity-60"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "Cambiar contraseña"}

@@ -186,10 +186,13 @@ async function handler(
           return NextResponse.json({ error: 'Email requerido' }, { status: 400 });
         }
         const result = await import('@/lib/auth').then(m => m.requestPasswordReset(email));
-        if (result.error) {
-          return NextResponse.json({ error: result.error }, { status: 400 });
+        if (result.error || !result.token) {
+          return NextResponse.json({ error: result.error || 'Error' }, { status: 400 });
         }
-        return NextResponse.json({ ok: true, token: result.token });
+        // Send the token via email instead of returning it to the client
+        await import('@/lib/email').then(m => m.sendPasswordResetEmail(email, result.token as string));
+        
+        return NextResponse.json({ ok: true });
       }
 
       case 'reset-password': {
