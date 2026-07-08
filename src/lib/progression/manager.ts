@@ -141,7 +141,7 @@ export class ProgressionManager {
     this.addEvent({
       id: crypto.randomUUID(),
       type: 'xp_gain',
-      message: `+${streakMulti} XP (${streak !== undefined ? '+' + (streakMulti - amount) + ' streak' : ''}): ${reason}`.trim(),
+      message: `+${streakMulti} XP${streakMulti > amount ? ` (+${streakMulti - amount} racha)` : ''}: ${reason}`.trim(),
       xpAmount: streakMulti,
       coinAmount: coins,
       timestamp: Date.now(),
