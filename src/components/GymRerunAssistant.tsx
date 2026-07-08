@@ -47,6 +47,7 @@ import AuthButton from "@/components/auth/AuthButton";
 import NotificationBell from "@/components/progression/NotificationBell";
 import { useAuth } from "@/hooks/useAuth";
 import { useProgression } from "@/hooks/useProgression";
+import { XP_VALUES } from "@/lib/progression/xp-values";
 
 export type GymCoordMap = Record<string, { region: string; x: number; y: number }>;
 export type RegionMap = Record<string, string>;
@@ -854,9 +855,9 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const completeGym = useCallback(() => {
     const isTurn = selectedGuideId === 'hooh';
     if (isTurn) {
-      setSessionGymCount(prev => prev + 1);
       triggerToast("Gym completado");
-      grantXP(50, "Gym completado");
+      const gymXP = XP_VALUES.gymCompletion;
+      grantXP(gymXP, "Gym completado");
       incrementStat("gymsCompleted");
       setCurrentStepIndex((prev) => {
         const nextIdx = prev === -1 ? 0 : Math.min(prev + 1, steps.length - 1);
@@ -879,7 +880,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       }
 
       // Complete all gyms in the region at once
-      const totalXP = regionGymCount * 50;
+      const totalXP = XP_VALUES.regionCompletionPerGym * regionGymCount;
       setSessionGymCount(prev => prev + regionGymCount);
       triggerToast(`Región ${currentRegion} completada (${regionGymCount} gyms)`);
       grantXP(totalXP, `Región ${currentRegion} completada`);
@@ -1062,7 +1063,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const finishRun = () => {
     const finalElapsed = timerIsRunning && timerStartTime ? timerElapsed + (Date.now() - timerStartTime) : timerElapsed;
     const totalGymsDone = sessionGymCount;
-    const runXP = 100 + totalGymsDone * 50;
+    const runXP = XP_VALUES.runBaseCompletion + XP_VALUES.runPerGymCompletion * totalGymsDone;
     const guideTitle = getGuide(selectedGuideId)?.title || "Guía";
     const newEntry: RunHistoryEntry = {
       id: Math.random().toString(36).substr(2, 9),
@@ -1129,7 +1130,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   };
 
   const handleTaskComplete = useCallback((taskLabel: string) => {
-    grantXP(25, `Tarea diaria: ${taskLabel}`);
+    grantXP(XP_VALUES.dailyTaskCompletion, `Tarea diaria: ${taskLabel}`);
   }, [grantXP]);
 
   const abandonRun = () => {

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProgression } from "@/hooks/useProgression";
+import { XP_VALUES } from "@/lib/progression/xp-values";
 import LoginModal from "./LoginModal";
 import RegisterModal from "./RegisterModal";
 import ProfileDashboard from "./ProfileDashboard";
@@ -32,7 +33,7 @@ export default forwardRef(function AuthButton(_props, ref) {
   useEffect(() => {
     if (!isLoaded) return;
     if (user && !prevUserRef.current && !loginXpGrantedRef.current) {
-      grantXP(25, "Inicio de sesión");
+      grantXP(XP_VALUES.loginBonus, "Inicio de sesión");
       loginXpGrantedRef.current = true;
     }
     prevUserRef.current = user;

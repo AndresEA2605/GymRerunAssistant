@@ -2,7 +2,7 @@ import type {
   UserProfile, UserStatistics, ProgressionEvent,
   TaskState, TaskProgress, SeasonData, ProgressionData, TaskPeriod,
 } from './types';
-import { xpForLevel, xpToNextLevel, calculateLevel, calculateCoinsForXP } from './xp';
+import { xpForLevel, xpToNextLevel, calculateLevel, calculateCoinsForXP, applyStreakMultiplier, LEVEL_MILESTONES } from './xp';
 import { TASK_DEFINITIONS } from './tasks';
 import { ACHIEVEMENTS } from './achievements';
 import { TITLES } from './titles';
@@ -121,12 +121,14 @@ export class ProgressionManager {
     return notes;
   }
 
-  grantXP(amount: number, reason: string): boolean {
+  grantXP(amount: number, reason: string, streak?: number): boolean {
     if (amount <= 0) return false;
     const prevLevel = this.profile.level;
-    const coins = calculateCoinsForXP(amount);
+    const actualStreak = streak !== undefined ? streak : this.profile.currentStreak;
+    const streakMulti = applyStreakMultiplier(amount, actualStreak);
+    const coins = calculateCoinsForXP(streakMulti);
 
-    this.profile.totalXP += amount;
+    this.profile.totalXP += streakMulti;
     this.profile.currentXP = this.profile.totalXP;
     this.profile.level = calculateLevel(this.profile.totalXP);
     this.profile.xpToNextLevel = xpToNextLevel(this.profile.level);
@@ -139,8 +141,8 @@ export class ProgressionManager {
     this.addEvent({
       id: crypto.randomUUID(),
       type: 'xp_gain',
-      message: `+${amount} XP: ${reason}`,
-      xpAmount: amount,
+      message: `+${streakMulti} XP (${streak !== undefined ? '+' + (streakMulti - amount) + ' streak' : ''}): ${reason}`.trim(),
+      xpAmount: streakMulti,
       coinAmount: coins,
       timestamp: Date.now(),
     });
@@ -153,10 +155,29 @@ export class ProgressionManager {
         detail: `Nivel ${prevLevel} → ${this.profile.level}`,
         timestamp: Date.now(),
       });
+
+      const milestone = LEVEL_MILESTONES[this.profile.level];
+      if (milestone) {
+        if (milestone.bonusXP) {
+          this.addEvent({
+            id: crypto.randomUUID(),
+            type: 'xp_gain',
+            message: `+${milestone.bonusXP} XP (nivel ${prevLevel + 1})`,
+            xpAmount: milestone.bonusXP,
+            coinAmount: milestone.bonusCoins,
+            timestamp: Date.now(),
+          });
+          this.profile.totalXP += milestone.bonusXP;
+          this.profile.currentXP = this.profile.totalXP;
+          this.profile.level = calculateLevel(this.profile.totalXP);
+          this.profile.xpToNextLevel = xpToNextLevel(this.profile.level);
+        }
+      }
+
+      this.checkAchievements();
+      this.checkTitles();
     }
 
-    this.checkAchievements();
-    this.checkTitles();
     this.updateStreak();
     return true;
   }
@@ -322,7 +343,30 @@ export class ProgressionManager {
     return this.taskState[def.period][defId] ?? { id: defId, currentCount: 0, completed: false, claimed: false };
   }
 
-  getActivityPoints(amount: number) {
-    this.profile.activityPoints += amount;
+  getActivityPoints(): number {
+    let points = 0;
+    const now = Date.now();
+
+    if (this.profile.currentStreak >= 7 && this.profile.currentStreak < 30) {
+      points += 50;
+    } else if (this.profile.currentStreak >= 30 && this.profile.currentStreak < 90) {
+      points += 150;
+    } else if (this.profile.currentStreak >= 90) {
+      points += 300;
+    }
+
+    if (this.season.level >= 10) {
+      points += 200;
+    } else if (this.season.level >= 5) {
+      points += 100;
+    }
+
+    const nowDate = new Date(now);
+    const today = nowDate.toISOString().slice(0, 10);
+    if (this.profile.lastActivityDate !== today) {
+      points += 25;
+    }
+
+    return points;
   }
 }

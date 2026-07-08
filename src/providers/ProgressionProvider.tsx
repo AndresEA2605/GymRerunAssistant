@@ -31,8 +31,9 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
   const [notifications, setNotifications] = useState<ProgressionEvent[]>([]);
   const managerRef = useRef<ProgressionManager | null>(null);
   const refreshSessionRef = useRef(refreshSession);
-  refreshSessionRef.current = refreshSession;
-
+  useEffect(() => {
+    refreshSessionRef.current = refreshSession;
+  }, [refreshSession]);
   const loadFromServer = useCallback(async () => {
     if (!token) {
       setManager(null);
