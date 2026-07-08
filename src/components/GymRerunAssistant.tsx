@@ -242,11 +242,19 @@ const CooldownNoticeModal = memo(({ allCooldowns, onDismiss }: { allCooldowns: A
     amber: { dot: 'bg-amber-500', text: 'text-amber-300' },
     red: { dot: 'bg-red-500', text: 'text-red-300' },
     emerald: { dot: 'bg-emerald-500', text: 'text-emerald-300' },
+    indigo: { dot: 'bg-indigo-500', text: 'text-indigo-300' },
+    teal: { dot: 'bg-teal-500', text: 'text-teal-300' },
   };
   const cooldownEntries = useMemo(() => {
     const items: { label: string; color: string; endAt: number; lastGym: string | null }[] = [];
     if (allCooldowns.gym.endAt && allCooldowns.gym.endAt > now) {
       items.push({ label: "Gyms", color: "amber", endAt: allCooldowns.gym.endAt, lastGym: allCooldowns.gym.lastGym });
+    }
+    if (allCooldowns.gym33.endAt && allCooldowns.gym33.endAt > now) {
+      items.push({ label: "33 Gyms", color: "indigo", endAt: allCooldowns.gym33.endAt, lastGym: allCooldowns.gym33.lastGym });
+    }
+    if (allCooldowns.guide2.endAt && allCooldowns.guide2.endAt > now) {
+      items.push({ label: "25 Gyms", color: "teal", endAt: allCooldowns.guide2.endAt, lastGym: allCooldowns.guide2.lastGym });
     }
     if (allCooldowns.hooh.endAt && allCooldowns.hooh.endAt > now) {
       items.push({ label: "Ho-Oh", color: "red", endAt: allCooldowns.hooh.endAt, lastGym: allCooldowns.hooh.lastGym });
@@ -381,8 +389,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [selectedGuideId, setSelectedGuideId] = useState<'none' | 'gym33' | 'hooh' | 'guide2'>('none');
   const selectGuide = (id: 'none' | 'gym33' | 'hooh' | 'guide2') => {
     if (id !== 'none') {
-      const cooldownEnd = id === 'hooh' ? allCooldowns.hooh.endAt : id === 'gym33' ? allCooldowns.gym33.endAt : id === 'guide2' ? allCooldowns.guide2.endAt : null;
-      if (cooldownEnd && cooldownEnd > Date.now()) {
+      const cd = id === 'hooh' ? allCooldowns.hooh : id === 'gym33' ? allCooldowns.gym33 : id === 'guide2' ? allCooldowns.guide2 : null;
+      if (cd && cd.endAt && cd.endAt > Date.now()) {
         triggerToast("Cooldown activo — espera a que termine");
         return;
       }
@@ -479,6 +487,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [sessionGymCount, setSessionGymCount] = useState<number>(0);
   const [showTasks, setShowTasks] = useState<boolean>(false);
   const [showCooldownNotice, setShowCooldownNotice] = useState<boolean>(false);
+  const [previewGuide, setPreviewGuide] = useState<string | null>(null);
   const [showActiveSessionModal, setShowActiveSessionModal] = useState<boolean>(false);
   const [mapPreview, setMapPreview] = useState<{ src: string; gym: string; region: string; x: number; y: number } | null>(null);
   const [lastRunStats, setLastRunStats] = useState<LastRunStats | null>(null);
@@ -655,7 +664,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
           },
         });
         const now = Date.now();
-        const hasAnyActive = [savedAllCooldowns.gym, savedAllCooldowns.hooh, savedAllCooldowns.npc]
+        const hasAnyActive = [savedAllCooldowns.gym, savedAllCooldowns.gym33, savedAllCooldowns.guide2, savedAllCooldowns.hooh, savedAllCooldowns.npc]
           .some((c: CooldownState | undefined) => c?.endAt && c.endAt > now);
         if (hasAnyActive) {
           setShowCooldownNotice(true);
@@ -786,13 +795,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     logTimerEvent("cooldown_start");
     if (gymName === "Ho-Oh" || durationMs >= 24 * 60 * 60 * 1000) {
       setAllCooldowns(prev => ({ ...prev, hooh: nextCooldown }));
+    } else if (guideId === 'gym33' || guideId === 'guide2') {
+      setAllCooldowns(prev => ({ ...prev, [guideId]: nextCooldown }));
     } else if (durationMs <= 6 * 60 * 60 * 1000) {
       setAllCooldowns(prev => ({ ...prev, npc: nextCooldown }));
     } else {
       setAllCooldowns(prev => ({ ...prev, gym: nextCooldown }));
-    }
-    if (guideId === 'gym33' || guideId === 'guide2') {
-      setAllCooldowns(prev => ({ ...prev, [guideId]: nextCooldown }));
     }
     triggerToast(`Reset gyms activo: ${lastGym}`);
   }, [getLastCompletedGym, gymResetMs, triggerToast, logTimerEvent]);
@@ -1702,7 +1710,24 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                     <div className="flex items-center gap-1.5">
                       <CooldownBadge endAt={allCooldowns.gym.endAt} />
-                      <CooldownBadge endAt={allCooldowns.gym.endAt} />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+                      <span className="fs-tiny font-bold text-indigo-300">33 Gyms</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <CooldownBadge endAt={allCooldowns.gym33.endAt} />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+                      <span className="fs-tiny font-bold text-teal-300">25 Gyms</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <CooldownBadge endAt={allCooldowns.guide2.endAt} />
                     </div>
                   </div>
                   <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
@@ -1827,22 +1852,32 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                                     ))}
                                   </div>
                                 </div>
-                                <span className={`fs-tiny font-black ${gc.text} opacity-0 group-hover:opacity-100 transition-opacity shrink-0`}>→</span>
+                                <span className={`fs-tiny font-black ${gc.text} ${onCooldown ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'} transition-opacity shrink-0`}>→</span>
                               </button>
-                              {g.id !== "none" && (
+                              <div className="absolute bottom-1.5 right-2.5 flex items-center gap-1">
                                 <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setRestartTargetGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2');
-                                    setShowRestartConfirm(true);
-                                  }}
-                                  className="absolute bottom-1.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/50 border border-neutral-700/40 text-[9px] font-bold text-neutral-400 hover:bg-amber-950/30 hover:border-amber-700/30 hover:text-amber-400 transition-all z-20"
-                                  title="Repetir run — reinicia todos los temporizadores"
+                                  onClick={(e) => { e.stopPropagation(); setPreviewGuide(g.id); }}
+                                  className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/50 border border-neutral-700/40 text-[9px] font-bold text-neutral-400 hover:bg-indigo-950/30 hover:border-indigo-700/30 hover:text-indigo-400 transition-all z-20"
+                                  title="Vista previa de la guía"
                                 >
-                                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
-                                  Repetir
+                                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                  Vista previa
                                 </button>
-                              )}
+                                {g.id !== "none" && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setRestartTargetGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2');
+                                      setShowRestartConfirm(true);
+                                    }}
+                                    className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/50 border border-neutral-700/40 text-[9px] font-bold text-neutral-400 hover:bg-amber-950/30 hover:border-amber-700/30 hover:text-amber-400 transition-all z-20"
+                                    title="Repetir run — reinicia todos los temporizadores"
+                                  >
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+                                    Repetir
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           );
                         })}
@@ -2438,6 +2473,24 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </div>
               <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
                 <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                  <span className="fs-[10px] font-bold text-indigo-300">33 Gyms</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <CooldownBadge endAt={allCooldowns.gym33.endAt} />
+                </div>
+              </div>
+              <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                  <span className="fs-[10px] font-bold text-teal-300">25 Gyms</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <CooldownBadge endAt={allCooldowns.guide2.endAt} />
+                </div>
+              </div>
+              <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
+                <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
                   <span className="fs-[10px] font-bold text-red-300">Ho-Oh</span>
                 </div>
@@ -2579,6 +2632,24 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                     <div className="flex items-center gap-1">
                       <CooldownBadge endAt={allCooldowns.gym.endAt} />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                      <span className="fs-[10px] font-bold text-indigo-300">33 Gyms</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CooldownBadge endAt={allCooldowns.gym33.endAt} />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                      <span className="fs-[10px] font-bold text-teal-300">25 Gyms</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CooldownBadge endAt={allCooldowns.guide2.endAt} />
                     </div>
                   </div>
                   <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
@@ -3771,6 +3842,116 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </button>
             </div>
           </div>
+        </div>
+      </div>,
+      document.body
+    )}
+    {previewGuide && createPortal(
+      <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setPreviewGuide(null)}>
+        <div className="w-full max-w-md rounded-2xl bg-neutral-900 border border-neutral-700/60 overflow-hidden shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300" onClick={e => e.stopPropagation()}>
+          {(() => {
+            const guide = getGuide(previewGuide);
+            if (!guide) return <div className="p-5 text-neutral-400">Guía no encontrada</div>;
+            const gc = getGuideColorClasses(guide.color);
+            return (
+              <>
+                <div className="p-5 border-b border-neutral-800">
+                  <div className="flex items-start gap-3">
+                    <div className={`w-14 h-14 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-950 p-2 ${getGuidePokeGlow(guide.color)}`}>
+                      <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${guide.icon}.gif`} alt="" className="w-full h-full object-contain" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className={`fs-sm font-black ${gc.text}`}>{guide.title}</div>
+                          <div className="fs-tiny text-neutral-400 mt-0.5">{guide.subtitle}</div>
+                        </div>
+                        <button onClick={() => setPreviewGuide(null)} className="p-1 rounded-lg hover:bg-neutral-800 text-neutral-500 hover:text-white transition-all shrink-0">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-5 space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                  <div className="flex flex-wrap gap-2">
+                    {guide.difficulty && (
+                      <span className="px-2.5 py-1 rounded-full bg-neutral-800 text-[10px] font-bold text-neutral-300 uppercase tracking-wider">
+                        {guide.difficulty}
+                      </span>
+                    )}
+                    {guide.estimatedCost && (
+                      <span className="px-2.5 py-1 rounded-full bg-neutral-800 text-[10px] font-bold text-amber-400 uppercase tracking-wider">
+                        {guide.estimatedCost}
+                      </span>
+                    )}
+                    <span className="px-2.5 py-1 rounded-full bg-neutral-800 text-[10px] font-bold text-neutral-300 uppercase tracking-wider">
+                      {guide.team.length} Pokémon
+                    </span>
+                  </div>
+                  {guide.team.length > 0 && (
+                    <div>
+                      <div className="fs-tiny font-bold text-neutral-400 uppercase tracking-wider mb-2">Equipo</div>
+                      <div className="flex flex-wrap gap-2">
+                        {guide.team.map((t, i) => (
+                          <div key={i} className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-neutral-950 border border-neutral-800/60" title={t.name}>
+                            <div className="w-7 h-7 rounded bg-neutral-900 p-0.5 shrink-0">
+                              <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${t.spriteId}.gif`} alt={t.name} className="w-full h-full object-contain" />
+                            </div>
+                            <span className="text-[10px] font-bold text-neutral-300">{t.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {guide.info.length > 0 && (
+                    <div>
+                      <div className="fs-tiny font-bold text-neutral-400 uppercase tracking-wider mb-2">Información</div>
+                      <ul className="space-y-1">
+                        {guide.info.map((item, i) => (
+                          <li key={i} className="flex items-start gap-2 text-xs text-neutral-400">
+                            <span className="text-neutral-600 mt-0.5">•</span>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {guide.credits && (
+                    <div>
+                      <div className="fs-tiny font-bold text-neutral-400 uppercase tracking-wider mb-2">Créditos</div>
+                      <div className="bg-neutral-950 rounded-xl p-3 border border-neutral-800/60 space-y-1">
+                        {guide.credits.author && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-neutral-500">Autor</span>
+                            <span className="text-[11px] font-bold text-neutral-300">{guide.credits.author}</span>
+                          </div>
+                        )}
+                        {guide.credits.adaptedBy && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-neutral-500">Adaptado por</span>
+                            <span className="text-[11px] font-bold text-neutral-300">{guide.credits.adaptedBy}</span>
+                          </div>
+                        )}
+                        {guide.credits.status && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-neutral-500">Estado</span>
+                            <span className="text-[11px] font-bold text-emerald-400">{guide.credits.status}</span>
+                          </div>
+                        )}
+                        {guide.credits.lastUpdated && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-neutral-500">Actualizado</span>
+                            <span className="text-[11px] font-bold text-neutral-300">{guide.credits.lastUpdated}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            );
+          })()}
         </div>
       </div>,
       document.body
