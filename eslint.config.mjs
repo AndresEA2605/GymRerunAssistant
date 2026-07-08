@@ -19,7 +19,11 @@ const eslintConfig = defineConfig([
   {
     rules: {
       "react-compiler/react-compiler": "off",
-      "@typescript-eslint/no-unused-vars": "off"
+      "@typescript-eslint/no-unused-vars": "off",
+      // Disable non-standard rule that flags valid modal-reset and session-init patterns
+      "react-hooks/set-state-in-effect": "off",
+      // External sprites from raw.githubusercontent.com can't use next/image
+      "@next/next/no-img-element": "off"
     }
   }
 ]);
