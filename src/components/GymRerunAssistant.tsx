@@ -97,15 +97,6 @@ interface TimerEventLog {
   stepIndex: number;
 }
 
-const formatRemaining = (ms: number): string => {
-  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  if (hours > 0) return `${hours}h ${minutes}m`;
-  if (minutes > 0) return `${minutes}m ${totalSeconds % 60}s`;
-  return `${totalSeconds}s`;
-};
-
 const matchPokemon = (text: string): { name: string; id: number } | null => {
   for (const [name, id] of Object.entries(POKEMON_ARTWORK)) {
     if (text.startsWith(name)) return { name, id };
@@ -239,44 +230,74 @@ const PokeBackground = memo(() => (
 ));
 PokeBackground.displayName = "PokeBackground";
 
-const CooldownNoticeModal = memo(({ cooldown, onDismiss }: { cooldown: CooldownState; onDismiss: () => void }) => {
+const CooldownNoticeModal = memo(({ allCooldowns, onDismiss }: { allCooldowns: AllCooldowns; onDismiss: () => void }) => {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const intervalId = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(intervalId);
   }, []);
-  const remaining = cooldown.endAt ? Math.max(0, cooldown.endAt - now) : 0;
-  const expired = remaining <= 0 && cooldown.endAt !== null;
+  const cooldownEntries = useMemo(() => {
+    const items: { label: string; color: string; endAt: number | null; lastGym: string | null }[] = [];
+    if (allCooldowns.gym.endAt && allCooldowns.gym.endAt > now) {
+      items.push({ label: "Gyms", color: "amber", endAt: allCooldowns.gym.endAt, lastGym: allCooldowns.gym.lastGym });
+    }
+    if (allCooldowns.hooh.endAt && allCooldowns.hooh.endAt > now) {
+      items.push({ label: "Ho-Oh", color: "red", endAt: allCooldowns.hooh.endAt, lastGym: allCooldowns.hooh.lastGym });
+    }
+    if (allCooldowns.npc.endAt && allCooldowns.npc.endAt > now) {
+      items.push({ label: "NPCs", color: "emerald", endAt: allCooldowns.npc.endAt, lastGym: allCooldowns.npc.lastGym });
+    }
+    return items;
+  }, [allCooldowns, now]);
+  const anyActive = cooldownEntries.length > 0;
   return (
-    <div className="fixed inset-0 z-[80] pointer-events-none flex items-center justify-center p-3">
-      <div className="pointer-events-auto bg-neutral-900/95 backdrop-blur-xl rounded-3xl border border-emerald-700/50 w-full max-w-md p-6 shadow-2xl shadow-emerald-950/30">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl md:text-2xl font-black text-white leading-tight">Tiempo de reset de gyms</h2>
+    <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4" style={{ animation: 'fadeIn 0.2s ease both' }}>
+      <div className="w-full max-w-sm bg-neutral-900/95 backdrop-blur-xl rounded-3xl border border-neutral-700/50 p-6 shadow-2xl shadow-neutral-950/50" style={{ animation: 'zoomIn 0.3s cubic-bezier(0.25,0.46,0.45,0.94) both' }}>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xl md:text-2xl font-black text-white leading-tight">Cooldowns activos</h2>
           <button onClick={onDismiss} className="w-7 h-7 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition-all shrink-0">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
-        {cooldown.lastGym && (
-          <p className="fs-small text-neutral-500 mb-1">Último reset: <span className="font-bold text-neutral-300">{cooldown.lastGym}</span></p>
+        {anyActive ? (
+          <div className="space-y-2.5">
+            {cooldownEntries.map((entry, i) => {
+              const remaining = Math.max(0, entry.endAt! - now);
+              const expired = remaining <= 0;
+              return (
+                <div key={entry.label} className="bg-neutral-950/80 border border-neutral-800/60 rounded-xl p-3" style={{ animation: `slideUpItem 0.3s ease both ${i * 0.08}s` }}>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full bg-${entry.color}-500 animate-pulse`} />
+                      <span className={`font-black fs-small text-${entry.color}-300`}>{entry.label}</span>
+                    </div>
+                    <span className={`font-mono text-xl font-black tracking-tight ${expired ? "text-amber-400" : "text-emerald-400"}`}>
+                      {expired ? "LISTO" : formatCooldown(remaining)}
+                    </span>
+                  </div>
+                  {entry.lastGym && !expired && (
+                    <p className="fs-tiny text-neutral-500 mt-0.5">Último: <span className="font-bold text-neutral-300">{entry.lastGym}</span></p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-6">
+            <Timer className="w-10 h-10 text-neutral-600 mx-auto mb-3" />
+            <p className="text-neutral-400 fs-body">No hay cooldowns activos</p>
+            <p className="text-neutral-600 fs-tiny mt-1">Los cooldowns aparecerán aquí al finalizar una ruta</p>
+          </div>
         )}
-        <div className="my-5 text-center">
-          <span className={`font-mono text-5xl md:text-6xl font-black tracking-tight ${expired ? "text-amber-400" : "text-emerald-400"}`} style={{ lineHeight: 1.1 }}>
-            {expired ? "LISTO" : formatRemaining(remaining)}
-          </span>
-          <p className="fs-body text-neutral-400 mt-3">
-            {expired
-              ? "El tiempo de espera de 18h ya terminó. ¡Podés volver a hacer los gimnasios!"
-              : "Tiempo restante para que se reinicien los gimnasios"}
-          </p>
-        </div>
-        <button
-          autoFocus
-          onClick={onDismiss}
-          className="w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black fs-body transition-colors"
-        >
+        <button autoFocus onClick={onDismiss} className="w-full mt-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black fs-body transition-colors active:scale-[0.98]">
           Entendido
         </button>
       </div>
+      <style jsx global>{`
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes slideUpItem { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+      `}</style>
     </div>
   );
 });
@@ -604,9 +625,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         const endAt = typeof savedCooldown.endAt === "number" && Number.isFinite(savedCooldown.endAt) ? savedCooldown.endAt : null;
         const lastGym = typeof savedCooldown.lastGym === "string" ? savedCooldown.lastGym : null;
         setCooldown({ endAt, lastGym });
-        if (endAt && endAt > Date.now()) {
-          setShowCooldownNotice(true);
-        }
       }
 
       const savedAllCooldowns = d["all_cooldowns"] ? (() => { try { return JSON.parse(d["all_cooldowns"]) as AllCooldowns; } catch { return null; } })() : null;
@@ -625,6 +643,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             lastGym: typeof savedAllCooldowns.npc?.lastGym === "string" ? savedAllCooldowns.npc.lastGym : null,
           },
         });
+        const now = Date.now();
+        const hasAnyActive = [savedAllCooldowns.gym, savedAllCooldowns.hooh, savedAllCooldowns.npc]
+          .some((c: CooldownState | undefined) => c?.endAt && c.endAt > now);
+        if (hasAnyActive) {
+          setShowCooldownNotice(true);
+        }
       }
 
       setSkipChecklist(d["skip_checklist"] === "true");
@@ -1625,11 +1649,38 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </div>
             </div>
 
+            {!authUser && !hasActiveSession && (
+              <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/5 border border-indigo-500/30 rounded-2xl p-4 mb-4" style={{ animation: 'slideUpItem 0.3s ease both' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0">
+                    <Users className="w-5 h-5 text-indigo-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold fs-small text-white">Creá tu cuenta gratis</p>
+                    <p className="fs-tiny text-neutral-400">Llevá tu progreso a la nube, obtené XP, logros y recompensas</p>
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-3">
+                  <button onClick={() => authButtonRef.current?.openRegister()} className="flex-1 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs transition-all active:scale-[0.97]">
+                    Registrarse
+                  </button>
+                  <button onClick={() => authButtonRef.current?.openLogin()} className="flex-1 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-xs transition-all border border-neutral-700 active:scale-[0.97]">
+                    Iniciar sesión
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-5">
               <div className="bg-gradient-to-br from-amber-500/15 to-orange-500/5 border border-amber-500/30 rounded-2xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Timer className="w-4 h-4 text-amber-400" />
-                  <span className="fs-tiny font-black text-amber-300 uppercase tracking-wider">Cooldowns</span>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Timer className="w-4 h-4 text-amber-400" />
+                    <span className="fs-tiny font-black text-amber-300 uppercase tracking-wider">Cooldowns</span>
+                  </div>
+                  <button onClick={() => setShowCooldownNotice(true)} className="text-[10px] font-bold text-neutral-500 hover:text-white transition-colors px-2 py-0.5 rounded-md bg-neutral-800/60 hover:bg-neutral-700/60">
+                    Ver estado
+                  </button>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
@@ -1637,21 +1688,36 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
                       <span className="fs-tiny font-bold text-amber-300">Gyms</span>
                     </div>
-                    <CooldownBadge endAt={allCooldowns.gym.endAt} />
+                    <div className="flex items-center gap-1.5">
+                      <CooldownBadge endAt={allCooldowns.gym.endAt} />
+                      <button type="button" onClick={() => { startGymCooldown("Gyms", gymResetMs); triggerToast("Cooldown de Gyms reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar cooldown">
+                        <RotateCcw className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
                   </div>
                   <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                       <span className="fs-tiny font-bold text-red-300">Ho-Oh</span>
                     </div>
-                    <CooldownBadge endAt={allCooldowns.hooh.endAt} />
+                    <div className="flex items-center gap-1.5">
+                      <CooldownBadge endAt={allCooldowns.hooh.endAt} />
+                      <button type="button" onClick={() => { startGymCooldown("Ho-Oh", 7 * 24 * 60 * 60 * 1000); triggerToast("Cooldown de Ho-Oh reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar cooldown">
+                        <RotateCcw className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
                   </div>
                   <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                       <span className="fs-tiny font-bold text-emerald-300">NPCs</span>
                     </div>
-                    <CooldownBadge endAt={allCooldowns.npc.endAt} />
+                    <div className="flex items-center gap-1.5">
+                      <CooldownBadge endAt={allCooldowns.npc.endAt} />
+                      <button type="button" onClick={() => { startGymCooldown("NPCs", 6 * 60 * 60 * 1000); triggerToast("Cooldown de NPCs reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar cooldown">
+                        <RotateCcw className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2215,7 +2281,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       {resumePromptModal}
       {resetConfirmModal}
       {showCooldownNotice && (
-        <CooldownNoticeModal cooldown={cooldown} onDismiss={() => setShowCooldownNotice(false)} />
+        <CooldownNoticeModal allCooldowns={allCooldowns} onDismiss={() => setShowCooldownNotice(false)} />
       )}
       {showActiveSessionModal && (
         <div className={OVERLAY_CLASSES}>
@@ -2350,24 +2416,53 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             </div>
           )}
 
-          {/* Cooldown */}
-          {isRoutesGuide(selectedGuideId) && (
-            <div className="bg-neutral-900/60 border border-neutral-800/60 rounded-xl p-2.5">
-              <div className="flex items-center justify-between mb-1.5">
-                <div className="fs-[10px] uppercase tracking-[0.3em] text-neutral-500 font-black">Cooldown Gyms</div>
-                <button type="button" onClick={() => { startGymCooldown(cooldown.lastGym || getLastCompletedGym(), gymResetMs); triggerToast("Cooldown reiniciado"); }} className="w-5 h-5 rounded-md bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition-colors" title="Reiniciar cooldown">
-                  <RotateCcw className="w-3 h-3" />
-                </button>
-              </div>
-              <button type="button" onClick={() => setShowCooldownNotice(true)} className="w-full flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1.5 hover:bg-neutral-900 transition-colors">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="fs-tiny font-bold text-neutral-300">Ver estado</span>
-                </div>
-                <CooldownBadge endAt={cooldown.endAt} />
+          {/* Cooldowns */}
+          <div className="bg-neutral-900/60 border border-neutral-800/60 rounded-xl p-2.5">
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="fs-[10px] uppercase tracking-[0.3em] text-neutral-500 font-black">Cooldowns</div>
+              <button type="button" onClick={() => setShowCooldownNotice(true)} className="text-[9px] font-bold text-neutral-500 hover:text-white transition-colors px-1.5 py-0.5 rounded bg-neutral-800/60 hover:bg-neutral-700/60">
+                Ver todo
               </button>
             </div>
-          )}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  <span className="fs-[10px] font-bold text-amber-300">Gyms</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <CooldownBadge endAt={allCooldowns.gym.endAt} />
+                  <button type="button" onClick={() => { startGymCooldown("Gyms", gymResetMs); triggerToast("Cooldown Gyms reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar">
+                    <RotateCcw className="w-2.5 h-2.5" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                  <span className="fs-[10px] font-bold text-red-300">Ho-Oh</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <CooldownBadge endAt={allCooldowns.hooh.endAt} />
+                  <button type="button" onClick={() => { startGymCooldown("Ho-Oh", 7 * 24 * 60 * 60 * 1000); triggerToast("Cooldown Ho-Oh reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar">
+                    <RotateCcw className="w-2.5 h-2.5" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="fs-[10px] font-bold text-emerald-300">NPCs</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <CooldownBadge endAt={allCooldowns.npc.endAt} />
+                  <button type="button" onClick={() => { startGymCooldown("NPCs", 6 * 60 * 60 * 1000); triggerToast("Cooldown NPCs reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar">
+                    <RotateCcw className="w-2.5 h-2.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Navigation */}
           <div className="bg-neutral-900/60 border border-neutral-800/60 rounded-xl p-2.5">
@@ -2475,24 +2570,53 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
               )}
 
-              {/* Cooldown */}
-              {isRoutesGuide(selectedGuideId) && (
-                <div className="bg-neutral-900/60 border border-neutral-800/60 rounded-xl p-2.5">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="fs-[10px] uppercase tracking-[0.3em] text-neutral-500 font-black">Cooldown Gyms</div>
-                    <button type="button" onClick={() => { startGymCooldown(cooldown.lastGym || getLastCompletedGym(), gymResetMs); triggerToast("Cooldown reiniciado"); }} className="w-5 h-5 rounded-md bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition-colors" title="Reiniciar cooldown">
-                      <RotateCcw className="w-3 h-3" />
-                    </button>
-                  </div>
-                  <button type="button" onClick={() => { setShowMobileSidebar(false); setShowCooldownNotice(true); }} className="w-full flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1.5 hover:bg-neutral-900 transition-colors">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="fs-tiny font-bold text-neutral-300">Ver estado</span>
-                    </div>
-                    <CooldownBadge endAt={cooldown.endAt} />
+              {/* Cooldowns */}
+              <div className="bg-neutral-900/60 border border-neutral-800/60 rounded-xl p-2.5">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="fs-[10px] uppercase tracking-[0.3em] text-neutral-500 font-black">Cooldowns</div>
+                  <button type="button" onClick={() => { setShowMobileSidebar(false); setShowCooldownNotice(true); }} className="text-[9px] font-bold text-neutral-500 hover:text-white transition-colors px-1.5 py-0.5 rounded bg-neutral-800/60 hover:bg-neutral-700/60">
+                    Ver todo
                   </button>
                 </div>
-              )}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                      <span className="fs-[10px] font-bold text-amber-300">Gyms</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CooldownBadge endAt={allCooldowns.gym.endAt} />
+                      <button type="button" onClick={() => { startGymCooldown("Gyms", gymResetMs); triggerToast("Cooldown Gyms reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar">
+                        <RotateCcw className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                      <span className="fs-[10px] font-bold text-red-300">Ho-Oh</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CooldownBadge endAt={allCooldowns.hooh.endAt} />
+                      <button type="button" onClick={() => { startGymCooldown("Ho-Oh", 7 * 24 * 60 * 60 * 1000); triggerToast("Cooldown Ho-Oh reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar">
+                        <RotateCcw className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="fs-[10px] font-bold text-emerald-300">NPCs</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CooldownBadge endAt={allCooldowns.npc.endAt} />
+                      <button type="button" onClick={() => { startGymCooldown("NPCs", 6 * 60 * 60 * 1000); triggerToast("Cooldown NPCs reiniciado"); }} className="w-4 h-4 rounded bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-colors" title="Reiniciar">
+                        <RotateCcw className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               {/* Navigation */}
               <div className="bg-neutral-900/60 border border-neutral-800/60 rounded-xl p-2.5">
@@ -3521,7 +3645,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       </div>
     )}
     {showCooldownNotice && (
-      <CooldownNoticeModal cooldown={cooldown} onDismiss={() => setShowCooldownNotice(false)} />
+      <CooldownNoticeModal allCooldowns={allCooldowns} onDismiss={() => setShowCooldownNotice(false)} />
     )}
     {showActiveSessionModal && (
       <div className={OVERLAY_CLASSES}>
