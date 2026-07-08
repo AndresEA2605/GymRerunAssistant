@@ -1042,7 +1042,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       } else {
         // Last free run — start cooldown, reset counter
         if (guideId === 'hooh') {
-          startGymCooldown("Ho-Oh", 24 * 60 * 60 * 1000);
+          startGymCooldown("Ho-Oh", 7 * 24 * 60 * 60 * 1000);
         } else {
           startGymCooldown(getLastCompletedGym(), gymResetMs);
         }
@@ -1927,7 +1927,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </p>
               ) : (
                 <p className="text-xs text-amber-400 mb-4">
-                  ⏳ Este es tu último intento gratis. Al finalizar se activará un cooldown de {selectedGuideId === 'hooh' ? '24 horas' : `${Math.floor(gymResetMs / 3600000)}h ${Math.round((gymResetMs % 3600000) / 60000)}m`}.
+                  ⏳ Este es tu último intento gratis. Al finalizar se activará un cooldown de {selectedGuideId === 'hooh' ? '7 días' : `${Math.floor(gymResetMs / 3600000)}h ${Math.round((gymResetMs % 3600000) / 60000)}m`}.
                 </p>
               )}
               <div className="flex gap-2">
