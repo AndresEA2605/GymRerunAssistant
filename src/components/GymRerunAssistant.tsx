@@ -1085,6 +1085,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [restartTargetGuide, setRestartTargetGuide] = useState<'none' | 'gym33' | 'hooh' | 'guide2'>('none');
   const confirmRestartRun = () => {
     setShowRestartConfirm(false);
+    setPreviewGuide(null);
     const target = restartTargetGuide;
     if (target === 'none') return;
     // Clear ALL runs across all guides
@@ -3806,7 +3807,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       </div>,
       document.body
     )}
-    {previewGuide && createPortal(
+    {previewGuide && !showRestartConfirm && createPortal(
       <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setPreviewGuide(null)}>
         <div className="w-full max-w-md rounded-2xl bg-neutral-900 border border-neutral-700/60 overflow-hidden shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300" onClick={e => e.stopPropagation()}>
           {(() => {
