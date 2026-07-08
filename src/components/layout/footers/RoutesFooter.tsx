@@ -15,6 +15,7 @@ export interface RouteFooterActions {
   nextDisabled: boolean;
   isLastStep: boolean;
   showCompleteGym: boolean;
+  completeLabel?: string;
   progressPercent: number;
   progressLabel: string;
 }
@@ -77,7 +78,7 @@ export function RoutesFooterInner({ nav }: Pick<RoutesFooterProps, "nav">) {
               aria-label="Completar gimnasio"
               className="flex-1 min-w-[132px] max-w-[190px]"
             >
-              Completar Gym
+              {nav.completeLabel || "Completar Gym"}
             </Button>
           )}
         </div>

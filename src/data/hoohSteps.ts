@@ -33,9 +33,9 @@ export const hoohSteps: RouteStep[] = [
       {
         pokemon: "Rotom", icon: "⚡", action: "Ataque según legendario", type: "move",
         conditionals: [
-          { target: "Suicune", move: "Poder Oculto (Tierra)", color: "blue", icon: "🟦" },
+          { target: "Suicune", move: "Rayo", color: "blue", icon: "🟦" },
           { target: "Entei", move: "Rayo", color: "red", icon: "🟥" },
-          { target: "Raikou", move: "Rayo", color: "yellow", icon: "🟨" },
+          { target: "Raikou", move: "Poder Oculto (Tierra)", color: "yellow", icon: "🟨" },
         ],
       },
       { pokemon: "Lunatone", icon: "🌙", action: "Más Psique (sobre Rotom)", type: "move" },
@@ -51,9 +51,9 @@ export const hoohSteps: RouteStep[] = [
       {
         pokemon: "Rotom", icon: "⚡", action: "Ataque según legendario", type: "move",
         conditionals: [
-          { target: "Suicune", move: "Poder Oculto (Tierra)", color: "blue", icon: "🟦" },
+          { target: "Suicune", move: "Rayo", color: "blue", icon: "🟦" },
           { target: "Entei", move: "Rayo", color: "red", icon: "🟥" },
-          { target: "Raikou", move: "Rayo", color: "yellow", icon: "🟨" },
+          { target: "Raikou", move: "Poder Oculto (Tierra)", color: "yellow", icon: "🟨" },
         ],
       },
       { pokemon: "Lunatone", icon: "🌙", action: "Joya de Luz", type: "move" },
@@ -80,9 +80,9 @@ export const hoohSteps: RouteStep[] = [
       {
         pokemon: "Rotom", icon: "⚡", action: "Ataque según legendario", type: "move",
         conditionals: [
-          { target: "Suicune", move: "Poder Oculto (Tierra)", color: "blue", icon: "🟦" },
+          { target: "Suicune", move: "Rayo", color: "blue", icon: "🟦" },
           { target: "Entei", move: "Rayo", color: "red", icon: "🟥" },
-          { target: "Raikou", move: "Rayo", color: "yellow", icon: "🟨" },
+          { target: "Raikou", move: "Poder Oculto (Tierra)", color: "yellow", icon: "🟨" },
         ],
       },
       { pokemon: "Lunatone", icon: "🌙", action: "Joya de Luz", type: "move" },

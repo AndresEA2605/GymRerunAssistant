@@ -357,6 +357,12 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [selectedGuideId, setSelectedGuideId] = useState<'none' | 'gym33' | 'hooh' | 'guide2'>('none');
   const selectGuide = (id: 'none' | 'gym33' | 'hooh' | 'guide2') => {
     if (id !== 'none') {
+      const isRoutes = id === 'gym33' || id === 'guide2';
+      const cooldownEnd = isRoutes ? allCooldowns.gym.endAt : allCooldowns.hooh.endAt;
+      if (cooldownEnd && cooldownEnd > Date.now()) {
+        triggerToast("Cooldown activo — espera a que termine");
+        return;
+      }
       const savedStep = getLS(`run_step_${id}`);
       const hasActiveRun = getLS(`run_active_${id}`) === "true";
       setGuideLoading(true);
@@ -745,34 +751,58 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   }, [steps, selectedGuideId, gymGroups]);
 
   const completeGym = useCallback(() => {
-    setSessionGymCount(prev => prev + 1);
-    triggerToast("Gym completado");
-    grantXP(50, "Gym completado");
-    incrementStat("gymsCompleted");
     const isTurn = selectedGuideId === 'hooh';
     if (isTurn) {
+      setSessionGymCount(prev => prev + 1);
+      triggerToast("Gym completado");
+      grantXP(50, "Gym completado");
+      incrementStat("gymsCompleted");
       setCurrentStepIndex((prev) => {
         const nextIdx = prev === -1 ? 0 : Math.min(prev + 1, steps.length - 1);
         if (nextIdx !== prev) { setSlideClass("slide-in-right"); setSlideKey(k => k + 1); }
         return nextIdx;
       });
     } else {
-      setCurrentStepIndex((prev) => {
-        if (prev === -1) return 0;
-        let groupIdx = -1;
-        for (let i = 0; i < gymGroups.length; i++) {
-          const g = gymGroups[i];
-          if (g.gymStep.id === steps[prev]?.id || g.subBattles.some(s => s.id === steps[prev]?.id) || g.extras.some(e => e.id === steps[prev]?.id)) {
-            groupIdx = i;
-            break;
-          }
+      // Find current gym group and its region
+      let currentGroupIdx = -1;
+      let currentRegion = '';
+      for (let i = 0; i < gymGroups.length; i++) {
+        const g = gymGroups[i];
+        if (g.gymStep.id === steps[currentStepIndex]?.id ||
+            g.subBattles.some(s => s.id === steps[currentStepIndex]?.id) ||
+            g.extras.some(e => e.id === steps[currentStepIndex]?.id)) {
+          currentGroupIdx = i;
+          currentRegion = g.region;
+          break;
         }
-        if (groupIdx < 0 || groupIdx >= gymGroups.length - 1) return prev;
-        return steps.indexOf(gymGroups[groupIdx + 1].gymStep);
-      });
-      setSlideClass("slide-in-right"); setSlideKey(k => k + 1);
+      }
+      if (currentGroupIdx < 0) return;
+
+      // Count gyms and find last index in this region
+      let regionGymCount = 0;
+      let lastGroupInRegion = -1;
+      for (let i = 0; i < gymGroups.length; i++) {
+        if (gymGroups[i].region === currentRegion) {
+          regionGymCount++;
+          lastGroupInRegion = i;
+        }
+      }
+
+      // Complete all gyms in the region at once
+      const totalXP = regionGymCount * 50;
+      setSessionGymCount(prev => prev + regionGymCount);
+      triggerToast(`Región ${currentRegion} completada (${regionGymCount} gyms)`);
+      grantXP(totalXP, `Región ${currentRegion} completada`);
+      incrementStat("gymsCompleted");
+
+      // Advance to next region's first gym
+      if (lastGroupInRegion < gymGroups.length - 1) {
+        setCurrentStepIndex(steps.indexOf(gymGroups[lastGroupInRegion + 1].gymStep));
+        setSlideClass("slide-in-right");
+        setSlideKey(k => k + 1);
+      }
     }
-  }, [steps, selectedGuideId, triggerToast, gymGroups]);
+  }, [steps, selectedGuideId, triggerToast, gymGroups, grantXP, incrementStat]);
 
   const handlePrev = useCallback(() => {
     const isTurn = selectedGuideId === 'hooh';
@@ -963,13 +993,19 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       setLS(`run_active_${selectedGuideId}`, "");
     }
     setFinishSummary({ elapsed: finalElapsed, gyms: totalGymsDone, xpEarned: runXP, guideTitle });
+    // Start cooldown on finish
+    if (selectedGuideId === 'hooh') {
+      startGymCooldown("Ho-Oh", 24 * 60 * 60 * 1000);
+    } else if (selectedGuideId) {
+      startGymCooldown(getLastCompletedGym(), gymResetMs);
+    }
     goToMenu(false);
     grantXP(runXP, "Run completada");
     incrementStat("guidesFinished");
     incrementStat("totalTimeMs", finalElapsed);
   };
 
-  const requestFinishRun = () => finishRun();
+  const requestFinishRun = () => setShowFinishConfirm(true);
 
   const handleTaskComplete = useCallback((taskLabel: string) => {
     grantXP(25, `Tarea diaria: ${taskLabel}`);
@@ -1625,10 +1661,24 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                     {catGuides.length > 0 ? (
                       <div className="space-y-3 overflow-y-auto flex-1 pr-1 custom-scrollbar">
-                        {catGuides.map(g => {
+                          {catGuides.map(g => {
                           const gc = getGuideColorClasses(g.color);
+                          const isRoutesGuideCard = g.id === 'gym33' || g.id === 'guide2';
+                          const cdEnd = isRoutesGuideCard ? allCooldowns.gym.endAt : g.id === 'hooh' ? allCooldowns.hooh.endAt : null;
+                          const onCooldown = cdEnd ? cdEnd > Date.now() : false;
+                          const cdRemaining = onCooldown ? cdEnd! - Date.now() : 0;
                           return (
-                            <button key={g.id} onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')} className={`relative w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} hover:bg-neutral-800 ${gc.borderHover} group`}>
+                            <button
+                              key={g.id}
+                              onClick={() => selectGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2')}
+                              disabled={onCooldown}
+                              className={`relative w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} ${onCooldown ? 'opacity-50 cursor-not-allowed' : `hover:bg-neutral-800 ${gc.borderHover} group`}`}
+                            >
+                              {onCooldown && (
+                                <div className="absolute inset-0 rounded-2xl bg-neutral-950/60 flex items-center justify-center z-10">
+                                  <span className="text-xs font-bold text-neutral-400">Cooldown — {formatTime(cdRemaining)}</span>
+                                </div>
+                              )}
                               <div className={`w-11 h-11 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-900/70 p-1.5 poke-aura ${getGuidePokeGlow(g.color)}`}>
                                 <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${g.icon}.gif`} alt="" className="w-full h-full object-contain" />
                               </div>
@@ -1793,6 +1843,33 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               <button onClick={() => setFinishSummary(null)} className="w-full py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-sm transition-all border border-neutral-700 active:scale-[0.98]">
                 Cerrar
               </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {showFinishConfirm && createPortal(
+        <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-sm rounded-2xl bg-neutral-900 border border-neutral-700/60 overflow-hidden shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300" onClick={e => e.stopPropagation()}>
+            <div className="p-5">
+              <div className="flex items-center gap-2.5 mb-3">
+                <div className="p-1.5 rounded-full bg-amber-500/20">
+                  <Info className="w-5 h-5 text-amber-400" />
+                </div>
+                <span className="fs-base font-black text-white">¿Finalizar run?</span>
+              </div>
+              <p className="text-sm text-neutral-400 mb-4">
+                Se guardará tu progreso y se activará un cooldown de {selectedGuideId === 'hooh' ? '24 horas' : `${Math.floor(gymResetMs / 3600000)}h ${Math.round((gymResetMs % 3600000) / 60000)}m`} antes de poder iniciar otra run en esta guía.
+              </p>
+              <div className="flex gap-2">
+                <button onClick={() => setShowFinishConfirm(false)} className="flex-1 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-sm transition-all border border-neutral-700 active:scale-[0.98]">
+                  Cancelar
+                </button>
+                <button onClick={() => finishRun()} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-bold text-sm transition-all active:scale-[0.98]">
+                  Finalizar
+                </button>
+              </div>
             </div>
           </div>
         </div>,
@@ -2889,7 +2966,18 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               selectedGuideId === "hooh"
                 ? currentStepIndex === steps.length - 1
                 : currentGymIndex === gymGroupCount - 1,
-            showCompleteGym: shouldShowCompleteGym(selectedGuideId) && currentGymIndex >= 0,
+            showCompleteGym: shouldShowCompleteGym(selectedGuideId) && currentGymIndex >= 0 && currentGymGroup
+              ? (() => {
+                  let lastIdx = currentGymIndex;
+                  for (let i = currentGymIndex + 1; i < gymGroups.length; i++) {
+                    if (gymGroups[i].region === currentGymGroup.region) lastIdx = i;
+                  }
+                  return currentGymIndex === lastIdx;
+                })()
+              : false,
+            completeLabel: currentGymGroup && selectedGuideId !== 'hooh'
+              ? `Completar ${currentGymGroup.region}`
+              : undefined,
             progressPercent:
               selectedGuideId === "hooh"
                 ? Math.round(((currentStepIndex + 1) / steps.length) * 100)
