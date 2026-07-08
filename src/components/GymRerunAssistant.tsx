@@ -350,7 +350,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     storagePrefix = "pkmmo",
   } = config;
 
-  const { grantXP, incrementStat, profile } = useProgression();
+  const { grantXP, incrementStat, profile, stats } = useProgression();
   const { user: authUser, token: authToken } = useAuth();
 
   const [showMenu, setShowMenu] = useState<boolean>(true);
@@ -1782,15 +1782,15 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-neutral-900/60 rounded-lg px-2 py-2 text-center">
-                    <div className="fs-small font-black text-white">{totalGyms}</div>
+                    <div className="fs-small font-black text-white">{stats ? stats.gymsCompleted : totalGyms}</div>
                     <div className="fs-tiny text-neutral-500">Gyms</div>
                   </div>
                   <div className="bg-neutral-900/60 rounded-lg px-2 py-2 text-center">
-                    <div className="fs-small font-black text-white">{GUIDES.length}</div>
+                    <div className="fs-small font-black text-white">{stats ? stats.guidesFinished : GUIDES.length}</div>
                     <div className="fs-tiny text-neutral-500">Guías</div>
                   </div>
                   <div className="bg-neutral-900/60 rounded-lg px-2 py-2 text-center">
-                    <div className="fs-small font-black text-white">5</div>
+                    <div className="fs-small font-black text-white">{stats ? stats.regionsCompleted.length : 5}</div>
                     <div className="fs-tiny text-neutral-500">Regiones</div>
                   </div>
                   <div className="bg-neutral-900/60 rounded-lg px-2 py-2 text-center">
@@ -2834,7 +2834,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             </div>
 
             {/* Mobile Sidebar Footer */}
-            <div className="px-2.5 py-2 border-t border-neutral-800/60">
+            <div className="px-2.5 pt-2 pb-8 border-t border-neutral-800/60">
               <button onClick={() => { setShowMobileSidebar(false); setShowSettings(true); }} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800/60 transition-colors">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 shrink-0"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                 <span className="fs-tiny font-bold">Configuración</span>
