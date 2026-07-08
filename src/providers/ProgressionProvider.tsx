@@ -5,6 +5,7 @@ import { ProgressionManager } from "@/lib/progression/manager";
 import type { ProgressionEvent, UserProfile, UserStatistics, TaskProgress } from "@/lib/progression/types";
 import { useAuth } from "@/hooks/useAuth";
 import LevelUpOverlay from "@/components/progression/LevelUpOverlay";
+import XPToast, { showXPToast } from "@/components/progression/XPToast";
 
 interface ProgressionContextType {
   manager: ProgressionManager | null;
@@ -98,6 +99,7 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
     setManager(new ProgressionManager(managerRef.current.toRedis()));
     flushNotifications(managerRef.current);
     saveToServer(managerRef.current);
+    showXPToast(amount, reason);
   }, [saveToServer, flushNotifications]);
 
   const incrementStat = useCallback((key: keyof UserStatistics, amount: number = 1) => {
@@ -160,6 +162,7 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
       setActiveTitle, dismissNotification, refreshFromServer,
     }}>
       <LevelUpOverlay />
+      <XPToast />
       {children}
     </ProgressionContext.Provider>
   );

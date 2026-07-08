@@ -1,5 +1,5 @@
-const BASE_XP = 250;
-const GROWTH_RATE = 1.4;
+const BASE_XP = 600;
+const GROWTH_RATE = 1.55;
 
 export function xpForLevel(level: number): number {
   if (level <= 1) return 0;

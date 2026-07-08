@@ -1,21 +1,21 @@
 export const XP_VALUES = {
   // Run completions
-  gymCompletion: 100,
-  regionCompletionPerGym: 100,
-  runBaseCompletion: 200,
-  runPerGymCompletion: 75,
+  gymCompletion: 18,
+  regionCompletionPerGym: 18,
+  runBaseCompletion: 40,
+  runPerGymCompletion: 10,
 
   // Login & Actions
-  loginBonus: 50,
-  dailyTaskCompletion: 100,
-  guidePreview: 25,
+  loginBonus: 10,
+  dailyTaskCompletion: 20,
+  guidePreview: 5,
 
   // Achievements
-  achievementCommon: 150,
-  achievementUncommon: 400,
-  achievementRare: 1200,
-  achievementEpic: 3000,
-  achievementLegendary: 10000,
+  achievementCommon: 50,
+  achievementUncommon: 150,
+  achievementRare: 400,
+  achievementEpic: 1000,
+  achievementLegendary: 3000,
 
   // Titles (not XP, but milestones)
   milestone_5: { title: 'Novato', coins: 50 },
