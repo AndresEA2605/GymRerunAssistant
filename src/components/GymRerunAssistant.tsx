@@ -377,6 +377,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [activeSessionGuide, setActiveSessionGuide] = useState<string>('');
   const [appExiting, setAppExiting] = useState<boolean>(false);
   const [freeRuns, setFreeRuns] = useState<Record<string, number>>({ gym33: 2, hooh: 2, guide2: 2 });
+  const [freeRunsResetAt, setFreeRunsResetAt] = useState<Record<string, number>>({});
+  const FREE_RUNS_RESET_MS = 18 * 60 * 60 * 1000;
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
   const [slideClass, setSlideClass] = useState<string>("");
   const [slideKey, setSlideKey] = useState<number>(0);
@@ -700,7 +702,16 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       body: JSON.stringify({ token: authToken }),
     }).then(r => r.json()).then(data => {
       if (data.ok && data.cooldowns) {
-        if (data.cooldowns.freeRuns) setFreeRuns(data.cooldowns.freeRuns);
+        const now = Date.now();
+        const loadedResetAt: Record<string, number> = data.cooldowns.freeRunsResetAt || {};
+        const loadedFreeRuns: Record<string, number> = data.cooldowns.freeRuns || { gym33: 2, hooh: 2, guide2: 2 };
+        for (const gid of ['gym33', 'hooh', 'guide2']) {
+          if (loadedResetAt[gid] && now - loadedResetAt[gid] >= FREE_RUNS_RESET_MS) {
+            loadedFreeRuns[gid] = 2;
+          }
+        }
+        setFreeRuns(loadedFreeRuns);
+        setFreeRunsResetAt(loadedResetAt);
         if (data.cooldowns.gym) {
           setAllCooldowns(prev => ({ ...prev, gym: data.cooldowns.gym }));
         }
@@ -725,14 +736,14 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         token: authToken,
-        cooldowns: { ...allCooldowns, freeRuns },
+        cooldowns: { ...allCooldowns, freeRuns, freeRunsResetAt },
       }),
     }).catch(() => {});
-  }, [authToken, allCooldowns, freeRuns]);
+  }, [authToken, allCooldowns, freeRuns, freeRunsResetAt]);
 
   useEffect(() => {
     saveCooldownsToServer();
-  }, [allCooldowns, freeRuns]);
+  }, [allCooldowns, freeRuns, freeRunsResetAt]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -1088,7 +1099,6 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     setPreviewGuide(null);
     const target = restartTargetGuide;
     if (target === 'none') return;
-    // Clear ALL runs across all guides
     ['gym33', 'hooh', 'guide2'].forEach(id => {
       setLS(`run_step_${id}`, "");
       setLS(`run_active_${id}`, "");
@@ -1097,15 +1107,17 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     resetTimer();
     setSessionGymCount(0);
     setCurrentStepIndex(-1);
-    // Decrement free runs counter
     const remaining = freeRuns[target] ?? 2;
-    const newRemaining = Math.max(0, remaining - 1);
-    setFreeRuns(prev => ({ ...prev, [target]: newRemaining }));
-    // Start the guide fresh (bypass cooldown check)
+    if (remaining > 0) {
+      setFreeRuns(prev => ({ ...prev, [target]: remaining - 1 }));
+      setFreeRunsResetAt(prev => ({ ...prev, [target]: Date.now() }));
+      triggerToast(`Run reiniciada — te quedan ${remaining - 1} intento${remaining - 1 !== 1 ? 's' : ''} gratis`);
+    } else {
+      triggerToast("Run reiniciada — sin intentos gratis restantes");
+    }
     setSelectedGuideId(target);
     setLS("selected_guide", target);
     setShowMenu(false);
-    triggerToast(`Run reiniciada — te quedan ${newRemaining} intento${newRemaining !== 1 ? 's' : ''} gratis`);
   };
 
   const handleTaskComplete = useCallback((taskLabel: string) => {
@@ -1848,10 +1860,10 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                                   <span className={`fs-tiny font-black ${gc.text} opacity-0 group-hover:opacity-100 transition-opacity shrink-0`}>→</span>
                                 </button>
                               )}
-                              <div className="flex justify-end gap-1 -mt-6 relative mr-2">
+                              <div className="flex justify-end gap-1 mt-1">
                                 <button
                                   type="button"
-                                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setPreviewGuide(g.id); }}
+                                  onClick={() => setPreviewGuide(g.id)}
                                   className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800/50 border border-neutral-700/40 text-[9px] font-bold text-neutral-400 hover:bg-indigo-950/30 hover:border-indigo-700/30 hover:text-indigo-400 transition-all"
                                   title="Vista previa de la guía"
                                 >
@@ -1861,9 +1873,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                                 {g.id !== "none" && (
                                   <button
                                     type="button"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
+                                    onClick={() => {
                                       setRestartTargetGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2');
                                       setShowRestartConfirm(true);
                                     }}
@@ -3807,9 +3817,15 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       </div>,
       document.body
     )}
-    {previewGuide && !showRestartConfirm && createPortal(
-      <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setPreviewGuide(null)}>
-        <div className="w-full max-w-md rounded-2xl bg-neutral-900 border border-neutral-700/60 overflow-hidden shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300" onClick={e => e.stopPropagation()}>
+    {previewGuide && createPortal(
+      <div
+        className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 transition-opacity duration-200"
+        onClick={() => setPreviewGuide(null)}
+      >
+        <div
+          className="w-full max-w-md rounded-2xl bg-neutral-900 border border-neutral-700/60 overflow-hidden shadow-2xl"
+          onClick={e => e.stopPropagation()}
+        >
           {(() => {
             const guide = getGuide(previewGuide);
             if (!guide) return <div className="p-5 text-neutral-400">Guía no encontrada</div>;
