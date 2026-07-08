@@ -1030,15 +1030,13 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         setLS(`run_active_${selectedGuideId}`, "true");
       }
       setCurrentStepIndex(-1);
-      setAppExiting(true); setTimeout(() => {
-        setHasActiveSession(keepSession);
-        setMenuVisible(true);
-        setShowMenu(true);
-        setAppExiting(false);
-      }, 310);
+      setHasActiveSession(keepSession);
+      setMenuVisible(true);
+      setShowMenu(true);
       return;
     }
-    setAppExiting(true); setTimeout(() => { setMenuVisible(true); setShowMenu(true); setAppExiting(false); }, 310);
+    setMenuVisible(true);
+    setShowMenu(true);
   };
 
   const exitMenu = (callback?: () => void) => {
