@@ -385,7 +385,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const [selectedGuideId, setSelectedGuideId] = useState<'none' | 'gym33' | 'hooh' | 'guide2'>('none');
   const selectGuide = (id: 'none' | 'gym33' | 'hooh' | 'guide2') => {
     if (id !== 'none') {
-      const cd = id === 'hooh' ? allCooldowns.hooh : allCooldowns.gym;
+      const cd = id === 'hooh' ? effectiveCooldowns.hooh : effectiveCooldowns.gym;
       if (cd && cd.endAt && cd.endAt > Date.now()) {
         triggerToast("Cooldown activo — espera a que termine");
         return;
@@ -495,6 +495,14 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     gym33: { endAt: null, lastGym: null },
     guide2: { endAt: null, lastGym: null },
   });
+  const noCooldowns: AllCooldowns = {
+    gym: { endAt: null, lastGym: null },
+    hooh: { endAt: null, lastGym: null },
+    npc: { endAt: null, lastGym: null },
+    gym33: { endAt: null, lastGym: null },
+    guide2: { endAt: null, lastGym: null },
+  };
+  const effectiveCooldowns = authUser ? allCooldowns : noCooldowns;
   const [cooldownHours, setCooldownHours] = useState<string>("18");
   const [cooldownMinutes, setCooldownMinutes] = useState<string>("0");
   const [pendingCooldownDurationMs, setPendingCooldownDurationMs] = useState<number>(gymResetMs);
@@ -662,7 +670,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         const now = Date.now();
         const hasAnyActive = [savedAllCooldowns.gym, savedAllCooldowns.gym33, savedAllCooldowns.guide2, savedAllCooldowns.hooh, savedAllCooldowns.npc]
           .some((c: CooldownState | undefined) => c?.endAt && c.endAt > now);
-        if (hasAnyActive) {
+        if (hasAnyActive && authUser) {
           setShowCooldownNotice(true);
         }
       }
@@ -1548,14 +1556,14 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                           {selectedGuideId === 'hooh' ? 'Cooldown Ho-Oh' : 'Cooldown Gyms'}
                         </h3>
                         <div className="ml-auto">
-                          <CooldownBadge endAt={selectedGuideId === 'hooh' ? allCooldowns.hooh.endAt : cooldown.endAt} />
+                          <CooldownBadge endAt={selectedGuideId === 'hooh' ? effectiveCooldowns.hooh.endAt : cooldown.endAt} />
                         </div>
                       </div>
                       <div className="flex items-center justify-between mb-3 bg-neutral-950/50 p-3 rounded-xl border border-neutral-800/60">
                         <div className="flex items-center gap-1.5 min-w-0">
                           <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
                           <span className="fs-tiny text-amber-200/70 truncate">
-                            {selectedGuideId === 'hooh' ? (allCooldowns.hooh.lastGym || "Mt. Silver") : (cooldown.lastGym || "Sin gym registrado")}
+                            {selectedGuideId === 'hooh' ? (effectiveCooldowns.hooh.lastGym || "Mt. Silver") : (cooldown.lastGym || "Sin gym registrado")}
                           </span>
                         </div>
                         <button onClick={() => setShowCooldownEditor(true)} className="fs-tiny text-amber-400 hover:text-amber-300 font-black transition-colors shrink-0">
@@ -1564,7 +1572,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       </div>
                       <CooldownProgressBar
                         isHooh={selectedGuideId === 'hooh'}
-                        endAt={selectedGuideId === 'hooh' ? allCooldowns.hooh.endAt : cooldown.endAt}
+                        endAt={selectedGuideId === 'hooh' ? effectiveCooldowns.hooh.endAt : cooldown.endAt}
                         gymResetMs={gymResetMs}
                       />
                     </div>
@@ -1674,28 +1682,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               </div>
             </div>
 
-            {!authUser && !hasActiveSession && (
-              <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/5 border border-indigo-500/30 rounded-2xl p-4 mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0">
-                    <Users className="w-5 h-5 text-indigo-400" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold fs-small text-white">Creá tu cuenta gratis</p>
-                    <p className="fs-tiny text-neutral-400">Llevá tu progreso a la nube, obtené XP, logros y recompensas</p>
-                  </div>
-                </div>
-                <div className="flex gap-2 mt-3">
-                  <button onClick={() => authButtonRef.current?.openRegister()} className="flex-1 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs transition-all active:scale-[0.97]">
-                    Registrarse
-                  </button>
-                  <button onClick={() => authButtonRef.current?.openLogin()} className="flex-1 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-xs transition-all border border-neutral-700 active:scale-[0.97]">
-                    Iniciar sesión
-                  </button>
-                </div>
-              </div>
-            )}
-
+            {authUser && (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-5">
               <div className="bg-gradient-to-br from-amber-500/15 to-orange-500/5 border border-amber-500/30 rounded-2xl p-4">
                 <div className="flex items-center justify-between mb-2">
@@ -1714,7 +1701,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       <span className="fs-tiny font-bold text-amber-300">Gyms</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <CooldownBadge endAt={allCooldowns.gym.endAt} />
+                      <CooldownBadge endAt={effectiveCooldowns.gym.endAt} />
                     </div>
                   </div>
                   <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
@@ -1723,7 +1710,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       <span className="fs-tiny font-bold text-red-300">Ho-Oh</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <CooldownBadge endAt={allCooldowns.hooh.endAt} />
+                      <CooldownBadge endAt={effectiveCooldowns.hooh.endAt} />
                     </div>
                   </div>
                   <div className="flex items-center justify-between bg-neutral-900/60 rounded-lg px-2 py-1">
@@ -1732,7 +1719,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       <span className="fs-tiny font-bold text-emerald-300">NPCs</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <CooldownBadge endAt={allCooldowns.npc.endAt} />
+                      <CooldownBadge endAt={effectiveCooldowns.npc.endAt} />
                     </div>
                   </div>
                 </div>
@@ -1796,6 +1783,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 )}
               </div>
             </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-5">
               {GUIDE_CATEGORIES.map(cat => {
@@ -1810,7 +1798,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       <div className="space-y-3 overflow-y-auto flex-1 pr-1 custom-scrollbar">
                           {catGuides.map(g => {
                           const gc = getGuideColorClasses(g.color);
-                          const cdEnd = g.id === 'hooh' ? allCooldowns.hooh.endAt : allCooldowns.gym.endAt;
+                          const cdEnd = g.id === 'hooh' ? effectiveCooldowns.hooh.endAt : effectiveCooldowns.gym.endAt;
                           const onCooldown = cdEnd ? cdEnd > Date.now() : false;
                           const cdRemaining = onCooldown ? cdEnd! - Date.now() : 0;
                           return (
@@ -2325,7 +2313,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       {resumePromptModal}
       {resetConfirmModal}
       {showCooldownNotice && (
-        <CooldownNoticeModal allCooldowns={allCooldowns} onDismiss={() => setShowCooldownNotice(false)} />
+        <CooldownNoticeModal allCooldowns={effectiveCooldowns} onDismiss={() => setShowCooldownNotice(false)} />
       )}
       {showActiveSessionModal && (
         <div className={OVERLAY_CLASSES}>
@@ -2585,7 +2573,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   <span className="fs-[10px] font-bold text-amber-300">Gyms</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <CooldownBadge endAt={allCooldowns.gym.endAt} />
+                  <CooldownBadge endAt={effectiveCooldowns.gym.endAt} />
                 </div>
               </div>
               <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
@@ -2594,7 +2582,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   <span className="fs-[10px] font-bold text-red-300">Ho-Oh</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <CooldownBadge endAt={allCooldowns.hooh.endAt} />
+                  <CooldownBadge endAt={effectiveCooldowns.hooh.endAt} />
                 </div>
               </div>
               <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
@@ -2603,7 +2591,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                   <span className="fs-[10px] font-bold text-emerald-300">NPCs</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <CooldownBadge endAt={allCooldowns.npc.endAt} />
+                  <CooldownBadge endAt={effectiveCooldowns.npc.endAt} />
                 </div>
               </div>
             </div>
@@ -2730,7 +2718,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       <span className="fs-[10px] font-bold text-amber-300">Gyms</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <CooldownBadge endAt={allCooldowns.gym.endAt} />
+                       <CooldownBadge endAt={effectiveCooldowns.gym.endAt} />
                     </div>
                   </div>
                   <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
@@ -2739,7 +2727,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       <span className="fs-[10px] font-bold text-red-300">Ho-Oh</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <CooldownBadge endAt={allCooldowns.hooh.endAt} />
+                      <CooldownBadge endAt={effectiveCooldowns.hooh.endAt} />
                     </div>
                   </div>
                   <div className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800/60 rounded-lg px-2.5 py-1">
@@ -2748,7 +2736,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                       <span className="fs-[10px] font-bold text-emerald-300">NPCs</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <CooldownBadge endAt={allCooldowns.npc.endAt} />
+                      <CooldownBadge endAt={effectiveCooldowns.npc.endAt} />
                     </div>
                   </div>
                 </div>
@@ -3781,7 +3769,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
       </div>
     )}
     {showCooldownNotice && (
-      <CooldownNoticeModal allCooldowns={allCooldowns} onDismiss={() => setShowCooldownNotice(false)} />
+      <CooldownNoticeModal allCooldowns={effectiveCooldowns} onDismiss={() => setShowCooldownNotice(false)} />
     )}
     {showActiveSessionModal && (
       <div className={OVERLAY_CLASSES}>
