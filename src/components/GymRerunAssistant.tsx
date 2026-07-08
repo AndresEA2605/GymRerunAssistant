@@ -1085,7 +1085,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
     };
     const updatedHistory = [newEntry, ...history].slice(0, 20);
     setHistory(updatedHistory);
-    setLastRunStats({ elapsed: finalElapsed, gymsCompleted: totalGymsDone, totalGyms, finishedAt: Date.now() });
+    setLastRunStats({ elapsed: finalElapsed, gymsCompleted: totalGymsDone, totalGyms, finishedAt: Date.now(), guideTitle });
     logTimerEvent("finish");
     resetTimer();
     setSessionGymCount(0);
@@ -1673,8 +1673,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                             <div className="fs-tiny text-neutral-500 uppercase font-bold tracking-wider">Tiempo</div>
                           </div>
                           <div>
-                            <div className="fs-small font-black text-emerald-400">{lastRunStats.gymsCompleted}/{lastRunStats.totalGyms}</div>
-                            <div className="fs-tiny text-neutral-500 uppercase font-bold tracking-wider">Gyms</div>
+                            <div className="fs-small font-black text-emerald-400">{lastRunStats.guideTitle || "Guía"}</div>
+                            <div className="fs-tiny text-neutral-500 uppercase font-bold tracking-wider">Guía</div>
                           </div>
                           <div>
                             <div className="fs-small font-black text-amber-400">{new Date(lastRunStats.finishedAt).toLocaleDateString()}</div>
@@ -1794,15 +1794,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-neutral-900/60 rounded-lg px-2 py-2 text-center">
-                    <div className="fs-small font-black text-white">{stats ? stats.gymsCompleted : totalGyms}</div>
-                    <div className="fs-tiny text-neutral-500">Gyms</div>
-                  </div>
-                  <div className="bg-neutral-900/60 rounded-lg px-2 py-2 text-center">
-                    <div className="fs-small font-black text-white">{stats ? stats.guidesFinished : GUIDES.length}</div>
-                    <div className="fs-tiny text-neutral-500">Guías</div>
-                  </div>
-                  <div className="bg-neutral-900/60 rounded-lg px-2 py-2 text-center">
-                    <div className="fs-small font-black text-white">{stats ? stats.regionsCompleted.length : 5}</div>
+                    <div className="fs-small font-black text-white">33 / 25</div>
                     <div className="fs-tiny text-neutral-500">Regiones</div>
                   </div>
                   <div className="bg-neutral-900/60 rounded-lg px-2 py-2 text-center">
@@ -1827,8 +1819,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                     </div>
                     <div className="bg-neutral-900/60 rounded-lg px-2 py-1.5">
                       <div className="flex items-center justify-between">
-                        <span className="fs-tiny text-neutral-400">Gyms</span>
-                        <span className="fs-tiny font-bold text-emerald-300">{lastRunStats.gymsCompleted}/{lastRunStats.totalGyms}</span>
+                        <span className="fs-tiny text-neutral-400">Guía</span>
+                        <span className="fs-tiny font-bold text-emerald-300">{lastRunStats.guideTitle || "Guía"}</span>
                       </div>
                     </div>
                     <div className="bg-neutral-900/60 rounded-lg px-2 py-1.5">

@@ -72,6 +72,7 @@ export interface LastRunStats {
   gymsCompleted: number;
   totalGyms: number;
   finishedAt: number;
+  guideTitle?: string;
 }
 
 export interface GuideCredits {

@@ -35,15 +35,26 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
   const refreshSessionRef = useRef(refreshSession);
   const lastSaveRef = useRef<number>(0);
   const pendingSaveRef = useRef<NodeJS.Timeout | null>(null);
+  const loadedKeyRef = useRef<string | null>(null);
   useEffect(() => {
     refreshSessionRef.current = refreshSession;
   }, [refreshSession]);
-  const loadFromServer = useCallback(async () => {
+  const loadFromServer = useCallback(async (force = false) => {
+    const loadKey = token ? `${token}:${user?.id ?? "anon"}:${user?.username ?? ""}` : "none";
+    if (!force && loadedKeyRef.current === loadKey && managerRef.current) {
+      setIsLoaded(true);
+      return;
+    }
+
     if (!token) {
+      loadedKeyRef.current = "none";
       setManager(null);
       setIsLoaded(true);
       return;
     }
+
+    loadedKeyRef.current = loadKey;
+
     try {
       const res = await fetch("/api/auth/progression", {
         method: "POST",
@@ -72,8 +83,7 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, user?.id, user?.username]);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { loadFromServer(); }, [loadFromServer]);
+  useEffect(() => { void loadFromServer(); }, [loadFromServer]);
 
   const saveToServer = useCallback(async (mgr: ProgressionManager) => {
     if (!token) return;
@@ -166,7 +176,7 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
   }, []);
 
   const refreshFromServer = useCallback(async () => {
-    await loadFromServer();
+    await loadFromServer(true);
   }, [loadFromServer]);
 
   return (

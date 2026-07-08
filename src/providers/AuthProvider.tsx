@@ -4,6 +4,7 @@ import React, { createContext, useState, useEffect, useCallback, useRef } from "
 import type { User, UserStats } from "@/lib/auth";
 
 const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000;
+const SESSION_REFRESH_INTERVAL_MS = 2 * 60 * 60 * 1000;
 
 interface AuthContextType {
   user: User | null;
@@ -28,11 +29,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [stats, setStats] = useState<UserStats | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const refreshRef = useRef<NodeJS.Timeout | null>(null);
-  const inactivityRef = useRef<NodeJS.Timeout | null>(null);
+  const refreshRef = useRef<number | ReturnType<typeof setTimeout> | null>(null);
+  const inactivityRef = useRef<number | ReturnType<typeof setTimeout> | null>(null);
 
   const clearInactivity = useCallback(() => {
-    if (inactivityRef.current) { clearTimeout(inactivityRef.current); inactivityRef.current = null; }
+    if (inactivityRef.current) { window.clearTimeout(inactivityRef.current); inactivityRef.current = null; }
   }, []);
 
   const startInactivityTimer = useCallback(() => {
@@ -87,13 +88,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
-    refreshSession();
-    // Refresh every 30 minutes instead of 5 to reduce Redis requests
-    refreshRef.current = setInterval(refreshSession, 30 * 60 * 1000);
+    const runRefresh = () => {
+      void refreshSession();
+    };
+
+    runRefresh();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        runRefresh();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('focus', handleVisibility);
+    refreshRef.current = window.setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        runRefresh();
+      }
+    }, SESSION_REFRESH_INTERVAL_MS);
+
     return () => {
-      if (refreshRef.current) clearInterval(refreshRef.current);
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('focus', handleVisibility);
+      if (refreshRef.current) window.clearInterval(refreshRef.current);
     };
   }, [refreshSession]);
 
@@ -128,14 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(data.user as User);
       setToken(data.token as string);
 
-      const statsRes = await fetch("/api/auth/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: data.token }),
-      });
-      const statsData = await statsRes.json();
-      setStats(statsData.stats || null);
-
+      setStats(null);
       return {};
     } catch (e) {
       return { error: `Error de conexión: ${e instanceof Error ? e.message : String(e)}` };

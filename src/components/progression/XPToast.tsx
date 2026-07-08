@@ -28,10 +28,10 @@ export default function XPToast() {
       setToasts(prev => [...prev.slice(-4), full]);
       setTimeout(() => {
         setToasts(prev => prev.map(t => t.id === entry.id ? { ...t, visible: false } : t));
-      }, 2200);
+      }, 1800);
       setTimeout(() => {
         setToasts(prev => prev.filter(t => t.id !== entry.id));
-      }, 2700);
+      }, 2600);
     };
     return () => { _setXPToast = null; };
   }, []);
@@ -47,8 +47,8 @@ export default function XPToast() {
             flex items-center gap-2 px-3 py-2 rounded-xl
             bg-neutral-900/90 border border-indigo-500/40
             shadow-lg shadow-indigo-950/40 backdrop-blur-sm
-            transition-all duration-500
-            ${t.visible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-2 scale-95"}
+            transition-[opacity,transform] duration-700 ease-out
+            ${t.visible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 -translate-y-3 scale-95"}
           `}
         >
           <div className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-500/20 border border-indigo-400/30">
