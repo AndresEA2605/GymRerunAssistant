@@ -73,12 +73,14 @@ CREATE TABLE IF NOT EXISTS user_cooldowns (
   data JSONB DEFAULT '{}'
 );
 
--- Deshabilitar RLS (usamos service_role key server-side)
-ALTER TABLE users DISABLE ROW LEVEL SECURITY;
-ALTER TABLE sessions DISABLE ROW LEVEL SECURITY;
-ALTER TABLE user_stats DISABLE ROW LEVEL SECURITY;
-ALTER TABLE user_settings DISABLE ROW LEVEL SECURITY;
-ALTER TABLE user_history DISABLE ROW LEVEL SECURITY;
-ALTER TABLE user_daily DISABLE ROW LEVEL SECURITY;
-ALTER TABLE user_progression DISABLE ROW LEVEL SECURITY;
-ALTER TABLE user_cooldowns DISABLE ROW LEVEL SECURITY;
+-- Habilitar RLS (Row Level Security) en todas las tablas
+-- El service_role key del servidor bypasea RLS automáticamente.
+-- El acceso directo vía anon key queda bloqueado (máxima seguridad).
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_stats ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_daily ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_progression ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_cooldowns ENABLE ROW LEVEL SECURITY;
