@@ -1047,12 +1047,29 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
   const requestFinishRun = () => setShowFinishConfirm(true);
 
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
-  const requestRestartRun = () => setShowRestartConfirm(true);
+  const [restartTargetGuide, setRestartTargetGuide] = useState<'none' | 'gym33' | 'hooh' | 'guide2'>('none');
   const confirmRestartRun = () => {
     setShowRestartConfirm(false);
-    const guideId = selectedGuideId;
-    abandonRun();
-    if (guideId && guideId !== 'none') selectGuide(guideId);
+    const target = restartTargetGuide;
+    if (target === 'none') return;
+    // Clear ALL runs across all guides
+    ['gym33', 'hooh', 'guide2'].forEach(id => {
+      setLS(`run_step_${id}`, "");
+      setLS(`run_active_${id}`, "");
+    });
+    setLS("gym_count", "0");
+    resetTimer();
+    setSessionGymCount(0);
+    setCurrentStepIndex(-1);
+    // Decrement free runs counter
+    const remaining = freeRuns[target] ?? 2;
+    const newRemaining = Math.max(0, remaining - 1);
+    setFreeRuns(prev => ({ ...prev, [target]: newRemaining }));
+    // Start the guide fresh (bypass cooldown check)
+    setSelectedGuideId(target);
+    setLS("selected_guide", target);
+    setShowMenu(false);
+    triggerToast(`Run reiniciada — te quedan ${newRemaining} intento${newRemaining !== 1 ? 's' : ''} gratis`);
   };
 
   const handleTaskComplete = useCallback((taskLabel: string) => {
@@ -1724,14 +1741,8 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                               className={`relative w-full flex min-h-[88px] items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all bg-neutral-950/70 shadow-[0_10px_24px_rgba(0,0,0,0.18)] ${gc.border} ${onCooldown ? 'opacity-50 cursor-not-allowed' : `hover:bg-neutral-800 ${gc.borderHover} group`}`}
                             >
                               {onCooldown && (
-                                <div className="absolute inset-0 rounded-2xl bg-neutral-950/60 flex items-center justify-center z-10 flex-col gap-1">
+                                <div className="absolute inset-0 rounded-2xl bg-neutral-950/60 flex items-center justify-center z-10">
                                   <span className="text-xs font-bold text-neutral-400">Cooldown — {formatTime(cdRemaining)}</span>
-                                  <span
-                                    onClick={(e) => { e.stopPropagation(); const prevId = g.id as 'none' | 'gym33' | 'hooh' | 'guide2'; abandonRun(); selectGuide(prevId); }}
-                                    className="text-[10px] font-bold text-amber-400 hover:text-amber-300 underline cursor-pointer"
-                                  >
-                                    Repetir run
-                                  </span>
                                 </div>
                               )}
                               <div className={`w-11 h-11 shrink-0 rounded-2xl border border-neutral-800/60 bg-neutral-900/70 p-1.5 poke-aura ${getGuidePokeGlow(g.color)}`}>
@@ -1754,15 +1765,14 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  const prevId = g.id as 'none' | 'gym33' | 'hooh' | 'guide2';
-                                  abandonRun();
-                                  selectGuide(prevId);
+                                  setRestartTargetGuide(g.id as 'none' | 'gym33' | 'hooh' | 'guide2');
+                                  setShowRestartConfirm(true);
                                 }}
                                 className="w-full mt-1 text-[10px] font-bold text-neutral-600 hover:text-amber-400 transition-colors text-center"
                               >
                                 🔄 Repetir run
                               </button>
-                              )}
+                            )}
                             </>
                           );
                         })}
@@ -2248,7 +2258,39 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
         </div>
       )}
       <DailyTasks gymsCompleted={sessionGymCount} timerElapsedMs={timerElapsed} isOpen={showTasks} onToggle={() => setShowTasks(prev => !prev)} onTaskComplete={handleTaskComplete} />
-      </>
+
+    {showRestartConfirm && createPortal(
+      <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
+        <div className="w-full max-w-sm rounded-2xl bg-neutral-900 border border-neutral-700/60 overflow-hidden shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300" onClick={e => e.stopPropagation()}>
+          <div className="p-5">
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="p-1.5 rounded-full bg-amber-500/20">
+                <Info className="w-5 h-5 text-amber-400" />
+              </div>
+              <span className="fs-base font-black text-white">¿Repetir guía?</span>
+            </div>
+            <p className="text-sm text-neutral-400 mb-2">
+              Se reiniciarán todos los temporizadores y runs de todas las guías.
+            </p>
+            {restartTargetGuide !== 'none' && (
+              <p className="text-xs text-emerald-400 mb-4">
+                ⚡ Te quedan <span className="font-bold">{freeRuns[restartTargetGuide] ?? 2}</span> intento{(freeRuns[restartTargetGuide] ?? 2) !== 1 ? 's' : ''} gratis para esta guía.
+              </p>
+            )}
+            <div className="flex gap-2">
+              <button onClick={() => setShowRestartConfirm(false)} className="flex-1 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-sm transition-all border border-neutral-700 active:scale-[0.98]">
+                Cancelar
+              </button>
+              <button onClick={confirmRestartRun} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-sm transition-all active:scale-[0.98]">
+                Usar punto
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>,
+      document.body
+    )}
+    </>
     );
   }
 
@@ -2999,7 +3041,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
             onCompleteGym: completeGym,
             onFinish: requestFinishRun,
             onRouteReset: requestRouteReset,
-            onRestartRun: requestRestartRun,
+            onRestartRun: () => { setRestartTargetGuide(selectedGuideId as 'none' | 'gym33' | 'hooh' | 'guide2'); setShowRestartConfirm(true); },
             prevDisabled: selectedGuideId === "hooh" ? currentStepIndex <= 0 : currentGymIndex <= 0,
             nextDisabled:
               selectedGuideId === "hooh"
@@ -3600,14 +3642,14 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
               <div className="p-1.5 rounded-full bg-amber-500/20">
                 <Info className="w-5 h-5 text-amber-400" />
               </div>
-              <span className="fs-base font-black text-white">¿Repetir run?</span>
+              <span className="fs-base font-black text-white">¿Repetir guía?</span>
             </div>
-            <p className="text-sm text-neutral-400 mb-1">
-              Se reiniciará la run desde el principio.
+            <p className="text-sm text-neutral-400 mb-2">
+              Se reiniciarán todos los temporizadores y runs de todas las guías.
             </p>
-            {selectedGuideId && (
+            {restartTargetGuide !== 'none' && (
               <p className="text-xs text-emerald-400 mb-4">
-                ⚡ Te quedan <span className="font-bold">{freeRuns[selectedGuideId] ?? 2}</span> intento{(freeRuns[selectedGuideId] ?? 2) !== 1 ? 's' : ''} gratis de esta guía.
+                ⚡ Te quedan <span className="font-bold">{freeRuns[restartTargetGuide] ?? 2}</span> intento{(freeRuns[restartTargetGuide] ?? 2) !== 1 ? 's' : ''} gratis para esta guía.
               </p>
             )}
             <div className="flex gap-2">
@@ -3615,7 +3657,7 @@ export default function GymRerunAssistant({ steps: defaultSteps, hoohSteps, guid
                 Cancelar
               </button>
               <button onClick={confirmRestartRun} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-sm transition-all active:scale-[0.98]">
-                Repetir
+                Usar punto
               </button>
             </div>
           </div>
